@@ -27,7 +27,7 @@ export default function Home() {
 
         <div className="flex flex-col sm:flex-row gap-4 items-center">
           <Button asChild size="lg" className="rounded-full px-8 text-lg h-14 shadow-xl shadow-primary/20">
-            <Link href="/auth/register">Start for Free</Link>
+            <Link href="/services">Explore Services</Link>
           </Button>
           <Button asChild variant="outline" size="lg" className="rounded-full px-8 text-lg h-14 bg-background/50 backdrop-blur-sm">
             <Link href="/auth/login">Sign In</Link>

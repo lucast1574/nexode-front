@@ -1,0 +1,334 @@
+"use client";
+
+import React, { useState } from "react";
+import Link from "next/link";
+import { Check, ShoppingCart, Database, Cpu, Zap, ArrowRight, Shield, Globe } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { cn } from "@/lib/utils";
+
+interface Tier {
+    name: string;
+    slug: string;
+    price: number;
+    specs: Record<string, string>;
+    features: string[];
+}
+
+interface Service {
+    id: string;
+    title: string;
+    description: string;
+    icon: React.ElementType;
+    color: string;
+    tiers: Tier[];
+    highlights: string[];
+}
+
+const SERVICES: Service[] = [
+    {
+        id: "database",
+        title: "Database",
+        description: "Provision MySQL and PostgreSQL databases with zero setup — no manual setup, ready to query.",
+        icon: Database,
+        color: "bg-purple-500",
+        highlights: ["7 day free trial", "14 days of metrics", "Expandable storage options", "Connect via private or public network"],
+        tiers: [
+            {
+                name: "Tier 1",
+                slug: "db-tier-1",
+                price: 1,
+                specs: { "RAM & CPU": "Shared", "STORAGE": "0.25 GB" },
+                features: ["Standard Support", "Basic Backups"]
+            },
+            {
+                name: "Tier 2",
+                slug: "db-tier-2",
+                price: 5,
+                specs: { "RAM & CPU": "Shared", "STORAGE": "1 GB" },
+                features: ["Priority Support", "Daily Backups"]
+            },
+            {
+                name: "Tier 3",
+                slug: "db-tier-3",
+                price: 10,
+                specs: { "RAM & CPU": "Shared", "STORAGE": "5 GB" },
+                features: ["24/7 Support", "Hourly Backups"]
+            },
+            {
+                name: "Tier 4",
+                slug: "db-tier-4",
+                price: 20,
+                specs: { "RAM & CPU": "Shared", "STORAGE": "10 GB" },
+                features: ["Enterprise Support", "Real-time Replication"]
+            },
+        ]
+    },
+    {
+        id: "compute",
+        title: "Compute",
+        description: "High-performance virtual machines for your applications with lightning fast SSD storage.",
+        icon: Cpu,
+        color: "bg-blue-500",
+        highlights: ["NVMe SSDs", "Global Edge Network", "Auto-scaling ready", "DDoS Protection"],
+        tiers: [
+            {
+                name: "Compute Basic",
+                slug: "compute-basic",
+                price: 15,
+                specs: { "CPU": "1 vCPU", "RAM": "2 GB", "BANDWIDTH": "1 TB" },
+                features: ["Free Dedicated IP", "Standard SLA"]
+            },
+            {
+                name: "Compute Pro",
+                slug: "compute-pro",
+                price: 45,
+                specs: { "CPU": "4 vCPU", "RAM": "8 GB", "BANDWIDTH": "5 TB" },
+                features: ["Custom ISO", "Premium SLA", "Snapshot API"]
+            },
+        ]
+    }
+];
+
+export default function ServicesPage() {
+    const [selectedTiers, setSelectedTiers] = useState<Record<string, string | null>>({
+        database: null,
+        compute: null,
+    });
+
+    const handleSelectTier = (serviceId: string, tierSlug: string) => {
+        setSelectedTiers((prev) => ({
+            ...prev,
+            [serviceId]: prev[serviceId] === tierSlug ? null : tierSlug,
+        }));
+    };
+
+    const totalPrice = Object.entries(selectedTiers).reduce((acc, [serviceId, tierSlug]) => {
+        if (!tierSlug) return acc;
+        const service = SERVICES.find(s => s.id === serviceId);
+        const tier = service?.tiers.find(t => t.slug === tierSlug);
+        return acc + (tier?.price || 0);
+    }, 0);
+
+    const selectedCount = Object.values(selectedTiers).filter(Boolean).length;
+
+    const handleCheckout = async () => {
+        try {
+            const items = Object.values(selectedTiers)
+                .filter(Boolean)
+                .map(slug => ({
+                    planSlug: slug,
+                    billingCycle: "monthly"
+                }));
+
+            if (items.length === 0) return;
+
+            const GQL_URL = "http://localhost:4000/api-v1/graphql";
+            const mutation = `
+                mutation CreateGuestCheckout($items: [CheckoutItemInput!]!) {
+                    createGuestCheckoutSession(items: $items)
+                }
+            `;
+
+            const response = await fetch(GQL_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    query: mutation,
+                    variables: { items }
+                }),
+            });
+
+            const result = await response.json();
+
+            if (result.errors) {
+                console.error("GraphQL Errors:", result.errors);
+                alert("Error: " + result.errors[0].message);
+                return;
+            }
+
+            const checkoutUrl = result.data.createGuestCheckoutSession;
+            if (checkoutUrl) {
+                window.location.href = checkoutUrl;
+            }
+        } catch (error) {
+            console.error("Checkout Error:", error);
+            alert("Checkout failed. Is the backend running?");
+        }
+    };
+
+    return (
+        <div className="min-h-screen bg-[#050505] text-white selection:bg-primary/30">
+            {/* Background Gradients */}
+            <div className="fixed inset-0 overflow-hidden pointer-events-none">
+                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-purple-600/10 blur-[120px] rounded-full" />
+                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-600/10 blur-[120px] rounded-full" />
+            </div>
+
+            <header className="relative z-10 pt-20 pb-12 px-6 text-center max-w-5xl mx-auto">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-primary text-xs font-bold tracking-wider uppercase mb-6">
+                    <Zap className="w-3 h-3 fill-current" /> Scalable Infrastructure
+                </div>
+                <h1 className="text-5xl md:text-7xl font-black tracking-tight mb-6">
+                    Architect Your <span className="text-primary italic">Ecosystem</span>
+                </h1>
+                <p className="text-xl text-zinc-400 max-w-2xl mx-auto leading-relaxed">
+                    Select the high-performance building blocks for your business. Mix and match services to scale exactly as you grow.
+                </p>
+            </header>
+
+            <main className="relative z-10 pb-32 px-6 max-w-6xl mx-auto space-y-24">
+                {SERVICES.map((service) => (
+                    <section key={service.id} className="space-y-10">
+                        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                            <div className="space-y-4 max-w-2xl">
+                                <div className="flex items-center gap-4">
+                                    <div className={cn("p-3 rounded-2xl shadow-lg", service.color)}>
+                                        <service.icon className="w-8 h-8 text-white" />
+                                    </div>
+                                    <h2 className="text-4xl font-bold">{service.title}</h2>
+                                </div>
+                                <p className="text-zinc-400 text-lg">{service.description}</p>
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2">
+                                {service.highlights.map((highlight, idx) => (
+                                    <div key={idx} className="flex items-center gap-2 text-sm text-zinc-300">
+                                        <div className="flex-shrink-0 w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center">
+                                            <Check className="w-3 h-3 text-primary" />
+                                        </div>
+                                        {highlight}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="grid gap-4">
+                            <div className="grid grid-cols-12 px-6 text-xs font-bold uppercase tracking-widest text-zinc-500 mb-2">
+                                <div className="col-span-4 md:col-span-3">Type</div>
+                                <div className="hidden md:block col-span-3">Performance</div>
+                                <div className="col-span-4 md:col-span-3 text-center md:text-left">Details</div>
+                                <div className="col-span-4 md:col-span-3 text-right">Price per month</div>
+                            </div>
+
+                            <div className="space-y-3">
+                                {service.tiers.map((tier) => {
+                                    const isSelected = selectedTiers[service.id] === tier.slug;
+                                    return (
+                                        <button
+                                            key={tier.slug}
+                                            onClick={() => handleSelectTier(service.id, tier.slug)}
+                                            className={cn(
+                                                "w-full text-left grid grid-cols-12 items-center px-6 py-6 rounded-2xl border transition-all duration-300 group",
+                                                isSelected
+                                                    ? "bg-white/10 border-primary ring-1 ring-primary/50 shadow-[0_0_20px_rgba(var(--primary),0.1)]"
+                                                    : "bg-white/[0.03] border-white/5 hover:border-white/10 hover:bg-white/[0.05]"
+                                            )}
+                                        >
+                                            <div className="col-span-4 md:col-span-3 flex items-center gap-3">
+                                                <div className={cn(
+                                                    "w-5 h-5 rounded-full border flex items-center justify-center transition-colors",
+                                                    isSelected ? "bg-primary border-primary" : "border-white/20 group-hover:border-white/40"
+                                                )}>
+                                                    {isSelected && <Check className="w-3 h-3 text-black stroke-[3]" />}
+                                                </div>
+                                                <span className="font-bold text-lg">{tier.name}</span>
+                                            </div>
+
+                                            <div className="hidden md:block col-span-3 text-zinc-400 font-medium">
+                                                {Object.entries(tier.specs)[0][1]}
+                                            </div>
+
+                                            <div className="col-span-4 md:col-span-3 flex md:block flex-col items-center">
+                                                <span className="text-zinc-400 text-sm font-medium">
+                                                    {Object.entries(tier.specs)[1][1]}
+                                                </span>
+                                            </div>
+
+                                            <div className="col-span-4 md:col-span-3 text-right">
+                                                <div className="text-2xl font-black text-white">${tier.price} <span className="text-sm font-normal text-zinc-500">/m</span></div>
+                                            </div>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    </section>
+                ))}
+            </main>
+
+            {/* Floating Checkout Bar */}
+            {selectedCount > 0 && (
+                <div className="fixed bottom-0 left-0 right-0 z-50 p-6 animate-in slide-in-from-bottom-full duration-500">
+                    <div className="max-w-4xl mx-auto bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl p-4 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-6">
+                        <div className="flex items-center gap-6 px-4">
+                            <div className="bg-primary/20 p-3 rounded-2xl relative">
+                                <ShoppingCart className="w-6 h-6 text-primary" />
+                                <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-black text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-[#050505]">
+                                    {selectedCount}
+                                </span>
+                            </div>
+                            <div>
+                                <div className="text-sm text-zinc-400 font-medium">Selected Services Monthly Total</div>
+                                <div className="text-3xl font-black text-white">${totalPrice}<span className="text-sm font-normal text-zinc-500">/mo</span></div>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center gap-4 w-full sm:w-auto px-4">
+                            <Button
+                                variant="ghost"
+                                className="text-zinc-400 hover:text-white"
+                                onClick={() => setSelectedTiers({ database: null, compute: null })}
+                            >
+                                Clear All
+                            </Button>
+                            <Button
+                                size="lg"
+                                className="rounded-2xl h-14 px-10 gap-2 text-lg font-bold shadow-xl shadow-primary/20 flex-1 sm:flex-none"
+                                onClick={handleCheckout}
+                            >
+                                Checkout Now <ArrowRight className="w-5 h-5" />
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Footer / Features Summary */}
+            <footer className="relative z-10 bg-white/[0.02] border-t border-white/5 py-24 px-6">
+                <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12">
+                    <div className="space-y-4">
+                        <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center">
+                            <Shield className="w-6 h-6 text-primary" />
+                        </div>
+                        <h3 className="text-xl font-bold">Secure by Design</h3>
+                        <p className="text-zinc-400 leading-relaxed">
+                            Every service includes advanced DDoS protection and isolated environments to keep your data safe.
+                        </p>
+                    </div>
+                    <div className="space-y-4">
+                        <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center">
+                            <Globe className="w-6 h-6 text-primary" />
+                        </div>
+                        <h3 className="text-xl font-bold">Global Presence</h3>
+                        <p className="text-zinc-400 leading-relaxed">
+                            Deploy your infrastructure in seconds across our multi-region edge locations globally.
+                        </p>
+                    </div>
+                    <div className="space-y-4">
+                        <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center">
+                            <Zap className="w-6 h-6 text-primary" />
+                        </div>
+                        <h3 className="text-xl font-bold">Instantly Scalable</h3>
+                        <p className="text-zinc-400 leading-relaxed">
+                            Need more power? Upgrade any service instantly with zero downtime or complex migrations.
+                        </p>
+                    </div>
+                </div>
+                <div className="mt-24 pt-12 border-t border-white/5 text-center text-zinc-600 text-sm">
+                    © {new Date().getFullYear()} Nexode Technologies. Built for elite scale.
+                </div>
+            </footer>
+        </div>
+    );
+}
