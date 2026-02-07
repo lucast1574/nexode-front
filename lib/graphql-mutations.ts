@@ -14,7 +14,9 @@ export const SIGN_IN_WITH_GOOGLE = gql`
         first_name
         last_name
         avatar
-        role
+        role {
+          slug
+        }
       }
     }
   }
@@ -34,7 +36,9 @@ export const LOGIN_MUTATION = gql`
         first_name
         last_name
         avatar
-        role
+        role {
+          slug
+        }
       }
     }
   }
@@ -54,7 +58,9 @@ export const REGISTER_MUTATION = gql`
         first_name
         last_name
         avatar
-        role
+        role {
+          slug
+        }
       }
     }
   }
@@ -74,7 +80,9 @@ export const VERIFY_EMAIL_MUTATION = gql`
         first_name
         last_name
         avatar
-        role
+        role {
+          slug
+        }
       }
     }
   }
