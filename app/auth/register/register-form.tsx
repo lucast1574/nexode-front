@@ -8,6 +8,10 @@ import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Loader2, CheckCircle2, Circle, Eye, EyeOff } from "lucide-react"
 import { toast } from "sonner"
 import Turnstile from "react-turnstile"
+import { useMutation } from "@apollo/client/react"
+import { REGISTER_MUTATION } from "@/lib/graphql-mutations"
+import { setAuthSession } from "@/lib/auth-utils"
+import { RegisterData } from "@/lib/types"
 
 export function RegisterForm() {
     const router = useRouter()
@@ -19,6 +23,8 @@ export function RegisterForm() {
         email: "",
         password: "",
     })
+
+    const [register] = useMutation<{ register: RegisterData }>(REGISTER_MUTATION)
 
     const [passwordChecks, setPasswordChecks] = useState({
         upper: false,
@@ -62,13 +68,37 @@ export function RegisterForm() {
         try {
             console.log("Registering with:", formData)
 
-            // Simulate API call
-            await new Promise((resolve) => setTimeout(resolve, 1500))
+            const nameParts = formData.name.trim().split(" ")
+            const first_name = nameParts[0]
+            const last_name = nameParts.length > 1 ? nameParts.slice(1).join(" ") : ""
 
-            toast.success("Account created successfully!")
-            router.push("/auth/verify-email")
-        } catch {
-            toast.error("Registration failed. Please try again.")
+            const { data } = await register({
+                variables: {
+                    input: {
+                        email: formData.email,
+                        password: formData.password,
+                        first_name,
+                        last_name,
+                    },
+                },
+            })
+
+            if (data?.register?.success) {
+                toast.success("Account created successfully!")
+
+                // Use setAuthSession to store tokens
+                if (data.register.access_token || data.register.refresh_token) {
+                    setAuthSession(data.register.access_token, data.register.refresh_token)
+                }
+
+                router.push(`/auth/verify-email?email=${formData.email}`)
+            } else {
+                toast.error(data?.register?.message || "Registration failed")
+            }
+        } catch (error: unknown) {
+            console.error("Registration error:", error)
+            const message = error instanceof Error ? error.message : "Registration failed. Please try again."
+            toast.error(message)
         } finally {
             setIsLoading(false)
         }

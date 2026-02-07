@@ -4,7 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "sonner";
 import { ApolloWrapper } from "@/components/apollo-wrapper";
-import { GoogleOAuthProvider } from "@react-oauth/google";
+import GoogleAuthProvider from "@/components/google-auth-provider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,14 +26,12 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "";
-
   return (
     <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <GoogleOAuthProvider clientId={googleClientId}>
+        <GoogleAuthProvider>
           <ApolloWrapper>
             <ThemeProvider
               attribute="class"
@@ -45,7 +43,7 @@ export default function RootLayout({
               <Toaster position="top-center" richColors />
             </ThemeProvider>
           </ApolloWrapper>
-        </GoogleOAuthProvider>
+        </GoogleAuthProvider>
       </body>
     </html>
   );

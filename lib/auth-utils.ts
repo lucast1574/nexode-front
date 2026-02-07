@@ -1,10 +1,16 @@
 import Cookies from "js-cookie";
 import { User } from "./types";
 
-export const setAuthSession = (accessToken: string, refreshToken: string, user: User) => {
-    Cookies.set("access_token", accessToken, { expires: 7, secure: true, sameSite: 'strict' });
-    Cookies.set("refresh_token", refreshToken, { expires: 30, secure: true, sameSite: 'strict' });
-    localStorage.setItem("user", JSON.stringify(user));
+export const setAuthSession = (accessToken?: string, refreshToken?: string, user?: User) => {
+    if (accessToken) {
+        Cookies.set("access_token", accessToken, { expires: 7, secure: true, sameSite: 'strict' });
+    }
+    if (refreshToken) {
+        Cookies.set("refresh_token", refreshToken, { expires: 30, secure: true, sameSite: 'strict' });
+    }
+    if (user) {
+        localStorage.setItem("user", JSON.stringify(user));
+    }
 };
 
 export const clearAuthSession = () => {

@@ -23,3 +23,15 @@ export interface LoginData {
 export interface GoogleLoginData {
     signInWithGoogle: AuthResponse;
 }
+
+export interface RegisterData {
+    success: boolean;
+    message: string;
+    access_token?: string;
+    refresh_token?: string;
+    user: User;
+}
+
+export interface VerifyEmailData {
+    verifyEmail: AuthResponse;
+}
