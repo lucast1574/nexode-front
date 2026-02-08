@@ -17,17 +17,17 @@ export default function Home() {
           </div>
 
           <h1 className="text-5xl md:text-7xl font-black tracking-tight leading-[1.1]">
-            Scale Your Seller Business with <span className="text-primary italic">Precision</span>
+            Scale Your <span className="text-primary italic">Infrastructure</span> with Precision
           </h1>
 
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            The all-in-one ecosystem for elite sellers. Manage inventory, analyze data, and grow your brand with automated intelligence.
+            Enterprise-grade hosting for mission-critical applications. Deploy high-performance servers, manage databases, and scale your global footprint with ease.
           </p>
         </div>
 
         <div className="flex flex-col sm:flex-row gap-4 items-center">
           <Button asChild size="lg" className="rounded-full px-8 text-lg h-14 shadow-xl shadow-primary/20">
-            <Link href="/checkout">Get Started</Link>
+            <Link href="/checkout">Launch System</Link>
           </Button>
           <Button asChild variant="outline" size="lg" className="rounded-full px-8 text-lg h-14 bg-background/50 backdrop-blur-sm">
             <Link href="/auth/login">Sign In</Link>

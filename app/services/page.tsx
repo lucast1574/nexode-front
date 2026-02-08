@@ -1,10 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import Link from "next/link";
-import { Check, ShoppingCart, Database, Cpu, Zap, ArrowRight, Shield, Globe } from "lucide-react";
+import { Check, Database, Cpu, Zap, ArrowRight, Shield, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 
 interface Tier {
@@ -170,10 +168,10 @@ export default function ServicesPage() {
                     <Zap className="w-3 h-3 fill-current" /> Scalable Infrastructure
                 </div>
                 <h1 className="text-5xl md:text-7xl font-black tracking-tight mb-6">
-                    Architect Your <span className="text-primary italic">Ecosystem</span>
+                    Launch Your <span className="text-primary italic">Infrastructure</span>
                 </h1>
                 <p className="text-xl text-zinc-400 max-w-2xl mx-auto leading-relaxed">
-                    Select the high-performance building blocks for your business. Mix and match services to scale exactly as you grow.
+                    Select high-performance building blocks for your hosting environment. Mix and match services to scale your system in real-time.
                 </p>
             </header>
 
@@ -263,7 +261,7 @@ export default function ServicesPage() {
                     <div className="max-w-4xl mx-auto bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl p-4 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-6">
                         <div className="flex items-center gap-6 px-4">
                             <div className="bg-primary/20 p-3 rounded-2xl relative">
-                                <ShoppingCart className="w-6 h-6 text-primary" />
+                                <Zap className="w-6 h-6 text-primary" />
                                 <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-black text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-[#050505]">
                                     {selectedCount}
                                 </span>
@@ -287,7 +285,7 @@ export default function ServicesPage() {
                                 className="rounded-2xl h-14 px-10 gap-2 text-lg font-bold shadow-xl shadow-primary/20 flex-1 sm:flex-none"
                                 onClick={handleCheckout}
                             >
-                                Checkout Now <ArrowRight className="w-5 h-5" />
+                                Deploy Now <ArrowRight className="w-5 h-5" />
                             </Button>
                         </div>
                     </div>

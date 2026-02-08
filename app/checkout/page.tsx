@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { Check, ShoppingCart, Database, Cpu, ArrowRight, Shield, Globe, CreditCard } from "lucide-react";
+import { Check, Zap, Database, Cpu, ArrowRight, Shield, Globe, CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -206,10 +206,10 @@ export default function CheckoutPage() {
 
             <header className="relative z-10 pt-20 pb-16 px-6 text-center max-w-4xl mx-auto">
                 <h1 className="text-4xl md:text-6xl font-black tracking-tight mb-6">
-                    Configure Your <span className="text-primary italic underline decoration-primary/30 decoration-8 underline-offset-8">Infrastructure</span>
+                    Provision Your <span className="text-primary italic underline decoration-primary/30 decoration-8 underline-offset-8">Infrastructure</span>
                 </h1>
                 <p className="text-lg text-zinc-400 leading-relaxed">
-                    Select the tiers that best match your workload. Pay only for what you need, scale as you grow.
+                    Configure your high-frequency hosting environment. Select high-availability instances tailored for your mission-critical workload.
                 </p>
             </header>
 
@@ -282,13 +282,13 @@ export default function CheckoutPage() {
                 <div className="bg-zinc-900/80 backdrop-blur-2xl border border-white/10 rounded-[32px] p-4 flex flex-col sm:flex-row items-center gap-4 shadow-2xl">
                     <div className="flex items-center gap-4 px-4 flex-1">
                         <div className="w-12 h-12 rounded-2xl bg-primary/20 flex items-center justify-center relative">
-                            <ShoppingCart className="w-6 h-6 text-primary" />
+                            <Zap className="w-6 h-6 text-primary" />
                             <div className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-black text-[10px] font-black rounded-full flex items-center justify-center border-2 border-zinc-900">
                                 {selectedCount}
                             </div>
                         </div>
                         <div>
-                            <div className="text-xs text-zinc-500 font-bold uppercase tracking-widest">Monthly Commitment</div>
+                            <div className="text-xs text-zinc-500 font-bold uppercase tracking-widest">Hosting Commitment</div>
                             <div className="text-2xl font-black">${totalPrice}</div>
                         </div>
                     </div>
@@ -299,7 +299,7 @@ export default function CheckoutPage() {
                         disabled={loading}
                         className="w-full sm:w-auto rounded-[20px] h-14 px-8 gap-3 text-lg font-bold shadow-xl shadow-primary/20 transition-transform active:scale-95 bg-primary hover:bg-primary/90 text-black"
                     >
-                        {loading ? "Redirecting..." : "Pay with Stripe"} <div className="flex items-center gap-1 border-l border-black/10 pl-3 ml-1"><CreditCard className="w-5 h-5" /><ArrowRight className="w-4 h-4" /></div>
+                        {loading ? "Provisioning..." : "Pay & Deploy Instance"} <div className="flex items-center gap-1 border-l border-black/10 pl-3 ml-1"><CreditCard className="w-5 h-5" /><ArrowRight className="w-4 h-4" /></div>
                     </Button>
                 </div>
             </div>
