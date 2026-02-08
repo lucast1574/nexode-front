@@ -30,7 +30,7 @@ export function VerifyForm() {
             if (data?.verifyEmail?.success) {
                 toast.success("Email verified successfully!")
                 setAuthSession(data.verifyEmail.access_token, data.verifyEmail.refresh_token, data.verifyEmail.user)
-                router.push("/dashboard")
+                router.push("/checkout")
             } else {
                 toast.error(data?.verifyEmail?.message || "Verification failed")
             }
@@ -97,7 +97,7 @@ export function VerifyForm() {
                     data.verifyEmail.user
                 )
 
-                router.push("/dashboard")
+                router.push("/checkout")
             } else {
                 toast.error(data?.verifyEmail?.message || "Verification failed")
             }
