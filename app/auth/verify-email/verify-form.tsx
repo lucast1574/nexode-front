@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -21,15 +21,52 @@ export function VerifyForm() {
 
     const [verifyEmail] = useMutation<VerifyEmailData>(VERIFY_EMAIL_MUTATION)
 
+    const handleAutoSubmit = useCallback(async (autoEmail: string, autoCode: string) => {
+        setIsLoading(true)
+        try {
+            const { data } = await verifyEmail({
+                variables: { email: autoEmail, code: autoCode },
+            })
+            if (data?.verifyEmail?.success) {
+                toast.success("Email verified successfully!")
+                setAuthSession(data.verifyEmail.access_token, data.verifyEmail.refresh_token, data.verifyEmail.user)
+                router.push("/dashboard")
+            } else {
+                toast.error(data?.verifyEmail?.message || "Verification failed")
+            }
+        } catch (error: unknown) {
+            console.error("Auto-verification error:", error)
+            toast.error("Auto-verification failed. Please check the code and try manually.")
+        } finally {
+            setIsLoading(false)
+        }
+    }, [verifyEmail, router])
+
     useEffect(() => {
         const emailFromQuery = searchParams.get("email")
+        const codeFromQuery = searchParams.get("code")
+
         if (emailFromQuery) {
             setEmail(emailFromQuery)
         }
-    }, [searchParams])
 
-    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault()
+        if (codeFromQuery) {
+            const upCode = codeFromQuery.toUpperCase()
+            setCode(upCode)
+
+            // Auto-submit if both are present and we haven't submitted yet
+            if (emailFromQuery && upCode.length === 6 && !isLoading) {
+                // Use a small timeout to ensure states are updated
+                const timer = setTimeout(() => {
+                    handleAutoSubmit(emailFromQuery, upCode)
+                }, 500)
+                return () => clearTimeout(timer)
+            }
+        }
+    }, [searchParams, isLoading, handleAutoSubmit])
+
+    const handleSubmit = async (e?: React.FormEvent<HTMLFormElement>) => {
+        if (e) e.preventDefault()
 
         if (!email) {
             toast.error("Please provide your email address")
@@ -37,7 +74,7 @@ export function VerifyForm() {
         }
 
         if (code.length !== 6) {
-            toast.error("Verification code must be 6 digits")
+            toast.error("Verification code must be 6 characters")
             return
         }
 
@@ -105,12 +142,12 @@ export function VerifyForm() {
                         id="code"
                         name="code"
                         type="text"
-                        placeholder="000000"
+                        placeholder="ABCXYZ"
                         required
                         maxLength={6}
-                        className="text-center text-2xl tracking-[0.5em] font-bold"
+                        className="text-center text-2xl tracking-[0.5em] font-bold uppercase"
                         value={code}
-                        onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
+                        onChange={(e) => setCode(e.target.value.toUpperCase())}
                     />
                 </Field>
 
