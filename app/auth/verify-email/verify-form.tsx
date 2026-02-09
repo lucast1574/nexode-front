@@ -151,7 +151,7 @@ export function VerifyForm() {
                     />
                 </Field>
 
-                <Button type="submit" className="w-full" disabled={isLoading}>
+                <Button id="btn-verify-submit" type="submit" className="w-full" disabled={isLoading}>
                     {isLoading ? (
                         <>
                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -166,6 +166,7 @@ export function VerifyForm() {
             <p className="text-center text-sm text-muted-foreground">
                 Didn&apos;t receive the code?{" "}
                 <button
+                    id="btn-resend-code"
                     type="button"
                     className="font-semibold text-primary hover:underline underline-offset-4"
                     onClick={() => toast.info("Resend logic coming soon!")}

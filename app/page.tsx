@@ -26,10 +26,10 @@ export default function Home() {
         </div>
 
         <div className="flex flex-col sm:flex-row gap-4 items-center">
-          <Button asChild size="lg" className="rounded-full px-8 text-lg h-14 shadow-xl shadow-primary/20">
+          <Button id="btn-home-launch" asChild size="lg" className="rounded-full px-8 text-lg h-14 shadow-xl shadow-primary/20">
             <Link href="/checkout">Launch System</Link>
           </Button>
-          <Button asChild variant="outline" size="lg" className="rounded-full px-8 text-lg h-14 bg-background/50 backdrop-blur-sm">
+          <Button id="btn-home-signin" asChild variant="outline" size="lg" className="rounded-full px-8 text-lg h-14 bg-background/50 backdrop-blur-sm">
             <Link href="/auth/login">Sign In</Link>
           </Button>
         </div>

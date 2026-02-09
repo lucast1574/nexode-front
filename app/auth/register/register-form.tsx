@@ -155,6 +155,7 @@ export function RegisterForm() {
                             className="pr-10"
                         />
                         <button
+                            id="btn-toggle-password"
                             type="button"
                             onClick={() => setShowPassword((prev) => !prev)}
                             className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground hover:text-foreground"
@@ -191,7 +192,7 @@ export function RegisterForm() {
                     </Field>
                 )}
 
-                <Button type="submit" className="w-full" disabled={isLoading}>
+                <Button id="btn-register-submit" type="submit" className="w-full" disabled={isLoading}>
                     {isLoading ? (
                         <>
                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -205,7 +206,7 @@ export function RegisterForm() {
 
             <p className="text-center text-sm text-muted-foreground">
                 Already have an account?{" "}
-                <a href="/auth/login" className="font-semibold text-primary hover:underline underline-offset-4">
+                <a id="link-login" href="/auth/login" className="font-semibold text-primary hover:underline underline-offset-4">
                     Sign in
                 </a>
             </p>

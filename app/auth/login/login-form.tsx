@@ -135,6 +135,7 @@ export function LoginForm() {
                     <div className="flex items-center justify-between">
                         <FieldLabel htmlFor="password">Password</FieldLabel>
                         <a
+                            id="link-forgot-password"
                             href="/auth/forgot-password"
                             className="text-xs text-primary hover:underline underline-offset-4"
                         >
@@ -152,6 +153,7 @@ export function LoginForm() {
                             className="pr-10"
                         />
                         <button
+                            id="btn-toggle-password"
                             type="button"
                             onClick={() => setShowPassword((prev) => !prev)}
                             className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground hover:text-foreground"
@@ -175,7 +177,7 @@ export function LoginForm() {
                     </Field>
                 )}
 
-                <Button type="submit" className="w-full" disabled={isLoading}>
+                <Button id="btn-login-submit" type="submit" className="w-full" disabled={isLoading}>
                     {isLoading ? (
                         <>
                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -201,7 +203,7 @@ export function LoginForm() {
 
             <p className="text-center text-sm text-muted-foreground">
                 Don&apos;t have an account?{" "}
-                <a href="/auth/register" className="font-semibold text-primary hover:underline underline-offset-4">
+                <a id="link-signup" href="/auth/register" className="font-semibold text-primary hover:underline underline-offset-4">
                     Sign up
                 </a>
             </p>
