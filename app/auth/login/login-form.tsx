@@ -51,7 +51,10 @@ export function LoginForm() {
 
             const { data } = await login({
                 variables: {
-                    input: { email, password }
+                    input: {
+                        email: email.trim().toLowerCase(),
+                        password
+                    }
                 }
             })
 

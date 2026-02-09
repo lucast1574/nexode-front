@@ -51,14 +51,15 @@ export function VerifyForm() {
         }
 
         if (codeFromQuery) {
-            const upCode = codeFromQuery.toUpperCase()
+            const upCode = codeFromQuery.trim().toUpperCase()
             setCode(upCode)
 
             // Auto-submit if both are present and we haven't submitted yet
             if (emailFromQuery && upCode.length === 6 && !isLoading) {
+                const cleanEmail = emailFromQuery.trim().toLowerCase()
                 // Use a small timeout to ensure states are updated
                 const timer = setTimeout(() => {
-                    handleAutoSubmit(emailFromQuery, upCode)
+                    handleAutoSubmit(cleanEmail, upCode)
                 }, 500)
                 return () => clearTimeout(timer)
             }
@@ -81,10 +82,13 @@ export function VerifyForm() {
         setIsLoading(true)
 
         try {
+            const cleanEmail = email.trim().toLowerCase()
+            const cleanCode = code.trim().toUpperCase()
+
             const { data } = await verifyEmail({
                 variables: {
-                    email,
-                    code,
+                    email: cleanEmail,
+                    code: cleanCode,
                 },
             })
 
@@ -118,7 +122,7 @@ export function VerifyForm() {
                 </div>
                 <h1 className="text-2xl font-extrabold tracking-tight">Verify your email</h1>
                 <p className="text-sm text-muted-foreground">
-                    We&apos;ve sent a 6-digit verification code to your email
+                    We&apos;ve sent a 6-character verification code to your email
                 </p>
             </div>
 
@@ -147,7 +151,7 @@ export function VerifyForm() {
                         maxLength={6}
                         className="text-center text-2xl tracking-[0.5em] font-bold uppercase"
                         value={code}
-                        onChange={(e) => setCode(e.target.value.toUpperCase())}
+                        onChange={(e) => setCode(e.target.value.replace(/\s/g, '').toUpperCase())}
                     />
                 </Field>
 

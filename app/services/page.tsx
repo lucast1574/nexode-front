@@ -4,6 +4,8 @@ import React, { useState } from "react";
 import { Check, Database, Cpu, Zap, ArrowRight, Shield, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
+import { UserNav } from "@/components/user-nav";
 
 interface Tier {
     name: string;
@@ -157,11 +159,17 @@ export default function ServicesPage() {
 
     return (
         <div className="min-h-screen bg-[#050505] text-white selection:bg-primary/30">
-            {/* Background Gradients */}
-            <div className="fixed inset-0 overflow-hidden pointer-events-none">
-                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-purple-600/10 blur-[120px] rounded-full" />
-                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-600/10 blur-[120px] rounded-full" />
-            </div>
+
+            <nav className="relative z-50 border-b border-white/5 bg-black/50 backdrop-blur-xl">
+                <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+                    <Link href="/" className="text-2xl font-black italic tracking-tighter text-primary">NEXODE</Link>
+                    <div className="flex items-center gap-6">
+                        <Link href="/services" className="text-sm font-medium text-white transition-colors">Marketplace</Link>
+                        <Link href="/dashboard" className="text-sm font-medium text-zinc-400 hover:text-white transition-colors">Dashboard</Link>
+                        <UserNav />
+                    </div>
+                </div>
+            </nav>
 
             <header className="relative z-10 pt-20 pb-12 px-6 text-center max-w-5xl mx-auto">
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-primary text-xs font-bold tracking-wider uppercase mb-6">

@@ -5,6 +5,8 @@ import Link from "next/link";
 import { Check, Zap, Database, Cpu, ArrowRight, Shield, Globe, CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { UserNav } from "@/components/user-nav";
+import { getAccessToken } from "@/lib/auth-utils";
 
 interface Tier {
     name: string;
@@ -132,8 +134,7 @@ export default function CheckoutPage() {
                 }
             `;
 
-            // Note: We're using createCheckoutSession which requires Auth
-            const token = localStorage.getItem('access_token');
+            const token = getAccessToken();
 
             const response = await fetch(GQL_URL, {
                 method: "POST",
@@ -200,6 +201,7 @@ export default function CheckoutPage() {
                     <div className="flex items-center gap-6">
                         <Link href="/services" className="text-sm font-medium text-zinc-400 hover:text-white transition-colors">Marketplace</Link>
                         <Link href="/dashboard" className="text-sm font-medium text-zinc-400 hover:text-white transition-colors">Dashboard</Link>
+                        <UserNav />
                     </div>
                 </div>
             </nav>

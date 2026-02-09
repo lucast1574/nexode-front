@@ -75,7 +75,7 @@ export function RegisterForm() {
             const { data } = await register({
                 variables: {
                     input: {
-                        email: formData.email,
+                        email: formData.email.trim().toLowerCase(),
                         password: formData.password,
                         first_name,
                         last_name,

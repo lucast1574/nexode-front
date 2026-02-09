@@ -20,6 +20,8 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { getAccessToken } from "@/lib/auth-utils";
+import { UserNav } from "@/components/user-nav";
 
 interface Subscription {
     id: string;
@@ -42,8 +44,11 @@ export default function DashboardPage() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const token = localStorage.getItem('access_token');
+                const token = getAccessToken();
+                console.log("[Dashboard] Retrieved token:", token ? "Exists (starts with " + token.substring(0, 10) + "...)" : "MISSING");
+
                 if (!token) {
+                    console.warn("[Dashboard] No token found, redirecting to login");
                     router.push("/auth/login");
                     return;
                 }
@@ -79,12 +84,15 @@ export default function DashboardPage() {
                 });
 
                 const result = await response.json();
+                console.log("[Dashboard] API Result:", result);
+
                 if (result.data) {
                     setUser(result.data.me);
                     // Filter out free plans (service 'nexus')
                     const subs = [result.data.mySubscription].filter(s => s && s.status === 'ACTIVE' && s.service !== 'nexus');
 
                     if (subs.length === 0) {
+                        console.warn("[Dashboard] No active paid subscriptions found, redirecting to checkout");
                         setIsAuthorized(false);
                         router.push("/checkout");
                         return;
@@ -93,6 +101,7 @@ export default function DashboardPage() {
                     setSubscriptions(subs);
                     setIsAuthorized(true);
                 } else {
+                    console.error("[Dashboard] No data in result, redirecting to login. Errors:", result.errors);
                     router.push("/auth/login");
                 }
             } catch (error) {
@@ -194,6 +203,7 @@ export default function DashboardPage() {
                         <Button asChild className="rounded-2xl gap-2 font-bold shadow-lg shadow-primary/20">
                             <Link href="/checkout"><Plus className="w-4 h-4" /> New Service</Link>
                         </Button>
+                        <UserNav />
                     </div>
                 </header>
 
