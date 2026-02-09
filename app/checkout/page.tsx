@@ -125,7 +125,7 @@ export default function CheckoutPage() {
             if (items.length === 0) return;
 
             // In a real app, we'd get the token from localStorage/cookies
-            const GQL_URL = "http://localhost:4000/api-v1/graphql";
+            const GQL_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api-v1/graphql";
             const mutation = `
                 mutation CreateCheckout($items: [CheckoutItemInput!]!) {
                     createCheckoutSession(items: $items)

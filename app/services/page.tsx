@@ -121,7 +121,7 @@ export default function ServicesPage() {
 
             if (items.length === 0) return;
 
-            const GQL_URL = "http://localhost:4000/api-v1/graphql";
+            const GQL_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api-v1/graphql";
             const mutation = `
                 mutation CreateGuestCheckout($items: [CheckoutItemInput!]!) {
                     createGuestCheckoutSession(items: $items)

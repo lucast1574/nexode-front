@@ -48,7 +48,7 @@ export default function DashboardPage() {
                     return;
                 }
 
-                const GQL_URL = "http://localhost:4000/api-v1/graphql";
+                const GQL_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api-v1/graphql";
                 const query = `
                     query GetDashboardData {
                         me {
