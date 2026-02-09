@@ -63,7 +63,7 @@ export function LoginForm() {
                 )
 
                 toast.success("Login successful!")
-                router.push("/dashboard")
+                router.push("/checkout")
             } else {
                 toast.error(data?.login?.message || "Login failed")
             }
@@ -97,7 +97,7 @@ export function LoginForm() {
                 )
 
                 toast.success("Google login successful!")
-                router.push("/dashboard")
+                router.push("/checkout")
             } else {
                 toast.error(data?.signInWithGoogle?.message || "Google login failed")
             }
