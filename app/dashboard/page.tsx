@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { getAccessToken } from "@/lib/auth-utils";
+import { getAccessToken, setAuthSession } from "@/lib/auth-utils";
 import { UserNav } from "@/components/user-nav";
 
 interface Subscription {
@@ -35,6 +35,7 @@ interface Subscription {
 
 export default function DashboardPage() {
     const [loading, setLoading] = useState(true);
+    const [statusMessage, setStatusMessage] = useState<string>("Authenticating System...");
     const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
     const [user, setUser] = useState<{ first_name: string, email: string, avatar?: string } | null>(null);
     const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
@@ -44,7 +45,59 @@ export default function DashboardPage() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const token = getAccessToken();
+                const urlParams = new URLSearchParams(window.location.search);
+                const sessionId = urlParams.get('session_id');
+                let token = getAccessToken();
+
+                const GQL_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api-v1/graphql";
+
+                // AUTO-LOGIN FOR GUEST CHECKOUT
+                if (sessionId && !token) {
+                    console.log("[Dashboard] Found session_id, attempting auto-login...");
+                    setStatusMessage("Initializing Secure Session...");
+
+                    const stripeMutation = `
+                        mutation StripeLogin($sessionId: String!) {
+                            stripeLogin(sessionId: $sessionId) {
+                                success
+                                access_token
+                                refresh_token
+                                user {
+                                    first_name
+                                    last_name
+                                    email
+                                    avatar
+                                }
+                            }
+                        }
+                    `;
+
+                    try {
+                        const stripeRes = await fetch(GQL_URL, {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                query: stripeMutation,
+                                variables: { sessionId }
+                            }),
+                        });
+                        const stripeResult = await stripeRes.json();
+
+                        if (stripeResult.data?.stripeLogin?.success) {
+                            const { access_token, refresh_token, user } = stripeResult.data.stripeLogin;
+                            setAuthSession(access_token, refresh_token, user);
+                            token = access_token;
+                            console.log("[Dashboard] Stripe auto-login successful");
+                            // Clean up URL
+                            window.history.replaceState({}, document.title, "/dashboard");
+                        } else {
+                            console.error("[Dashboard] Stripe login failed:", stripeResult.errors);
+                        }
+                    } catch (err) {
+                        console.error("[Dashboard] Stripe login mutation error:", err);
+                    }
+                }
+
                 console.log("[Dashboard] Retrieved token:", token ? "Exists (starts with " + token.substring(0, 10) + "...)" : "MISSING");
 
                 if (!token) {
@@ -53,7 +106,7 @@ export default function DashboardPage() {
                     return;
                 }
 
-                const GQL_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api-v1/graphql";
+                setStatusMessage("Loading Infrastructure...");
                 const query = `
                     query GetDashboardData {
                         me {
@@ -120,7 +173,7 @@ export default function DashboardPage() {
             <div className="min-h-screen bg-black flex items-center justify-center">
                 <div className="flex flex-col items-center gap-6">
                     <div className="w-16 h-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
-                    <p className="text-zinc-500 font-bold tracking-widest uppercase text-xs animate-pulse">Authenticating System...</p>
+                    <p className="text-zinc-500 font-bold tracking-widest uppercase text-xs animate-pulse">{statusMessage}</p>
                 </div>
             </div>
         );
