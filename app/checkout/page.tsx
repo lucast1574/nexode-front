@@ -151,11 +151,19 @@ export default function CheckoutPage() {
             const result = await response.json();
 
             if (result.errors) {
-                console.error("GraphQL Errors:", result.errors);
-                // Fallback to guest checkout if not logged in
+                console.error("GraphQL Errors for authenticated session:", result.errors);
+
+                // Fallback to guest checkout if authenticated session failed
+                // Attempt to get user email from localStorage to preserve session linkage
+                const storedUser = typeof window !== "undefined" ? localStorage.getItem("user") : null;
+                const userObj = storedUser ? JSON.parse(storedUser) : null;
+                const userEmail = userObj?.email;
+
+                console.warn(`Attempting fallback to Guest Checkout. Preserved email: ${userEmail || 'None'}`);
+
                 const guestMutation = `
-                    mutation CreateGuestCheckout($items: [CheckoutItemInput!]!) {
-                        createGuestCheckoutSession(items: $items)
+                    mutation CreateGuestCheckout($items: [CheckoutItemInput!]!, $email: String) {
+                        createGuestCheckoutSession(items: $items, email: $email)
                     }
                 `;
                 const guestRes = await fetch(GQL_URL, {
@@ -163,7 +171,7 @@ export default function CheckoutPage() {
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
                         query: guestMutation,
-                        variables: { items }
+                        variables: { items, email: userEmail }
                     }),
                 });
                 const guestResult = await guestRes.json();
@@ -171,7 +179,7 @@ export default function CheckoutPage() {
                     window.location.href = guestResult.data.createGuestCheckoutSession;
                     return;
                 }
-                alert("Checkout failed. Please login.");
+                alert(`Checkout failed. Error: ${result.errors[0]?.message || 'Unknown error'}`);
                 return;
             }
 
