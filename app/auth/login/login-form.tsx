@@ -12,7 +12,7 @@ import Turnstile from "react-turnstile"
 import { useMutation } from "@apollo/client/react"
 import { GoogleLogin, CredentialResponse } from "@react-oauth/google"
 import { LOGIN_MUTATION, SIGN_IN_WITH_GOOGLE } from "@/lib/graphql-mutations"
-import { setAuthSession } from "@/lib/auth-utils"
+import { setAuthSession, getAuthRedirectPath } from "@/lib/auth-utils"
 import { LoginData, GoogleLoginData } from "@/lib/types"
 
 interface LoginInput {
@@ -66,7 +66,7 @@ export function LoginForm() {
                 )
 
                 toast.success("Login successful!")
-                router.push("/checkout")
+                router.push(getAuthRedirectPath(data.login.user))
             } else {
                 toast.error(data?.login?.message || "Login failed")
             }
@@ -100,7 +100,7 @@ export function LoginForm() {
                 )
 
                 toast.success("Google login successful!")
-                router.push("/checkout")
+                router.push(getAuthRedirectPath(data.signInWithGoogle.user))
             } else {
                 toast.error(data?.signInWithGoogle?.message || "Google login failed")
             }

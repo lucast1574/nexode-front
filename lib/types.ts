@@ -7,6 +7,12 @@ export interface User {
     role: {
         slug: string;
     };
+    subscription?: {
+        status: string;
+        plan?: {
+            slug: string;
+        };
+    };
 }
 
 export interface AuthResponse {

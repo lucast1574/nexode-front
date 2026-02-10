@@ -17,6 +17,12 @@ export const SIGN_IN_WITH_GOOGLE = gql`
         role {
           slug
         }
+        subscription {
+          status
+          plan {
+            slug
+          }
+        }
       }
     }
   }
@@ -38,6 +44,12 @@ export const LOGIN_MUTATION = gql`
         avatar
         role {
           slug
+        }
+        subscription {
+          status
+          plan {
+            slug
+          }
         }
       }
     }
@@ -61,6 +73,12 @@ export const REGISTER_MUTATION = gql`
         role {
           slug
         }
+        subscription {
+          status
+          plan {
+            slug
+          }
+        }
       }
     }
   }
@@ -82,6 +100,12 @@ export const VERIFY_EMAIL_MUTATION = gql`
         avatar
         role {
           slug
+        }
+        subscription {
+          status
+          plan {
+            slug
+          }
         }
       }
     }

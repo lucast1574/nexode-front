@@ -33,3 +33,12 @@ export const getAccessToken = () => {
     if (typeof window === "undefined") return null;
     return Cookies.get("access_token") || localStorage.getItem("access_token");
 };
+
+export const getAuthRedirectPath = (user: User | null): string => {
+    if (!user) return "/auth/login";
+    // If user has an active subscription that is NOT 'free', go to dashboard
+    if (user.subscription?.status === 'ACTIVE' && user.subscription?.plan?.slug && user.subscription.plan.slug !== 'free') {
+        return "/dashboard";
+    }
+    return "/checkout";
+};

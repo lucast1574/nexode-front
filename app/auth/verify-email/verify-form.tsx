@@ -9,7 +9,7 @@ import { Loader2, Mail } from "lucide-react"
 import { toast } from "sonner"
 import { useMutation } from "@apollo/client/react"
 import { VERIFY_EMAIL_MUTATION } from "@/lib/graphql-mutations"
-import { setAuthSession } from "@/lib/auth-utils"
+import { setAuthSession, getAuthRedirectPath } from "@/lib/auth-utils"
 import { VerifyEmailData } from "@/lib/types"
 
 export function VerifyForm() {
@@ -30,7 +30,7 @@ export function VerifyForm() {
             if (data?.verifyEmail?.success) {
                 toast.success("Email verified successfully!")
                 setAuthSession(data.verifyEmail.access_token, data.verifyEmail.refresh_token, data.verifyEmail.user)
-                router.push("/checkout")
+                router.push(getAuthRedirectPath(data.verifyEmail.user))
             } else {
                 toast.error(data?.verifyEmail?.message || "Verification failed")
             }
@@ -101,7 +101,7 @@ export function VerifyForm() {
                     data.verifyEmail.user
                 )
 
-                router.push("/checkout")
+                router.push(getAuthRedirectPath(data.verifyEmail.user))
             } else {
                 toast.error(data?.verifyEmail?.message || "Verification failed")
             }
