@@ -51,9 +51,9 @@ export default function DashboardPage() {
 
                 const GQL_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api-v1/graphql";
 
-                // AUTO-LOGIN FOR GUEST CHECKOUT
-                if (sessionId && !token) {
-                    console.log("[Dashboard] Found session_id, attempting auto-login...");
+                // AUTO-LOGIN FOR GUEST CHECKOUT OR SESSION RECOVERY
+                if (sessionId) {
+                    console.log("[Dashboard] Found session_id, performing authentication exchange...");
                     setStatusMessage("Initializing Secure Session...");
 
                     const stripeMutation = `
