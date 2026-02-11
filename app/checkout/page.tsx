@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { Check, Zap, Database, Cpu, Workflow, ArrowRight, Shield, Globe, CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -136,6 +136,46 @@ export default function CheckoutPage() {
         n8n: null,
     });
     const [loading, setLoading] = useState(false);
+    const [currentSubSlugs, setCurrentSubSlugs] = useState<string[]>([]);
+
+    useEffect(() => {
+        const fetchCurrentSubs = async () => {
+            const token = getAccessToken();
+            if (!token) return;
+
+            try {
+                const GQL_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api-v1/graphql";
+                const query = `
+                    query GetUserSubs {
+                        mySubscriptions {
+                            plan {
+                                slug
+                            }
+                        }
+                    }
+                `;
+                const response = await fetch(GQL_URL, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ query }),
+                });
+                const result = await response.json();
+                if (result.data?.mySubscriptions) {
+                    const slugs = result.data.mySubscriptions
+                        .map((s: { plan?: { slug: string } }) => s.plan?.slug)
+                        .filter((slug: string | undefined): slug is string => !!slug);
+                    setCurrentSubSlugs(slugs);
+                }
+            } catch (err) {
+                console.error("Error fetching current subs:", err);
+            }
+        };
+
+        fetchCurrentSubs();
+    }, []);
 
     const handleSelectTier = (serviceId: string, tierSlug: string) => {
         setSelectedTiers((prev) => ({
@@ -276,7 +316,7 @@ export default function CheckoutPage() {
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                            {service.tiers.map((tier) => {
+                            {service.tiers.filter(t => !currentSubSlugs.includes(t.slug)).map((tier) => {
                                 const isSelected = selectedTiers[service.id] === tier.slug;
                                 return (
                                     <button
