@@ -3,35 +3,21 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import {
-    LayoutDashboard,
     Database,
     Cpu,
-    Settings,
-    LogOut,
     Plus,
     ExternalLink,
     ChevronRight,
     Search,
     Bell,
-    CreditCard,
     Zap,
     Workflow
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { Sidebar, Subscription } from "@/components/Sidebar";
 import { getAccessToken, setAuthSession } from "@/lib/auth-utils";
-
-interface Subscription {
-    id: string;
-    service: string;
-    status: string;
-    plan: {
-        name: string;
-        features: Record<string, string>;
-    };
-}
 
 export default function DashboardPage() {
     const [loading, setLoading] = useState(true);
@@ -194,60 +180,9 @@ export default function DashboardPage() {
 
     if (!isAuthorized) return null;
 
-    const sidebarItems = [
-        { icon: LayoutDashboard, label: "Overview", href: "/dashboard", active: true },
-        { icon: CreditCard, label: "Billing", href: "/dashboard/billing" },
-        { icon: Settings, label: "Settings", href: "/dashboard/settings" },
-    ];
-
     return (
         <div className="h-screen bg-[#020202] text-white flex overflow-hidden">
-            {/* Sidebar */}
-            <aside className="w-64 border-r border-white/5 bg-black flex flex-col hidden md:flex shrink-0">
-                <div className="p-8">
-                    <Link href="/" className="text-2xl font-black italic tracking-tighter text-primary">NEXODE</Link>
-                </div>
-
-                <nav className="flex-1 px-4 space-y-2 overflow-y-auto py-4">
-                    {sidebarItems.map((item) => (
-                        <Link
-                            key={item.label}
-                            href={item.href}
-                            className={cn(
-                                "flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-300",
-                                item.active
-                                    ? "bg-primary/10 text-primary border border-primary/20"
-                                    : "text-zinc-500 hover:text-white hover:bg-white/5"
-                            )}
-                        >
-                            <item.icon className="w-5 h-5" />
-                            <span className="font-semibold text-sm">{item.label}</span>
-                        </Link>
-                    ))}
-                </nav>
-
-                <div className="p-6 border-t border-white/5 mx-4 mb-6">
-                    <Link href="/profile" className="flex items-center gap-3 mb-6 p-2 rounded-2xl hover:bg-white/5 transition-all group">
-                        <div className="w-10 h-10 rounded-full bg-zinc-800 border border-white/10 overflow-hidden relative group-hover:border-primary/50 transition-colors">
-                            {user?.avatar && (
-                                <Image
-                                    src={user.avatar}
-                                    alt="User avatar"
-                                    fill
-                                    className="object-cover"
-                                />
-                            )}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                            <div className="text-sm font-bold truncate group-hover:text-primary transition-colors">{user?.first_name || "Nexus User"}</div>
-                            <div className="text-xs text-zinc-500 truncate">{user?.email || "user@nexode.com"}</div>
-                        </div>
-                    </Link>
-                    <Button variant="ghost" className="w-full justify-start gap-3 rounded-xl text-zinc-500 hover:text-red-400 hover:bg-red-400/10">
-                        <LogOut className="w-5 h-5" /> Sign Out
-                    </Button>
-                </div>
-            </aside>
+            <Sidebar user={user} subscriptions={subscriptions} />
 
             {/* Main Content */}
             <main className="flex-1 flex flex-col overflow-y-auto">

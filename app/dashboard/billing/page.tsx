@@ -4,9 +4,6 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
-    LayoutDashboard,
-    CreditCard,
-    Settings,
     Plus,
     ArrowUpRight,
     TrendingUp,
@@ -16,24 +13,22 @@ import {
     Zap,
     ExternalLink,
     PieChart,
-    Activity
+    Activity,
+    Database,
+    Workflow,
+    Cpu
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Sidebar, Subscription as BaseSubscription } from "@/components/Sidebar";
 import { cn } from "@/lib/utils";
 import { getAccessToken } from "@/lib/auth-utils";
-import Image from "next/image";
 
-interface Subscription {
-    id: string;
-    service: string;
-    status: string;
+interface Subscription extends BaseSubscription {
     billing_cycle: string;
     created_on: string;
-    plan: {
-        name: string;
+    plan: BaseSubscription['plan'] & {
         price_monthly: number;
         price_annual: number;
-        features: Record<string, string>;
     };
 }
 
@@ -87,7 +82,6 @@ export default function BillingPage() {
                 const result = await response.json();
                 if (result.data) {
                     setUser(result.data.me);
-                    // Filter and sort active paid subscriptions
                     const subs = (result.data.mySubscriptions || [])
                         .filter((s: Subscription) => s.status === 'ACTIVE' && s.service !== 'nexus');
 
@@ -117,12 +111,6 @@ export default function BillingPage() {
             </div>
         );
     }
-
-    const sidebarItems = [
-        { icon: LayoutDashboard, label: "Overview", href: "/dashboard" },
-        { icon: CreditCard, label: "Billing", href: "/dashboard/billing", active: true },
-        { icon: Settings, label: "Settings", href: "/dashboard/settings" },
-    ];
 
     const totalMonthly = subscriptions.reduce((acc, sub) => {
         return acc + (sub.billing_cycle === 'monthly' ? sub.plan.price_monthly : (sub.plan.price_annual / 12));
@@ -160,46 +148,8 @@ export default function BillingPage() {
 
     return (
         <div className="h-screen bg-[#020202] text-white flex font-sans overflow-hidden">
-            {/* Sidebar */}
-            <aside className="w-64 border-r border-white/5 bg-black flex flex-col hidden md:flex shrink-0">
-                <div className="p-8">
-                    <Link href="/" className="text-2xl font-black italic tracking-tighter text-primary">NEXODE</Link>
-                </div>
+            <Sidebar user={user} subscriptions={subscriptions} />
 
-                <nav className="flex-1 px-4 space-y-2 overflow-y-auto py-4">
-                    {sidebarItems.map((item) => (
-                        <Link
-                            key={item.label}
-                            href={item.href}
-                            className={cn(
-                                "flex items-center gap-3 px-4 py-3 rounded-2xl transition-all duration-300",
-                                item.active
-                                    ? "bg-primary/10 text-primary border border-primary/20"
-                                    : "text-zinc-500 hover:text-white hover:bg-white/5"
-                            )}
-                        >
-                            <item.icon className="w-5 h-5" />
-                            <span className="font-semibold text-sm">{item.label}</span>
-                        </Link>
-                    ))}
-                </nav>
-
-                <div className="p-6 border-t border-white/5 mx-4 mb-6">
-                    <Link href="/profile" className="flex items-center gap-3 mb-6 p-2 rounded-2xl hover:bg-white/5 transition-all group">
-                        <div className="w-10 h-10 rounded-full bg-zinc-800 border border-white/10 overflow-hidden relative group-hover:border-primary/50 transition-colors">
-                            {user?.avatar && (
-                                <Image src={user.avatar} alt="User avatar" fill className="object-cover" />
-                            )}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                            <div className="text-sm font-bold truncate group-hover:text-primary transition-colors">{user?.first_name || "Nexus User"}</div>
-                            <div className="text-xs text-zinc-500 truncate">{user?.email || "user@nexode.com"}</div>
-                        </div>
-                    </Link>
-                </div>
-            </aside>
-
-            {/* Main Content */}
             <main className="flex-1 flex flex-col overflow-y-auto">
                 <header className="h-20 border-b border-white/5 px-8 flex items-center justify-between bg-black/50 backdrop-blur-xl">
                     <h2 className="text-xl font-black tracking-tight">Finance / Billing</h2>
@@ -417,7 +367,3 @@ export default function BillingPage() {
         </div>
     );
 }
-
-function Database(props: React.HTMLAttributes<HTMLDivElement>) { return <div {...props}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3" /><path d="M3 5V19A9 3 0 0 0 21 19V5" /><path d="M3 12A9 3 0 0 0 21 12" /></svg></div>; }
-function Workflow(props: React.HTMLAttributes<HTMLDivElement>) { return <div {...props}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="8" height="8" x="3" y="3" rx="2" /><path d="M7 11v4a2 2 0 0 0 2 2h4" /><rect width="8" height="8" x="13" y="13" rx="2" /></svg></div>; }
-function Cpu(props: React.HTMLAttributes<HTMLDivElement>) { return <div {...props}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="16" height="16" x="4" y="4" rx="2" /><rect width="6" height="6" x="9" y="9" rx="1" /><path d="M15 2v2" /><path d="M15 20v2" /><path d="M2 15h2" /><path d="M2 9h2" /><path d="M20 15h2" /><path d="M20 9h2" /><path d="M9 2v2" /><path d="M9 20v2" /></svg></div>; }
