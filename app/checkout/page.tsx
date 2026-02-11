@@ -148,6 +148,7 @@ export default function CheckoutPage() {
                 const query = `
                     query GetUserSubs {
                         mySubscriptions {
+                            status
                             plan {
                                 slug
                             }
@@ -348,7 +349,18 @@ export default function CheckoutPage() {
                                             "mt-auto py-2 px-4 rounded-xl text-xs font-bold text-center transition-all",
                                             isSelected ? "bg-primary text-black" : "bg-white/5 text-zinc-400 group-hover:bg-white/10"
                                         )}>
-                                            {isSelected ? "Selected" : "Select Tier"}
+                                            {(() => {
+                                                if (isSelected) return "Selected";
+
+                                                const activeTierSlug = service.tiers.find(t => currentSubSlugs.includes(t.slug))?.slug;
+                                                if (activeTierSlug) {
+                                                    const activeTier = service.tiers.find(t => t.slug === activeTierSlug);
+                                                    if (activeTier) {
+                                                        return tier.price > activeTier.price ? "Upgrade Plan" : "Downgrade Plan";
+                                                    }
+                                                }
+                                                return "Select Tier";
+                                            })()}
                                         </div>
 
                                         {isSelected && (

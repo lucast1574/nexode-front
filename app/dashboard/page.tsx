@@ -68,6 +68,12 @@ export default function DashboardPage() {
                                     last_name
                                     email
                                     avatar
+                                    subscription {
+                                        status
+                                        plan {
+                                            slug
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -152,6 +158,12 @@ export default function DashboardPage() {
                         if (b.service === 'n8n') return 1;
                         return 0;
                     });
+
+                    if (paidSubs.length === 0) {
+                        console.warn("[Dashboard] No active paid subscriptions found, redirecting to checkout");
+                        router.push("/checkout");
+                        return;
+                    }
 
                     setSubscriptions(sortedSubs);
                     setIsAuthorized(true);

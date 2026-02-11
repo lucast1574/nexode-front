@@ -36,9 +36,8 @@ export const getAccessToken = () => {
 
 export const getAuthRedirectPath = (user: User | null): string => {
     if (!user) return "/auth/login";
-    // If user has an active subscription that is NOT 'free', go to dashboard
-    if (user.subscription?.status === 'ACTIVE' && user.subscription?.plan?.slug && user.subscription.plan.slug !== 'free') {
-        return "/dashboard";
-    }
-    return "/checkout";
+    // Always attempt to go to dashboard first. 
+    // The dashboard component performs a robust real-time check of all service subscriptions
+    // and will redirect to /checkout if no active paid plans are found.
+    return "/dashboard";
 };
