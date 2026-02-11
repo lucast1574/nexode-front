@@ -230,48 +230,59 @@ export default function DashboardPage() {
 
                                 return (
                                     <div key={sub.id} className={cn(
-                                        "group relative border rounded-[32px] p-8 transition-all duration-500",
+                                        "group relative border rounded-[32px] p-8 transition-all duration-500 flex flex-col",
                                         sub.service === "n8n"
                                             ? "bg-gradient-to-br from-red-500/10 to-transparent border-red-500/20 hover:bg-red-500/15"
                                             : "bg-white/[0.03] border-white/5 hover:bg-white/[0.06]"
                                     )}>
-                                        <div className="flex items-start justify-between mb-8">
-                                            <div className={cn(
-                                                "p-4 rounded-2xl shadow-inner",
-                                                sub.service === "database" ? "bg-purple-500/20 text-purple-400" :
-                                                    sub.service === "n8n" ? "bg-red-500/20 text-red-400" :
-                                                        "bg-blue-500/20 text-blue-400"
-                                            )}>
-                                                {sub.service === "database" ? <Database className="w-8 h-8" /> :
-                                                    sub.service === "n8n" ? <Workflow className="w-8 h-8" /> :
-                                                        <Cpu className="w-8 h-8" />}
-                                            </div>
-                                            <div className="flex flex-col items-end gap-2">
-                                                <div className="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-500 text-[10px] font-black uppercase tracking-widest border border-emerald-500/20">
-                                                    {sub.status}
+                                        <Link
+                                            href={sub.service === "database" ? "/dashboard/databases" : sub.service === "n8n" ? "/dashboard/automations" : sub.service === "compute" ? "/dashboard/compute" : "#"}
+                                            className="flex-1"
+                                        >
+                                            <div className="flex items-start justify-between mb-8">
+                                                <div className={cn(
+                                                    "p-4 rounded-2xl shadow-inner",
+                                                    sub.service === "database" ? "bg-purple-500/20 text-purple-400" :
+                                                        sub.service === "n8n" ? "bg-red-500/20 text-red-400" :
+                                                            "bg-blue-500/20 text-blue-400"
+                                                )}>
+                                                    {sub.service === "database" ? <Database className="w-8 h-8" /> :
+                                                        sub.service === "n8n" ? <Workflow className="w-8 h-8" /> :
+                                                            <Cpu className="w-8 h-8" />}
                                                 </div>
-                                                <div className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest">Active Runtime</div>
-                                            </div>
-                                        </div>
-
-                                        <div className="space-y-1 mb-6">
-                                            <h3 className="text-2xl font-black capitalize">{sub.service} {sub.service === 'n8n' ? 'Flow' : 'Cluster'}</h3>
-                                            <p className="text-zinc-500 font-medium text-sm">{sub.plan.name} Instance</p>
-                                        </div>
-
-                                        <div className="grid grid-cols-2 gap-4 mb-8">
-                                            {Object.entries(sub.plan.features).slice(0, 4).map(([key, val]: [string, string]) => (
-                                                <div key={key} className="space-y-1 bg-white/5 p-3 rounded-2xl border border-white/5">
-                                                    <div className="text-[9px] text-zinc-500 font-black uppercase tracking-wider">{key}</div>
-                                                    <div className="text-sm font-bold text-zinc-200">{val}</div>
+                                                <div className="flex flex-col items-end gap-2">
+                                                    <div className="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-500 text-[10px] font-black uppercase tracking-widest border border-emerald-500/20">
+                                                        {sub.status}
+                                                    </div>
+                                                    <div className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest">Active Runtime</div>
                                                 </div>
-                                            ))}
-                                        </div>
+                                            </div>
+
+                                            <div className="space-y-1 mb-6">
+                                                <h3 className="text-2xl font-black capitalize">{sub.service} {sub.service === 'n8n' ? 'Flow' : 'Cluster'}</h3>
+                                                <p className="text-zinc-500 font-medium text-sm">{sub.plan.name} Instance</p>
+                                            </div>
+
+                                            <div className="grid grid-cols-2 gap-4 mb-8">
+                                                {Object.entries(sub.plan.features).slice(0, 4).map(([key, val]: [string, string]) => (
+                                                    <div key={key} className="space-y-1 bg-white/5 p-3 rounded-2xl border border-white/5">
+                                                        <div className="text-[9px] text-zinc-500 font-black uppercase tracking-wider">{key}</div>
+                                                        <div className="text-sm font-bold text-zinc-200">{val}</div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </Link>
 
                                         <div className="flex flex-col gap-3">
                                             <div className="flex items-center gap-3">
-                                                <Button className="flex-1 rounded-xl h-11 font-bold gap-2">
-                                                    Open Console <ExternalLink className="w-4 h-4" />
+                                                <Button asChild className="flex-1 rounded-xl h-11 font-bold gap-2">
+                                                    <Link href={
+                                                        sub.service === "database" ? "/dashboard/databases" :
+                                                            sub.service === "n8n" ? "/dashboard/automations" :
+                                                                sub.service === "compute" ? "/dashboard/compute" : "#"
+                                                    }>
+                                                        Open Console <ExternalLink className="w-4 h-4" />
+                                                    </Link>
                                                 </Button>
                                                 <Button variant="outline" className="w-11 h-11 p-0 rounded-xl bg-white/5 border-white/10 hover:bg-white/10">
                                                     <ChevronRight className="w-5 h-5 text-zinc-400" />
