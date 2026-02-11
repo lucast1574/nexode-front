@@ -22,7 +22,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { getAccessToken, setAuthSession } from "@/lib/auth-utils";
-import { UserNav } from "@/components/user-nav";
 
 interface Subscription {
     id: string;
@@ -202,14 +201,14 @@ export default function DashboardPage() {
     ];
 
     return (
-        <div className="min-h-screen bg-[#020202] text-white flex">
+        <div className="h-screen bg-[#020202] text-white flex overflow-hidden">
             {/* Sidebar */}
-            <aside className="w-64 border-r border-white/5 bg-black flex flex-col hidden md:flex">
+            <aside className="w-64 border-r border-white/5 bg-black flex flex-col hidden md:flex shrink-0">
                 <div className="p-8">
                     <Link href="/" className="text-2xl font-black italic tracking-tighter text-primary">NEXODE</Link>
                 </div>
 
-                <nav className="flex-1 px-4 space-y-2">
+                <nav className="flex-1 px-4 space-y-2 overflow-y-auto py-4">
                     {sidebarItems.map((item) => (
                         <Link
                             key={item.label}
@@ -228,8 +227,8 @@ export default function DashboardPage() {
                 </nav>
 
                 <div className="p-6 border-t border-white/5 mx-4 mb-6">
-                    <div className="flex items-center gap-3 mb-6">
-                        <div className="w-10 h-10 rounded-full bg-zinc-800 border border-white/10 overflow-hidden relative">
+                    <Link href="/profile" className="flex items-center gap-3 mb-6 p-2 rounded-2xl hover:bg-white/5 transition-all group">
+                        <div className="w-10 h-10 rounded-full bg-zinc-800 border border-white/10 overflow-hidden relative group-hover:border-primary/50 transition-colors">
                             {user?.avatar && (
                                 <Image
                                     src={user.avatar}
@@ -240,10 +239,10 @@ export default function DashboardPage() {
                             )}
                         </div>
                         <div className="flex-1 min-w-0">
-                            <div className="text-sm font-bold truncate">{user?.first_name || "Nexus User"}</div>
+                            <div className="text-sm font-bold truncate group-hover:text-primary transition-colors">{user?.first_name || "Nexus User"}</div>
                             <div className="text-xs text-zinc-500 truncate">{user?.email || "user@nexode.com"}</div>
                         </div>
-                    </div>
+                    </Link>
                     <Button variant="ghost" className="w-full justify-start gap-3 rounded-xl text-zinc-500 hover:text-red-400 hover:bg-red-400/10">
                         <LogOut className="w-5 h-5" /> Sign Out
                     </Button>
@@ -251,7 +250,7 @@ export default function DashboardPage() {
             </aside>
 
             {/* Main Content */}
-            <main className="flex-1 flex flex-col">
+            <main className="flex-1 flex flex-col overflow-y-auto">
                 <header className="h-20 border-b border-white/5 px-8 flex items-center justify-between bg-black/50 backdrop-blur-xl">
                     <div className="flex items-center gap-4 bg-white/5 px-4 py-2 rounded-2xl border border-white/10 w-96">
                         <Search className="w-4 h-4 text-zinc-500" />
@@ -270,7 +269,6 @@ export default function DashboardPage() {
                         <Button asChild className="rounded-2xl gap-2 font-bold shadow-lg shadow-primary/20">
                             <Link href="/checkout"><Plus className="w-4 h-4" /> New Service</Link>
                         </Button>
-                        <UserNav />
                     </div>
                 </header>
 
