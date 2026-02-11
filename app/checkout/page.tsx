@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { Check, Zap, Database, Cpu, ArrowRight, Shield, Globe, CreditCard } from "lucide-react";
+import { Check, Zap, Database, Cpu, Workflow, ArrowRight, Shield, Globe, CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { UserNav } from "@/components/user-nav";
@@ -27,6 +27,44 @@ interface Service {
 }
 
 const SERVICES: Service[] = [
+    {
+        id: "n8n",
+        title: "n8n Automation",
+        description: "Self-hosted workflow automation. Connect everything and design complex logic with ease.",
+        icon: Workflow,
+        color: "bg-red-500",
+        highlights: ["Nodes for 400+ apps", "Self-hosted privacy", "Unlimited triggers", "Custom JS nodes"],
+        tiers: [
+            {
+                name: "Basic",
+                slug: "n8n-basic",
+                price: 5,
+                specs: { "EXECS": "1,000 /mo", "TYPE": "Shared" },
+                features: ["3 Workflows", "Daily Logs"]
+            },
+            {
+                name: "Standard",
+                slug: "n8n-standard",
+                price: 10,
+                specs: { "EXECS": "5,000 /mo", "TYPE": "1GB RAM" },
+                features: ["10 Workflows", "Priority Support"]
+            },
+            {
+                name: "Pro",
+                slug: "n8n-pro",
+                price: 20,
+                specs: { "EXECS": "20,000 /mo", "TYPE": "2GB RAM" },
+                features: ["50 Workflows", "HA Ready"]
+            },
+            {
+                name: "Ultra",
+                slug: "n8n-ultra",
+                price: 40,
+                specs: { "EXECS": "50,000 /mo", "TYPE": "4GB RAM" },
+                features: ["Max Throughput", "Enterprise SLA"]
+            },
+        ]
+    },
     {
         id: "database",
         title: "Database",
@@ -95,6 +133,7 @@ export default function CheckoutPage() {
     const [selectedTiers, setSelectedTiers] = useState<Record<string, string | null>>({
         database: null,
         compute: null,
+        n8n: null,
     });
     const [loading, setLoading] = useState(false);
 

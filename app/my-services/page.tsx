@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { Database, Cpu, ExternalLink, Shield, Settings, Plus } from "lucide-react";
+import { Database, Cpu, ExternalLink, Shield, Settings, Plus, Workflow } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -45,6 +45,16 @@ export default function MyServicesPage() {
             plan: {
                 name: "Compute Basic",
                 features: { cpu: "1 vCPU", ram: "2 GB" }
+            }
+        },
+        {
+            id: "3",
+            service: "n8n",
+            status: "ACTIVE",
+            billing_cycle: "monthly",
+            plan: {
+                name: "n8n Basic",
+                features: { executions: "1,000 /mo", workflows: "3 active" }
             }
         }
     ];
@@ -94,13 +104,15 @@ export default function MyServicesPage() {
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {activeSubs.map((sub) => {
-                            const Icon = sub.service === "database" ? Database : Cpu;
+                            const Icon = sub.service === "database" ? Database : sub.service === "n8n" ? Workflow : Cpu;
                             return (
                                 <div key={sub.id} className="group relative bg-white/[0.03] border border-white/5 rounded-[32px] p-8 hover:bg-white/[0.06] transition-all duration-300">
                                     <div className="flex items-start justify-between mb-8">
                                         <div className={cn(
                                             "p-4 rounded-2xl",
-                                            sub.service === "database" ? "bg-purple-500/20 text-purple-400" : "bg-blue-500/20 text-blue-400"
+                                            sub.service === "database" ? "bg-purple-500/20 text-purple-400" :
+                                                sub.service === "n8n" ? "bg-red-500/20 text-red-400" :
+                                                    "bg-blue-500/20 text-blue-400"
                                         )}>
                                             <Icon className="w-8 h-8" />
                                         </div>

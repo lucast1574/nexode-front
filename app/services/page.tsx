@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Check, Database, Cpu, Zap, ArrowRight, Shield, Globe } from "lucide-react";
+import { Check, Database, Cpu, Zap, ArrowRight, Shield, Globe, Workflow } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
@@ -26,6 +26,44 @@ interface Service {
 }
 
 const SERVICES: Service[] = [
+    {
+        id: "n8n",
+        title: "n8n Automation",
+        description: "Self-hosted workflow automation. Connect everything and design complex logic with ease.",
+        icon: Workflow,
+        color: "bg-red-500",
+        highlights: ["Nodes for 400+ apps", "Self-hosted privacy", "Unlimited triggers", "Custom JS nodes"],
+        tiers: [
+            {
+                name: "Basic",
+                slug: "n8n-basic",
+                price: 5,
+                specs: { "EXECS": "1,000 /mo", "TYPE": "Shared" },
+                features: ["3 Workflows", "Standard Support"]
+            },
+            {
+                name: "Standard",
+                slug: "n8n-standard",
+                price: 10,
+                specs: { "EXECS": "5,000 /mo", "TYPE": "1GB RAM" },
+                features: ["10 Workflows", "Priority Support"]
+            },
+            {
+                name: "Pro",
+                slug: "n8n-pro",
+                price: 20,
+                specs: { "EXECS": "20,000 /mo", "TYPE": "2GB RAM" },
+                features: ["50 Workflows", "24/7 Support"]
+            },
+            {
+                name: "Ultra",
+                slug: "n8n-ultra",
+                price: 40,
+                specs: { "EXECS": "50,000 /mo", "TYPE": "4GB RAM" },
+                features: ["Unlimited Workflows", "Enterprise SLA"]
+            },
+        ]
+    },
     {
         id: "database",
         title: "Database",
@@ -94,6 +132,7 @@ export default function ServicesPage() {
     const [selectedTiers, setSelectedTiers] = useState<Record<string, string | null>>({
         database: null,
         compute: null,
+        n8n: null,
     });
 
     const handleSelectTier = (serviceId: string, tierSlug: string) => {
@@ -284,7 +323,7 @@ export default function ServicesPage() {
                             <Button
                                 variant="ghost"
                                 className="text-zinc-400 hover:text-white"
-                                onClick={() => setSelectedTiers({ database: null, compute: null })}
+                                onClick={() => setSelectedTiers({ database: null, compute: null, n8n: null })}
                             >
                                 Clear All
                             </Button>

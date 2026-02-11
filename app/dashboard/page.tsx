@@ -16,7 +16,8 @@ import {
     Search,
     Bell,
     CreditCard,
-    Zap
+    Zap,
+    Workflow
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -145,14 +146,14 @@ export default function DashboardPage() {
                     const allSubs = result.data.mySubscriptions || [];
                     const paidSubs = allSubs.filter((s: Subscription) => s && s.status === 'ACTIVE' && s.service !== 'nexus');
 
-                    if (paidSubs.length === 0) {
-                        console.warn("[Dashboard] No active paid subscriptions found, redirecting to checkout");
-                        setIsAuthorized(false);
-                        router.push("/checkout");
-                        return;
-                    }
+                    // Sort: n8n first, then others
+                    const sortedSubs = [...paidSubs].sort((a, b) => {
+                        if (a.service === 'n8n') return -1;
+                        if (b.service === 'n8n') return 1;
+                        return 0;
+                    });
 
-                    setSubscriptions(paidSubs);
+                    setSubscriptions(sortedSubs);
                     setIsAuthorized(true);
                 } else {
                     console.error("[Dashboard] No data in result, redirecting to login. Errors:", result.errors);
@@ -275,52 +276,92 @@ export default function DashboardPage() {
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-                            {subscriptions.map((sub) => (
-                                <div key={sub.id} className="group relative bg-white/[0.03] border border-white/5 rounded-[32px] p-8 hover:bg-white/[0.06] transition-all duration-500">
-                                    <div className="flex items-start justify-between mb-8">
-                                        <div className={cn(
-                                            "p-4 rounded-2xl shadow-inner",
-                                            sub.service === "database" ? "bg-purple-500/20 text-purple-400" : "bg-blue-500/20 text-blue-400"
-                                        )}>
-                                            {sub.service === "database" ? <Database className="w-8 h-8" /> : <Cpu className="w-8 h-8" />}
-                                        </div>
-                                        <div className="flex flex-col items-end gap-2">
-                                            <div className="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-500 text-[10px] font-black uppercase tracking-widest border border-emerald-500/20">
-                                                {sub.status}
+                            {subscriptions.map((sub) => {
+                                // For now, let's check name for "Ultra" or "Pro" (highest tiers)
+                                const isHighestTier = sub.plan.name.toLowerCase().includes("ultra") ||
+                                    (sub.service === "compute" && sub.plan.name.toLowerCase().includes("pro"));
+
+                                return (
+                                    <div key={sub.id} className={cn(
+                                        "group relative border rounded-[32px] p-8 transition-all duration-500",
+                                        sub.service === "n8n"
+                                            ? "bg-gradient-to-br from-red-500/10 to-transparent border-red-500/20 hover:bg-red-500/15"
+                                            : "bg-white/[0.03] border-white/5 hover:bg-white/[0.06]"
+                                    )}>
+                                        <div className="flex items-start justify-between mb-8">
+                                            <div className={cn(
+                                                "p-4 rounded-2xl shadow-inner",
+                                                sub.service === "database" ? "bg-purple-500/20 text-purple-400" :
+                                                    sub.service === "n8n" ? "bg-red-500/20 text-red-400" :
+                                                        "bg-blue-500/20 text-blue-400"
+                                            )}>
+                                                {sub.service === "database" ? <Database className="w-8 h-8" /> :
+                                                    sub.service === "n8n" ? <Workflow className="w-8 h-8" /> :
+                                                        <Cpu className="w-8 h-8" />}
                                             </div>
-                                            <div className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest">Active Runtime</div>
-                                        </div>
-                                    </div>
-
-                                    <div className="space-y-1 mb-6">
-                                        <h3 className="text-2xl font-black capitalize">{sub.service} Cluster</h3>
-                                        <p className="text-zinc-500 font-medium text-sm">{sub.plan.name} Instance</p>
-                                    </div>
-
-                                    <div className="grid grid-cols-2 gap-4 mb-8">
-                                        {Object.entries(sub.plan.features).slice(0, 4).map(([key, val]: [string, string]) => (
-                                            <div key={key} className="space-y-1 bg-white/5 p-3 rounded-2xl border border-white/5">
-                                                <div className="text-[9px] text-zinc-500 font-black uppercase tracking-wider">{key}</div>
-                                                <div className="text-sm font-bold text-zinc-200">{val}</div>
+                                            <div className="flex flex-col items-end gap-2">
+                                                <div className="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-500 text-[10px] font-black uppercase tracking-widest border border-emerald-500/20">
+                                                    {sub.status}
+                                                </div>
+                                                <div className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest">Active Runtime</div>
                                             </div>
-                                        ))}
-                                    </div>
-
-                                    <div className="flex flex-col gap-3">
-                                        <div className="flex items-center gap-3">
-                                            <Button className="flex-1 rounded-xl h-11 font-bold gap-2">
-                                                Open Console <ExternalLink className="w-4 h-4" />
-                                            </Button>
-                                            <Button variant="outline" className="w-11 h-11 p-0 rounded-xl bg-white/5 border-white/10 hover:bg-white/10">
-                                                <ChevronRight className="w-5 h-5 text-zinc-400" />
-                                            </Button>
                                         </div>
-                                        <Button asChild variant="ghost" className="w-full rounded-xl h-11 font-bold gap-2 text-primary hover:bg-primary/10 hover:text-primary">
-                                            <Link href="/checkout"><Zap className="w-4 h-4" /> Upgrade Plan</Link>
+
+                                        <div className="space-y-1 mb-6">
+                                            <h3 className="text-2xl font-black capitalize">{sub.service} {sub.service === 'n8n' ? 'Flow' : 'Cluster'}</h3>
+                                            <p className="text-zinc-500 font-medium text-sm">{sub.plan.name} Instance</p>
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-4 mb-8">
+                                            {Object.entries(sub.plan.features).slice(0, 4).map(([key, val]: [string, string]) => (
+                                                <div key={key} className="space-y-1 bg-white/5 p-3 rounded-2xl border border-white/5">
+                                                    <div className="text-[9px] text-zinc-500 font-black uppercase tracking-wider">{key}</div>
+                                                    <div className="text-sm font-bold text-zinc-200">{val}</div>
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        <div className="flex flex-col gap-3">
+                                            <div className="flex items-center gap-3">
+                                                <Button className="flex-1 rounded-xl h-11 font-bold gap-2">
+                                                    Open Console <ExternalLink className="w-4 h-4" />
+                                                </Button>
+                                                <Button variant="outline" className="w-11 h-11 p-0 rounded-xl bg-white/5 border-white/10 hover:bg-white/10">
+                                                    <ChevronRight className="w-5 h-5 text-zinc-400" />
+                                                </Button>
+                                            </div>
+
+                                            {!isHighestTier && (
+                                                <Button asChild variant="ghost" className="w-full rounded-xl h-11 font-bold gap-2 text-primary hover:bg-primary/10 hover:text-primary">
+                                                    <Link href="/checkout"><Zap className="w-4 h-4" /> Upgrade Plan</Link>
+                                                </Button>
+                                            )}
+                                        </div>
+                                    </div>
+                                );
+                            })}
+
+                            {/* CONDITIONAL SPACE FOR MISSING SERVICES */}
+                            {(() => {
+                                const hasService = (id: string) => subscriptions.some(s => s.service === id);
+                                const missing = [];
+                                if (!hasService('n8n')) missing.push({ id: 'n8n', title: 'n8n Automation', color: 'border-red-500/20' });
+                                if (!hasService('database')) missing.push({ id: 'database', title: 'Database Cluster', color: 'border-purple-500/20' });
+                                if (!hasService('compute')) missing.push({ id: 'compute', title: 'Compute Instance', color: 'border-blue-500/20' });
+
+                                return missing.map(svc => (
+                                    <div key={svc.id} className={cn("relative group border border-dashed rounded-[32px] p-8 flex flex-col items-center justify-center text-center transition-all bg-white/[0.01] hover:bg-white/[0.03]", svc.color)}>
+                                        <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                                            <Plus className="w-6 h-6 text-zinc-600" />
+                                        </div>
+                                        <h3 className="font-bold text-lg mb-2">Add {svc.title}</h3>
+                                        <p className="text-xs text-zinc-500 mb-6 max-w-[200px]">Provision this resource to expand your infrastructure.</p>
+                                        <Button asChild size="sm" variant="outline" className="rounded-xl border-zinc-800 text-zinc-400 hover:text-white hover:bg-white/5">
+                                            <Link href="/checkout">Provision Now</Link>
                                         </Button>
                                     </div>
-                                </div>
-                            ))}
+                                ));
+                            })()}
                         </div>
                     )}
 
@@ -353,7 +394,7 @@ export default function DashboardPage() {
                         </div>
                     </div>
                 </div>
-            </main>
-        </div>
+            </main >
+        </div >
     );
 }
