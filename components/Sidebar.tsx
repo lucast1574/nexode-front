@@ -43,8 +43,8 @@ export function Sidebar({ user, subscriptions }: SidebarProps) {
         { icon: LayoutDashboard, label: "Overview", href: "/dashboard" },
         { icon: Workflow, label: "Automations", href: "/dashboard/automations", visible: hasN8n },
         { icon: Cpu, label: "Compute", href: "/dashboard/compute", visible: hasCompute },
-        { icon: CreditCard, label: "Billing", href: "/dashboard/billing" },
         { icon: Database, label: "Databases", href: "/dashboard/databases", visible: hasDatabase },
+        { icon: CreditCard, label: "Billing", href: "/dashboard/billing" },
         { icon: Settings, label: "Settings", href: "/dashboard/settings" },
     ].filter(item => item.visible !== false);
 
