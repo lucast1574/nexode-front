@@ -115,7 +115,7 @@ export default function DashboardPage() {
                             email
                             avatar
                         }
-                        mySubscription {
+                        mySubscriptions {
                             id
                             service
                             status
@@ -141,17 +141,18 @@ export default function DashboardPage() {
 
                 if (result.data) {
                     setUser(result.data.me);
-                    // Filter out free plans (service 'nexus')
-                    const subs = [result.data.mySubscription].filter(s => s && s.status === 'ACTIVE' && s.service !== 'nexus');
+                    // Filter out free plans (service 'nexus') and ensure they are ACTIVE
+                    const allSubs = result.data.mySubscriptions || [];
+                    const paidSubs = allSubs.filter((s: Subscription) => s && s.status === 'ACTIVE' && s.service !== 'nexus');
 
-                    if (subs.length === 0) {
+                    if (paidSubs.length === 0) {
                         console.warn("[Dashboard] No active paid subscriptions found, redirecting to checkout");
                         setIsAuthorized(false);
                         router.push("/checkout");
                         return;
                     }
 
-                    setSubscriptions(subs);
+                    setSubscriptions(paidSubs);
                     setIsAuthorized(true);
                 } else {
                     console.error("[Dashboard] No data in result, redirecting to login. Errors:", result.errors);
