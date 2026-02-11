@@ -164,10 +164,11 @@ export default function CheckoutPage() {
                 });
                 const result = await response.json();
                 if (result.data?.mySubscriptions) {
-                    const slugs = result.data.mySubscriptions
-                        .map((s: { plan?: { slug: string } }) => s.plan?.slug)
+                    const activeSlugs = result.data.mySubscriptions
+                        .filter((s: { status: string; plan?: { slug: string } }) => s.status === 'ACTIVE')
+                        .map((s: { status: string; plan?: { slug: string } }) => s.plan?.slug)
                         .filter((slug: string | undefined): slug is string => !!slug);
-                    setCurrentSubSlugs(slugs);
+                    setCurrentSubSlugs(activeSlugs);
                 }
             } catch (err) {
                 console.error("Error fetching current subs:", err);

@@ -277,9 +277,11 @@ export default function DashboardPage() {
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
                             {subscriptions.map((sub) => {
-                                // For now, let's check name for "Ultra" or "Pro" (highest tiers)
-                                const isHighestTier = sub.plan.name.toLowerCase().includes("ultra") ||
-                                    (sub.service === "compute" && sub.plan.name.toLowerCase().includes("pro"));
+                                // Determine if the user is on the highest tier to hide the upgrade button
+                                const isHighestTier =
+                                    sub.plan.name.toLowerCase().includes("ultra") || // n8n highest
+                                    sub.plan.name.toLowerCase().includes("tier 4") || // database highest
+                                    (sub.service === "compute" && sub.plan.name.toLowerCase().includes("pro")); // compute highest
 
                                 return (
                                     <div key={sub.id} className={cn(
