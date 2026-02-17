@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Sidebar, Subscription } from "@/components/Sidebar";
 import { cn } from "@/lib/utils";
 import { getAccessToken } from "@/lib/auth-utils";
+import { DeleteDatabaseModal } from "@/components/modals/DeleteDatabaseModal";
 
 interface DatabaseInstance {
     _id: string;
@@ -49,6 +50,8 @@ export default function DatabasesPage() {
     const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
     const [selectedDb, setSelectedDb] = useState<DatabaseInstance | null>(null);
     const [showCreateModal, setShowCreateModal] = useState(false);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [dbToDelete, setDbToDelete] = useState<DatabaseInstance | null>(null);
     const [copiedField, setCopiedField] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState<'overview' | 'credentials' | 'explorer'>('overview');
 
@@ -228,8 +231,13 @@ export default function DatabasesPage() {
         }
     };
 
-    const handleDeleteDb = async (id: string) => {
-        if (!confirm("Are you sure you want to delete this database instance? This action cannot be undone.")) return;
+    const handleDeleteDb = async (db: DatabaseInstance) => {
+        setDbToDelete(db);
+        setShowDeleteModal(true);
+    };
+
+    const confirmDelete = async () => {
+        if (!dbToDelete) return;
 
         try {
             const token = getAccessToken();
@@ -249,13 +257,17 @@ export default function DatabasesPage() {
                 },
                 body: JSON.stringify({
                     query: mutation,
-                    variables: { id }
+                    variables: { id: dbToDelete._id }
                 }),
             });
 
             const result = await res.json();
             if (result.data?.deleteDatabase) {
-                setSelectedDb(null);
+                if (selectedDb?._id === dbToDelete._id) {
+                    setSelectedDb(null);
+                }
+                setShowDeleteModal(false);
+                setDbToDelete(null);
                 fetchDatabases();
             } else {
                 alert("Failed to delete database instance.");
@@ -384,7 +396,7 @@ export default function DatabasesPage() {
                                             </Button>
                                             <Button
                                                 variant="outline"
-                                                onClick={() => handleDeleteDb(selectedDb._id)}
+                                                onClick={() => handleDeleteDb(selectedDb)}
                                                 className="rounded-xl border-red-500/20 bg-red-500/5 text-red-400 hover:bg-red-500/10 h-10"
                                             >
                                                 <Trash2 className="w-4 h-4" />
@@ -713,6 +725,16 @@ export default function DatabasesPage() {
                     </div>
                 </div>
             )}
+            {/* Delete Confirmation Modal */}
+            <DeleteDatabaseModal
+                isOpen={showDeleteModal}
+                onClose={() => {
+                    setShowDeleteModal(false);
+                    setDbToDelete(null);
+                }}
+                onConfirm={confirmDelete}
+                dbName={dbToDelete?.name || ""}
+            />
         </div>
     );
 }
