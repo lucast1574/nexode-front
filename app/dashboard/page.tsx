@@ -207,10 +207,10 @@ export default function DashboardPage() {
                     </div>
                 </header>
 
-                <div className="p-8 pt-16 max-w-7xl mx-auto w-full">
-                    <div className="mb-10">
-                        <h1 className="text-3xl font-black tracking-tight mb-2">System Overview</h1>
-                        <p className="text-zinc-500">Monitor and manage your active cloud resources.</p>
+                <div className="px-8 py-24 max-w-7xl mx-auto w-full">
+                    <div className="mb-20">
+                        <h1 className="text-4xl font-black tracking-tight mb-4">System Overview</h1>
+                        <p className="text-zinc-500 text-lg">Monitor and manage your active cloud resources.</p>
                     </div>
 
                     {loading ? (
@@ -220,7 +220,7 @@ export default function DashboardPage() {
                             ))}
                         </div>
                     ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-8">
                             {subscriptions.map((sub) => {
                                 // Determine if the user is on the highest tier to hide the upgrade button
                                 const isHighestTier =
@@ -323,7 +323,7 @@ export default function DashboardPage() {
                         </div>
                     )}
 
-                    <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="mt-24 grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div className="bg-gradient-to-br from-primary/10 to-transparent border border-primary/20 rounded-[32px] p-8 relative overflow-hidden group">
                             <div className="relative z-10">
                                 <h3 className="text-xl font-bold mb-2">Upgrade Performance</h3>
