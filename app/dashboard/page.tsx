@@ -186,23 +186,23 @@ export default function DashboardPage() {
 
             {/* Main Content */}
             <main className="flex-1 flex flex-col overflow-y-auto">
-                <header className="h-20 border-b border-white/5 px-8 flex items-center justify-between bg-black/50 backdrop-blur-xl">
-                    <div className="flex items-center gap-4 bg-white/5 px-4 py-2 rounded-2xl border border-white/10 w-96">
-                        <Search className="w-4 h-4 text-zinc-500" />
+                <header className="h-28 border-b border-white/5 px-12 flex items-center justify-between bg-black/50 backdrop-blur-xl shrink-0">
+                    <div className="flex items-center gap-4 bg-white/5 px-6 py-3.5 rounded-2xl border border-white/10 w-[450px] transition-all focus-within:border-primary/50 focus-within:bg-white/10">
+                        <Search className="w-5 h-5 text-zinc-500" />
                         <input
                             type="text"
                             placeholder="Search instances, services..."
-                            className="bg-transparent border-none outline-none text-sm w-full placeholder:text-zinc-400"
+                            className="bg-transparent border-none outline-none text-base w-full placeholder:text-zinc-500 font-medium"
                         />
                     </div>
 
-                    <div className="flex items-center gap-4">
-                        <Button variant="ghost" size="icon" className="rounded-full relative">
-                            <Bell className="w-5 h-5 text-zinc-400" />
-                            <span className="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full border-2 border-black" />
+                    <div className="flex items-center gap-6">
+                        <Button variant="ghost" size="icon" className="rounded-full relative w-12 h-12 hover:bg-white/5">
+                            <Bell className="w-6 h-6 text-zinc-400" />
+                            <span className="absolute top-3 right-3 w-2.5 h-2.5 bg-primary rounded-full border-2 border-black" />
                         </Button>
-                        <Button asChild className="rounded-2xl gap-2 font-bold shadow-lg shadow-primary/20">
-                            <Link href="/checkout"><Plus className="w-4 h-4" /> New Service</Link>
+                        <Button asChild className="rounded-2xl h-12 px-6 gap-2 font-bold shadow-lg shadow-primary/20 text-base">
+                            <Link href="/checkout"><Plus className="w-5 h-5" /> New Service</Link>
                         </Button>
                     </div>
                 </header>
