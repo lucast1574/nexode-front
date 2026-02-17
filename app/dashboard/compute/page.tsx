@@ -4,7 +4,7 @@ import React from "react";
 import { Cpu, Rocket, Clock, Shield, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sidebar } from "@/components/Sidebar";
-
+////
 export default function ComputePage() {
     // Mock data for the placeholder
     const user = { first_name: "Nexus User", email: "user@nexode.com" };
