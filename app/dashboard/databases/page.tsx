@@ -148,10 +148,19 @@ export default function DatabasesPage() {
                 setShowCreateModal(false);
                 fetchDatabases();
             } else if (result.errors) {
-                const msg = result.errors[0]?.message || "An unexpected error occurred.";
-                console.error("[Databases] Mutation errors:", result.errors);
-                alert(`Creation Failed: ${msg}`);
+                const mainError = result.errors[0];
+                const msg = mainError?.message || "An unexpected error occurred.";
+                const code = mainError?.extensions?.code || "UNKNOWN";
+
+                console.group("[Databases] Mutation Failure Details");
+                console.error("Primary Message:", msg);
+                console.error("Error Code:", code);
+                console.error("Full Error Stack:", result.errors);
+                console.groupEnd();
+
+                alert(`Creation Failed: ${msg} (Code: ${code})`);
             } else {
+
                 alert("Communication error with the server. Please check your connection.");
             }
         } catch (err) {
