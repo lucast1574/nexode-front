@@ -110,9 +110,16 @@ export default function DatabasesPage() {
         const name = formData.get('name') as string;
         const type = formData.get('type') as string;
 
+        if (name.length < 3) {
+            alert("Instance name must be at least 3 characters long.");
+            return;
+        }
+
         try {
             const token = getAccessToken();
             const GQL_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api-v1/graphql";
+
+            console.log(`[Databases] Attempting to create database "${name}" with type "${type}"...`);
 
             const mutation = `
                 mutation CreateDatabase($input: CreateDatabaseInput!) {
@@ -135,15 +142,23 @@ export default function DatabasesPage() {
             });
 
             const result = await res.json();
+            console.log("[Databases] Create result:", result);
+
             if (result.data?.createDatabase) {
                 setShowCreateModal(false);
                 fetchDatabases();
             } else if (result.errors) {
-                alert(result.errors[0].message);
+                const msg = result.errors[0]?.message || "An unexpected error occurred.";
+                console.error("[Databases] Mutation errors:", result.errors);
+                alert(`Creation Failed: ${msg}`);
+            } else {
+                alert("Communication error with the server. Please check your connection.");
             }
-        } catch (err) {
-            console.error(err);
+        } catch (err: any) {
+            console.error("[Databases] Network or execution error:", err);
+            alert(`Execution Error: ${err.message || 'Unknown error'}`);
         }
+
     };
 
     if (loading) {
