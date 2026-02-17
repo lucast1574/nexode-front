@@ -1,17 +1,78 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Cpu, Rocket, Clock, Shield, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Sidebar } from "@/components/Sidebar";
-////
+import { Sidebar, Subscription } from "@/components/Sidebar";
+import { getAccessToken } from "@/lib/auth-utils";
+
 export default function ComputePage() {
-    // Mock data for the placeholder
-    const user = { first_name: "Nexus User", email: "user@nexode.com" };
-    const subscriptions = [
-        { id: "1", service: "compute", status: "ACTIVE", plan: { name: "Compute Pro", slug: "compute-pro", features: {} } },
-        { id: "2", service: "database", status: "ACTIVE", plan: { name: "DB Tier 1", slug: "db-tier-1", features: {} } }
-    ];
+    const [loading, setLoading] = useState(true);
+    const [user, setUser] = useState<{ first_name: string, email: string, avatar?: string } | null>(null);
+    const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const token = getAccessToken();
+                const GQL_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api-v1/graphql";
+
+                if (!token) return;
+
+                const query = `
+                    query GetSidebarData {
+                        me {
+                            first_name
+                            email
+                            avatar
+                        }
+                        mySubscriptions {
+                            id
+                            service
+                            status
+                            plan {
+                                name
+                                slug
+                                features
+                            }
+                        }
+                    }
+                `;
+
+                const response = await fetch(GQL_URL, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ query }),
+                });
+
+                const result = await response.json();
+                if (result.data) {
+                    setUser(result.data.me);
+                    setSubscriptions(result.data.mySubscriptions || []);
+                }
+            } catch (error) {
+                console.error("Fetch error:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchData();
+    }, []);
+
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-black flex items-center justify-center">
+                <div className="flex flex-col items-center gap-6">
+                    <div className="w-16 h-16 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin" />
+                    <p className="text-zinc-500 font-bold tracking-widest uppercase text-xs animate-pulse">Syncing Compute Engine...</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="h-screen bg-[#020202] text-white flex overflow-hidden">
@@ -64,7 +125,7 @@ export default function ComputePage() {
                         <Button variant="outline" className="rounded-2xl h-14 px-8 border-white/10 hover:bg-white/5 font-bold">
                             View Roadmap
                         </Button>
-                        <Button className="rounded-2xl h-14 px-8 bg-white text-black hover:bg-zinc-200 font-bold">
+                        <Button className="rounded-2xl h-14 px-8 bg-zinc-900 border border-white/10 hover:bg-zinc-800 font-bold transition-all">
                             Join Beta Waitlist <ChevronRight className="w-4 h-4 ml-2" />
                         </Button>
                     </div>
@@ -73,3 +134,4 @@ export default function ComputePage() {
         </div>
     );
 }
+

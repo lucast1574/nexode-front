@@ -233,7 +233,11 @@ export default function DashboardPage() {
                                         "group relative border rounded-[32px] p-8 transition-all duration-500 flex flex-col",
                                         sub.service === "n8n"
                                             ? "bg-gradient-to-br from-red-500/10 to-transparent border-red-500/20 hover:bg-red-500/15"
-                                            : "bg-white/[0.03] border-white/5 hover:bg-white/[0.06]"
+                                            : sub.service === "compute"
+                                                ? "bg-gradient-to-br from-blue-500/10 to-transparent border-blue-500/20 hover:bg-blue-500/15"
+                                                : sub.service === "database"
+                                                    ? "bg-gradient-to-br from-purple-500/10 to-transparent border-purple-500/20 hover:bg-purple-500/15"
+                                                    : "bg-white/[0.03] border-white/5 hover:bg-white/[0.06]"
                                     )}>
                                         <Link
                                             href={sub.service === "database" ? "/dashboard/databases" : sub.service === "n8n" ? "/dashboard/automations" : sub.service === "compute" ? "/dashboard/compute" : "#"}

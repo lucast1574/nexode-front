@@ -31,6 +31,7 @@ interface DatabaseInstance {
     password?: string;
     db_name?: string;
     connection_string?: string;
+    public_uri?: string;
     created_on: string;
     events?: { timestamp: string; message: string; type: string }[];
 }
@@ -63,7 +64,7 @@ export default function DatabasesPage() {
                     me { first_name email avatar }
                     mySubscriptions { id service status plan { name slug features } }
                     myDatabases {
-                        _id name type status host port username password db_name connection_string created_on
+                        _id name type status host port username password db_name connection_string public_uri created_on
                         events { timestamp message type }
                     }
                 }
@@ -82,9 +83,18 @@ export default function DatabasesPage() {
             if (result.data) {
                 setUser(result.data.me);
                 setSubscriptions(result.data.mySubscriptions || []);
-                setDatabases(result.data.myDatabases || []);
-                if (result.data.myDatabases?.length > 0 && !selectedDb) {
-                    setSelectedDb(result.data.myDatabases[0]);
+                const dbs = result.data.myDatabases || [];
+                setDatabases(dbs);
+
+                if (selectedDb) {
+                    const updated = dbs.find((d: DatabaseInstance) => d._id === selectedDb._id);
+                    if (updated) {
+                        setSelectedDb(updated);
+                    } else {
+                        setSelectedDb(dbs.length > 0 ? dbs[0] : null);
+                    }
+                } else if (dbs.length > 0) {
+                    setSelectedDb(dbs[0]);
                 }
             }
         } catch (error) {
@@ -179,8 +189,81 @@ export default function DatabasesPage() {
             console.error("[Databases] Network or execution error:", error);
             alert(`Execution Error: ${error.message || 'Unknown error'}`);
         }
+    };
 
+    const handleRestartDb = async (id: string) => {
+        try {
+            const token = getAccessToken();
+            const GQL_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api-v1/graphql";
 
+            const mutation = `
+                mutation RestartDatabase($id: String!) {
+                    restartDatabase(id: $id) {
+                        _id status
+                    }
+                }
+            `;
+
+            const res = await fetch(GQL_URL, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    query: mutation,
+                    variables: { id }
+                }),
+            });
+
+            const result = await res.json();
+            if (result.data?.restartDatabase) {
+                fetchDatabases();
+            } else {
+                alert("Failed to restart database instance.");
+            }
+        } catch (error) {
+            console.error("Restart error:", error);
+            alert("An error occurred while restarting the database.");
+        }
+    };
+
+    const handleDeleteDb = async (id: string) => {
+        if (!confirm("Are you sure you want to delete this database instance? This action cannot be undone.")) return;
+
+        try {
+            const token = getAccessToken();
+            const GQL_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api-v1/graphql";
+
+            const mutation = `
+                mutation DeleteDatabase($id: String!) {
+                    deleteDatabase(id: $id)
+                }
+            `;
+
+            const res = await fetch(GQL_URL, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    query: mutation,
+                    variables: { id }
+                }),
+            });
+
+            const result = await res.json();
+            if (result.data?.deleteDatabase) {
+                setSelectedDb(null);
+                fetchDatabases();
+            } else {
+                alert("Failed to delete database instance.");
+            }
+        } catch (error) {
+            console.error("Delete error:", error);
+            alert("An error occurred while deleting the database.");
+        }
     };
 
     if (loading) {
@@ -292,10 +375,18 @@ export default function DatabasesPage() {
                                             <p className="text-zinc-500 text-sm font-medium">Instance ID: {selectedDb._id}</p>
                                         </div>
                                         <div className="flex gap-3">
-                                            <Button variant="outline" className="rounded-xl border-white/10 bg-white/5 hover:bg-white/10 h-10">
+                                            <Button
+                                                variant="outline"
+                                                onClick={() => handleRestartDb(selectedDb._id)}
+                                                className="rounded-xl border-white/10 bg-white/5 hover:bg-white/10 h-10"
+                                            >
                                                 <RefreshCw className="w-4 h-4 mr-2" /> Restart
                                             </Button>
-                                            <Button variant="outline" className="rounded-xl border-red-500/20 bg-red-500/5 text-red-400 hover:bg-red-500/10 h-10">
+                                            <Button
+                                                variant="outline"
+                                                onClick={() => handleDeleteDb(selectedDb._id)}
+                                                className="rounded-xl border-red-500/20 bg-red-500/5 text-red-400 hover:bg-red-500/10 h-10"
+                                            >
                                                 <Trash2 className="w-4 h-4" />
                                             </Button>
                                         </div>
@@ -371,16 +462,17 @@ export default function DatabasesPage() {
                                                 <h3 className="text-lg font-bold mb-6">Connection Endpoints</h3>
                                                 <div className="space-y-4">
                                                     <div className="p-4 rounded-2xl bg-black border border-white/10 flex items-center justify-between">
-                                                        <div className="flex-1">
-                                                            <div className="text-[10px] text-zinc-500 font-bold uppercase mb-1">Public Endpoint</div>
-                                                            <code className="text-sm text-primary">{selectedDb.host || 'provisioning...'}</code>
+                                                        <div className="flex-1 overflow-hidden">
+                                                            <div className="text-[10px] text-zinc-500 font-bold uppercase mb-1">Connection URI</div>
+                                                            <code className="text-sm text-primary truncate block">{selectedDb.public_uri || selectedDb.connection_string || 'provisioning...'}</code>
                                                         </div>
                                                         <Button
                                                             variant="ghost"
                                                             size="icon"
-                                                            onClick={() => handleCopy(selectedDb.host || '', 'host')}
+                                                            className="shrink-0"
+                                                            onClick={() => handleCopy(selectedDb.public_uri || selectedDb.connection_string || '', 'uri')}
                                                         >
-                                                            {copiedField === 'host' ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
+                                                            {copiedField === 'uri' ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
                                                         </Button>
                                                     </div>
                                                     <div className="grid grid-cols-2 gap-4">
@@ -449,7 +541,8 @@ export default function DatabasesPage() {
                                                 {[
                                                     { label: 'Username', value: selectedDb.username, field: 'username' },
                                                     { label: 'Password', value: selectedDb.password, field: 'password', secret: true },
-                                                    { label: 'Connection String', value: selectedDb.connection_string, field: 'conn' },
+                                                    { label: 'Master Connection URI', value: selectedDb.public_uri || selectedDb.connection_string, field: 'public' },
+                                                    { label: 'Standard Connection String', value: selectedDb.connection_string, field: 'conn' },
                                                 ].map((item) => (
                                                     <div key={item.field} className="group p-6 rounded-[24px] bg-white/[0.03] border border-white/5 hover:border-primary/20 transition-all">
                                                         <div className="flex items-center justify-between mb-4">
@@ -478,9 +571,11 @@ export default function DatabasesPage() {
                                                 <Terminal className="w-10 h-10 text-primary" />
                                             </div>
                                             <h3 className="text-2xl font-black mb-2">Web Terminal / Explorer</h3>
-                                            <p className="text-zinc-500 max-w-md mx-auto mb-8">Direct database access via our cloud explorer is coming soon. You can currently connect using external clients like DBeaver or TablePlus.</p>
+                                            <p className="text-zinc-500 max-w-md mx-auto mb-8">
+                                                Direct database access via our cloud explorer is coming soon. You can currently connect using external clients like <span className="text-primary font-bold">MongoDB Compass</span>, DBeaver, or TablePlus.
+                                            </p>
                                             <div className="flex gap-4">
-                                                <Button className="rounded-xl px-8 h-12 font-bold bg-white text-white hover:bg-zinc-200">
+                                                <Button className="rounded-xl px-8 h-12 font-bold bg-zinc-900 border border-white/10 hover:bg-zinc-800 transition-all">
                                                     Download Config
                                                 </Button>
                                                 <Button variant="outline" className="rounded-xl px-8 h-12 font-bold border-white/10 hover:bg-white/5">
