@@ -154,10 +154,12 @@ export default function DatabasesPage() {
             } else {
                 alert("Communication error with the server. Please check your connection.");
             }
-        } catch (err: any) {
-            console.error("[Databases] Network or execution error:", err);
-            alert(`Execution Error: ${err.message || 'Unknown error'}`);
+        } catch (err) {
+            const error = err as Error;
+            console.error("[Databases] Network or execution error:", error);
+            alert(`Execution Error: ${error.message || 'Unknown error'}`);
         }
+
 
     };
 

@@ -15,9 +15,10 @@ export default function ComputePage() {
 
     return (
         <div className="h-screen bg-[#020202] text-white flex overflow-hidden">
-            <Sidebar user={user} subscriptions={subscriptions as any} />
+            <Sidebar user={user} subscriptions={subscriptions} />
 
             <main className="flex-1 flex flex-col overflow-hidden relative">
+
                 {/* Background Glow */}
                 <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-blue-600/10 blur-[120px] rounded-full" />
 
