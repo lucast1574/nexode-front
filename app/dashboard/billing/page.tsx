@@ -200,7 +200,7 @@ export default function BillingPage() {
                             </div>
                             <Button
                                 onClick={handleManageBilling}
-                                className="w-full rounded-2xl py-6 font-bold gap-2 text-black bg-primary hover:bg-primary/90 transition-all active:scale-95"
+                                className="w-full rounded-2xl py-6 font-bold gap-2 text-white bg-primary hover:bg-primary/90 transition-all active:scale-95"
                             >
                                 <ExternalLink className="w-4 h-4" /> Manage in Stripe
                             </Button>
@@ -236,7 +236,7 @@ export default function BillingPage() {
                                             >
                                                 <div className="absolute top-0 left-0 right-0 h-1 bg-primary/50 rounded-full blur-[2px] opacity-0 group-hover:opacity-100 transition-opacity" />
                                             </div>
-                                            <div className="absolute -bottom-6 left-0 right-0 text-center text-[8px] font-bold text-zinc-600 uppercase">
+                                            <div className="absolute -bottom-6 left-0 right-0 text-center text-[8px] font-bold text-zinc-400 uppercase">
                                                 {['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][i]}
                                             </div>
                                         </div>
@@ -282,7 +282,7 @@ export default function BillingPage() {
                                                 </div>
                                                 <div className="text-right">
                                                     <div className="font-black text-lg">${sub.billing_cycle === 'monthly' ? sub.plan.price_monthly : sub.plan.price_annual}</div>
-                                                    <div className="text-[10px] uppercase font-bold text-zinc-600 tracking-tighter">next charge mar 10</div>
+                                                    <div className="text-[10px] uppercase font-bold text-zinc-400 tracking-tighter">next charge mar 10</div>
                                                 </div>
                                             </div>
                                         ))

@@ -200,7 +200,7 @@ export default function SettingsPage() {
                                         readOnly
                                         className="bg-white/[0.02] border-white/5 text-zinc-500 rounded-2xl h-14 px-6 cursor-not-allowed"
                                     />
-                                    <p className="text-[10px] text-zinc-600 ml-4">Managed via Identity Provider. Contact support to change.</p>
+                                    <p className="text-[10px] text-zinc-400 ml-4">Managed via Identity Provider. Contact support to change.</p>
                                 </div>
 
                                 <div className="flex justify-end">
@@ -251,18 +251,18 @@ export default function SettingsPage() {
                                     <p className="text-sm text-zinc-400">Manage payment methods, invoices, and cloud usage costs.</p>
                                 </div>
                             </div>
-                            <ChevronRight className="w-6 h-6 text-zinc-600 group-hover:text-primary transition-colors" />
+                            <ChevronRight className="w-6 h-6 text-zinc-400 group-hover:text-primary transition-colors" />
                         </div>
 
                         {/* System Info */}
                         <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-4">
-                            <div className="flex items-center gap-2 text-[10px] font-bold text-zinc-600 uppercase tracking-[0.2em]">
-                                <Globe className="w-3 h-3 text-zinc-700" /> Infrastructure Edge: North Virginia (US-EAST-1)
+                            <div className="flex items-center gap-2 text-[10px] font-bold text-zinc-400 uppercase tracking-[0.2em]">
+                                <Globe className="w-3 h-3 text-white" /> Infrastructure Edge: North Virginia (US-EAST-1)
                             </div>
                             <div className="flex items-center gap-4 text-[10px] font-bold text-zinc-500 uppercase tracking-widest">
                                 <span className="hover:text-primary transition-colors cursor-pointer">Compliance</span>
                                 <span className="hover:text-primary transition-colors cursor-pointer">Terms of Service</span>
-                                <span className="text-zinc-800">v2.4.0-prod</span>
+                                <span className="text-white">v2.4.0-prod</span>
                             </div>
                         </div>
                     </div>

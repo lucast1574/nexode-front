@@ -192,7 +192,7 @@ export default function DashboardPage() {
                         <input
                             type="text"
                             placeholder="Search instances, services..."
-                            className="bg-transparent border-none outline-none text-sm w-full placeholder:text-zinc-600"
+                            className="bg-transparent border-none outline-none text-sm w-full placeholder:text-zinc-400"
                         />
                     </div>
 
@@ -254,7 +254,7 @@ export default function DashboardPage() {
                                                     <div className="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-500 text-[10px] font-black uppercase tracking-widest border border-emerald-500/20">
                                                         {sub.status}
                                                     </div>
-                                                    <div className="text-[10px] text-zinc-600 font-bold uppercase tracking-widest">Active Runtime</div>
+                                                    <div className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest">Active Runtime</div>
                                                 </div>
                                             </div>
 
@@ -310,7 +310,7 @@ export default function DashboardPage() {
                                 return missing.map(svc => (
                                     <div key={svc.id} className={cn("relative group border border-dashed rounded-[32px] p-8 flex flex-col items-center justify-center text-center transition-all bg-white/[0.01] hover:bg-white/[0.03]", svc.color)}>
                                         <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                                            <Plus className="w-6 h-6 text-zinc-600" />
+                                            <Plus className="w-6 h-6 text-zinc-400" />
                                         </div>
                                         <h3 className="font-bold text-lg mb-2">Add {svc.title}</h3>
                                         <p className="text-xs text-zinc-500 mb-6 max-w-[200px]">Provision this resource to expand your infrastructure.</p>

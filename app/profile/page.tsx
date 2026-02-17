@@ -117,7 +117,7 @@ export default function ProfilePage() {
                                         className="object-cover"
                                     />
                                 ) : (
-                                    <span className="text-5xl font-black text-zinc-800 uppercase tracking-tighter">{initials}</span>
+                                    <span className="text-5xl font-black text-white uppercase tracking-tighter">{initials}</span>
                                 )}
 
                                 <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center gap-2 cursor-pointer">
@@ -125,7 +125,7 @@ export default function ProfilePage() {
                                     <span className="text-[10px] font-bold uppercase tracking-widest">Change Photo</span>
                                 </div>
                             </div>
-                            <div className="absolute -bottom-2 -right-2 md:right-auto md:left-40 w-10 h-10 bg-primary rounded-2xl flex items-center justify-center text-black shadow-xl ring-4 ring-[#050505]">
+                            <div className="absolute -bottom-2 -right-2 md:right-auto md:left-40 w-10 h-10 bg-primary rounded-2xl flex items-center justify-center text-white shadow-xl ring-4 ring-[#050505]">
                                 <Edit3 className="w-5 h-5" />
                             </div>
                         </div>
@@ -186,7 +186,7 @@ export default function ProfilePage() {
                                         />
                                         <CheckCircle2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-500" />
                                     </div>
-                                    <p className="text-[10px] text-zinc-600 mt-2 font-medium">Email address cannot be changed for security reasons.</p>
+                                    <p className="text-[10px] text-zinc-400 mt-2 font-medium">Email address cannot be changed for security reasons.</p>
                                 </Field>
                             </div>
 

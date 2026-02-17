@@ -186,7 +186,7 @@ export default function DatabasesPage() {
                                 <input
                                     type="text"
                                     placeholder="Search clusters..."
-                                    className="bg-transparent border-none outline-none text-xs w-full placeholder:text-zinc-600"
+                                    className="bg-transparent border-none outline-none text-xs w-full placeholder:text-zinc-400"
                                 />
                             </div>
                         </div>
@@ -194,7 +194,7 @@ export default function DatabasesPage() {
                             {databases.length === 0 ? (
                                 <div className="text-center py-12 px-4">
                                     <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-4">
-                                        <Database className="w-6 h-6 text-zinc-700" />
+                                        <Database className="w-6 h-6 text-white" />
                                     </div>
                                     <p className="text-xs text-zinc-500">No active databases found. Create one to get started.</p>
                                 </div>
@@ -368,7 +368,7 @@ export default function DatabasesPage() {
                                                 <div className="bg-white/[0.02] border border-white/5 rounded-[32px] p-8 mt-8">
                                                     <div className="flex items-center justify-between mb-8">
                                                         <h3 className="text-lg font-bold">Deployment Timeline</h3>
-                                                        <span className="text-[10px] font-black uppercase tracking-widest text-zinc-600">Real-time Logs</span>
+                                                        <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Real-time Logs</span>
                                                     </div>
                                                     <div className="space-y-6 relative ml-2">
                                                         <div className="absolute left-[7px] top-2 bottom-2 w-0.5 bg-white/5" />
@@ -388,7 +388,7 @@ export default function DatabasesPage() {
                                                                         )}>
                                                                             {event.message}
                                                                         </p>
-                                                                        <span className="text-[10px] font-medium text-zinc-600">
+                                                                        <span className="text-[10px] font-medium text-zinc-400">
                                                                             {new Date(event.timestamp).toLocaleTimeString()}
                                                                         </span>
                                                                     </div>
@@ -443,7 +443,7 @@ export default function DatabasesPage() {
                                             <h3 className="text-2xl font-black mb-2">Web Terminal / Explorer</h3>
                                             <p className="text-zinc-500 max-w-md mx-auto mb-8">Direct database access via our cloud explorer is coming soon. You can currently connect using external clients like DBeaver or TablePlus.</p>
                                             <div className="flex gap-4">
-                                                <Button className="rounded-xl px-8 h-12 font-bold bg-white text-black hover:bg-zinc-200">
+                                                <Button className="rounded-xl px-8 h-12 font-bold bg-white text-white hover:bg-zinc-200">
                                                     Download Config
                                                 </Button>
                                                 <Button variant="outline" className="rounded-xl px-8 h-12 font-bold border-white/10 hover:bg-white/5">
@@ -456,7 +456,7 @@ export default function DatabasesPage() {
                             </>
                         ) : (
                             <div className="flex-1 flex flex-col items-center justify-center text-center p-8">
-                                <Database className="w-16 h-16 text-zinc-900 mb-6" />
+                                <Database className="w-16 h-16 text-white mb-6" />
                                 <h1 className="text-2xl font-black mb-2">Select a Database</h1>
                                 <p className="text-zinc-500 max-w-xs mx-auto">Choose a cluster from the sidebar to view metrics, credentials and management tools.</p>
                             </div>
@@ -552,7 +552,7 @@ export default function DatabasesPage() {
                                                 {/* Selection Indicator */}
                                                 <div className="absolute top-2 right-2 opacity-0 peer-checked:opacity-100 transition-opacity">
                                                     <div className="w-4 h-4 rounded-full bg-primary flex items-center justify-center">
-                                                        <Check className="w-2.5 h-2.5 text-black" />
+                                                        <Check className="w-2.5 h-2.5 text-white" />
                                                     </div>
                                                 </div>
                                             </div>
@@ -572,7 +572,7 @@ export default function DatabasesPage() {
                                 </Button>
                                 <Button
                                     type="submit"
-                                    className="flex-1 rounded-2xl h-12 font-bold bg-primary text-black hover:bg-primary/90 shadow-lg shadow-primary/20"
+                                    className="flex-1 rounded-2xl h-12 font-bold bg-primary text-white hover:bg-primary/90 shadow-lg shadow-primary/20"
                                 >
                                     Provision Now
                                 </Button>

@@ -347,7 +347,7 @@ export default function CheckoutPage() {
 
                                         <div className={cn(
                                             "mt-auto py-2 px-4 rounded-xl text-xs font-bold text-center transition-all",
-                                            isSelected ? "bg-primary text-black" : "bg-white/5 text-zinc-400 group-hover:bg-white/10"
+                                            isSelected ? "bg-primary text-white" : "bg-white/5 text-zinc-400 group-hover:bg-white/10"
                                         )}>
                                             {(() => {
                                                 if (isSelected) return "Selected";
@@ -365,7 +365,7 @@ export default function CheckoutPage() {
 
                                         {isSelected && (
                                             <div className="absolute -top-6 -right-6 w-12 h-12 bg-primary rotate-45 flex items-end justify-center pb-1">
-                                                <Check className="w-3 h-3 text-black stroke-[4] -rotate-45" />
+                                                <Check className="w-3 h-3 text-white stroke-[4] -rotate-45" />
                                             </div>
                                         )}
                                     </button>
@@ -385,7 +385,7 @@ export default function CheckoutPage() {
                     <div className="flex items-center gap-4 px-4 flex-1">
                         <div className="w-12 h-12 rounded-2xl bg-primary/20 flex items-center justify-center relative">
                             <Zap className="w-6 h-6 text-primary" />
-                            <div className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-black text-[10px] font-black rounded-full flex items-center justify-center border-2 border-zinc-900">
+                            <div className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-zinc-900">
                                 {selectedCount}
                             </div>
                         </div>
@@ -399,14 +399,14 @@ export default function CheckoutPage() {
                         size="lg"
                         onClick={handleCheckout}
                         disabled={loading}
-                        className="w-full sm:w-auto rounded-[20px] h-14 px-8 gap-3 text-lg font-bold shadow-xl shadow-primary/20 transition-transform active:scale-95 bg-primary hover:bg-primary/90 text-black"
+                        className="w-full sm:w-auto rounded-[20px] h-14 px-8 gap-3 text-lg font-bold shadow-xl shadow-primary/20 transition-transform active:scale-95 bg-primary hover:bg-primary/90 text-white"
                     >
                         {loading ? "Provisioning..." : "Pay & Deploy Instance"} <div className="flex items-center gap-1 border-l border-black/10 pl-3 ml-1"><CreditCard className="w-5 h-5" /><ArrowRight className="w-4 h-4" /></div>
                     </Button>
                 </div>
             </div>
 
-            <footer className="relative z-10 py-12 px-6 border-t border-white/5 text-center text-zinc-600 text-sm">
+            <footer className="relative z-10 py-12 px-6 border-t border-white/5 text-center text-zinc-400 text-sm">
                 <div className="flex items-center justify-center gap-8 mb-6 text-zinc-400 flex-wrap">
                     <div className="flex items-center gap-2"><Shield className="w-4 h-4 text-primary" /> Trusted Enterprise Grade</div>
                     <div className="flex items-center gap-2"><CreditCard className="w-4 h-4 text-primary" /> Secure Stripe Payment</div>
