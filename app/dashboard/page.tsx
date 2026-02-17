@@ -207,7 +207,7 @@ export default function DashboardPage() {
                     </div>
                 </header>
 
-                <div className="p-8 max-w-7xl mx-auto w-full">
+                <div className="p-8 pt-16 max-w-7xl mx-auto w-full">
                     <div className="mb-10">
                         <h1 className="text-3xl font-black tracking-tight mb-2">System Overview</h1>
                         <p className="text-zinc-500">Monitor and manage your active cloud resources.</p>
