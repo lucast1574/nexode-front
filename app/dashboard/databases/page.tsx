@@ -110,6 +110,16 @@ export default function DatabasesPage() {
         const name = formData.get('name') as string;
         const type = formData.get('type') as string;
 
+        // Extract the correct plan slug from active subscriptions
+        const dbPlan = subscriptions.find(s => s.service === 'database');
+
+        if (!dbPlan) {
+            alert("No active database subscription found. You must be subscribed to create a database.");
+            return;
+        }
+
+        const plan_slug = dbPlan.plan.slug;
+
         if (name.length < 3) {
             alert("Instance name must be at least 3 characters long.");
             return;
@@ -119,7 +129,7 @@ export default function DatabasesPage() {
             const token = getAccessToken();
             const GQL_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api-v1/graphql";
 
-            console.log(`[Databases] Attempting to create database "${name}" with type "${type}"...`);
+            console.log(`[Databases] Attempting to create database "${name}" with type "${type}" using plan "${plan_slug}"...`);
 
             const mutation = `
                 mutation CreateDatabase($input: CreateDatabaseInput!) {
@@ -137,9 +147,10 @@ export default function DatabasesPage() {
                 },
                 body: JSON.stringify({
                     query: mutation,
-                    variables: { input: { name, type } }
+                    variables: { input: { name, type, plan_slug } }
                 }),
             });
+
 
             const result = await res.json();
             console.log("[Databases] Create result:", result);
