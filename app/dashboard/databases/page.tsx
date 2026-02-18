@@ -33,6 +33,7 @@ interface DatabaseInstance {
     db_name?: string;
     connection_string?: string;
     public_uri?: string;
+    internal_uri?: string;
     created_on: string;
     events?: { timestamp: string; message: string; type: string }[];
 }
@@ -67,7 +68,7 @@ export default function DatabasesPage() {
                     me { first_name email avatar }
                     mySubscriptions { id service status plan { name slug features } }
                     myDatabases {
-                        _id name type status host port username password db_name connection_string public_uri created_on
+                        _id name type status host port username password db_name connection_string public_uri internal_uri created_on
                         events { timestamp message type }
                     }
                 }
@@ -475,7 +476,7 @@ export default function DatabasesPage() {
                                                 <div className="space-y-4">
                                                     <div className="p-4 rounded-2xl bg-black border border-white/10 flex items-center justify-between">
                                                         <div className="flex-1 overflow-hidden">
-                                                            <div className="text-[10px] text-zinc-500 font-bold uppercase mb-1">Connection URI</div>
+                                                            <div className="text-[10px] text-zinc-500 font-bold uppercase mb-1">Public Connection URI</div>
                                                             <code className="text-sm text-primary truncate block">{selectedDb.public_uri || selectedDb.connection_string || 'provisioning...'}</code>
                                                         </div>
                                                         <Button
@@ -487,6 +488,22 @@ export default function DatabasesPage() {
                                                             {copiedField === 'uri' ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
                                                         </Button>
                                                     </div>
+
+                                                    <div className="p-4 rounded-2xl bg-black border border-white/10 flex items-center justify-between">
+                                                        <div className="flex-1 overflow-hidden">
+                                                            <div className="text-[10px] text-zinc-500 font-bold uppercase mb-1">Internal Connection URI</div>
+                                                            <code className="text-sm text-emerald-400 truncate block">{selectedDb.internal_uri || 'provisioning...'}</code>
+                                                        </div>
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="icon"
+                                                            className="shrink-0"
+                                                            onClick={() => handleCopy(selectedDb.internal_uri || '', 'internal_uri')}
+                                                        >
+                                                            {copiedField === 'internal_uri' ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
+                                                        </Button>
+                                                    </div>
+
                                                     <div className="grid grid-cols-2 gap-4">
                                                         <div className="p-4 rounded-2xl bg-black border border-white/10 flex items-center justify-between">
                                                             <div>
@@ -553,8 +570,8 @@ export default function DatabasesPage() {
                                                 {[
                                                     { label: 'Username', value: selectedDb.username, field: 'username' },
                                                     { label: 'Password', value: selectedDb.password, field: 'password', secret: true },
-                                                    { label: 'Master Connection URI', value: selectedDb.public_uri || selectedDb.connection_string, field: 'public' },
-                                                    { label: 'Standard Connection String', value: selectedDb.connection_string, field: 'conn' },
+                                                    { label: 'Public Connection URI (Compass)', value: selectedDb.public_uri, field: 'public' },
+                                                    { label: 'Internal Connection URI (In-Service)', value: selectedDb.internal_uri, field: 'internal' },
                                                 ].map((item) => (
                                                     <div key={item.field} className="group p-6 rounded-[24px] bg-white/[0.03] border border-white/5 hover:border-primary/20 transition-all">
                                                         <div className="flex items-center justify-between mb-4">
@@ -607,124 +624,126 @@ export default function DatabasesPage() {
                         )}
                     </div>
                 </div>
-            </main>
+            </main >
 
             {/* Create Database Modal */}
-            {showCreateModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-300">
-                    <div className="w-full max-w-md bg-[#0A0A0A] border border-white/10 rounded-[32px] p-8 shadow-2xl relative">
-                        <h2 className="text-2xl font-black mb-6">Provision New Database</h2>
-                        <form onSubmit={handleCreateDb} className="space-y-6">
-                            <div className="space-y-2">
-                                <label className="text-xs font-black uppercase tracking-widest text-zinc-500 px-1">Instance Name</label>
-                                <input
-                                    name="name"
-                                    required
-                                    type="text"
-                                    placeholder="e.g. Production Cluster"
-                                    className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-sm focus:border-primary transition-colors outline-none"
-                                />
-                            </div>
-
-                            <div className="space-y-4">
-                                <label className="text-xs font-black uppercase tracking-widest text-zinc-500 px-1">Engine Type</label>
-                                <div className="grid grid-cols-2 gap-4">
-                                    {[
-                                        {
-                                            id: 'postgres',
-                                            label: 'PostgreSQL',
-                                            color: '#336791',
-                                            svg: (
-                                                <svg viewBox="0 0 24 24" className="w-8 h-8">
-                                                    <path fill="#336791" d="M19.07 13.13c-.15-.55-.38-1.09-.69-1.58.11-.11.23-.22.34-.33.15-.15.28-.31.39-.47.16-.27.27-.55.33-.85.1-.49.1-1 .02-1.49-.07-.49-.24-.96-.48-1.39-.24-.44-.57-.82-.97-1.12-.39-.3-.84-.52-1.32-.64-.48-.12-.98-.15-1.48-.09-.5.06-.98.21-1.43.43-.45.22-.85.52-1.18.89-.04.04-.08.09-.11.13-.19.22-.36.46-.5.71-.14.25-.26.51-.34.78-.08.27-.13.55-.15.82-.02.27-.01.55.03.82.04.27.12.53.22.78.1.25.23.49.39.71.16.22.34.42.55.6.14.12.29.23.45.33.12.08.25.15.38.2.14.07.28.11.43.14-.3.44-.56.91-.77 1.41-.33.78-.5 1.62-.51 2.47a5.13 5.13 0 0 0 .15 1.2c.11.39.27.76.49 1.11.22.34.5.64.83.89.33.25.71.44 1.12.56.41.12.83.17 1.25.14.36-.02.71-.08 1.05-.18a4.93 4.93 0 0 0 1.34-.69c.17-.12.33-.25.48-.39s.29-.3.42-.46c.13-.16.24-.32.34-.5s.17-.35.24-.54c.14-.38.21-.77.21-1.16a5.15 5.15 0 0 0-.11-1.07Z" />
-                                                </svg>
-                                            )
-                                        },
-                                        {
-                                            id: 'mongodb',
-                                            label: 'MongoDB',
-                                            color: '#47A248',
-                                            svg: (
-                                                <svg viewBox="0 0 24 24" className="w-8 h-8">
-                                                    <path fill="#47A248" d="M17.18 10.15c-.46-3.14-1.89-6.3-3.08-8.2-.3-.5-.5-.9-.6-.94-.04 0-.25.46-.53.97-1.16 2.1-2.4 5.23-2.6 8.2-.18 2.6.28 4.67 1.43 6.32 1.43 2.03 2.94 2.8 3.51 2.8.5 0 .58-.46.74-.82.64-1.39.92-2.94 1-4.9.04-1.25-.13-2.58-.87-3.43Z" />
-                                                    <path fill="#3F3E3E" d="M12.91 17.51c-1.18 0-2.31-.48-3.14-1.32-.84-.84-1.32-1.97-1.32-3.14 0-1.18.48-2.31 1.32-3.14.84-.84 1.97-1.32 3.14-1.32v8.92Z" opacity=".1" />
-                                                </svg>
-                                            )
-                                        },
-                                        {
-                                            id: 'redis',
-                                            label: 'Redis',
-                                            color: '#DC382D',
-                                            svg: (
-                                                <svg viewBox="0 0 24 24" className="w-8 h-8">
-                                                    <path fill="#DC382D" d="M22.5 12c0 5.8-4.7 10.5-10.5 10.5S1.5 17.8 1.5 12 6.2 1.5 12 1.5 22.5 6.2 22.5 12Z" opacity=".1" />
-                                                    <path fill="#DC382D" d="M19 10h-2V8h2v2Zm-3 0h-2V8h2v2Zm-3 0h-2V8h2v2Zm-3 0H8V8h2v2Zm-3 0H5V8h2v2Zm14 3h-2v-2h2v2Zm-3 0h-2v-2h2v2Zm-3 0h-2v-2h2v2Zm-3 0H8v-2h2v2Zm-3 0H5v-2h2v2Zm14 3h-2v-2h2v2Zm-3 0h-2v-2h2v2Zm-3 0h-2v-2h2v2Zm-3 0H8v-2h2v2Zm-3 0H5v-2h2v2Z" />
-                                                </svg>
-                                            )
-                                        },
-                                        {
-                                            id: 'mysql',
-                                            label: 'MySQL',
-                                            color: '#4479A1',
-                                            svg: (
-                                                <svg viewBox="0 0 24 24" className="w-8 h-8">
-                                                    <path fill="#4479A1" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2Zm-1 14.5v-1.1c-.5-.1-.9-.2-1.2-.4-.3-.2-.5-.4-.6-.7-.1-.2-.2-.5-.2-.8h1.2c0 .2.1.4.2.5s.3.2.5.3.4.1.7.1c.3 0 .5-.1.7-.2.2-.1.3-.3.3-.5 0-.2-.1-.3-.2-.4-.1-.1-.3-.2-.6-.3l-.8-.2c-.4-.1-.7-.2-.9-.4-.2-.2-.4-.4-.5-.7-.1-.3-.1-.6-.1-1s.1-.7.3-1c.2-.3.5-.5.8-.7.3-.1.7-.2 1.1-.2v-1h.9v1.1c.4.1.8.2 1.1.4.3.2.5.4.6.7.1.2.2.5.2.8h-1.2c0-.2-.1-.4-.2-.5-.1-.1-.3-.2-.5-.3-.2 0-.4-.1-.6-.1-.3 0-.5.1-.7.2s-.3.3-.3.5c0 .2.1.3.2.4.1.1.3.2.6.3l.8.2c.4.1.7.2.9.4.2.2.4.4.5.7.1.3.1.6.1 1s-.1.7-.3 1-.5.5-.8.7-.7.2-1.1.2V16.5H11Z" />
-                                                </svg>
-                                            )
-                                        },
-                                    ].map((type) => (
-                                        <label key={type.id} className="relative cursor-pointer group">
-                                            <input
-                                                type="radio"
-                                                name="type"
-                                                value={type.id}
-                                                defaultChecked={type.id === 'postgres'}
-                                                className="peer hidden"
-                                            />
-                                            <div className="h-28 p-4 rounded-[24px] border border-white/5 bg-white/[0.02] peer-checked:bg-primary/5 peer-checked:border-primary/40 peer-checked:ring-1 peer-checked:ring-primary/20 transition-all flex flex-col items-center justify-center gap-3 hover:bg-white/[0.04] hover:border-white/10">
-                                                <div className="relative">
-                                                    <div
-                                                        className="absolute inset-0 blur-lg opacity-20 group-hover:opacity-40 transition-opacity"
-                                                        style={{ backgroundColor: type.color }}
-                                                    />
-                                                    <div className="relative transform group-hover:scale-110 transition-transform duration-300">
-                                                        {type.svg}
-                                                    </div>
-                                                </div>
-                                                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 peer-checked:text-white transition-colors">{type.label}</span>
-
-                                                {/* Selection Indicator */}
-                                                <div className="absolute top-2 right-2 opacity-0 peer-checked:opacity-100 transition-opacity">
-                                                    <div className="w-4 h-4 rounded-full bg-primary flex items-center justify-center">
-                                                        <Check className="w-2.5 h-2.5 text-white" />
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </label>
-                                    ))}
+            {
+                showCreateModal && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-300">
+                        <div className="w-full max-w-md bg-[#0A0A0A] border border-white/10 rounded-[32px] p-8 shadow-2xl relative">
+                            <h2 className="text-2xl font-black mb-6">Provision New Database</h2>
+                            <form onSubmit={handleCreateDb} className="space-y-6">
+                                <div className="space-y-2">
+                                    <label className="text-xs font-black uppercase tracking-widest text-zinc-500 px-1">Instance Name</label>
+                                    <input
+                                        name="name"
+                                        required
+                                        type="text"
+                                        placeholder="e.g. Production Cluster"
+                                        className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-sm focus:border-primary transition-colors outline-none"
+                                    />
                                 </div>
-                            </div>
 
-                            <div className="pt-4 flex gap-4">
-                                <Button
-                                    type="button"
-                                    variant="ghost"
-                                    className="flex-1 rounded-2xl h-12 font-bold text-zinc-500 hover:text-white"
-                                    onClick={() => setShowCreateModal(false)}
-                                >
-                                    Cancel
-                                </Button>
-                                <Button
-                                    type="submit"
-                                    className="flex-1 rounded-2xl h-12 font-bold bg-primary text-white hover:bg-primary/90 shadow-lg shadow-primary/20"
-                                >
-                                    Provision Now
-                                </Button>
-                            </div>
-                        </form>
+                                <div className="space-y-4">
+                                    <label className="text-xs font-black uppercase tracking-widest text-zinc-500 px-1">Engine Type</label>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        {[
+                                            {
+                                                id: 'postgres',
+                                                label: 'PostgreSQL',
+                                                color: '#336791',
+                                                svg: (
+                                                    <svg viewBox="0 0 24 24" className="w-8 h-8">
+                                                        <path fill="#336791" d="M19.07 13.13c-.15-.55-.38-1.09-.69-1.58.11-.11.23-.22.34-.33.15-.15.28-.31.39-.47.16-.27.27-.55.33-.85.1-.49.1-1 .02-1.49-.07-.49-.24-.96-.48-1.39-.24-.44-.57-.82-.97-1.12-.39-.3-.84-.52-1.32-.64-.48-.12-.98-.15-1.48-.09-.5.06-.98.21-1.43.43-.45.22-.85.52-1.18.89-.04.04-.08.09-.11.13-.19.22-.36.46-.5.71-.14.25-.26.51-.34.78-.08.27-.13.55-.15.82-.02.27-.01.55.03.82.04.27.12.53.22.78.1.25.23.49.39.71.16.22.34.42.55.6.14.12.29.23.45.33.12.08.25.15.38.2.14.07.28.11.43.14-.3.44-.56.91-.77 1.41-.33.78-.5 1.62-.51 2.47a5.13 5.13 0 0 0 .15 1.2c.11.39.27.76.49 1.11.22.34.5.64.83.89.33.25.71.44 1.12.56.41.12.83.17 1.25.14.36-.02.71-.08 1.05-.18a4.93 4.93 0 0 0 1.34-.69c.17-.12.33-.25.48-.39s.29-.3.42-.46c.13-.16.24-.32.34-.5s.17-.35.24-.54c.14-.38.21-.77.21-1.16a5.15 5.15 0 0 0-.11-1.07Z" />
+                                                    </svg>
+                                                )
+                                            },
+                                            {
+                                                id: 'mongodb',
+                                                label: 'MongoDB',
+                                                color: '#47A248',
+                                                svg: (
+                                                    <svg viewBox="0 0 24 24" className="w-8 h-8">
+                                                        <path fill="#47A248" d="M17.18 10.15c-.46-3.14-1.89-6.3-3.08-8.2-.3-.5-.5-.9-.6-.94-.04 0-.25.46-.53.97-1.16 2.1-2.4 5.23-2.6 8.2-.18 2.6.28 4.67 1.43 6.32 1.43 2.03 2.94 2.8 3.51 2.8.5 0 .58-.46.74-.82.64-1.39.92-2.94 1-4.9.04-1.25-.13-2.58-.87-3.43Z" />
+                                                        <path fill="#3F3E3E" d="M12.91 17.51c-1.18 0-2.31-.48-3.14-1.32-.84-.84-1.32-1.97-1.32-3.14 0-1.18.48-2.31 1.32-3.14.84-.84 1.97-1.32 3.14-1.32v8.92Z" opacity=".1" />
+                                                    </svg>
+                                                )
+                                            },
+                                            {
+                                                id: 'redis',
+                                                label: 'Redis',
+                                                color: '#DC382D',
+                                                svg: (
+                                                    <svg viewBox="0 0 24 24" className="w-8 h-8">
+                                                        <path fill="#DC382D" d="M22.5 12c0 5.8-4.7 10.5-10.5 10.5S1.5 17.8 1.5 12 6.2 1.5 12 1.5 22.5 6.2 22.5 12Z" opacity=".1" />
+                                                        <path fill="#DC382D" d="M19 10h-2V8h2v2Zm-3 0h-2V8h2v2Zm-3 0h-2V8h2v2Zm-3 0H8V8h2v2Zm-3 0H5V8h2v2Zm14 3h-2v-2h2v2Zm-3 0h-2v-2h2v2Zm-3 0h-2v-2h2v2Zm-3 0H8v-2h2v2Zm-3 0H5v-2h2v2Zm14 3h-2v-2h2v2Zm-3 0h-2v-2h2v2Zm-3 0h-2v-2h2v2Zm-3 0H8v-2h2v2Zm-3 0H5v-2h2v2Z" />
+                                                    </svg>
+                                                )
+                                            },
+                                            {
+                                                id: 'mysql',
+                                                label: 'MySQL',
+                                                color: '#4479A1',
+                                                svg: (
+                                                    <svg viewBox="0 0 24 24" className="w-8 h-8">
+                                                        <path fill="#4479A1" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2Zm-1 14.5v-1.1c-.5-.1-.9-.2-1.2-.4-.3-.2-.5-.4-.6-.7-.1-.2-.2-.5-.2-.8h1.2c0 .2.1.4.2.5s.3.2.5.3.4.1.7.1c.3 0 .5-.1.7-.2.2-.1.3-.3.3-.5 0-.2-.1-.3-.2-.4-.1-.1-.3-.2-.6-.3l-.8-.2c-.4-.1-.7-.2-.9-.4-.2-.2-.4-.4-.5-.7-.1-.3-.1-.6-.1-1s.1-.7.3-1c.2-.3.5-.5.8-.7.3-.1.7-.2 1.1-.2v-1h.9v1.1c.4.1.8.2 1.1.4.3.2.5.4.6.7.1.2.2.5.2.8h-1.2c0-.2-.1-.4-.2-.5-.1-.1-.3-.2-.5-.3-.2 0-.4-.1-.6-.1-.3 0-.5.1-.7.2s-.3.3-.3.5c0 .2.1.3.2.4.1.1.3.2.6.3l.8.2c.4.1.7.2.9.4.2.2.4.4.5.7.1.3.1.6.1 1s-.1.7-.3 1-.5.5-.8.7-.7.2-1.1.2V16.5H11Z" />
+                                                    </svg>
+                                                )
+                                            },
+                                        ].map((type) => (
+                                            <label key={type.id} className="relative cursor-pointer group">
+                                                <input
+                                                    type="radio"
+                                                    name="type"
+                                                    value={type.id}
+                                                    defaultChecked={type.id === 'postgres'}
+                                                    className="peer hidden"
+                                                />
+                                                <div className="h-28 p-4 rounded-[24px] border border-white/5 bg-white/[0.02] peer-checked:bg-primary/5 peer-checked:border-primary/40 peer-checked:ring-1 peer-checked:ring-primary/20 transition-all flex flex-col items-center justify-center gap-3 hover:bg-white/[0.04] hover:border-white/10">
+                                                    <div className="relative">
+                                                        <div
+                                                            className="absolute inset-0 blur-lg opacity-20 group-hover:opacity-40 transition-opacity"
+                                                            style={{ backgroundColor: type.color }}
+                                                        />
+                                                        <div className="relative transform group-hover:scale-110 transition-transform duration-300">
+                                                            {type.svg}
+                                                        </div>
+                                                    </div>
+                                                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 peer-checked:text-white transition-colors">{type.label}</span>
+
+                                                    {/* Selection Indicator */}
+                                                    <div className="absolute top-2 right-2 opacity-0 peer-checked:opacity-100 transition-opacity">
+                                                        <div className="w-4 h-4 rounded-full bg-primary flex items-center justify-center">
+                                                            <Check className="w-2.5 h-2.5 text-white" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </label>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className="pt-4 flex gap-4">
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        className="flex-1 rounded-2xl h-12 font-bold text-zinc-500 hover:text-white"
+                                        onClick={() => setShowCreateModal(false)}
+                                    >
+                                        Cancel
+                                    </Button>
+                                    <Button
+                                        type="submit"
+                                        className="flex-1 rounded-2xl h-12 font-bold bg-primary text-white hover:bg-primary/90 shadow-lg shadow-primary/20"
+                                    >
+                                        Provision Now
+                                    </Button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
-                </div>
-            )}
+                )
+            }
             {/* Delete Confirmation Modal */}
             <DeleteDatabaseModal
                 isOpen={showDeleteModal}
@@ -735,6 +754,6 @@ export default function DatabasesPage() {
                 onConfirm={confirmDelete}
                 dbName={dbToDelete?.name || ""}
             />
-        </div>
+        </div >
     );
 }
