@@ -20,7 +20,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { getAccessToken, getAuthUser, setAuthSession } from "@/lib/auth-utils";
+import { getAccessToken, getAuthUser, setAuthSession, clearAuthSession } from "@/lib/auth-utils";
 import { User as UserType } from "@/lib/types";
 import { toast } from "sonner";
 
@@ -138,7 +138,14 @@ export default function SettingsPage() {
                             <div className="text-xs text-zinc-500 truncate">{user?.email || "user@nexode.com"}</div>
                         </div>
                     </Link>
-                    <Button variant="ghost" onClick={() => router.push("/auth/login")} className="w-full justify-start gap-3 rounded-xl text-zinc-500 hover:text-red-400 hover:bg-red-400/10 transition-all">
+                    <Button
+                        variant="ghost"
+                        onClick={() => {
+                            clearAuthSession();
+                            router.push("/auth/login");
+                        }}
+                        className="w-full justify-start gap-3 rounded-xl text-zinc-500 hover:text-red-400 hover:bg-red-400/10 transition-all"
+                    >
                         <LogOut className="w-5 h-5" /> Sign Out
                     </Button>
                 </div>

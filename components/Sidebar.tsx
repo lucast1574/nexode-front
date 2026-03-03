@@ -15,6 +15,8 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { clearAuthSession } from "@/lib/auth-utils";
+import { useRouter } from "next/navigation";
 
 export interface Subscription {
     id: string;
@@ -34,6 +36,12 @@ interface SidebarProps {
 
 export function Sidebar({ user, subscriptions }: SidebarProps) {
     const pathname = usePathname();
+    const router = useRouter();
+
+    const handleSignOut = () => {
+        clearAuthSession();
+        router.push("/auth/login");
+    };
 
     const hasDatabase = subscriptions.some(s => s.service === 'database');
     const hasN8n = subscriptions.some(s => s.service === 'n8n');
@@ -92,7 +100,11 @@ export function Sidebar({ user, subscriptions }: SidebarProps) {
                         <div className="text-xs text-zinc-500 truncate">{user?.email || "user@nexode.com"}</div>
                     </div>
                 </Link>
-                <Button variant="ghost" className="w-full justify-start gap-3 rounded-xl text-zinc-500 hover:text-red-400 hover:bg-red-400/10">
+                <Button
+                    variant="ghost"
+                    onClick={handleSignOut}
+                    className="w-full justify-start gap-3 rounded-xl text-zinc-500 hover:text-red-400 hover:bg-red-400/10"
+                >
                     <LogOut className="w-5 h-5" /> Sign Out
                 </Button>
             </div>
