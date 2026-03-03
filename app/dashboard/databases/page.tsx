@@ -507,11 +507,23 @@ export default function DatabasesPage() {
                                                     <div className="text-zinc-500 text-[10px] font-black uppercase tracking-widest mb-4">Core Technology</div>
                                                     <div className="flex items-center gap-3">
                                                         <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20">
-                                                            <Database className="w-5 h-5 text-primary" />
+                                                            {selectedDb.type === 'mongodb' ? <Database className="w-5 h-5 text-emerald-400" /> :
+                                                                selectedDb.type === 'postgres' ? <Database className="w-5 h-5 text-blue-400" /> :
+                                                                    selectedDb.type === 'redis' ? <Database className="w-5 h-5 text-red-500" /> :
+                                                                        selectedDb.type === 'mysql' ? <Database className="w-5 h-5 text-[#00758F]" /> :
+                                                                            <Database className="w-5 h-5 text-primary" />}
                                                         </div>
                                                         <div>
-                                                            <div className="font-bold capitalize">{selectedDb.type} Entrerprise</div>
-                                                            <div className="text-xs text-zinc-500">v16.2 Latest</div>
+                                                            <div className="font-bold capitalize">{selectedDb.type === 'postgres' ? 'PostgreSQL Relational' :
+                                                                selectedDb.type === 'mongodb' ? 'MongoDB NoSQL' :
+                                                                    selectedDb.type === 'redis' ? 'Redis In-Memory' :
+                                                                        selectedDb.type === 'mysql' ? 'MySQL Relational' : selectedDb.type} Enterprise</div>
+                                                            <div className="text-xs text-zinc-500">
+                                                                {selectedDb.type === 'postgres' ? 'v16.2 Stable' :
+                                                                    selectedDb.type === 'mongodb' ? 'v6.0 Latest' :
+                                                                        selectedDb.type === 'redis' ? 'v7.2 stable' :
+                                                                            selectedDb.type === 'mysql' ? 'v8.0 Stable' : 'Latest'}
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -640,8 +652,30 @@ export default function DatabasesPage() {
                                                 {[
                                                     { label: 'Username', value: selectedDb.username, field: 'username' },
                                                     { label: 'Password', value: selectedDb.password, field: 'password', secret: true },
-                                                    { label: 'Public Connection URI (Compass)', value: selectedDb.public_uri, field: 'public' },
+                                                    {
+                                                        label: selectedDb.type === 'mongodb' ? 'Public Connection URI (Compass/Shell)' :
+                                                            selectedDb.type === 'postgres' ? 'Standard URI (DataGrip/DBeaver/psql)' :
+                                                                selectedDb.type === 'redis' ? 'Public Redis URL (RedisInsight/cli)' :
+                                                                    selectedDb.type === 'mysql' ? 'Standard URI (Workbench/HeidiSQL/mysql)' : 'Public Connection URI',
+                                                        value: selectedDb.public_uri,
+                                                        field: 'public'
+                                                    },
                                                     { label: 'Internal Connection URI (In-Service)', value: selectedDb.internal_uri, field: 'internal' },
+                                                    ...(selectedDb.type === 'postgres' ? [{
+                                                        label: 'JDBC Connection String',
+                                                        value: `jdbc:postgresql://${selectedDb.host || 'backend.nexode.app'}:${selectedDb.port || 5432}/${selectedDb.db_name}?user=${selectedDb.username}&password=${selectedDb.password}`,
+                                                        field: 'jdbc'
+                                                    }] : []),
+                                                    ...(selectedDb.type === 'redis' ? [{
+                                                        label: 'JDBC Connection String (DataGrip)',
+                                                        value: `jdbc:redis://${selectedDb.host || 'backend.nexode.app'}:${selectedDb.port || 6379}/0`,
+                                                        field: 'jdbc_redis'
+                                                    }] : []),
+                                                    ...(selectedDb.type === 'mysql' ? [{
+                                                        label: 'JDBC Connection String (DataGrip)',
+                                                        value: `jdbc:mysql://${selectedDb.host || 'backend.nexode.app'}:${selectedDb.port || 3306}/${selectedDb.db_name}`,
+                                                        field: 'jdbc_mysql'
+                                                    }] : [])
                                                 ].map((item) => (
                                                     <div key={item.field} className="group p-6 rounded-[24px] bg-white/[0.03] border border-white/5 hover:border-primary/20 transition-all">
                                                         <div className="flex items-center justify-between mb-4">

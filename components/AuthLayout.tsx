@@ -43,7 +43,6 @@ const AuthLayout = ({ children }: AuthLayoutProps) => {
                 <div className="hidden md:flex items-center justify-center p-8 bg-muted/30">
                     <div className="w-full max-w-lg space-y-8 text-center">
                         <div className="relative aspect-square w-full max-w-[400px] mx-auto">
-                            {/* This would be the illustration similar to elite seller */}
                             <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-blue-500/20 rounded-3xl blur-2xl animate-pulse" />
                             <div className="relative h-full w-full bg-card border border-border/50 rounded-3xl shadow-2xl flex items-center justify-center overflow-hidden">
                                 <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-20" />
