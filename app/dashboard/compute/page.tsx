@@ -21,8 +21,10 @@ import {
     Terminal,
     FileText,
     Copy,
-    Check
+    Check,
+    ChevronDown
 } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { Sidebar, Subscription } from "@/components/Sidebar";
 import { cn } from "@/lib/utils";
@@ -57,6 +59,78 @@ const INITIAL_TERMINAL_LOGS: { type: 'input' | 'output' | 'error', text: string 
     { type: 'output', text: 'Environment: Ephemeral Compute Node (Filtered Access)' },
     { type: 'output', text: 'Type "help" to see available commands.' }
 ];
+
+interface CustomDropdownProps {
+    name: string;
+    options: { value: string; label: string; icon: React.ElementType }[];
+    defaultValue: string;
+}
+
+function CustomDropdown({ name, options, defaultValue }: CustomDropdownProps) {
+    const [isOpen, setIsOpen] = useState(false);
+    const [selected, setSelected] = useState(options.find(o => o.value === defaultValue) || options[0]);
+
+    return (
+        <div className="relative">
+            <input type="hidden" name={name} value={selected.value} />
+            <button
+                type="button"
+                onClick={() => setIsOpen(!isOpen)}
+                className={cn(
+                    "w-full bg-white/[0.02] border border-white/10 rounded-2xl h-14 px-6 font-bold flex items-center justify-between transition-all outline-none",
+                    isOpen ? "border-blue-500/50 bg-white/[0.05] ring-4 ring-blue-500/5" : "hover:bg-white/[0.04]"
+                )}
+            >
+                <div className="flex items-center gap-3">
+                    <selected.icon className="w-5 h-5 text-blue-500" />
+                    <span className="text-zinc-200">{selected.label}</span>
+                </div>
+                <ChevronDown className={cn("w-4 h-4 text-zinc-500 transition-transform duration-300", isOpen && "rotate-180 text-blue-500")} />
+            </button>
+
+            {isOpen && (
+                <>
+                    <div className="fixed inset-0 z-[110]" onClick={() => setIsOpen(false)} />
+                    <div className="absolute top-full left-0 right-0 mt-3 bg-[#080808] border border-white/10 rounded-[32px] overflow-hidden z-[120] shadow-2xl animate-in fade-in slide-in-from-top-4 duration-300 backdrop-blur-3xl">
+                        <div className="p-2 space-y-1">
+                            {options.map((opt) => (
+                                <button
+                                    key={opt.value}
+                                    type="button"
+                                    onClick={() => {
+                                        setSelected(opt);
+                                        setIsOpen(false);
+                                    }}
+                                    className={cn(
+                                        "w-full text-left px-5 py-4 rounded-[22px] flex items-center justify-between transition-all group",
+                                        selected.value === opt.value
+                                            ? "bg-blue-600/10 text-blue-400"
+                                            : "text-zinc-500 hover:bg-white/[0.02] hover:text-zinc-200"
+                                    )}
+                                >
+                                    <div className="flex items-center gap-4">
+                                        <div className={cn(
+                                            "w-10 h-10 rounded-xl flex items-center justify-center border transition-colors",
+                                            selected.value === opt.value
+                                                ? "bg-blue-600/20 border-blue-500/30"
+                                                : "bg-zinc-900 border-white/5 group-hover:border-white/10"
+                                        )}>
+                                            <opt.icon className={cn("w-5 h-5", selected.value === opt.value ? "text-blue-400" : "text-zinc-600 group-hover:text-zinc-400")} />
+                                        </div>
+                                        <span className="font-bold text-sm">{opt.label}</span>
+                                    </div>
+                                    {selected.value === opt.value && <Check className="w-4 h-4 text-blue-500" />}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                </>
+            )}
+        </div>
+    );
+}
+
+
 
 export default function ComputePage() {
     const [loading, setLoading] = useState(true);
@@ -661,20 +735,29 @@ export default function ComputePage() {
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-3">
                                     <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500 ml-1">Service Type</label>
-                                    <select name="type" className="w-full bg-white/[0.02] border border-white/10 rounded-2xl h-14 px-6 font-bold appearance-none">
-                                        <option value="frontend">Frontend Web</option>
-                                        <option value="backend">Backend API</option>
-                                    </select>
+                                    <CustomDropdown
+                                        name="type"
+                                        options={[
+                                            { value: 'frontend', label: 'Frontend Web', icon: Globe },
+                                            { value: 'backend', label: 'Backend API', icon: Server }
+                                        ]}
+                                        defaultValue="frontend"
+                                    />
                                 </div>
                                 <div className="space-y-3">
                                     <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500 ml-1">Git Provider</label>
-                                    <select name="provider" className="w-full bg-white/[0.02] border border-white/10 rounded-2xl h-14 px-6 font-bold appearance-none">
-                                        <option value="github">GitHub</option>
-                                        <option value="gitlab">GitLab</option>
-                                        <option value="bitbucket">Bitbucket</option>
-                                    </select>
+                                    <CustomDropdown
+                                        name="provider"
+                                        options={[
+                                            { value: 'github', label: 'GitHub', icon: Github },
+                                            { value: 'gitlab', label: 'GitLab', icon: Gitlab },
+                                            { value: 'bitbucket', label: 'Bitbucket', icon: Code }
+                                        ]}
+                                        defaultValue="github"
+                                    />
                                 </div>
                             </div>
+
 
                             <div className="space-y-3">
                                 <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500 ml-1">Repository URL</label>
