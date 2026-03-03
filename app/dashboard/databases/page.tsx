@@ -303,9 +303,17 @@ export default function DatabasesPage() {
                     <div className="flex items-center gap-4">
                         <Button
                             onClick={() => setShowCreateModal(true)}
-                            className="rounded-2xl gap-2 font-bold shadow-lg shadow-primary/20"
+                            disabled={databases.length >= 1}
+                            className={cn(
+                                "rounded-2xl gap-2 font-bold shadow-lg shadow-primary/20 transition-all",
+                                databases.length >= 1 ? "bg-zinc-800 text-zinc-500 border-white/5 cursor-not-allowed shadow-none" : ""
+                            )}
                         >
-                            <Plus className="w-4 h-4" /> New Instance
+                            {databases.length >= 1 ? (
+                                <>Limit Reached (1/1)</>
+                            ) : (
+                                <><Plus className="w-4 h-4" /> New Instance</>
+                            )}
                         </Button>
                     </div>
                 </header>
