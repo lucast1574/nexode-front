@@ -738,23 +738,25 @@ export default function ComputePage() {
                                     <CustomDropdown
                                         name="type"
                                         options={[
-                                            { value: 'frontend', label: 'Frontend Web', icon: Globe },
-                                            { value: 'backend', label: 'Backend API', icon: Server }
+                                            { value: 'FRONTEND', label: 'Frontend Web', icon: Globe },
+                                            { value: 'BACKEND', label: 'Backend API', icon: Server }
                                         ]}
-                                        defaultValue="frontend"
+                                        defaultValue="FRONTEND"
                                     />
+
                                 </div>
                                 <div className="space-y-3">
                                     <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500 ml-1">Git Provider</label>
                                     <CustomDropdown
                                         name="provider"
                                         options={[
-                                            { value: 'github', label: 'GitHub', icon: Github },
-                                            { value: 'gitlab', label: 'GitLab', icon: Gitlab },
-                                            { value: 'bitbucket', label: 'Bitbucket', icon: Code }
+                                            { value: 'GITHUB', label: 'GitHub', icon: Github },
+                                            { value: 'GITLAB', label: 'GitLab', icon: Gitlab },
+                                            { value: 'BITBUCKET', label: 'Bitbucket', icon: Code }
                                         ]}
-                                        defaultValue="github"
+                                        defaultValue="GITHUB"
                                     />
+
                                 </div>
                             </div>
 
