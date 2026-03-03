@@ -5,7 +5,6 @@ import {
     Database,
     Plus,
     Search,
-    ExternalLink,
     Terminal,
     Key,
     Activity,
@@ -54,7 +53,13 @@ export default function DatabasesPage() {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [dbToDelete, setDbToDelete] = useState<DatabaseInstance | null>(null);
     const [copiedField, setCopiedField] = useState<string | null>(null);
-    const [activeTab, setActiveTab] = useState<'overview' | 'credentials' | 'explorer'>('overview');
+    const [activeTab, setActiveTab] = useState<'overview' | 'credentials' | 'terminal'>('overview');
+    const [terminalLogs, setTerminalLogs] = useState<{ type: 'input' | 'output' | 'error', text: string }[]>([
+        { type: 'output', text: 'Nexode Secure Terminal v1.0.0' },
+        { type: 'output', text: 'Connected to isolated MongoDB cluster.' },
+        { type: 'output', text: 'Type "help" or "db.stats()" to begin.' }
+    ]);
+    const [isExecuting, setIsExecuting] = useState(false);
 
     const fetchDatabases = useCallback(async () => {
         try {
@@ -279,6 +284,51 @@ export default function DatabasesPage() {
         }
     };
 
+    const handleExecuteCommand = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        const formData = new FormData(e.currentTarget);
+        const command = formData.get('command') as string;
+        if (!command || !selectedDb) return;
+
+        setTerminalLogs(prev => [...prev, { type: 'input', text: command }]);
+        setIsExecuting(true);
+        e.currentTarget.reset();
+
+        try {
+            const token = getAccessToken();
+            const GQL_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api-v1/graphql";
+
+            const mutation = `
+                mutation ExecuteCommand($id: String!, $command: String!) {
+                    executeDatabaseCommand(id: $id, command: $command)
+                }
+            `;
+
+            const res = await fetch(GQL_URL, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    query: mutation,
+                    variables: { id: selectedDb._id, command }
+                }),
+            });
+
+            const result = await res.json();
+            if (result.data?.executeDatabaseCommand) {
+                setTerminalLogs(prev => [...prev, { type: 'output', text: result.data.executeDatabaseCommand }]);
+            } else if (result.errors) {
+                setTerminalLogs(prev => [...prev, { type: 'error', text: result.errors[0].message }]);
+            }
+        } catch {
+            setTerminalLogs(prev => [...prev, { type: 'error', text: 'Network Error: Failed to reach terminal proxy.' }]);
+        } finally {
+            setIsExecuting(false);
+        }
+    };
+
     if (loading) {
         return (
             <div className="min-h-screen bg-black flex items-center justify-center">
@@ -417,11 +467,11 @@ export default function DatabasesPage() {
                                         {[
                                             { id: 'overview', label: 'Overview', icon: Activity },
                                             { id: 'credentials', label: 'Credentials', icon: Key },
-                                            { id: 'explorer', label: 'Explorer', icon: Terminal },
+                                            { id: 'terminal', label: 'Terminal', icon: Terminal },
                                         ].map((tab) => (
                                             <button
                                                 key={tab.id}
-                                                onClick={() => setActiveTab(tab.id as 'overview' | 'credentials' | 'explorer')}
+                                                onClick={() => setActiveTab(tab.id as 'overview' | 'credentials' | 'terminal')}
                                                 className={cn(
                                                     "flex items-center gap-2 pb-4 text-sm font-bold transition-all relative",
                                                     activeTab === tab.id ? "text-primary" : "text-zinc-500 hover:text-white"
@@ -602,23 +652,62 @@ export default function DatabasesPage() {
                                         </div>
                                     )}
 
-                                    {activeTab === 'explorer' && (
-                                        <div className="h-full flex flex-col items-center justify-center text-center animate-in fade-in duration-500">
-                                            <div className="w-20 h-20 rounded-3xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-6">
-                                                <Terminal className="w-10 h-10 text-primary" />
+                                    {activeTab === 'terminal' && (
+                                        <div className="h-full flex flex-col bg-[#080808] rounded-[32px] border border-white/5 overflow-hidden animate-in fade-in zoom-in-95 duration-500">
+                                            {/* Terminal Header */}
+                                            <div className="px-6 py-4 border-b border-white/5 bg-black/40 flex items-center justify-between">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="flex gap-1.5">
+                                                        <div className="w-2.5 h-2.5 rounded-full bg-red-500/20 border border-red-500/40" />
+                                                        <div className="w-2.5 h-2.5 rounded-full bg-amber-500/20 border border-amber-500/40" />
+                                                        <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/20 border border-emerald-500/40" />
+                                                    </div>
+                                                    <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500 ml-2">Mongosh Proxy — {selectedDb.name}</span>
+                                                </div>
+                                                <div className="flex items-center gap-4">
+                                                    <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-tighter flex items-center gap-1.5">
+                                                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Connected
+                                                    </span>
+                                                </div>
                                             </div>
-                                            <h3 className="text-2xl font-black mb-2">Web Terminal / Explorer</h3>
-                                            <p className="text-zinc-500 max-w-md mx-auto mb-8">
-                                                Direct database access via our cloud explorer is coming soon. You can currently connect using external clients like <span className="text-primary font-bold">MongoDB Compass</span>, DBeaver, or TablePlus.
-                                            </p>
-                                            <div className="flex gap-4">
-                                                <Button className="rounded-xl px-8 h-12 font-bold bg-zinc-900 border border-white/10 hover:bg-zinc-800 transition-all">
-                                                    Download Config
-                                                </Button>
-                                                <Button variant="outline" className="rounded-xl px-8 h-12 font-bold border-white/10 hover:bg-white/5">
-                                                    Documentation <ExternalLink className="w-4 h-4 ml-2" />
-                                                </Button>
+
+                                            {/* Terminal Output */}
+                                            <div className="flex-1 overflow-y-auto p-6 font-mono text-xs leading-relaxed space-y-2 selection:bg-primary/30 scrollbar-hide">
+                                                {terminalLogs.map((log, i) => (
+                                                    <div key={i} className={cn(
+                                                        "break-all whitespace-pre-wrap",
+                                                        log.type === 'input' ? "text-white flex gap-2" :
+                                                            log.type === 'error' ? "text-red-400" : "text-emerald-400/80"
+                                                    )}>
+                                                        {log.type === 'input' && <span className="text-primary shrink-0">➜</span>}
+                                                        {log.text}
+                                                    </div>
+                                                ))}
+                                                {isExecuting && (
+                                                    <div className="text-zinc-500 animate-pulse flex items-center gap-2">
+                                                        <RefreshCw className="w-3 h-3 animate-spin" /> Processing request...
+                                                    </div>
+                                                )}
                                             </div>
+
+                                            {/* Terminal Input */}
+                                            <form onSubmit={handleExecuteCommand} className="p-4 bg-black border-t border-white/5 flex items-center gap-3">
+                                                <span className="text-primary font-bold ml-2">➜</span>
+                                                <input
+                                                    name="command"
+                                                    autoComplete="off"
+                                                    placeholder="Enter database command (e.g. db.stats())"
+                                                    className="flex-1 bg-transparent border-none outline-none text-sm font-mono text-white placeholder:text-zinc-700"
+                                                />
+                                                <Button
+                                                    type="submit"
+                                                    disabled={isExecuting}
+                                                    size="sm"
+                                                    className="h-8 rounded-lg px-4 bg-white/5 border border-white/10 hover:bg-white/10 text-[10px] font-black uppercase tracking-widest transition-all"
+                                                >
+                                                    Run Cmd
+                                                </Button>
+                                            </form>
                                         </div>
                                     )}
                                 </div>
