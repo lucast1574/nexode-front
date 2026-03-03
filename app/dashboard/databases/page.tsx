@@ -506,7 +506,14 @@ export default function DatabasesPage() {
                                                 <div className="bg-white/[0.03] border border-white/5 rounded-3xl p-6">
                                                     <div className="text-zinc-500 text-[10px] font-black uppercase tracking-widest mb-4">Core Technology</div>
                                                     <div className="flex items-center gap-3">
-                                                        <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20">
+                                                        <div className={cn(
+                                                            "w-10 h-10 rounded-xl flex items-center justify-center border",
+                                                            selectedDb.type === 'mongodb' ? 'bg-emerald-500/10 border-emerald-500/20' :
+                                                                selectedDb.type === 'postgres' ? 'bg-blue-500/10 border-blue-500/20' :
+                                                                    selectedDb.type === 'redis' ? 'bg-red-500/10 border-red-500/20' :
+                                                                        selectedDb.type === 'mysql' ? 'bg-[#00758F]/10 border-[#00758F]/20' :
+                                                                            'bg-primary/10 border-primary/20'
+                                                        )}>
                                                             {selectedDb.type === 'mongodb' ? <Database className="w-5 h-5 text-emerald-400" /> :
                                                                 selectedDb.type === 'postgres' ? <Database className="w-5 h-5 text-blue-400" /> :
                                                                     selectedDb.type === 'redis' ? <Database className="w-5 h-5 text-red-500" /> :
@@ -514,11 +521,11 @@ export default function DatabasesPage() {
                                                                             <Database className="w-5 h-5 text-primary" />}
                                                         </div>
                                                         <div>
-                                                            <div className="font-bold capitalize">{selectedDb.type === 'postgres' ? 'PostgreSQL Relational' :
-                                                                selectedDb.type === 'mongodb' ? 'MongoDB NoSQL' :
-                                                                    selectedDb.type === 'redis' ? 'Redis In-Memory' :
-                                                                        selectedDb.type === 'mysql' ? 'MySQL Relational' : selectedDb.type} Enterprise</div>
-                                                            <div className="text-xs text-zinc-500">
+                                                            <div className="font-bold leading-tight">{selectedDb.type === 'postgres' ? 'PostgreSQL' :
+                                                                selectedDb.type === 'mongodb' ? 'MongoDB' :
+                                                                    selectedDb.type === 'redis' ? 'Redis' :
+                                                                        selectedDb.type === 'mysql' ? 'MySQL' : selectedDb.type} Enterprise</div>
+                                                            <div className="text-[10px] text-zinc-500 font-medium">
                                                                 {selectedDb.type === 'postgres' ? 'v16.2 Stable' :
                                                                     selectedDb.type === 'mongodb' ? 'v6.0 Latest' :
                                                                         selectedDb.type === 'redis' ? 'v7.2 stable' :
@@ -586,7 +593,13 @@ export default function DatabasesPage() {
                                                         </Button>
                                                     </div>
 
-                                                    <div className="grid grid-cols-2 gap-4">
+                                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                                        <div className="p-4 rounded-2xl bg-black border border-white/10 flex items-center justify-between">
+                                                            <div>
+                                                                <div className="text-[10px] text-zinc-500 font-bold uppercase mb-1">Host</div>
+                                                                <code className="text-sm">{selectedDb.host || 'backend.nexode.app'}</code>
+                                                            </div>
+                                                        </div>
                                                         <div className="p-4 rounded-2xl bg-black border border-white/10 flex items-center justify-between">
                                                             <div>
                                                                 <div className="text-[10px] text-zinc-500 font-bold uppercase mb-1">Port</div>
@@ -650,6 +663,7 @@ export default function DatabasesPage() {
 
                                             <div className="grid grid-cols-1 gap-4">
                                                 {[
+                                                    { label: 'Host / Endpoint', value: selectedDb.host || 'backend.nexode.app', field: 'host' },
                                                     { label: 'Username', value: selectedDb.username, field: 'username' },
                                                     { label: 'Password', value: selectedDb.password, field: 'password', secret: true },
                                                     {
