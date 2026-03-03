@@ -43,6 +43,12 @@ interface User {
     avatar?: string;
 }
 
+const INITIAL_TERMINAL_LOGS: { type: 'input' | 'output' | 'error', text: string }[] = [
+    { type: 'output', text: 'Nexode Secure Terminal v1.1.0' },
+    { type: 'output', text: 'Establishing secure proxy connection...' },
+    { type: 'output', text: 'Connected to isolated cluster. Type "help" to see available commands.' }
+];
+
 export default function DatabasesPage() {
     const [loading, setLoading] = useState(true);
     const [databases, setDatabases] = useState<DatabaseInstance[]>([]);
@@ -54,11 +60,8 @@ export default function DatabasesPage() {
     const [dbToDelete, setDbToDelete] = useState<DatabaseInstance | null>(null);
     const [copiedField, setCopiedField] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState<'overview' | 'credentials' | 'terminal'>('overview');
-    const [terminalLogs, setTerminalLogs] = useState<{ type: 'input' | 'output' | 'error', text: string }[]>([
-        { type: 'output', text: 'Nexode Secure Terminal v1.0.0' },
-        { type: 'output', text: 'Connected to isolated MongoDB cluster.' },
-        { type: 'output', text: 'Type "help" or "db.stats()" to begin.' }
-    ]);
+
+    const [terminalLogs, setTerminalLogs] = useState<{ type: 'input' | 'output' | 'error', text: string }[]>(INITIAL_TERMINAL_LOGS);
     const [isExecuting, setIsExecuting] = useState(false);
 
     const fetchDatabases = useCallback(async () => {
@@ -116,6 +119,11 @@ export default function DatabasesPage() {
     useEffect(() => {
         fetchDatabases();
     }, [fetchDatabases]);
+
+    // Clear terminal logs when database changes, tab changes, or on initial load
+    useEffect(() => {
+        setTerminalLogs([...INITIAL_TERMINAL_LOGS]);
+    }, [selectedDb?._id, activeTab]);
 
     const handleCopy = (text: string, field: string) => {
         navigator.clipboard.writeText(text);
@@ -176,6 +184,7 @@ export default function DatabasesPage() {
 
             if (result.data?.createDatabase) {
                 setShowCreateModal(false);
+                setTerminalLogs([...INITIAL_TERMINAL_LOGS]);
                 fetchDatabases();
             } else if (result.errors) {
                 const mainError = result.errors[0];
@@ -393,7 +402,10 @@ export default function DatabasesPage() {
                                 databases.map((db) => (
                                     <button
                                         key={db._id}
-                                        onClick={() => setSelectedDb(db)}
+                                        onClick={() => {
+                                            setSelectedDb(db);
+                                            setTerminalLogs([...INITIAL_TERMINAL_LOGS]);
+                                        }}
                                         className={cn(
                                             "w-full text-left p-4 rounded-2xl border transition-all group",
                                             selectedDb?._id === db._id
@@ -662,7 +674,11 @@ export default function DatabasesPage() {
                                                         <div className="w-2.5 h-2.5 rounded-full bg-amber-500/20 border border-amber-500/40" />
                                                         <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/20 border border-emerald-500/40" />
                                                     </div>
-                                                    <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500 ml-2">Mongosh Proxy — {selectedDb.name}</span>
+                                                    <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500 ml-2">
+                                                        {selectedDb.type === 'mongodb' ? 'Mongosh' :
+                                                            selectedDb.type === 'postgres' ? 'PSQL' :
+                                                                selectedDb.type === 'redis' ? 'Redis-CLI' : 'MySQL'} Proxy — {selectedDb.name}
+                                                    </span>
                                                 </div>
                                                 <div className="flex items-center gap-4">
                                                     <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-tighter flex items-center gap-1.5">
@@ -696,7 +712,11 @@ export default function DatabasesPage() {
                                                 <input
                                                     name="command"
                                                     autoComplete="off"
-                                                    placeholder="Enter database command (e.g. db.stats())"
+                                                    placeholder={
+                                                        selectedDb.type === 'mongodb' ? "Enter command (e.g. db.stats())" :
+                                                            selectedDb.type === 'postgres' || selectedDb.type === 'mysql' ? "Enter SQL query (e.g. SELECT version())" :
+                                                                "Enter Redis command (e.g. INFO)"
+                                                    }
                                                     className="flex-1 bg-transparent border-none outline-none text-sm font-mono text-white placeholder:text-zinc-700"
                                                 />
                                                 <Button
