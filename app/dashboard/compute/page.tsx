@@ -413,7 +413,7 @@ export default function ComputePage() {
                                         <div className="flex items-center justify-between mb-2">
                                             <span className={cn(
                                                 "text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full border",
-                                                inst.type === 'frontend' ? 'text-blue-400 border-blue-400/20 bg-blue-400/10' : 'text-purple-400 border-purple-400/20 bg-purple-400/10'
+                                                inst.type.toLowerCase() === 'frontend' ? 'text-blue-400 border-blue-400/20 bg-blue-400/10' : 'text-purple-400 border-purple-400/20 bg-purple-400/10'
                                             )}>
                                                 {inst.type}
                                             </span>
@@ -456,7 +456,7 @@ export default function ComputePage() {
                                 <div className="flex gap-8 border-b border-white/5 mb-12 overflow-x-auto scrollbar-hide">
                                     {(['overview', 'deployments', 'logs', 'terminal', 'settings'] as const).map(id => {
                                         const tabMeta = {
-                                            overview: { label: 'Cluster Overview', icon: Globe },
+                                            overview: { label: 'Overview', icon: Globe },
                                             deployments: { label: 'Deploy Events', icon: Activity },
                                             logs: { label: 'Console Logs', icon: FileText },
                                             terminal: { label: 'Secure Terminal', icon: Terminal },
@@ -467,7 +467,7 @@ export default function ComputePage() {
                                                 key={id}
                                                 onClick={() => setActiveTab(id)}
                                                 className={cn(
-                                                    "flex items-center gap-2 pb-4 text-xs font-black uppercase tracking-widest transition-all relative shrink-0",
+                                                    "flex items-center gap-2 pb-4 text-[10px] font-black uppercase tracking-widest transition-all relative shrink-0",
                                                     activeTab === id ? "text-blue-500" : "text-zinc-500 hover:text-white"
                                                 )}
                                             >
@@ -482,70 +482,133 @@ export default function ComputePage() {
                                 {/* Tab Content */}
                                 <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                                     {activeTab === 'overview' && (
-                                        <div className="space-y-8">
+                                        <div className="space-y-8 max-w-4xl">
+                                            {/* Primary Domain Status */}
+                                            <div className="bg-white/[0.02] border border-white/5 rounded-[40px] p-8 relative overflow-hidden">
+                                                <div className="absolute top-0 right-0 p-8">
+                                                    {selectedInstance.status === 'running' ? (
+                                                        <div className="flex items-center gap-2 bg-emerald-500/10 text-emerald-500 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border border-emerald-500/20">
+                                                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" /> Reachable
+                                                        </div>
+                                                    ) : (
+                                                        <div className="flex items-center gap-2 bg-amber-500/10 text-amber-500 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border border-amber-500/20">
+                                                            <div className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" /> {selectedInstance.status}
+                                                        </div>
+                                                    )}
+                                                </div>
+
+                                                <div className="mb-8">
+                                                    <h3 className="text-lg font-black uppercase tracking-tight mb-2">Network Endpoint</h3>
+                                                    <p className="text-zinc-500 text-xs font-bold uppercase tracking-widest">
+                                                        {selectedInstance.type.toLowerCase() === 'frontend' ? 'Public Application URL' : 'Internal VPC Gateway'}
+                                                    </p>
+                                                </div>
+
+                                                {selectedInstance.type.toLowerCase() === 'frontend' ? (
+                                                    <div className="flex flex-col gap-4">
+                                                        <div className="p-5 rounded-3xl bg-blue-500/5 border border-blue-500/10 flex items-center justify-between group/url">
+                                                            <div className="flex items-center gap-4 flex-1 overflow-hidden">
+                                                                <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
+                                                                    <Globe className="w-5 h-5 text-blue-500" />
+                                                                </div>
+                                                                <code className="text-sm font-black truncate text-blue-100">https://{selectedInstance.generated_domain}</code>
+                                                            </div>
+                                                            <div className="flex gap-2">
+                                                                <Button variant="ghost" size="icon" onClick={() => handleCopy(`https://${selectedInstance.generated_domain}`, 'prod_url')} className="hover:bg-blue-500/10 text-zinc-400 hover:text-blue-500 rounded-xl">
+                                                                    {copiedField === 'prod_url' ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
+                                                                </Button>
+                                                                <Button variant="ghost" size="icon" onClick={() => window.open(`https://${selectedInstance.generated_domain}`, '_blank')} className="hover:bg-blue-500/10 text-zinc-400 hover:text-blue-500 rounded-xl">
+                                                                    <ExternalLink className="w-4 h-4" />
+                                                                </Button>
+                                                            </div>
+                                                        </div>
+                                                        {selectedInstance.custom_domain && (
+                                                            <div className="p-4 rounded-2xl bg-black border border-white/5 flex items-center justify-between">
+                                                                <div className="flex items-center gap-3">
+                                                                    <div className="text-[10px] text-zinc-600 font-black uppercase tracking-widest">Custom Domain</div>
+                                                                    <code className="text-xs font-black text-zinc-300">{selectedInstance.custom_domain}</code>
+                                                                </div>
+                                                                <Button variant="ghost" size="sm" onClick={() => handleCopy(selectedInstance.custom_domain || '', 'custom_domain')} className="text-zinc-500 hover:text-white rounded-lg px-2">
+                                                                    {copiedField === 'custom_domain' ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3" />}
+                                                                </Button>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                ) : (
+                                                    <div className="flex items-center gap-6 p-6 rounded-[32px] bg-black border border-white/5">
+                                                        <div className="w-14 h-14 rounded-2xl bg-zinc-900 flex items-center justify-center border border-white/5">
+                                                            <Shield className="w-6 h-6 text-zinc-600" />
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-xs text-white font-black uppercase tracking-widest mb-1">Internal VPC Protection Active</p>
+                                                            <p className="text-[10px] text-zinc-600">This instance is isolated. Connect via External Proxy or Private Tunnel.</p>
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                {!selectedInstance.generated_domain && selectedInstance.type.toLowerCase() === 'frontend' && (
+                                                    <div className="mt-4 p-4 rounded-2xl bg-red-500/5 border border-red-500/10 flex gap-4 items-center">
+                                                        <div className="w-2 h-2 rounded-full bg-red-500" />
+                                                        <p className="text-[10px] text-red-400 font-bold uppercase tracking-widest">Deployment Pending: Domain propagation in progress</p>
+                                                    </div>
+                                                )}
+                                            </div>
+
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                                {/* Source Information */}
                                                 <div className="bg-white/[0.02] border border-white/5 rounded-[40px] p-8">
-                                                    <h3 className="text-lg font-black uppercase tracking-tight mb-6">Source Integration</h3>
+                                                    <h3 className="text-sm font-black uppercase tracking-widest text-zinc-500 mb-6">Source Integration</h3>
                                                     <div className="space-y-4">
-                                                        <div className="flex items-center justify-between p-4 rounded-2xl bg-black border border-white/10">
+                                                        <div className="flex items-center justify-between p-4 rounded-2xl bg-black border border-white/5 group">
                                                             <div className="flex items-center gap-4">
-                                                                <div className="w-10 h-10 rounded-xl bg-zinc-900 flex items-center justify-center border border-white/5">
-                                                                    {selectedInstance.provider === 'github' ? <Github className="w-6 h-6" /> : <Gitlab className="w-6 h-6" />}
+                                                                <div className="w-10 h-10 rounded-xl bg-zinc-900 flex items-center justify-center border border-white/5 text-zinc-400 group-hover:text-blue-500 transition-colors">
+                                                                    {selectedInstance.provider.toLowerCase() === 'github' ? <Github className="w-6 h-6" /> : <Gitlab className="w-6 h-6" />}
                                                                 </div>
                                                                 <div>
-                                                                    <div className="text-xs font-bold uppercase text-zinc-400">Connected Repository</div>
-                                                                    <div className="text-sm font-black truncate max-w-[200px]">{selectedInstance.repository_url.split('/').pop()}</div>
+                                                                    <div className="text-[10px] font-black uppercase text-zinc-600 mb-0.5">Connected Repository</div>
+                                                                    <div className="text-sm font-black truncate max-w-[150px]">{selectedInstance.repository_url.split('/').pop()}</div>
                                                                 </div>
                                                             </div>
-                                                            <Button variant="ghost" size="sm" className="rounded-lg text-zinc-500 hover:text-white" onClick={() => window.open(selectedInstance.repository_url, '_blank')}>
+                                                            <Button variant="ghost" size="icon" className="rounded-xl text-zinc-500 hover:text-white" onClick={() => window.open(selectedInstance.repository_url, '_blank')}>
                                                                 <ExternalLink className="w-4 h-4" />
                                                             </Button>
                                                         </div>
-                                                        <div className="p-4 rounded-2xl bg-black border border-white/10">
-                                                            <div className="text-[10px] font-black text-zinc-500 uppercase mb-2">Active Deployment Branch</div>
-                                                            <div className="flex items-center gap-2 font-mono text-sm text-blue-400">
-                                                                <Code className="w-3 h-3" /> {selectedInstance.branch}
+                                                        <div className="p-4 rounded-2xl bg-black border border-white/5 flex items-center justify-between">
+                                                            <div>
+                                                                <div className="text-[10px] font-black text-zinc-600 uppercase mb-0.5">Branch</div>
+                                                                <div className="flex items-center gap-2 font-mono text-sm text-blue-400/80">
+                                                                    <Code className="w-3 h-3" /> {selectedInstance.branch}
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </div>
 
+                                                {/* Compact Deploy Events */}
                                                 <div className="bg-white/[0.02] border border-white/5 rounded-[40px] p-8">
-                                                    <h3 className="text-lg font-black uppercase tracking-tight mb-6">Network Endpoints</h3>
+                                                    <h3 className="text-sm font-black uppercase tracking-widest text-zinc-500 mb-6">Latest Events</h3>
                                                     <div className="space-y-4">
-                                                        {selectedInstance.type === 'frontend' ? (
-                                                            <>
-                                                                <div className="p-4 rounded-2xl bg-blue-500/5 border border-blue-500/10 flex items-center justify-between">
-                                                                    <div className="flex-1 overflow-hidden">
-                                                                        <div className="text-[10px] text-blue-500 font-black uppercase mb-1">Production URL</div>
-                                                                        <code className="text-sm font-black truncate block">https://{selectedInstance.generated_domain}</code>
-                                                                    </div>
-                                                                    <div className="flex gap-2">
-                                                                        <Button variant="ghost" size="icon" onClick={() => handleCopy(`https://${selectedInstance.generated_domain}`, 'prod_url')}>
-                                                                            {copiedField === 'prod_url' ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4 text-blue-500" />}
-                                                                        </Button>
-                                                                        <Button variant="ghost" size="icon" onClick={() => window.open(`https://${selectedInstance.generated_domain}`, '_blank')}>
-                                                                            <ExternalLink className="w-4 h-4 text-blue-500" />
-                                                                        </Button>
+                                                        {selectedInstance.events && selectedInstance.events.length > 0 ? (
+                                                            selectedInstance.events.slice(-3).reverse().map((e, idx) => (
+                                                                <div key={idx} className="flex gap-4 items-start relative pb-4 last:pb-0 border-b border-white/5 last:border-0">
+                                                                    <div className={cn(
+                                                                        "w-2 h-2 rounded-full mt-1.5 shrink-0",
+                                                                        e.type === 'success' ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.3)]' :
+                                                                            e.type === 'error' ? 'bg-red-500' : 'bg-blue-500'
+                                                                    )} />
+                                                                    <div className="flex-1">
+                                                                        <p className={cn("text-xs font-black uppercase tracking-tight", e.type === 'error' ? 'text-red-400' : 'text-zinc-300')}>
+                                                                            {e.message}
+                                                                        </p>
+                                                                        <span className="text-[9px] font-bold text-zinc-600">
+                                                                            {new Date(e.timestamp).toLocaleString([], { hour: '2-digit', minute: '2-digit' })}
+                                                                        </span>
                                                                     </div>
                                                                 </div>
-                                                                {selectedInstance.custom_domain && (
-                                                                    <div className="p-4 rounded-2xl bg-black border border-white/10 flex items-center justify-between">
-                                                                        <div className="overflow-hidden">
-                                                                            <div className="text-[10px] text-zinc-500 font-black uppercase mb-1">Custom Domain</div>
-                                                                            <code className="text-sm font-black text-white">{selectedInstance.custom_domain}</code>
-                                                                        </div>
-                                                                        <Button variant="ghost" size="icon" onClick={() => handleCopy(selectedInstance.custom_domain || '', 'custom_domain')}>
-                                                                            {copiedField === 'custom_domain' ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
-                                                                        </Button>
-                                                                    </div>
-                                                                )}
-                                                            </>
+                                                            ))
                                                         ) : (
-                                                            <div className="p-6 rounded-[32px] bg-black border border-white/5 text-center">
-                                                                <Shield className="w-12 h-12 text-zinc-700 mx-auto mb-4" />
-                                                                <p className="text-xs text-zinc-500 px-4 font-bold uppercase tracking-widest">Internal VPC Protection Active</p>
-                                                                <p className="text-[10px] text-zinc-600 mt-2">API services are isolated behind Cloud Armor.</p>
+                                                            <div className="py-6 text-center text-[10px] font-black uppercase text-zinc-700 tracking-widest">
+                                                                No recent events
                                                             </div>
                                                         )}
                                                     </div>
@@ -555,30 +618,31 @@ export default function ComputePage() {
                                     )}
 
                                     {activeTab === 'deployments' && (
-                                        <div className="bg-black border border-white/5 rounded-[40px] p-12 overflow-hidden relative">
-                                            <div className="absolute top-0 right-0 p-4">
-                                                <div className="flex items-center gap-2 bg-emerald-500/10 text-emerald-500 px-3 py-1 rounded-full text-[10px] font-black uppercase">
-                                                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Health Normal
+                                        <div className="bg-black border border-white/5 rounded-[40px] p-12 overflow-hidden relative min-h-[500px]">
+                                            <div className="absolute top-0 right-0 p-8">
+                                                <div className="flex items-center gap-2 bg-emerald-500/10 text-emerald-500 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border border-emerald-500/20">
+                                                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Platform Sync Normal
                                                 </div>
                                             </div>
-                                            <div className="space-y-8 relative">
-                                                <div className="absolute left-[7px] top-2 bottom-2 w-0.5 bg-white/5" />
+                                            <div className="space-y-10 relative">
+                                                <div className="absolute left-[7px] top-2 bottom-2 w-px bg-white/5" />
                                                 {selectedInstance.events?.map((e, idx) => (
-                                                    <div key={idx} className="flex gap-8 relative group">
+                                                    <div key={idx} className="flex gap-10 relative group">
                                                         <div className={cn(
-                                                            "w-4 h-4 rounded-full border-2 border-[#050505] relative z-10 shrink-0 mt-1 transition-all",
+                                                            "w-4 h-4 rounded-full border-2 border-[#050505] relative z-10 shrink-0 mt-2 transition-all",
                                                             e.type === 'success' ? 'bg-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.5)]' :
-                                                                e.type === 'error' ? 'bg-red-500' : 'bg-blue-500'
+                                                                e.type === 'error' ? 'bg-red-500 shadow-[0_0_12px_rgba(239,68,68,0.3)]' : 'bg-blue-500 shadow-[0_0_12px_rgba(59,130,246,0.3)]'
                                                         )} />
                                                         <div className="flex-1">
-                                                            <div className="flex items-center justify-between mb-2">
-                                                                <p className={cn("text-lg font-black uppercase tracking-tight", e.type === 'error' ? 'text-red-400' : e.type === 'success' ? 'text-emerald-400' : 'text-zinc-200')}>
+                                                            <div className="flex items-center justify-between mb-1">
+                                                                <p className={cn("text-xs font-black uppercase tracking-widest", e.type === 'error' ? 'text-red-400' : e.type === 'success' ? 'text-emerald-400' : 'text-zinc-200')}>
                                                                     {e.message}
                                                                 </p>
-                                                                <span className="text-[10px] font-bold text-zinc-600 font-mono">
+                                                                <span className="text-[10px] font-black text-zinc-600 font-mono">
                                                                     {new Date(e.timestamp).toLocaleTimeString()}
                                                                 </span>
                                                             </div>
+                                                            <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider opacity-60">Status Code: 200 — Sync Initiated</div>
                                                         </div>
                                                     </div>
                                                 ))}
