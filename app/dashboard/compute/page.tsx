@@ -29,6 +29,7 @@ import { Button } from "@/components/ui/button";
 import { Sidebar, Subscription } from "@/components/Sidebar";
 import { cn } from "@/lib/utils";
 import { getAccessToken } from "@/lib/auth-utils";
+import { useModal } from "@/components/ui/modal";
 
 interface ComputeInstance {
     _id: string;
@@ -144,6 +145,7 @@ export default function ComputePage() {
 
     const [terminalLogs, setTerminalLogs] = useState<{ type: 'input' | 'output' | 'error', text: string }[]>(INITIAL_TERMINAL_LOGS);
     const [isExecuting, setIsExecuting] = useState(false);
+    const { showAlert, showConfirm } = useModal();
 
     const fetchInstances = useCallback(async () => {
         try {
@@ -215,7 +217,11 @@ export default function ComputePage() {
 
         const computeSub = subscriptions.find(s => s.service === 'compute');
         if (!computeSub) {
-            alert("No active compute subscription found. You must subscribe to a Compute plan first.");
+            showAlert({
+                title: "Subscription Required",
+                message: "No active compute subscription found. You must subscribe to a Compute plan first.",
+                type: "warning"
+            });
             return;
         }
 
@@ -256,11 +262,19 @@ export default function ComputePage() {
                 setShowCreateModal(false);
                 fetchInstances();
             } else {
-                alert(result.errors?.[0]?.message || "Failed to provision instance. Check your account limits.");
+                showAlert({
+                    title: "Provisioning Failed",
+                    message: result.errors?.[0]?.message || "Failed to provision instance. Check your account limits.",
+                    type: "error"
+                });
             }
         } catch (err) {
             console.error(err);
-            alert("Connection error. Please try again later.");
+            showAlert({
+                title: "Connection Error",
+                message: "Connection error. Please try again later.",
+                type: "error"
+            });
         }
     };
 
@@ -280,22 +294,28 @@ export default function ComputePage() {
     };
 
     const handleDelete = async (id: string) => {
-        if (!confirm("Are you sure you want to terminate this instance? This action is irreversible.")) return;
-        try {
-            const token = getAccessToken();
-            const GQL_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api-v1/graphql";
-            const mutation = `mutation Delete($id: ID!) { deleteComputeInstance(id: $id) }`;
-            const res = await fetch(GQL_URL, {
-                method: "POST",
-                headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
-                body: JSON.stringify({ query: mutation, variables: { id } }),
-            });
-            const result = await res.json();
-            if (result.data?.deleteComputeInstance) {
-                setSelectedInstance(null);
-                fetchInstances();
+        showConfirm({
+            title: "Terminate Instance",
+            message: "Are you sure you want to terminate this instance? This action is irreversible.",
+            confirmText: "Terminate",
+            onConfirm: async () => {
+                try {
+                    const token = getAccessToken();
+                    const GQL_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api-v1/graphql";
+                    const mutation = `mutation Delete($id: ID!) { deleteComputeInstance(id: $id) }`;
+                    const res = await fetch(GQL_URL, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+                        body: JSON.stringify({ query: mutation, variables: { id } }),
+                    });
+                    const result = await res.json();
+                    if (result.data?.deleteComputeInstance) {
+                        setSelectedInstance(null);
+                        fetchInstances();
+                    }
+                } catch (error) { console.error(error); }
             }
-        } catch (error) { console.error(error); }
+        });
     };
 
     const handleExecuteCommand = async (e: React.FormEvent<HTMLFormElement>) => {

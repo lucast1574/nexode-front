@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { UserNav } from "@/components/user-nav";
 import { getAccessToken } from "@/lib/auth-utils";
+import { useModal } from "@/components/ui/modal";
 
 interface Tier {
     name: string;
@@ -137,6 +138,7 @@ export default function CheckoutPage() {
     });
     const [loading, setLoading] = useState(false);
     const [currentSubSlugs, setCurrentSubSlugs] = useState<string[]>([]);
+    const { showAlert } = useModal();
 
     useEffect(() => {
         const fetchCurrentSubs = async () => {
@@ -260,7 +262,11 @@ export default function CheckoutPage() {
                     window.location.href = guestResult.data.createGuestCheckoutSession;
                     return;
                 }
-                alert(`Checkout failed. Error: ${result.errors[0]?.message || 'Unknown error'}`);
+                showAlert({
+                    title: "Checkout Error",
+                    message: `Checkout failed. Error: ${result.errors[0]?.message || 'Unknown error'}`,
+                    type: "error"
+                });
                 return;
             }
 
@@ -270,7 +276,11 @@ export default function CheckoutPage() {
             }
         } catch (error) {
             console.error("Checkout Error:", error);
-            alert("Checkout failed. Is the backend running?");
+            showAlert({
+                title: "Checkout Failed",
+                message: "Checkout failed. Is the backend running?",
+                type: "error"
+            });
         } finally {
             setLoading(false);
         }

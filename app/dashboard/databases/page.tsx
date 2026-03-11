@@ -19,6 +19,7 @@ import { Sidebar, Subscription } from "@/components/Sidebar";
 import { cn } from "@/lib/utils";
 import { getAccessToken } from "@/lib/auth-utils";
 import { DeleteDatabaseModal } from "@/components/modals/DeleteDatabaseModal";
+import { useModal } from "@/components/ui/modal";
 
 interface DatabaseInstance {
     _id: string;
@@ -63,6 +64,7 @@ export default function DatabasesPage() {
 
     const [terminalLogs, setTerminalLogs] = useState<{ type: 'input' | 'output' | 'error', text: string }[]>(INITIAL_TERMINAL_LOGS);
     const [isExecuting, setIsExecuting] = useState(false);
+    const { showAlert } = useModal();
 
     const fetchDatabases = useCallback(async () => {
         try {
@@ -141,14 +143,22 @@ export default function DatabasesPage() {
         const dbPlan = subscriptions.find(s => s.service === 'database');
 
         if (!dbPlan) {
-            alert("No active database subscription found. You must be subscribed to create a database.");
+            showAlert({
+                title: "Subscription Required",
+                message: "No active database subscription found. You must be subscribed to create a database.",
+                type: "warning"
+            });
             return;
         }
 
         const plan_slug = dbPlan.plan.slug;
 
         if (name.length < 3) {
-            alert("Instance name must be at least 3 characters long.");
+            showAlert({
+                title: "Invalid Details",
+                message: "Instance name must be at least 3 characters long.",
+                type: "warning"
+            });
             return;
         }
 
@@ -197,15 +207,26 @@ export default function DatabasesPage() {
                 console.error("Full Error Stack:", result.errors);
                 console.groupEnd();
 
-                alert(`Creation Failed: ${msg} (Code: ${code})`);
+                showAlert({
+                    title: "Provisioning Failed",
+                    message: `Creation Failed: ${msg} (Code: ${code})`,
+                    type: "error"
+                });
             } else {
-
-                alert("Communication error with the server. Please check your connection.");
+                showAlert({
+                    title: "Connection Error",
+                    message: "Communication error with the server. Please check your connection.",
+                    type: "error"
+                });
             }
         } catch (err) {
             const error = err as Error;
             console.error("[Databases] Network or execution error:", error);
-            alert(`Execution Error: ${error.message || 'Unknown error'}`);
+            showAlert({
+                title: "Execution Error",
+                message: `Execution Error: ${error.message || 'Unknown error'}`,
+                type: "error"
+            });
         }
     };
 
@@ -238,11 +259,19 @@ export default function DatabasesPage() {
             if (result.data?.restartDatabase) {
                 fetchDatabases();
             } else {
-                alert("Failed to restart database instance.");
+                showAlert({
+                    title: "Restart Failed",
+                    message: "Failed to restart database instance.",
+                    type: "error"
+                });
             }
         } catch (error) {
             console.error("Restart error:", error);
-            alert("An error occurred while restarting the database.");
+            showAlert({
+                title: "Restart Error",
+                message: "An error occurred while restarting the database.",
+                type: "error"
+            });
         }
     };
 
@@ -285,11 +314,19 @@ export default function DatabasesPage() {
                 setDbToDelete(null);
                 fetchDatabases();
             } else {
-                alert("Failed to delete database instance.");
+                showAlert({
+                    title: "Deletion Failed",
+                    message: "Failed to delete database instance.",
+                    type: "error"
+                });
             }
         } catch (error) {
             console.error("Delete error:", error);
-            alert("An error occurred while deleting the database.");
+            showAlert({
+                title: "Deletion Error",
+                message: "An error occurred while deleting the database.",
+                type: "error"
+            });
         }
     };
 

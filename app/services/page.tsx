@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { UserNav } from "@/components/user-nav";
+import { useModal } from "@/components/ui/modal";
 
 interface Tier {
     name: string;
@@ -135,6 +136,7 @@ export default function ServicesPage() {
         n8n: null,
     });
     const [currentSubSlugs, setCurrentSubSlugs] = useState<string[]>([]);
+    const { showAlert } = useModal();
 
     useEffect(() => {
         const fetchCurrentSubs = async () => {
@@ -224,7 +226,11 @@ export default function ServicesPage() {
 
             if (result.errors) {
                 console.error("GraphQL Errors:", result.errors);
-                alert("Error: " + result.errors[0].message);
+                showAlert({
+                    title: "Checkout Error",
+                    message: "Error: " + result.errors[0].message,
+                    type: "error"
+                });
                 return;
             }
 
@@ -234,7 +240,11 @@ export default function ServicesPage() {
             }
         } catch (error) {
             console.error("Checkout Error:", error);
-            alert("Checkout failed. Is the backend running?");
+            showAlert({
+                title: "Checkout Failed",
+                message: "Checkout failed. Is the backend running?",
+                type: "error"
+            });
         }
     };
 

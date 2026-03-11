@@ -22,6 +22,7 @@ import { Button } from "@/components/ui/button";
 import { Sidebar, Subscription as BaseSubscription } from "@/components/Sidebar";
 import { cn } from "@/lib/utils";
 import { getAccessToken } from "@/lib/auth-utils";
+import { useModal } from "@/components/ui/modal";
 
 interface Subscription extends BaseSubscription {
     billing_cycle: string;
@@ -37,6 +38,7 @@ export default function BillingPage() {
     const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
     const [user, setUser] = useState<{ first_name: string, email: string, avatar?: string } | null>(null);
     const router = useRouter();
+    const { showAlert } = useModal();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -139,7 +141,11 @@ export default function BillingPage() {
             if (result.data?.createCustomerPortalSession) {
                 window.location.href = result.data.createCustomerPortalSession;
             } else {
-                alert("Could not open billing portal. Do you have an active Stripe subscription?");
+                showAlert({
+                    title: "Portal Error",
+                    message: "Could not open billing portal. Do you have an active Stripe subscription?",
+                    type: "warning"
+                });
             }
         } catch (err) {
             console.error(err);
