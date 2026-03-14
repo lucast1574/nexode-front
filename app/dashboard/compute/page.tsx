@@ -146,6 +146,7 @@ export default function ComputePage() {
     const [copiedField, setCopiedField] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState<'overview' | 'deployments' | 'logs' | 'terminal' | 'settings'>('overview');
     const [formProvider, setFormProvider] = useState('GITHUB');
+    const [customDomainInput, setCustomDomainInput] = useState('');
 
     const [terminalLogs, setTerminalLogs] = useState<{ type: 'input' | 'output' | 'error', text: string }[]>(INITIAL_TERMINAL_LOGS);
     const [isExecuting, setIsExecuting] = useState(false);
@@ -935,16 +936,18 @@ export default function ComputePage() {
                                         defaultValue="GITHUB"
                                         onChange={setFormProvider}
                                     />
-                                    {formProvider === 'GITHUB' && !user?.avatar && (
+                                    {(!user?.avatar || (formProvider !== 'GITHUB')) && (
                                         <div className="p-4 mt-4 rounded-3xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-between">
                                             <div className="flex items-center gap-3">
-                                                <Github className="w-5 h-5 text-blue-500" />
+                                                {formProvider === 'GITHUB' ? <Github className="w-5 h-5 text-blue-500" /> : 
+                                                 formProvider === 'GITLAB' ? <Gitlab className="w-5 h-5 text-orange-500" /> : 
+                                                 <Code className="w-5 h-5 text-zinc-400" />}
                                                 <div>
                                                     <div className="text-xs font-bold text-blue-400">Account Not Linked</div>
-                                                    <div className="text-[10px] text-blue-500/60 font-medium tracking-tight">Connect your account for private repos.</div>
+                                                    <div className="text-[10px] text-blue-500/60 font-medium tracking-tight truncate max-w-[150px]">Connect {formProvider.toLowerCase()} for private repos.</div>
                                                 </div>
                                             </div>
-                                            <Button type="button" size="sm" onClick={() => showAlert({ title: 'GitHub Link', message: 'Auth flow initiated.', type: 'info' })} className="rounded-xl bg-blue-600 hover:bg-blue-500 text-[9px] font-black uppercase shadow-lg shadow-blue-500/20">
+                                            <Button type="button" size="sm" onClick={() => showAlert({ title: `${formProvider} Link`, message: `Auth flow for ${formProvider} initiated.`, type: 'info' })} className="rounded-xl bg-blue-600 hover:bg-blue-500 text-[9px] font-black uppercase shadow-lg shadow-blue-500/20 px-4 shrink-0">
                                                 Connect
                                             </Button>
                                         </div>
@@ -966,9 +969,27 @@ export default function ComputePage() {
                                 </div>
                                 <div className="space-y-3">
                                     <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500 ml-1">Custom Domain (Optional)</label>
-                                    <input name="custom_domain" placeholder="app.example.com" className="w-full bg-white/[0.02] border border-white/10 rounded-2xl h-14 px-6 font-bold focus:border-blue-500/50 transition-all outline-none" />
+                                    <input 
+                                        name="custom_domain" 
+                                        placeholder="app.example.com" 
+                                        onChange={(e) => setCustomDomainInput(e.target.value)}
+                                        className="w-full bg-white/[0.02] border border-white/10 rounded-2xl h-14 px-6 font-bold focus:border-blue-500/50 transition-all outline-none" 
+                                    />
                                 </div>
                             </div>
+
+                            {customDomainInput.trim().length > 0 && (
+                                <div className="grid grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-4 duration-300">
+                                    <div className="space-y-3">
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500 ml-1">Auth Username</label>
+                                        <input name="auth_user" placeholder="admin" className="w-full bg-white/[0.02] border border-white/10 rounded-2xl h-14 px-6 font-bold focus:border-blue-500/50 transition-all outline-none" />
+                                    </div>
+                                    <div className="space-y-3">
+                                        <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500 ml-1">Auth Password</label>
+                                        <input name="auth_pass" type="password" placeholder="••••••••" className="w-full bg-white/[0.02] border border-white/10 rounded-2xl h-14 px-6 font-bold focus:border-blue-500/50 transition-all outline-none" />
+                                    </div>
+                                </div>
+                            )}
 
                             <Button type="submit" className="w-full h-16 rounded-[24px] bg-blue-600 hover:bg-blue-500 font-black uppercase tracking-widest text-sm shadow-xl shadow-blue-500/20 transform transition-all active:scale-95">
                                 Launch Cluster Node
