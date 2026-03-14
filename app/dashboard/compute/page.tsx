@@ -183,19 +183,20 @@ export default function ComputePage() {
                 const insts = result.data.myComputeInstances || [];
                 setInstances(insts);
 
-                if (selectedInstance) {
-                    const updated = insts.find((i: ComputeInstance) => i._id === selectedInstance._id);
-                    if (updated) setSelectedInstance(updated);
-                } else if (insts.length > 0) {
-                    setSelectedInstance(insts[0]);
-                }
+                setSelectedInstance(prev => {
+                    if (prev) {
+                        const updated = insts.find((i: ComputeInstance) => i._id === prev._id);
+                        if (updated) return updated;
+                    }
+                    return insts.length > 0 ? insts[0] : null;
+                });
             }
         } catch (error) {
             console.error("Fetch Compute error:", error);
         } finally {
             setLoading(false);
         }
-    }, [selectedInstance]);
+    }, []);
 
     useEffect(() => {
         fetchInstances();
@@ -345,6 +346,7 @@ export default function ComputePage() {
                     });
                     const result = await res.json();
                     if (result.data?.deleteComputeInstance) {
+                        setInstances(prev => prev.filter(i => i._id !== id));
                         setSelectedInstance(null);
                         fetchInstances();
                     }
