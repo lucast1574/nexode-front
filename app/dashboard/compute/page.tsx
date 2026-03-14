@@ -66,9 +66,10 @@ interface CustomDropdownProps {
     name: string;
     options: { value: string; label: string; icon: React.ElementType }[];
     defaultValue: string;
+    onChange?: (value: string) => void;
 }
 
-function CustomDropdown({ name, options, defaultValue }: CustomDropdownProps) {
+function CustomDropdown({ name, options, defaultValue, onChange }: CustomDropdownProps) {
     const [isOpen, setIsOpen] = useState(false);
     const [selected, setSelected] = useState(options.find(o => o.value === defaultValue) || options[0]);
 
@@ -102,6 +103,7 @@ function CustomDropdown({ name, options, defaultValue }: CustomDropdownProps) {
                                     onClick={() => {
                                         setSelected(opt);
                                         setIsOpen(false);
+                                        if (onChange) onChange(opt.value);
                                     }}
                                     className={cn(
                                         "w-full text-left px-5 py-4 rounded-[22px] flex items-center justify-between transition-all group",
@@ -143,6 +145,7 @@ export default function ComputePage() {
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [copiedField, setCopiedField] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState<'overview' | 'deployments' | 'logs' | 'terminal' | 'settings'>('overview');
+    const [formProvider, setFormProvider] = useState('GITHUB');
 
     const [terminalLogs, setTerminalLogs] = useState<{ type: 'input' | 'output' | 'error', text: string }[]>(INITIAL_TERMINAL_LOGS);
     const [isExecuting, setIsExecuting] = useState(false);
@@ -201,6 +204,20 @@ export default function ComputePage() {
     useEffect(() => {
         fetchInstances();
     }, [fetchInstances]);
+
+    // Auto-refresh when deploying
+    useEffect(() => {
+        const isDeploying = instances.some(i => i.status.toLowerCase() === 'provisioning' || i.status.toLowerCase() === 'restarting');
+        let interval: NodeJS.Timeout;
+        if (isDeploying) {
+            interval = setInterval(() => {
+                fetchInstances();
+            }, 3000);
+        }
+        return () => {
+            if (interval) clearInterval(interval);
+        };
+    }, [instances, fetchInstances]);
 
     // Reset terminal when instance or tab changes
     useEffect(() => {
@@ -916,7 +933,22 @@ export default function ComputePage() {
                                             { value: 'BITBUCKET', label: 'Bitbucket', icon: Code }
                                         ]}
                                         defaultValue="GITHUB"
+                                        onChange={setFormProvider}
                                     />
+                                    {formProvider === 'GITHUB' && !user?.avatar && (
+                                        <div className="p-4 mt-4 rounded-3xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-between">
+                                            <div className="flex items-center gap-3">
+                                                <Github className="w-5 h-5 text-blue-500" />
+                                                <div>
+                                                    <div className="text-xs font-bold text-blue-400">Account Not Linked</div>
+                                                    <div className="text-[10px] text-blue-500/60 font-medium tracking-tight">Connect your account for private repos.</div>
+                                                </div>
+                                            </div>
+                                            <Button type="button" size="sm" onClick={() => showAlert({ title: 'GitHub Link', message: 'Auth flow initiated.', type: 'info' })} className="rounded-xl bg-blue-600 hover:bg-blue-500 text-[9px] font-black uppercase shadow-lg shadow-blue-500/20">
+                                                Connect
+                                            </Button>
+                                        </div>
+                                    )}
 
                                 </div>
                             </div>
