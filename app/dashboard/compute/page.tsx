@@ -39,6 +39,7 @@ interface ComputeInstance {
     repository_url: string;
     branch: string;
     status: string;
+    auto_deploy_on_push: boolean;
     cpu_limit: number;
     ram_limit: number;
     custom_domain?: string;
@@ -291,6 +292,40 @@ export default function ComputePage() {
             const result = await res.json();
             if (result.data) fetchInstances();
         } catch (error) { console.error(error); }
+    };
+
+    const handleToggleAutoDeploy = async (enabled: boolean) => {
+        if (!selectedInstance) return;
+
+        try {
+            const token = getAccessToken();
+            const GQL_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api-v1/graphql";
+
+            const mutation = `
+                mutation UpdateAutoDeploy($id: ID!, $enabled: Boolean!) {
+                    updateComputeAutoDeploy(id: $id, enabled: $enabled) { _id auto_deploy_on_push }
+                }
+            `;
+
+            const res = await fetch(GQL_URL, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    query: mutation,
+                    variables: { id: selectedInstance._id, enabled }
+                }),
+            });
+
+            const result = await res.json();
+            if (result.data) {
+                fetchInstances();
+            }
+        } catch (error) {
+            console.error("Toggle Auto Deploy error:", error);
+        }
     };
 
     const handleDelete = async (id: string) => {
@@ -639,9 +674,11 @@ export default function ComputePage() {
 
                                     {activeTab === 'deployments' && (
                                         <div className="bg-black border border-white/5 rounded-[40px] p-12 overflow-hidden relative min-h-[500px]">
-                                            <div className="absolute top-0 right-0 p-8">
-                                                <div className="flex items-center gap-2 bg-emerald-500/10 text-emerald-500 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border border-emerald-500/20">
-                                                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Platform Sync Normal
+                                            <div className="flex items-center justify-between mb-12">
+                                                <h3 className="text-xl font-black uppercase tracking-tight">Deployment Lifecycle</h3>
+                                                <div className="flex items-center gap-2 bg-emerald-500/10 text-emerald-500 px-4 py-2 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-emerald-500/20 backdrop-blur-md shadow-lg shadow-emerald-500/5">
+                                                    <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]" /> 
+                                                    Platform Sync Normal
                                                 </div>
                                             </div>
                                             <div className="space-y-10 relative">
@@ -759,16 +796,54 @@ export default function ComputePage() {
                                     {activeTab === 'settings' && (
                                         <div className="max-w-2xl space-y-12">
                                             <div className="bg-white/[0.02] border border-white/5 rounded-[40px] p-8">
-                                                <h3 className="text-xl font-black uppercase tracking-tight mb-8">Custom Domain Settings</h3>
+                                                <div className="flex items-center justify-between mb-8">
+                                                    <h3 className="text-xl font-black uppercase tracking-tight">Source Protection & CI/CD</h3>
+                                                    {user?.avatar ? (
+                                                        <div className="flex items-center gap-2 bg-blue-500/10 text-blue-400 px-3 py-1 rounded-full text-[10px] font-black uppercase border border-blue-500/20">
+                                                            Connected to GitHub
+                                                        </div>
+                                                    ) : (
+                                                        <Button variant="outline" size="sm" className="rounded-xl border-white/10 bg-white/5 hover:bg-white/10 text-[10px] font-black uppercase px-4 h-8">
+                                                            <Github className="w-3 h-3 mr-2 text-blue-500" /> Connect Account
+                                                        </Button>
+                                                    )}
+                                                </div>
                                                 <div className="space-y-6">
-                                                    <p className="text-zinc-500 text-sm leading-relaxed">Point your domain and we take care of the rest—automated SSL certificates, global CDN, and edge caching.</p>
-                                                    <div className="flex gap-4">
-                                                        <input
-                                                            className="flex-1 bg-black border border-white/10 rounded-2xl px-6 h-14 text-sm font-bold placeholder:text-zinc-700 focus:border-blue-500/50 transition-all outline-none"
-                                                            placeholder="e.g. app.myproject.com"
-                                                            defaultValue={selectedInstance.custom_domain}
-                                                        />
-                                                        <Button className="rounded-2xl h-14 px-8 bg-blue-600 hover:bg-blue-500 font-bold uppercase tracking-widest text-xs">Update</Button>
+                                                    <div className="flex items-center justify-between p-6 rounded-3xl bg-black/40 border border-white/5 group hover:border-blue-500/30 transition-all">
+                                                        <div className="flex-1">
+                                                            <div className="flex items-center gap-2 mb-1">
+                                                                <RefreshCw className="w-4 h-4 text-emerald-500" />
+                                                                <h4 className="font-bold text-sm">Auto-reploy on Push</h4>
+                                                            </div>
+                                                            <p className="text-[10px] text-zinc-500 font-medium leading-relaxed max-w-[300px]">Whenever you push code to <b>{selectedInstance.branch}</b> branch, Nexode will automatically rebuild and redeploy your node.</p>
+                                                        </div>
+                                                        <div 
+                                                            onClick={() => handleToggleAutoDeploy(!selectedInstance.auto_deploy_on_push)}
+                                                            className={cn(
+                                                                "w-12 h-6 rounded-full p-1 cursor-pointer transition-colors duration-300",
+                                                                selectedInstance.auto_deploy_on_push ? "bg-blue-600" : "bg-zinc-800"
+                                                            )}
+                                                        >
+                                                            <div className={cn("w-4 h-4 bg-white rounded-full transition-transform duration-300", selectedInstance.auto_deploy_on_push ? "translate-x-6" : "translate-x-0")} />
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="p-6 rounded-3xl bg-black/40 border border-white/5 group hover:border-blue-500/30 transition-all">
+                                                        <div className="flex items-center justify-between mb-4">
+                                                            <div className="flex items-center gap-2">
+                                                                <Globe className="w-4 h-4 text-blue-500" />
+                                                                <h4 className="font-bold text-sm">Deployment Domain</h4>
+                                                            </div>
+                                                            <span className="text-[9px] font-black text-zinc-600 uppercase">CDN & SSL Active</span>
+                                                        </div>
+                                                        <div className="flex gap-4">
+                                                            <input
+                                                                className="flex-1 bg-black border border-white/10 rounded-2xl px-6 h-14 text-sm font-bold placeholder:text-zinc-700 focus:border-blue-500/50 transition-all outline-none"
+                                                                placeholder="e.g. app.myproject.com"
+                                                                defaultValue={selectedInstance.custom_domain}
+                                                            />
+                                                            <Button className="rounded-2xl h-14 px-8 bg-blue-600 hover:bg-blue-500 font-bold uppercase tracking-widest text-xs">Update</Button>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
