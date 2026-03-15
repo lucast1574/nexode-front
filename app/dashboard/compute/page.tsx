@@ -53,6 +53,9 @@ interface User {
     first_name: string;
     email: string;
     avatar?: string;
+    github_profile?: {
+        username: string;
+    };
 }
 
 const INITIAL_TERMINAL_LOGS: { type: 'input' | 'output' | 'error', text: string }[] = [
@@ -161,7 +164,7 @@ export default function ComputePage() {
 
             const query = `
                 query GetComputeData {
-                    me { first_name email avatar }
+                    me { first_name email avatar github_profile { username } }
                     mySubscriptions { id service status plan { name slug features } }
                     myComputeInstances {
                         _id name type provider repository_url branch status cpu_limit ram_limit custom_domain generated_domain created_on
@@ -818,9 +821,9 @@ export default function ComputePage() {
                                             <div className="bg-white/[0.02] border border-white/5 rounded-[40px] p-8">
                                                 <div className="flex items-center justify-between mb-8">
                                                     <h3 className="text-xl font-black uppercase tracking-tight">Source Protection & CI/CD</h3>
-                                                    {user?.avatar ? (
+                                                    {user?.github_profile ? (
                                                         <div className="flex items-center gap-2 bg-blue-500/10 text-blue-400 px-3 py-1 rounded-full text-[10px] font-black uppercase border border-blue-500/20">
-                                                            Connected to GitHub
+                                                            Connected as @{user.github_profile.username}
                                                         </div>
                                                     ) : (
                                                         <Button variant="outline" size="sm" className="rounded-xl border-white/10 bg-white/5 hover:bg-white/10 text-[10px] font-black uppercase px-4 h-8">
@@ -936,7 +939,7 @@ export default function ComputePage() {
                                         defaultValue="GITHUB"
                                         onChange={setFormProvider}
                                     />
-                                    {(!user?.avatar || (formProvider !== 'GITHUB')) && (
+                                    {((formProvider === 'GITHUB' && !user?.github_profile) || (formProvider !== 'GITHUB')) && (
                                         <div className="p-4 mt-4 rounded-3xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-between">
                                             <div className="flex items-center gap-3">
                                                 {formProvider === 'GITHUB' ? <Github className="w-5 h-5 text-blue-500" /> : 
