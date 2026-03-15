@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useCallback } from "react";
+import { useSearchParams } from "next/navigation";
 import {
     Cpu,
     Rocket,
@@ -204,6 +205,18 @@ export default function ComputePage() {
             setLoading(false);
         }
     }, []);
+
+    const searchParams = useSearchParams();
+
+    useEffect(() => {
+        const githubStatus = searchParams.get('github');
+        if (githubStatus === 'success') {
+            showAlert({ title: "Account Linked", message: "Your GitHub account has been successfully connected.", type: "success" });
+            fetchInstances();
+        } else if (githubStatus === 'error') {
+            showAlert({ title: "Link Failed", message: "Failed to link GitHub account. Please try again.", type: "error" });
+        }
+    }, [searchParams, showAlert, fetchInstances]);
 
     useEffect(() => {
         fetchInstances();
@@ -425,6 +438,37 @@ export default function ComputePage() {
             setTerminalLogs(prev => [...prev, { type: 'error', text: 'Network Error: Proxy unreachable.' }]);
         } finally {
             setIsExecuting(false);
+        }
+    };
+    
+    const handleConnectGithub = async () => {
+        try {
+            const token = getAccessToken();
+            const API_URL = process.env.NEXT_PUBLIC_API_URL?.replace('/graphql', '') || "http://localhost:4000/api-v1";
+
+            const res = await fetch(`${API_URL}/github/connect`, {
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                }
+            });
+
+            const result = await res.json();
+            if (result.url) {
+                window.location.href = result.url;
+            } else {
+                showAlert({
+                    title: "Connection Error",
+                    message: "Failed to initiate GitHub connection. Please try again.",
+                    type: "error"
+                });
+            }
+        } catch (error) {
+            console.error(error);
+            showAlert({
+                title: "Connection Error",
+                message: "A network error occurred. Please try again later.",
+                type: "error"
+            });
         }
     };
 
@@ -826,7 +870,12 @@ export default function ComputePage() {
                                                             Connected as @{user.github_profile.username}
                                                         </div>
                                                     ) : (
-                                                        <Button variant="outline" size="sm" className="rounded-xl border-white/10 bg-white/5 hover:bg-white/10 text-[10px] font-black uppercase px-4 h-8">
+                                                        <Button 
+                                                            variant="outline" 
+                                                            size="sm" 
+                                                            onClick={handleConnectGithub}
+                                                            className="rounded-xl border-white/10 bg-white/5 hover:bg-white/10 text-[10px] font-black uppercase px-4 h-8"
+                                                        >
                                                             <Github className="w-3 h-3 mr-2 text-blue-500" /> Connect Account
                                                         </Button>
                                                     )}
@@ -950,9 +999,9 @@ export default function ComputePage() {
                                                     <div className="text-[10px] text-blue-500/60 font-medium tracking-tight truncate max-w-[150px]">Connect {formProvider.toLowerCase()} for private repos.</div>
                                                 </div>
                                             </div>
-                                            <Button type="button" size="sm" onClick={() => showAlert({ title: `${formProvider} Link`, message: `Auth flow for ${formProvider} initiated.`, type: 'info' })} className="rounded-xl bg-blue-600 hover:bg-blue-500 text-[9px] font-black uppercase shadow-lg shadow-blue-500/20 px-4 shrink-0">
-                                                Connect
-                                            </Button>
+                                                    <Button type="button" size="sm" onClick={handleConnectGithub} className="rounded-xl bg-blue-600 hover:bg-blue-500 text-[9px] font-black uppercase shadow-lg shadow-blue-500/20 px-4 shrink-0">
+                                                        Connect
+                                                    </Button>
                                         </div>
                                     )}
 
