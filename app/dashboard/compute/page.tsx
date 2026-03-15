@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import {
     Cpu,
@@ -140,7 +140,7 @@ function CustomDropdown({ name, options, defaultValue, onChange }: CustomDropdow
 
 
 
-export default function ComputePage() {
+function ComputePageContent() {
     const [loading, setLoading] = useState(true);
     const [instances, setInstances] = useState<ComputeInstance[]>([]);
     const [user, setUser] = useState<User | null>(null);
@@ -1051,5 +1051,13 @@ export default function ComputePage() {
                 </div>
             )}
         </div>
+    );
+}
+
+export default function ComputePage() {
+    return (
+        <Suspense fallback={null}>
+            <ComputePageContent />
+        </Suspense>
     );
 }
