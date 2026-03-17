@@ -23,7 +23,8 @@ import {
     FileText,
     Copy,
     Check,
-    ChevronDown
+    ChevronDown,
+    Lock
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -170,10 +171,23 @@ function ComputePageContent() {
     const [gitlabRepos, setGitlabRepos] = useState<GithubRepository[]>([]);
     const [fetchingRepos, setFetchingRepos] = useState(false);
     const [selectedRepo, setSelectedRepo] = useState<GithubRepository | null>(null);
+    const [repoSearch, setRepoSearch] = useState('');
+    const [isRepoMenuOpen, setIsRepoMenuOpen] = useState(false);
 
     const [terminalLogs, setTerminalLogs] = useState<{ type: 'input' | 'output' | 'error', text: string }[]>(INITIAL_TERMINAL_LOGS);
     const [isExecuting, setIsExecuting] = useState(false);
     const { showAlert, showConfirm } = useModal();
+
+    // Close repo menu on click outside
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (isRepoMenuOpen && !(event.target as Element).closest('.repo-selector-container')) {
+                setIsRepoMenuOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [isRepoMenuOpen]);
 
     const fetchInstances = useCallback(async () => {
         try {
@@ -1086,7 +1100,11 @@ function ComputePageContent() {
 
                         <div className="flex items-center justify-between mb-12">
                             <h2 className="text-3xl font-black tracking-tighter uppercase">Provision Node</h2>
-                            <button onClick={() => setShowCreateModal(false)} className="w-10 h-10 rounded-full border border-white/5 flex items-center justify-center hover:bg-white/5 transition-colors">✕</button>
+                            <button onClick={() => {
+                                setShowCreateModal(false);
+                                setIsRepoMenuOpen(false);
+                                setRepoSearch('');
+                            }} className="w-10 h-10 rounded-full border border-white/5 flex items-center justify-center hover:bg-white/5 transition-colors">✕</button>
                         </div>
 
                         <form onSubmit={handleCreateInstance} className="space-y-8">
@@ -1171,31 +1189,91 @@ function ComputePageContent() {
                             <div className="space-y-3">
                                 <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500 ml-1">Repository Selection</label>
                                 {((formProvider === 'GITHUB' && user?.github_profile) || (formProvider === 'GITLAB' && user?.gitlab_profile)) ? (
-                                    <div className="relative">
-                                        <select 
-                                            name="repository_url" 
-                                            required 
-                                            className="w-full bg-white/[0.02] border border-white/10 rounded-2xl h-14 px-6 font-bold focus:border-blue-500/50 transition-all outline-none appearance-none"
-                                            onChange={(e) => {
-                                                const repos = formProvider === 'GITHUB' ? githubRepos : gitlabRepos;
-                                                const repo = repos.find(r => r.url === e.target.value);
-                                                setSelectedRepo(repo || null);
-                                            }}
+                                    <div className="relative repo-selector-container">
+                                        <button
+                                            type="button"
+                                            onClick={() => setIsRepoMenuOpen(!isRepoMenuOpen)}
+                                            className="w-full bg-white/[0.02] border border-white/10 rounded-2xl h-14 px-6 font-bold flex items-center justify-between group hover:border-blue-500/30 transition-all outline-none"
                                         >
-                                            <option value="" disabled selected>Select a repository...</option>
-                                            {fetchingRepos ? (
-                                                <option disabled>Loading your repositories...</option>
-                                            ) : (
-                                                (formProvider === 'GITHUB' ? githubRepos : gitlabRepos).map(repo => (
-                                                    <option key={repo.id} value={repo.url}>
-                                                        {repo.private ? '🔒' : '🌐'} {repo.full_name}
-                                                    </option>
-                                                ))
-                                            )}
-                                        </select>
-                                        <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none">
-                                            <ChevronDown className="w-4 h-4 text-zinc-500" />
-                                        </div>
+                                            <div className="flex items-center gap-3">
+                                                {selectedRepo ? (
+                                                    <>
+                                                        {selectedRepo.private ? <Lock className="w-4 h-4 text-amber-500" /> : <Globe className="w-4 h-4 text-blue-500" />}
+                                                        <span className="text-sm truncate max-w-[300px]">{selectedRepo.full_name}</span>
+                                                    </>
+                                                ) : (
+                                                    <span className="text-zinc-500 text-sm font-medium">Select a repository...</span>
+                                                )}
+                                            </div>
+                                            <ChevronDown className={cn("w-4 h-4 text-zinc-500 transition-transform duration-300", isRepoMenuOpen && "rotate-180")} />
+                                        </button>
+
+                                        {isRepoMenuOpen && (
+                                            <div className="absolute top-full left-0 right-0 mt-3 bg-[#0c0c0c] border border-white/10 rounded-[32px] overflow-hidden z-[110] shadow-[0_20px_50px_rgba(0,0,0,0.5)] animate-in fade-in slide-in-from-top-2 duration-300">
+                                                <div className="p-4 border-b border-white/5 bg-white/5">
+                                                    <div className="relative">
+                                                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+                                                        <input 
+                                                            autoFocus
+                                                            placeholder="Search your repositories..."
+                                                            className="w-full bg-black border border-white/10 rounded-[20px] h-11 pl-12 pr-4 text-xs font-bold focus:border-blue-500/50 transition-all outline-none"
+                                                            value={repoSearch}
+                                                            onChange={(e) => setRepoSearch(e.target.value)}
+                                                        />
+                                                    </div>
+                                                </div>
+                                                
+                                                <div className="max-h-[300px] overflow-y-auto scrollbar-hide py-2">
+                                                    {fetchingRepos ? (
+                                                        <div className="flex flex-col items-center justify-center py-10 gap-3">
+                                                            <RefreshCw className="w-5 h-5 text-blue-500 animate-spin" />
+                                                            <span className="text-[10px] font-black uppercase text-zinc-600 tracking-widest">Fetching from {formProvider}...</span>
+                                                        </div>
+                                                    ) : (
+                                                        <>
+                                                            {(formProvider === 'GITHUB' ? githubRepos : gitlabRepos)
+                                                                .filter(repo => repo.full_name.toLowerCase().includes(repoSearch.toLowerCase()))
+                                                                .map(repo => (
+                                                                    <div 
+                                                                        key={repo.id}
+                                                                        onClick={() => {
+                                                                            setSelectedRepo(repo);
+                                                                            setIsRepoMenuOpen(false);
+                                                                            setRepoSearch('');
+                                                                        }}
+                                                                        className="flex items-center justify-between px-6 py-4 hover:bg-white/[0.04] cursor-pointer group transition-colors"
+                                                                    >
+                                                                        <div className="flex items-center gap-4">
+                                                                            <div className={cn(
+                                                                                "w-8 h-8 rounded-xl flex items-center justify-center border transition-all",
+                                                                                repo.private ? "bg-amber-500/5 border-amber-500/10 text-amber-500 group-hover:border-amber-500/30" : "bg-blue-500/5 border-blue-500/10 text-blue-500 group-hover:border-blue-500/30"
+                                                                            )}>
+                                                                                {repo.private ? <Lock className="w-4 h-4" /> : <Globe className="w-4 h-4" />}
+                                                                            </div>
+                                                                            <div>
+                                                                                <div className="text-xs font-bold text-white group-hover:text-blue-400 transition-colors">{repo.full_name}</div>
+                                                                                <div className="text-[9px] font-black uppercase tracking-tight text-zinc-600">{repo.language || 'Unknown'} • {repo.default_branch}</div>
+                                                                            </div>
+                                                                        </div>
+                                                                        {selectedRepo?.id === repo.id && <Check className="w-4 h-4 text-blue-500" />}
+                                                                    </div>
+                                                                ))
+                                                            }
+                                                            {(formProvider === 'GITHUB' ? githubRepos : gitlabRepos).filter(repo => repo.full_name.toLowerCase().includes(repoSearch.toLowerCase())).length === 0 && (
+                                                                <div className="py-12 text-center">
+                                                                    <Search className="w-8 h-8 text-zinc-800 mx-auto mb-3" />
+                                                                    <div className="text-xs font-bold text-zinc-600">No repositories found</div>
+                                                                </div>
+                                                            )}
+                                                        </>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        )}
+                                        
+                                        {/* Hidden input for form submission compatibility if needed, 
+                                            but handleCreateInstance already uses selectedRepo state */}
+                                        <input type="hidden" name="repository_url" value={selectedRepo?.url || ''} required />
                                     </div>
                                 ) : (
                                     <input 
