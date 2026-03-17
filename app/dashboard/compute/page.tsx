@@ -1099,48 +1099,50 @@ function ComputePageContent() {
                                         defaultValue="GITHUB"
                                         onChange={setFormProvider}
                                     />
-                                    {((formProvider === 'GITHUB' && !user?.github_profile) || 
-                                      (formProvider === 'GITLAB' && !user?.gitlab_profile) || 
-                                      (formProvider === 'BITBUCKET' && !user?.bitbucket_profile)) ? (
-                                        <div className="p-4 mt-4 rounded-3xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-between animate-in fade-in slide-in-from-top-2 duration-300">
-                                            <div className="flex items-center gap-3">
-                                                {formProvider === 'GITHUB' ? <Github className="w-5 h-5 text-blue-500" /> : 
-                                                 formProvider === 'GITLAB' ? <Gitlab className="w-5 h-5 text-orange-500" /> : 
-                                                 <Code className="w-5 h-5 text-zinc-400" />}
-                                                <div>
-                                                    <div className="text-xs font-bold text-blue-400">Account Not Linked</div>
-                                                    <div className="text-[10px] text-blue-500/60 font-medium tracking-tight truncate max-w-[150px]">Connect {formProvider.toLowerCase()} for private repos.</div>
-                                                </div>
-                                            </div>
-                                            <Button type="button" size="sm" onClick={() => handleConnectProvider(formProvider)} className="rounded-xl bg-blue-600 hover:bg-blue-500 text-[9px] font-black uppercase shadow-lg shadow-blue-500/20 px-4 shrink-0">
-                                                Connect
-                                            </Button>
-                                        </div>
-                                    ) : (
-                                        <div className="p-4 mt-4 rounded-3xl bg-emerald-500/5 border border-emerald-500/10 flex items-center justify-between animate-in fade-in slide-in-from-top-2 duration-300">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
-                                                    <Check className="w-4 h-4 text-emerald-500" />
-                                                </div>
-                                                <div>
-                                                    <div className="text-xs font-bold text-emerald-400">Account Verified</div>
-                                                    <div className="text-[10px] text-emerald-500/60 font-medium tracking-tight">
-                                                        Connected as @{
-                                                            formProvider === 'GITHUB' ? user?.github_profile?.username :
-                                                            formProvider === 'GITLAB' ? user?.gitlab_profile?.username :
-                                                            user?.bitbucket_profile?.username
-                                                        }
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <Button type="button" size="sm" onClick={() => handleConnectProvider(formProvider)} className="rounded-xl bg-white/5 hover:bg-white/10 text-[9px] font-black uppercase text-zinc-400 px-4 h-8 shrink-0">
-                                                Switch
-                                            </Button>
-                                        </div>
-                                    )}
-
                                 </div>
                             </div>
+
+                            {((formProvider === 'GITHUB' && !user?.github_profile) || 
+                              (formProvider === 'GITLAB' && !user?.gitlab_profile) || 
+                              (formProvider === 'BITBUCKET' && !user?.bitbucket_profile)) ? (
+                                <div className="p-6 rounded-3xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-between animate-in fade-in slide-in-from-top-2 duration-300">
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-10 h-10 rounded-2xl bg-blue-500/10 flex items-center justify-center">
+                                            {formProvider === 'GITHUB' ? <Github className="w-5 h-5 text-blue-500" /> : 
+                                             formProvider === 'GITLAB' ? <Gitlab className="w-5 h-5 text-orange-500" /> : 
+                                             <Code className="w-5 h-5 text-zinc-400" />}
+                                        </div>
+                                        <div>
+                                            <div className="text-sm font-bold text-blue-400">Account Not Linked</div>
+                                            <div className="text-[11px] text-blue-500/60 font-medium tracking-tight">Connect {formProvider.toLowerCase()} to access private repositories.</div>
+                                        </div>
+                                    </div>
+                                    <Button type="button" size="sm" onClick={() => handleConnectProvider(formProvider)} className="rounded-xl bg-blue-600 hover:bg-blue-500 text-[10px] font-black uppercase shadow-lg shadow-blue-500/20 px-6 h-10 shrink-0">
+                                        Connect
+                                    </Button>
+                                </div>
+                            ) : (
+                                <div className="p-6 rounded-3xl bg-emerald-500/5 border border-emerald-500/10 flex items-center justify-between animate-in fade-in slide-in-from-top-2 duration-300">
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
+                                            <Check className="w-5 h-5 text-emerald-500" />
+                                        </div>
+                                        <div>
+                                            <div className="text-sm font-bold text-emerald-400">Account Verified</div>
+                                            <div className="text-[11px] text-zinc-500 font-medium tracking-tight">
+                                                Connected as @{
+                                                    formProvider === 'GITHUB' ? user?.github_profile?.username :
+                                                    formProvider === 'GITLAB' ? user?.gitlab_profile?.username :
+                                                    user?.bitbucket_profile?.username
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <Button type="button" size="sm" onClick={() => handleConnectProvider(formProvider)} className="rounded-xl bg-white/5 hover:bg-white/10 text-[10px] font-black uppercase text-zinc-400 px-6 h-10 shrink-0">
+                                        Switch
+                                    </Button>
+                                </div>
+                            )}
 
 
                             <div className="space-y-3">
