@@ -60,9 +60,6 @@ interface User {
     gitlab_profile?: {
         username: string;
     };
-    bitbucket_profile?: {
-        username: string;
-    };
 }
 
 interface GithubRepository {
@@ -170,6 +167,7 @@ function ComputePageContent() {
     const [customDomainInput, setCustomDomainInput] = useState('');
 
     const [githubRepos, setGithubRepos] = useState<GithubRepository[]>([]);
+    const [gitlabRepos, setGitlabRepos] = useState<GithubRepository[]>([]);
     const [fetchingRepos, setFetchingRepos] = useState(false);
     const [selectedRepo, setSelectedRepo] = useState<GithubRepository | null>(null);
 
@@ -192,7 +190,6 @@ function ComputePageContent() {
                         avatar 
                         github_profile { username }
                         gitlab_profile { username }
-                        bitbucket_profile { username }
                     }
                     mySubscriptions { id service status plan { name slug features } }
                     myComputeInstances {
@@ -238,11 +235,15 @@ function ComputePageContent() {
 
     useEffect(() => {
         const githubStatus = searchParams.get('github');
-        if (githubStatus === 'success') {
-            showAlert({ title: "Account Linked", message: "Your GitHub account has been successfully connected.", type: "success" });
+        const gitlabStatus = searchParams.get('gitlab');
+
+        if (githubStatus === 'success' || gitlabStatus === 'success') {
+            const providerName = githubStatus === 'success' ? 'GitHub' : 'GitLab';
+            showAlert({ title: "Account Linked", message: `Your ${providerName} account has been successfully connected.`, type: "success" });
             fetchInstances();
-        } else if (githubStatus === 'error') {
-            showAlert({ title: "Link Failed", message: "Failed to link GitHub account. Please try again.", type: "error" });
+        } else if (githubStatus === 'error' || gitlabStatus === 'error') {
+            const providerName = (githubStatus === 'error' ? 'GitHub' : 'GitLab');
+            showAlert({ title: "Link Failed", message: `Failed to link ${providerName} account. Please try again.`, type: "error" });
         }
     }, [searchParams, showAlert, fetchInstances]);
 
@@ -488,6 +489,26 @@ function ComputePageContent() {
             setFetchingRepos(false);
         }
     }, [user?.github_profile]);
+ 
+    const fetchGitlabRepos = useCallback(async () => {
+        if (!user?.gitlab_profile) return;
+        setFetchingRepos(true);
+        try {
+            const token = getAccessToken();
+            const API_URL = process.env.NEXT_PUBLIC_API_URL?.replace('/graphql', '') || "http://localhost:4000/api-v1";
+            const res = await fetch(`${API_URL}/gitlab/repositories`, {
+                headers: { "Authorization": `Bearer ${token}` }
+            });
+            const data = await res.json();
+            if (Array.isArray(data)) {
+                setGitlabRepos(data);
+            }
+        } catch (error) {
+            console.error("Error fetching GitLab repos:", error);
+        } finally {
+            setFetchingRepos(false);
+        }
+    }, [user?.gitlab_profile]);
 
     useEffect(() => {
         if (showCreateModal && formProvider === 'GITHUB' && user?.github_profile && githubRepos.length === 0) {
@@ -496,10 +517,10 @@ function ComputePageContent() {
     }, [showCreateModal, formProvider, user?.github_profile, githubRepos.length, fetchGithubRepos]);
 
     const handleConnectProvider = async (provider: string) => {
-        if (provider !== 'GITHUB') {
+        if (provider !== 'GITHUB' && provider !== 'GITLAB') {
             showAlert({
                 title: "Not Supported Yet",
-                message: `${provider} integration is coming soon. Please use GitHub for now.`,
+                message: `${provider} integration is coming soon.`,
                 type: "warning"
             });
             return;
@@ -508,20 +529,22 @@ function ComputePageContent() {
         try {
             const token = getAccessToken();
             const API_URL = process.env.NEXT_PUBLIC_API_URL?.replace('/graphql', '') || "http://localhost:4000/api-v1";
+            const endpoint = provider === 'GITHUB' ? '/github/connect' : '/gitlab/connect';
 
-            const res = await fetch(`${API_URL}/github/connect`, {
+            const res = await fetch(`${API_URL}${endpoint}`, {
                 headers: {
                     "Authorization": `Bearer ${token}`
                 }
             });
 
             const result = await res.json();
-            if (result.url) {
+            
+            if (res.ok && result.url) {
                 window.location.href = result.url;
             } else {
                 showAlert({
                     title: "Connection Error",
-                    message: "Failed to initiate connection. Please try again.",
+                    message: result.message || "Failed to initiate connection. Please try again.",
                     type: "error"
                 });
             }
@@ -947,9 +970,7 @@ function ComputePageContent() {
                                                         >
                                                             {user?.github_profile ? "Switch" : "Connect"}
                                                         </Button>
-                                                    </div>
-
-                                                    {/* GitLab */}
+                                                                                                      {/* GitLab */}
                                                     <div className={cn("p-4 rounded-[28px] border transition-all flex flex-col items-center gap-3", user?.gitlab_profile ? "bg-orange-600/5 border-orange-500/20" : "bg-white/[0.02] border-white/5")}>
                                                         <Gitlab className={cn("w-6 h-6", user?.gitlab_profile ? "text-orange-500" : "text-zinc-600")} />
                                                         <div className="text-center">
@@ -967,26 +988,8 @@ function ComputePageContent() {
                                                             {user?.gitlab_profile ? "Switch" : "Connect"}
                                                         </Button>
                                                     </div>
-
-                                                    {/* Bitbucket */}
-                                                    <div className={cn("p-4 rounded-[28px] border transition-all flex flex-col items-center gap-3", user?.bitbucket_profile ? "bg-blue-400/5 border-blue-400/20" : "bg-white/[0.02] border-white/5")}>
-                                                        <Code className={cn("w-6 h-6", user?.bitbucket_profile ? "text-blue-400" : "text-zinc-600")} />
-                                                        <div className="text-center">
-                                                            <div className="text-[10px] font-black uppercase tracking-widest mb-1">Bitbucket</div>
-                                                            <div className="text-[9px] text-zinc-500 font-medium">
-                                                                {user?.bitbucket_profile ? `@${user.bitbucket_profile.username}` : "Not Connected"}
-                                                            </div>
-                                                        </div>
-                                                        <Button 
-                                                            variant="outline" 
-                                                            size="sm" 
-                                                            onClick={() => handleConnectProvider('BITBUCKET')}
-                                                            className="w-full rounded-xl border-white/5 bg-white/5 hover:bg-white/10 text-[9px] font-black uppercase h-8"
-                                                        >
-                                                            {user?.bitbucket_profile ? "Switch" : "Connect"}
-                                                        </Button>
-                                                    </div>
                                                 </div>
+    </div>
 
                                                 <div className="flex items-center justify-between mb-8 pt-8 border-t border-white/5">
                                                     <h3 className="text-xl font-black uppercase tracking-tight">Source Protection & CI/CD</h3>
@@ -1093,24 +1096,27 @@ function ComputePageContent() {
                                         name="provider"
                                         options={[
                                             { value: 'GITHUB', label: 'GitHub', icon: Github },
-                                            { value: 'GITLAB', label: 'GitLab', icon: Gitlab },
-                                            { value: 'BITBUCKET', label: 'Bitbucket', icon: Code }
+                                            { value: 'GITLAB', label: 'GitLab', icon: Gitlab }
                                         ]}
                                         defaultValue="GITHUB"
-                                        onChange={setFormProvider}
+                                        onChange={(v) => {
+                                            setFormProvider(v);
+                                            // Trigger repo fetch if not loaded
+                                            if (v === 'GITHUB' && githubRepos.length === 0) fetchGithubRepos();
+                                            if (v === 'GITLAB' && gitlabRepos.length === 0) fetchGitlabRepos();
+                                        }}
                                     />
                                 </div>
                             </div>
 
                             {((formProvider === 'GITHUB' && !user?.github_profile) || 
-                              (formProvider === 'GITLAB' && !user?.gitlab_profile) || 
-                              (formProvider === 'BITBUCKET' && !user?.bitbucket_profile)) ? (
+                              (formProvider === 'GITLAB' && !user?.gitlab_profile)) ? (
                                 <div className="p-6 rounded-3xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-between animate-in fade-in slide-in-from-top-2 duration-300">
                                     <div className="flex items-center gap-4">
                                         <div className="w-10 h-10 rounded-2xl bg-blue-500/10 flex items-center justify-center">
                                             {formProvider === 'GITHUB' ? <Github className="w-5 h-5 text-blue-500" /> : 
-                                             formProvider === 'GITLAB' ? <Gitlab className="w-5 h-5 text-orange-500" /> : 
-                                             <Code className="w-5 h-5 text-zinc-400" />}
+                                              formProvider === 'GITLAB' ? <Gitlab className="w-5 h-5 text-orange-500" /> : 
+                                              <Github className="w-5 h-5 text-blue-500" />}
                                         </div>
                                         <div>
                                             <div className="text-sm font-bold text-blue-400">Account Not Linked</div>
@@ -1132,8 +1138,7 @@ function ComputePageContent() {
                                             <div className="text-[11px] text-zinc-500 font-medium tracking-tight">
                                                 Connected as @{
                                                     formProvider === 'GITHUB' ? user?.github_profile?.username :
-                                                    formProvider === 'GITLAB' ? user?.gitlab_profile?.username :
-                                                    user?.bitbucket_profile?.username
+                                                    user?.gitlab_profile?.username
                                                 }
                                             </div>
                                         </div>
@@ -1147,14 +1152,15 @@ function ComputePageContent() {
 
                             <div className="space-y-3">
                                 <label className="text-[10px] font-black uppercase tracking-widest text-zinc-500 ml-1">Repository Selection</label>
-                                {formProvider === 'GITHUB' && user?.github_profile ? (
+                                {((formProvider === 'GITHUB' && user?.github_profile) || (formProvider === 'GITLAB' && user?.gitlab_profile)) ? (
                                     <div className="relative">
                                         <select 
                                             name="repository_url" 
                                             required 
                                             className="w-full bg-white/[0.02] border border-white/10 rounded-2xl h-14 px-6 font-bold focus:border-blue-500/50 transition-all outline-none appearance-none"
                                             onChange={(e) => {
-                                                const repo = githubRepos.find(r => r.url === e.target.value);
+                                                const repos = formProvider === 'GITHUB' ? githubRepos : gitlabRepos;
+                                                const repo = repos.find(r => r.url === e.target.value);
                                                 setSelectedRepo(repo || null);
                                             }}
                                         >
@@ -1162,7 +1168,7 @@ function ComputePageContent() {
                                             {fetchingRepos ? (
                                                 <option disabled>Loading your repositories...</option>
                                             ) : (
-                                                githubRepos.map(repo => (
+                                                (formProvider === 'GITHUB' ? githubRepos : gitlabRepos).map(repo => (
                                                     <option key={repo.id} value={repo.url}>
                                                         {repo.private ? '🔒' : '🌐'} {repo.full_name}
                                                     </option>
