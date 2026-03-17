@@ -655,6 +655,15 @@ function ComputePageContent() {
                                         </div>
                                     </div>
                                     <div className="flex gap-3">
+                                        {selectedInstance.generated_domain && (
+                                            <Button 
+                                                variant="outline" 
+                                                onClick={() => window.open(`https://${selectedInstance.generated_domain}/status`, '_blank')}
+                                                className="rounded-xl border-blue-500/20 bg-blue-500/5 text-blue-400 hover:bg-blue-500/10 gap-2"
+                                            >
+                                                <Activity className="w-4 h-4" /> Check Status
+                                            </Button>
+                                        )}
                                         <Button variant="outline" onClick={() => handleRestart(selectedInstance._id)} className="rounded-xl border-white/10 bg-white/5 hover:bg-white/10"><RefreshCw className="w-4 h-4 mr-2" /> Redploy</Button>
                                         <Button onClick={() => handleDelete(selectedInstance._id)} className="rounded-xl bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20"><Trash2 className="w-4 h-4" /></Button>
                                     </div>
@@ -712,18 +721,27 @@ function ComputePageContent() {
                                                     </p>
                                                 </div>
 
-                                                {selectedInstance.type.toLowerCase() === 'frontend' ? (
+                                                {selectedInstance.generated_domain ? (
                                                     <div className="flex flex-col gap-4">
                                                         <div className="p-5 rounded-3xl bg-blue-500/5 border border-blue-500/10 flex items-center justify-between group/url">
                                                             <div className="flex items-center gap-4 flex-1 overflow-hidden">
                                                                 <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
-                                                                    <Globe className="w-5 h-5 text-blue-500" />
+                                                                    <Activity className="w-5 h-5 text-blue-500" />
                                                                 </div>
                                                                 <code className="text-sm font-black truncate text-blue-100">https://{selectedInstance.generated_domain}</code>
                                                             </div>
                                                             <div className="flex gap-2">
                                                                 <Button variant="ghost" size="icon" onClick={() => handleCopy(`https://${selectedInstance.generated_domain}`, 'prod_url')} className="hover:bg-blue-500/10 text-zinc-400 hover:text-blue-500 rounded-xl">
                                                                     {copiedField === 'prod_url' ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
+                                                                </Button>
+                                                                <Button 
+                                                                    variant="ghost" 
+                                                                    size="icon" 
+                                                                    title="Check Backend Status (/status)"
+                                                                    onClick={() => window.open(`https://${selectedInstance.generated_domain}/status`, '_blank')}
+                                                                    className="hover:bg-blue-500/10 text-zinc-400 hover:text-emerald-500 rounded-xl"
+                                                                >
+                                                                    <Activity className="w-4 h-4" />
                                                                 </Button>
                                                                 <Button variant="ghost" size="icon" onClick={() => window.open(`https://${selectedInstance.generated_domain}`, '_blank')} className="hover:bg-blue-500/10 text-zinc-400 hover:text-blue-500 rounded-xl">
                                                                     <ExternalLink className="w-4 h-4" />

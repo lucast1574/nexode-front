@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { Database, Cpu, ExternalLink, Shield, Settings, Plus, Workflow } from "lucide-react";
+import { Database, Cpu, ExternalLink, Shield, Settings, Plus, Workflow, Activity } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -136,6 +136,14 @@ export default function MyServicesPage() {
                                     </div>
 
                                     <div className="flex items-center gap-3 pt-6 border-t border-white/5">
+                                        <Button 
+                                            variant="outline" 
+                                            title="Check Backend Status"
+                                            className="w-11 h-11 p-0 rounded-xl bg-blue-500/5 hover:bg-blue-500/10 border-blue-500/20 text-blue-400"
+                                            onClick={() => window.open(`https://status.nexode.io`, '_blank')} // Fallback or dynamic URL
+                                        >
+                                            <Activity className="w-5 h-5" />
+                                        </Button>
                                         <Button variant="outline" className="flex-1 rounded-xl bg-white/5 border-white/10 hover:bg-white/10 gap-2 h-11">
                                             Console <ExternalLink className="w-4 h-4" />
                                         </Button>
