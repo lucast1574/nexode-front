@@ -87,11 +87,27 @@ interface CustomDropdownProps {
     options: { value: string; label: string; icon: React.ElementType }[];
     defaultValue: string;
     onChange?: (value: string) => void;
+    searchable?: boolean;
 }
 
-function CustomDropdown({ name, options, defaultValue, onChange }: CustomDropdownProps) {
+function CustomDropdown({ name, options, defaultValue, onChange, searchable = false }: CustomDropdownProps) {
     const [isOpen, setIsOpen] = useState(false);
     const [selected, setSelected] = useState(options.find(o => o.value === defaultValue) || options[0]);
+    const [search, setSearch] = useState('');
+
+    // Adjust state when props change (React 18+ pattern)
+    const [prevOptions, setPrevOptions] = useState(options);
+    const [prevDefaultValue, setPrevDefaultValue] = useState(defaultValue);
+
+    if (options !== prevOptions || defaultValue !== prevDefaultValue) {
+        setPrevOptions(options);
+        setPrevDefaultValue(defaultValue);
+        setSelected(options.find(o => o.value === defaultValue) || options[0]);
+    }
+
+    const filteredOptions = searchable 
+        ? options.filter(o => o.label.toLowerCase().includes(search.toLowerCase()))
+        : options;
 
     return (
         <div className="relative group/dropdown">
@@ -121,14 +137,30 @@ function CustomDropdown({ name, options, defaultValue, onChange }: CustomDropdow
                 <>
                     <div className="fixed inset-0 z-[110] bg-black/5" onClick={() => setIsOpen(false)} />
                     <div className="absolute top-full left-0 right-0 mt-4 bg-[#0a0a0a]/90 border border-white/10 rounded-[32px] overflow-hidden z-[120] shadow-[0_30px_90px_rgba(0,0,0,0.8)] animate-in fade-in slide-in-from-top-4 duration-500 backdrop-blur-3xl p-2 border-t-white/20">
-                        <div className="space-y-1">
-                            {options.map((opt) => (
+                        {searchable && (
+                            <div className="p-3 border-b border-white/5 mb-2">
+                                <div className="relative group/search">
+                                    <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600 transition-colors group-focus-within/search:text-blue-500" />
+                                    <input 
+                                        type="text"
+                                        placeholder="Search branches..."
+                                        value={search}
+                                        onChange={(e) => setSearch(e.target.value)}
+                                        className="w-full bg-white/[0.03] border border-white/5 rounded-2xl h-14 pl-14 pr-6 text-xs font-black uppercase tracking-widest text-white placeholder:text-zinc-800 outline-none focus:border-blue-500/30 transition-all"
+                                        autoFocus
+                                    />
+                                </div>
+                            </div>
+                        )}
+                        <div className="space-y-1 max-h-[300px] overflow-y-auto custom-scrollbar">
+                            {filteredOptions.map((opt) => (
                                 <button
                                     key={opt.value}
                                     type="button"
                                     onClick={() => {
                                         setSelected(opt);
                                         setIsOpen(false);
+                                        setSearch('');
                                         if (onChange) onChange(opt.value);
                                     }}
                                     className={cn(
@@ -581,6 +613,8 @@ function ComputePageContent() {
                 headers: { "Authorization": `Bearer ${token}` }
             });
             const data = await res.json();
+            console.log(`🌿 [DEBUG] Branches for ${selectedRepo.full_name}:`, data);
+            
             if (Array.isArray(data)) {
                 setBranches(data);
                 // Reset branch if not in list
@@ -1406,6 +1440,7 @@ function ComputePageContent() {
                                     <CustomDropdown
                                         key={`branch-${selectedRepo?.id || 'none'}`}
                                         name="branch"
+                                        searchable={branches.length > 5}
                                         options={fetchingBranches ? [{ value: 'loading', label: 'Fetching Branches...', icon: RefreshCw }] : (branches.length > 0 ? branches.map(b => ({ value: b, label: b, icon: Check })) : [{ value: selectedRepo?.default_branch || 'main', label: selectedRepo?.default_branch || 'main', icon: Check }])}
                                         defaultValue={selectedRepo?.default_branch || 'main'}
                                     />
