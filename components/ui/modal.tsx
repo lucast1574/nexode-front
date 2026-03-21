@@ -26,28 +26,28 @@ const ModalContext = createContext<ModalContextType | undefined>(undefined);
 export function ModalProvider({ children }: { children: ReactNode }) {
     const [modal, setModal] = useState<(ModalOptions & { isOpen: boolean }) | null>(null);
 
-    const showAlert = (options: ModalOptions) => {
+    const showAlert = React.useCallback((options: ModalOptions) => {
         setModal({ ...options, type: options.type || "info", isOpen: true });
-    };
-
-    const showConfirm = (options: ModalOptions) => {
+    }, []);
+    
+    const showConfirm = React.useCallback((options: ModalOptions) => {
         setModal({ ...options, type: "confirm", isOpen: true });
-    };
-
-    const closeModal = () => {
+    }, []);
+    
+    const closeModal = React.useCallback(() => {
         setModal(prev => prev ? { ...prev, isOpen: false } : null);
-    };
-
+    }, []);
+    
     const handleConfirm = () => {
         if (modal?.onConfirm) modal.onConfirm();
         closeModal();
     };
-
+    
     const handleCancel = () => {
         if (modal?.onCancel) modal.onCancel();
         closeModal();
     };
-
+    
     const renderIcon = () => {
         switch (modal?.type) {
             case "success": return <CheckCircle2 className="w-12 h-12 text-emerald-500" />;
@@ -57,9 +57,11 @@ export function ModalProvider({ children }: { children: ReactNode }) {
             default: return <Info className="w-12 h-12 text-blue-500" />;
         }
     };
+    
+    const contextValue = React.useMemo(() => ({ showAlert, showConfirm }), [showAlert, showConfirm]);
 
     return (
-        <ModalContext.Provider value={{ showAlert, showConfirm }}>
+        <ModalContext.Provider value={contextValue}>
             {children}
             {modal?.isOpen && (
                 <div className="fixed inset-0 z-[1000] flex items-center justify-center p-6 bg-black/90 backdrop-blur-xl animate-in fade-in duration-300">

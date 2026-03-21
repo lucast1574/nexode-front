@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useCallback, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import {
     Cpu,
     Rocket,
@@ -177,6 +177,8 @@ function ComputePageContent() {
     const [terminalLogs, setTerminalLogs] = useState<{ type: 'input' | 'output' | 'error', text: string }[]>(INITIAL_TERMINAL_LOGS);
     const [isExecuting, setIsExecuting] = useState(false);
     const { showAlert, showConfirm } = useModal();
+    const router = useRouter();
+    const searchParams = useSearchParams();
 
     // Close repo menu on click outside
     useEffect(() => {
@@ -245,31 +247,36 @@ function ComputePageContent() {
         }
     }, []);
 
-    const searchParams = useSearchParams();
-
     useEffect(() => {
         const githubStatus = searchParams.get('github');
         const gitlabStatus = searchParams.get('gitlab');
 
-        if (githubStatus === 'success' || gitlabStatus === 'success') {
-            const providerName = githubStatus === 'success' ? 'GitHub' : 'GitLab';
+        if (githubStatus || gitlabStatus) {
+            const providerName = githubStatus ? 'GitHub' : 'GitLab';
+            const status = (githubStatus || gitlabStatus) === 'success' ? 'success' : 'error';
+            
             showAlert({ 
-                title: "Account Linked", 
-                message: `Your ${providerName} account has been successfully connected.`, 
-                type: "success",
-                onConfirm: () => setShowCreateModal(true)
+                title: status === 'success' ? "Account Linked" : "Link Failed", 
+                message: status === 'success' 
+                    ? `Your ${providerName} account has been successfully connected.`
+                    : `Failed to link ${providerName} account. Please try again.`, 
+                type: status,
+                onConfirm: () => {
+                    setShowCreateModal(true);
+                    // Open the correct tab or set provider if needed
+                    if (githubStatus) setFormProvider('GITHUB');
+                    else setFormProvider('GITLAB');
+                }
             });
-            fetchInstances();
-        } else if (githubStatus === 'error' || gitlabStatus === 'error') {
-            const providerName = (githubStatus === 'error' ? 'GitHub' : 'GitLab');
-            showAlert({ 
-                title: "Link Failed", 
-                message: `Failed to link ${providerName} account. Please try again.`, 
-                type: "error",
-                onConfirm: () => setShowCreateModal(true)
-            });
+
+            if (status === 'success') {
+                fetchInstances();
+            }
+
+            // Clear the search parameters after handling them to avoid infinite loop
+            router.replace('/dashboard/compute');
         }
-    }, [searchParams, showAlert, fetchInstances]);
+    }, [searchParams, showAlert, fetchInstances, router]);
 
     useEffect(() => {
         fetchInstances();
