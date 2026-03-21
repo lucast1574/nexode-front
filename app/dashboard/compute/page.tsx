@@ -192,7 +192,7 @@ function ComputePageContent() {
     const fetchInstances = useCallback(async () => {
         try {
             const token = getAccessToken();
-            const GQL_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api-v1/graphql";
+            const GQL_URL = process.env.NEXT_PUBLIC_API_URL || "https://backend.nexode.app/api-v1/graphql";
 
             if (!token) return;
 
@@ -316,7 +316,7 @@ function ComputePageContent() {
 
         try {
             const token = getAccessToken();
-            const GQL_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api-v1/graphql";
+            const GQL_URL = process.env.NEXT_PUBLIC_API_URL || "https://backend.nexode.app/api-v1/graphql";
 
             const mutation = `
                 mutation CreateCompute($input: CreateComputeInput!) {
@@ -360,7 +360,7 @@ function ComputePageContent() {
     const handleRestart = async (id: string) => {
         try {
             const token = getAccessToken();
-            const GQL_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api-v1/graphql";
+            const GQL_URL = process.env.NEXT_PUBLIC_API_URL || "https://backend.nexode.app/api-v1/graphql";
             const mutation = `mutation Restart($id: ID!) { restartComputeInstance(id: $id) { _id status } }`;
             const res = await fetch(GQL_URL, {
                 method: "POST",
@@ -377,7 +377,7 @@ function ComputePageContent() {
 
         try {
             const token = getAccessToken();
-            const GQL_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api-v1/graphql";
+            const GQL_URL = process.env.NEXT_PUBLIC_API_URL || "https://backend.nexode.app/api-v1/graphql";
 
             const mutation = `
                 mutation UpdateAutoDeploy($id: ID!, $enabled: Boolean!) {
@@ -414,7 +414,7 @@ function ComputePageContent() {
             onConfirm: async () => {
                 try {
                     const token = getAccessToken();
-                    const GQL_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api-v1/graphql";
+                    const GQL_URL = process.env.NEXT_PUBLIC_API_URL || "https://backend.nexode.app/api-v1/graphql";
                     const mutation = `mutation Delete($id: ID!) { deleteComputeInstance(id: $id) }`;
                     const res = await fetch(GQL_URL, {
                         method: "POST",
@@ -444,7 +444,7 @@ function ComputePageContent() {
 
         try {
             const token = getAccessToken();
-            const GQL_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api-v1/graphql";
+            const GQL_URL = process.env.NEXT_PUBLIC_API_URL || "https://backend.nexode.app/api-v1/graphql";
 
             const mutation = `
                 mutation ExecuteCompute($id: ID!, $command: String!) {
@@ -489,7 +489,7 @@ function ComputePageContent() {
         setFetchingRepos(true);
         try {
             const token = getAccessToken();
-            const API_URL = process.env.NEXT_PUBLIC_API_URL?.replace('/graphql', '') || "http://localhost:4000/api-v1";
+            const API_URL = process.env.NEXT_PUBLIC_API_URL?.replace('/graphql', '') || "https://backend.nexode.app/api-v1";
             const res = await fetch(`${API_URL}/github/repositories`, {
                 headers: { "Authorization": `Bearer ${token}` }
             });
@@ -509,7 +509,7 @@ function ComputePageContent() {
         setFetchingRepos(true);
         try {
             const token = getAccessToken();
-            const API_URL = process.env.NEXT_PUBLIC_API_URL?.replace('/graphql', '') || "http://localhost:4000/api-v1";
+            const API_URL = process.env.NEXT_PUBLIC_API_URL?.replace('/graphql', '') || "https://backend.nexode.app/api-v1";
             const res = await fetch(`${API_URL}/gitlab/repositories`, {
                 headers: { "Authorization": `Bearer ${token}` }
             });
@@ -542,7 +542,7 @@ function ComputePageContent() {
 
         try {
             const token = getAccessToken();
-            const API_URL = process.env.NEXT_PUBLIC_API_URL?.replace('/graphql', '') || "http://localhost:4000/api-v1";
+            const API_URL = process.env.NEXT_PUBLIC_API_URL?.replace('/graphql', '') || "https://backend.nexode.app/api-v1";
             const endpoint = provider === 'GITHUB' ? '/github/connect' : '/gitlab/connect';
 
             const res = await fetch(`${API_URL}${endpoint}`, {
