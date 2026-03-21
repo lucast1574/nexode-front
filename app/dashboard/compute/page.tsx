@@ -253,11 +253,21 @@ function ComputePageContent() {
 
         if (githubStatus === 'success' || gitlabStatus === 'success') {
             const providerName = githubStatus === 'success' ? 'GitHub' : 'GitLab';
-            showAlert({ title: "Account Linked", message: `Your ${providerName} account has been successfully connected.`, type: "success" });
+            showAlert({ 
+                title: "Account Linked", 
+                message: `Your ${providerName} account has been successfully connected.`, 
+                type: "success",
+                onConfirm: () => setShowCreateModal(true)
+            });
             fetchInstances();
         } else if (githubStatus === 'error' || gitlabStatus === 'error') {
             const providerName = (githubStatus === 'error' ? 'GitHub' : 'GitLab');
-            showAlert({ title: "Link Failed", message: `Failed to link ${providerName} account. Please try again.`, type: "error" });
+            showAlert({ 
+                title: "Link Failed", 
+                message: `Failed to link ${providerName} account. Please try again.`, 
+                type: "error",
+                onConfirm: () => setShowCreateModal(true)
+            });
         }
     }, [searchParams, showAlert, fetchInstances]);
 
