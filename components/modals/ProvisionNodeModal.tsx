@@ -238,7 +238,7 @@ export function ProvisionNodeModal({
             type: formData.get('type') as string,
             provider: formData.get('provider') as string,
             repository_url: formData.get('repository_url') as string,
-            branch: formData.get('branch') as string || 'main',
+            branch: (formData.get('branch') as string) === 'loading' ? 'main' : (formData.get('branch') as string || 'main'),
             plan_slug: computeSub.plan.slug,
             custom_domain: formData.get('custom_domain') as string || undefined
         };
@@ -540,10 +540,14 @@ export function ProvisionNodeModal({
                     )}
 
                     <div className="pt-6">
-                        <Button type="submit" className="w-full h-12 rounded-2xl bg-blue-600 hover:bg-blue-500 font-black uppercase tracking-[0.3em] text-[10px] shadow-[0_10px_40px_rgba(59,130,246,0.2)] transform transition-all active:scale-[0.98] active:shadow-none group/submit overflow-hidden relative">
+                        <Button 
+                            type="submit" 
+                            disabled={fetchingBranches || fetchingRepos}
+                            className="w-full h-12 rounded-2xl bg-blue-600 hover:bg-blue-500 font-black uppercase tracking-[0.3em] text-[10px] shadow-[0_10px_40px_rgba(59,130,246,0.2)] transform transition-all active:scale-[0.98] active:shadow-none group/submit overflow-hidden relative disabled:opacity-50 disabled:pointer-events-none"
+                        >
                             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/submit:translate-x-full transition-transform duration-1000" />
                             <Rocket className="w-6 h-6 mr-4 group-hover:-translate-y-2 group-hover:translate-x-2 transition-transform duration-500" />
-                            Launch Virtual Node
+                            {fetchingBranches || fetchingRepos ? "Fetching Requirements..." : "Launch Virtual Node"}
                         </Button>
                         <p className="text-[10px] text-zinc-700 text-center mt-6 font-black uppercase tracking-[0.25em]">Automated SSL & Hybrid Load Balancing Active</p>
                     </div>
