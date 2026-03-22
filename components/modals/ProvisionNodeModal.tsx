@@ -297,7 +297,7 @@ export function ProvisionNodeModal({
                 <div className="absolute bottom-[20%] right-[20%] w-[400px] h-[400px] bg-indigo-600/10 blur-[120px] rounded-full animate-pulse duration-[8s] delay-1000" />
             </div>
 
-            <div className="w-full max-w-lg bg-black/40 border border-white/10 rounded-3xl p-6 md:p-8 shadow-[0_0_120px_rgba(0,0,0,0.9)] relative group transition-all duration-700 hover:border-white/20 my-4 md:my-8">
+            <div className="w-full max-w-lg bg-black border border-white/10 rounded-3xl p-6 md:p-8 shadow-[0_0_120px_rgba(0,0,0,0.9)] relative group transition-all duration-700 hover:border-white/20 my-4 md:my-8">
                 {/* Internal Glow */}
                 <div className="absolute inset-0 rounded-3xl bg-gradient-to-tr from-blue-600/[0.02] to-transparent pointer-events-none" />
                 <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/5 blur-[100px] rounded-full pointer-events-none" />
