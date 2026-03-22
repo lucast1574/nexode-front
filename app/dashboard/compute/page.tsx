@@ -46,6 +46,7 @@ interface ComputeInstance {
     custom_domain?: string;
     generated_domain?: string;
     created_on: string;
+    env_content?: string;
     events?: { timestamp: string; message: string; type: string }[];
     logs?: string[];
 }
@@ -80,7 +81,9 @@ function ComputePageContent() {
     const [selectedInstance, setSelectedInstance] = useState<ComputeInstance | null>(null);
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [copiedField, setCopiedField] = useState<string | null>(null);
-    const [activeTab, setActiveTab] = useState<'overview' | 'deployments' | 'logs' | 'terminal' | 'settings'>('overview');
+    const [activeTab, setActiveTab] = useState<'overview' | 'deployments' | 'env' | 'logs' | 'terminal' | 'settings'>('overview');
+    const [envDraft, setEnvDraft] = useState('');
+    const [isSavingEnv, setIsSavingEnv] = useState(false);
     const [initialProvider, setInitialProvider] = useState<'GITHUB' | 'GITLAB'>('GITHUB');
 
     const [terminalLogs, setTerminalLogs] = useState<{ type: 'input' | 'output' | 'error', text: string }[]>(INITIAL_TERMINAL_LOGS);
@@ -108,7 +111,7 @@ function ComputePageContent() {
                     }
                     mySubscriptions { id service status plan { name slug features } }
                     myComputeInstances {
-                        _id name type provider repository_url branch status cpu_limit ram_limit custom_domain generated_domain created_on
+                        _id name type provider repository_url branch status auto_deploy_on_push env_content cpu_limit ram_limit custom_domain generated_domain created_on
                         logs
                         events { timestamp message type }
                     }
@@ -198,6 +201,14 @@ function ComputePageContent() {
         setTerminalLogs([...INITIAL_TERMINAL_LOGS]);
     }, [selectedInstance?._id, activeTab]);
 
+    useEffect(() => {
+        if (selectedInstance && selectedInstance.env_content !== undefined) {
+            setEnvDraft(selectedInstance.env_content);
+        } else {
+            setEnvDraft('');
+        }
+    }, [selectedInstance]);
+
     const handleCopy = (text: string, field: string) => {
         navigator.clipboard.writeText(text);
         setCopiedField(field);
@@ -281,6 +292,44 @@ function ComputePageContent() {
             }
         } catch (error) {
             console.error("Toggle Auto Deploy error:", error);
+        }
+    };
+
+    const handleSaveEnvContent = async (id: string) => {
+        setIsSavingEnv(true);
+        try {
+            const token = getAccessToken();
+            const GQL_URL = process.env.NEXT_PUBLIC_API_URL || "https://backend.nexode.app/api-v1/graphql";
+
+            const mutation = `
+                mutation UpdateEnv($id: ID!, $env_content: String!) {
+                    updateComputeEnvContent(id: $id, env_content: $env_content) { _id env_content }
+                }
+            `;
+
+            const res = await fetch(GQL_URL, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    query: mutation,
+                    variables: { id, env_content: envDraft }
+                }),
+            });
+
+            const result = await res.json();
+            if (result.data) {
+                showAlert({ title: "Environment Saved", message: "Environment variables successfully applied. Instance is restarting.", type: "success" });
+                handleRestart(id);
+                fetchInstances();
+            }
+        } catch (error) {
+            console.error("Env error:", error);
+            showAlert({ title: "Save Error", message: "Failed to save environment correctly.", type: "error" });
+        } finally {
+            setIsSavingEnv(false);
         }
     };
 
@@ -475,10 +524,11 @@ function ComputePageContent() {
 
                                 {/* Tabs Navigation */}
                                 <div className="flex gap-8 border-b border-white/5 mb-12 overflow-x-auto scrollbar-hide">
-                                    {(['overview', 'deployments', 'logs', 'terminal', 'settings'] as const).map(id => {
+                                    {(['overview', 'deployments', 'env', 'logs', 'terminal', 'settings'] as const).map(id => {
                                         const tabMeta = {
                                             overview: { label: 'Overview', icon: Globe },
                                             deployments: { label: 'Deploy Events', icon: Activity },
+                                            env: { label: 'Environment', icon: Code },
                                             logs: { label: 'Console Logs', icon: FileText },
                                             terminal: { label: 'Secure Terminal', icon: Terminal },
                                             settings: { label: 'Domains & SSL', icon: Shield }
@@ -678,6 +728,49 @@ function ComputePageContent() {
                                                         </div>
                                                     </div>
                                                 ))}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {activeTab === 'env' && (
+                                        <div className="bg-[#080808] border border-white/5 rounded-[40px] p-8 h-[600px] flex flex-col shadow-2xl relative overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
+                                            <div className="flex items-center justify-between mb-6 shrink-0 z-10">
+                                                <div className="flex gap-4 items-center">
+                                                    <div className="w-10 h-10 rounded-2xl bg-blue-500/5 flex items-center justify-center">
+                                                        <Code className="w-5 h-5 text-blue-500" />
+                                                    </div>
+                                                    <div>
+                                                        <h3 className="text-xl font-black uppercase tracking-tight">Environment Variables</h3>
+                                                        <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest leading-relaxed">Secure secrets mapped to your deployment runtime.</p>
+                                                    </div>
+                                                </div>
+                                                
+                                                <Button 
+                                                    onClick={() => handleSaveEnvContent(selectedInstance._id)}
+                                                    disabled={isSavingEnv}
+                                                    className="rounded-2xl h-12 px-8 bg-blue-600 hover:bg-blue-500 text-xs font-black uppercase tracking-widest shadow-lg shadow-blue-500/20 disabled:bg-zinc-800 disabled:text-zinc-500 transition-all"
+                                                >
+                                                    {isSavingEnv ? (
+                                                        <><RefreshCw className="w-4 h-4 mr-2 animate-spin" /> Saving</>
+                                                    ) : (
+                                                        "Save & Redeploy"
+                                                    )}
+                                                </Button>
+                                            </div>
+
+                                            <div className="absolute top-[-20%] right-[-10%] w-[300px] h-[300px] bg-blue-600/5 blur-[100px] rounded-full pointer-events-none" />
+
+                                            <div className="flex-1 rounded-[32px] border border-white/5 bg-black overflow-hidden relative group transition-all focus-within:border-blue-500/20">
+                                                <div className="absolute top-0 left-0 bottom-0 w-12 bg-white/[0.02] border-r border-white/5 flex flex-col items-center py-6 text-[10px] font-mono text-zinc-700 select-none">
+                                                    {envDraft.split('\n').map((_, i) => <div key={i} className="leading-loose">{i + 1}</div>)}
+                                                </div>
+                                                <textarea
+                                                    value={envDraft}
+                                                    onChange={(e) => setEnvDraft(e.target.value)}
+                                                    spellCheck={false}
+                                                    placeholder="KEY=VALUE&#10;PORT=8080&#10;NODE_ENV=production"
+                                                    className="w-full h-full p-6 pl-16 bg-transparent border-none outline-none font-mono text-sm leading-loose text-zinc-300 placeholder:text-zinc-800 resize-none selection:bg-blue-500/30 custom-scrollbar"
+                                                />
                                             </div>
                                         </div>
                                     )}

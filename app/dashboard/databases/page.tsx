@@ -701,6 +701,7 @@ export default function DatabasesPage() {
                                             <div className="grid grid-cols-1 gap-4">
                                                 {[
                                                     { label: 'Host / Endpoint', value: selectedDb.host || 'backend.nexode.app', field: 'host' },
+                                                    { label: 'Database Name', value: selectedDb.db_name, field: 'db_name' },
                                                     { label: 'Username', value: selectedDb.username, field: 'username' },
                                                     { label: 'Password', value: selectedDb.password, field: 'password', secret: true },
                                                     {
