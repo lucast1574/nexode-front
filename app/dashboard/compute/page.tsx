@@ -116,7 +116,7 @@ function CustomDropdown({ name, options, defaultValue, onChange, searchable = fa
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
                 className={cn(
-                    "w-full bg-white/[0.01] hover:bg-white/[0.04] border border-white/5 rounded-[24px] h-16 px-6 font-bold flex items-center justify-between transition-all outline-none relative overflow-hidden group/btn",
+                    "w-full bg-white/[0.01] hover:bg-white/[0.04] border border-white/5 rounded-[24px] h-14 px-6 font-bold flex items-center justify-between transition-all outline-none relative overflow-hidden group/btn",
                     isOpen ? "border-blue-500/40 bg-white/[0.05] ring-4 ring-blue-500/5 shadow-[0_0_30px_rgba(59,130,246,0.1)]" : ""
                 )}
             >
@@ -1206,21 +1206,21 @@ function ComputePageContent() {
 
             {/* Create Instance Modal */}
             {showCreateModal && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-12 bg-black/60 backdrop-blur-[40px] animate-in fade-in duration-700 overflow-y-auto overflow-x-hidden transition-all">
+                <div className="fixed inset-0 z-[100] flex items-start justify-center p-4 md:p-12 bg-black/60 backdrop-blur-xl animate-in fade-in duration-700 overflow-y-auto overflow-x-hidden transition-all">
                     {/* Background Blobs for depth */}
                     <div className="fixed inset-0 pointer-events-none overflow-hidden select-none">
                         <div className="absolute top-[20%] left-[20%] w-[500px] h-[500px] bg-blue-600/20 blur-[150px] rounded-full animate-pulse duration-[10s]" />
                         <div className="absolute bottom-[20%] right-[20%] w-[400px] h-[400px] bg-indigo-600/10 blur-[120px] rounded-full animate-pulse duration-[8s] delay-1000" />
                     </div>
 
-                    <div className="w-full max-w-xl bg-black/40 border border-white/10 rounded-[56px] p-8 md:p-10 shadow-[0_0_120px_rgba(0,0,0,0.9)] relative group transition-all duration-700 hover:border-white/20">
+                    <div className="w-full max-w-xl bg-black/40 border border-white/10 rounded-[40px] p-6 md:p-10 shadow-[0_0_120px_rgba(0,0,0,0.9)] relative group transition-all duration-700 hover:border-white/20 my-auto">
                         {/* Internal Glow */}
                         <div className="absolute inset-0 rounded-[56px] bg-gradient-to-tr from-blue-600/[0.02] to-transparent pointer-events-none" />
                         <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/5 blur-[100px] rounded-full pointer-events-none" />
                         
                         <div className="flex items-center justify-between mb-8 relative z-10">
                             <div>
-                                <h2 className="text-4xl font-black tracking-[calc(-0.05em)] uppercase leading-none text-white">Provision Node</h2>
+                                <h2 className="text-3xl font-black tracking-[calc(-0.05em)] uppercase leading-none text-white">Provision Node</h2>
                                 <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-[0.2em] mt-3 bg-white/[0.03] border border-white/[0.05] rounded-full px-4 py-1.5 w-fit">Nano-Seconds Deployment</p>
                             </div>
                             <button 
@@ -1235,7 +1235,7 @@ function ComputePageContent() {
                             </button>
                         </div>
 
-                        <form onSubmit={handleCreateInstance} className="space-y-6 relative z-10">
+                        <form onSubmit={handleCreateInstance} className="space-y-4 relative z-10">
                             <div className="space-y-4">
                                 <label className="text-[10px] font-black uppercase tracking-[0.25em] text-zinc-500 ml-1 block leading-none">Instance Identity</label>
                                 <div className="relative group/input">
@@ -1243,7 +1243,7 @@ function ComputePageContent() {
                                         name="name" 
                                         required 
                                         placeholder="Project Name (e.g. My Awesome API)" 
-                                        className="w-full bg-white/[0.01] hover:bg-white/[0.03] border border-white/10 rounded-[28px] h-16 px-8 text-lg font-black tracking-tight text-white placeholder:text-zinc-800 focus:border-blue-500/50 focus:bg-white/[0.05] focus:ring-4 focus:ring-blue-500/5 transition-all outline-none" 
+                                        className="w-full bg-white/[0.01] hover:bg-white/[0.03] border border-white/10 rounded-[28px] h-14 px-8 text-lg font-black tracking-tight text-white placeholder:text-zinc-800 focus:border-blue-500/50 focus:bg-white/[0.05] focus:ring-4 focus:ring-blue-500/5 transition-all outline-none" 
                                     />
                                     <div className="absolute right-6 top-1/2 -translate-y-1/2 opacity-0 group-focus-within/input:opacity-100 transition-opacity">
                                         <div className="w-2 h-2 rounded-full bg-blue-500 animate-ping" />
@@ -1309,9 +1309,8 @@ function ComputePageContent() {
                                         </div>
                                         <div>
                                             <div className="text-[11px] font-black text-emerald-400 uppercase tracking-[0.2em] mb-1">Account Verified</div>
-                                            <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest flex flex-col sm:flex-row sm:items-center gap-1">
-                                                <span>Connected as</span>
-                                                <span className="text-white">@{
+                                            <div className="text-xs text-zinc-500 font-bold uppercase tracking-tight">
+                                                Connected as <span className="text-white ml-1">@{
                                                     formProvider === 'GITHUB' ? user?.github_profile?.username :
                                                     user?.gitlab_profile?.username
                                                 }</span>
@@ -1332,7 +1331,7 @@ function ComputePageContent() {
                                             type="button"
                                             onClick={() => setIsRepoMenuOpen(!isRepoMenuOpen)}
                                             className={cn(
-                                                "w-full bg-white/[0.01] hover:bg-white/[0.03] border border-white/10 rounded-[28px] h-16 px-8 font-bold flex items-center justify-between transition-all outline-none",
+                                                "w-full bg-white/[0.01] hover:bg-white/[0.03] border border-white/10 rounded-[28px] h-14 px-8 font-bold flex items-center justify-between transition-all outline-none",
                                                 isRepoMenuOpen ? "border-blue-500/50 bg-white/[0.05]" : ""
                                             )}
                                         >
@@ -1412,7 +1411,7 @@ function ComputePageContent() {
                                                             }
                                                             {(formProvider === 'GITHUB' ? githubRepos : gitlabRepos).filter(repo => repo.full_name.toLowerCase().includes(repoSearch.toLowerCase())).length === 0 && (
                                                                 <div className="py-16 text-center">
-                                                                    <div className="w-16 h-16 bg-white/[0.02] rounded-full flex items-center justify-center mx-auto mb-4 border border-white/5">
+                                                                    <div className="w-16 h-14 bg-white/[0.02] rounded-full flex items-center justify-center mx-auto mb-4 border border-white/5">
                                                                         <Search className="w-6 h-6 text-zinc-800" />
                                                                     </div>
                                                                     <div className="text-[10px] font-black uppercase tracking-widest text-zinc-600">No repositories matching &quot;{repoSearch}&quot;</div>
@@ -1430,7 +1429,7 @@ function ComputePageContent() {
                                         name="repository_url" 
                                         required 
                                         placeholder={`https://${formProvider.toLowerCase()}.com/user/repo`} 
-                                        className="w-full bg-white/[0.01] hover:bg-white/[0.03] border border-white/10 rounded-[28px] h-16 px-8 text-sm font-black text-white focus:border-blue-500/50 transition-all outline-none" 
+                                        className="w-full bg-white/[0.01] hover:bg-white/[0.03] border border-white/10 rounded-[28px] h-14 px-8 text-sm font-black text-white focus:border-blue-500/50 transition-all outline-none" 
                                     />
                                 )}
                             </div>
@@ -1452,7 +1451,7 @@ function ComputePageContent() {
                                         name="custom_domain" 
                                         placeholder="app.example.com" 
                                         onChange={(e) => setCustomDomainInput(e.target.value)}
-                                        className="w-full bg-white/[0.01] hover:bg-white/[0.03] border border-white/10 rounded-[28px] h-16 px-8 text-sm font-black text-white focus:border-blue-500/50 transition-all outline-none" 
+                                        className="w-full bg-white/[0.01] hover:bg-white/[0.03] border border-white/10 rounded-[28px] h-14 px-8 text-sm font-black text-white focus:border-blue-500/50 transition-all outline-none" 
                                     />
                                 </div>
                             </div>
@@ -1461,7 +1460,7 @@ function ComputePageContent() {
                                 <div className="grid grid-cols-2 gap-5 animate-in fade-in slide-in-from-top-6 duration-500 pt-2">
                                     <div className="space-y-4">
                                         <label className="text-[10px] font-black uppercase tracking-[0.25em] text-blue-500/80 ml-1 block leading-none">Basic Auth Identity</label>
-                                        <input name="auth_user" placeholder="admin" className="w-full bg-blue-500/[0.03] border border-blue-500/20 rounded-[28px] h-16 px-8 text-sm font-black text-blue-400 placeholder:text-blue-900/40 focus:border-blue-500/50 transition-all outline-none" />
+                                        <input name="auth_user" placeholder="admin" className="w-full bg-blue-500/[0.03] border border-blue-500/20 rounded-[28px] h-14 px-8 text-sm font-black text-blue-400 placeholder:text-blue-900/40 focus:border-blue-500/50 transition-all outline-none" />
                                     </div>
                                     <div className="space-y-4">
                                         <label className="text-[10px] font-black uppercase tracking-[0.25em] text-blue-500/80 ml-1 block leading-none">Access Key</label>
@@ -1471,7 +1470,7 @@ function ComputePageContent() {
                             )}
 
                             <div className="pt-8">
-                                <Button type="submit" className="w-full h-20 rounded-[40px] bg-blue-600 hover:bg-blue-500 font-black uppercase tracking-[0.3em] text-sm shadow-[0_20px_80px_rgba(59,130,246,0.3)] transform transition-all active:scale-[0.98] active:shadow-none group/submit overflow-hidden relative">
+                                <Button type="submit" className="w-full h-16 rounded-[28px] bg-blue-600 hover:bg-blue-500 font-black uppercase tracking-[0.3em] text-sm shadow-[0_10px_40px_rgba(59,130,246,0.3)] transform transition-all active:scale-[0.98] active:shadow-none group/submit overflow-hidden relative">
                                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/submit:translate-x-full transition-transform duration-1000" />
                                     <Rocket className="w-6 h-6 mr-4 group-hover:-translate-y-2 group-hover:translate-x-2 transition-transform duration-500" />
                                     Launch Virtual Node
