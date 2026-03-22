@@ -116,7 +116,7 @@ function CustomDropdown({ name, options, defaultValue, onChange, searchable = fa
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
                 className={cn(
-                    "w-full bg-white/[0.01] hover:bg-white/[0.04] border border-white/5 rounded-[24px] h-[68px] px-6 font-bold flex items-center justify-between transition-all outline-none relative overflow-hidden group/btn",
+                    "w-full bg-white/[0.01] hover:bg-white/[0.04] border border-white/5 rounded-[24px] h-16 px-6 font-bold flex items-center justify-between transition-all outline-none relative overflow-hidden group/btn",
                     isOpen ? "border-blue-500/40 bg-white/[0.05] ring-4 ring-blue-500/5 shadow-[0_0_30px_rgba(59,130,246,0.1)]" : ""
                 )}
             >
@@ -1213,12 +1213,12 @@ function ComputePageContent() {
                         <div className="absolute bottom-[20%] right-[20%] w-[400px] h-[400px] bg-indigo-600/10 blur-[120px] rounded-full animate-pulse duration-[8s] delay-1000" />
                     </div>
 
-                    <div className="w-full max-w-xl bg-black/40 border border-white/10 rounded-[56px] p-8 md:p-14 shadow-[0_0_120px_rgba(0,0,0,0.9)] relative group transition-all duration-700 hover:border-white/20">
+                    <div className="w-full max-w-xl bg-black/40 border border-white/10 rounded-[56px] p-8 md:p-10 shadow-[0_0_120px_rgba(0,0,0,0.9)] relative group transition-all duration-700 hover:border-white/20">
                         {/* Internal Glow */}
                         <div className="absolute inset-0 rounded-[56px] bg-gradient-to-tr from-blue-600/[0.02] to-transparent pointer-events-none" />
                         <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/5 blur-[100px] rounded-full pointer-events-none" />
                         
-                        <div className="flex items-center justify-between mb-14 relative z-10">
+                        <div className="flex items-center justify-between mb-8 relative z-10">
                             <div>
                                 <h2 className="text-4xl font-black tracking-[calc(-0.05em)] uppercase leading-none text-white">Provision Node</h2>
                                 <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-[0.2em] mt-3 bg-white/[0.03] border border-white/[0.05] rounded-full px-4 py-1.5 w-fit">Nano-Seconds Deployment</p>
@@ -1235,7 +1235,7 @@ function ComputePageContent() {
                             </button>
                         </div>
 
-                        <form onSubmit={handleCreateInstance} className="space-y-10 relative z-10">
+                        <form onSubmit={handleCreateInstance} className="space-y-6 relative z-10">
                             <div className="space-y-4">
                                 <label className="text-[10px] font-black uppercase tracking-[0.25em] text-zinc-500 ml-1 block leading-none">Instance Identity</label>
                                 <div className="relative group/input">
@@ -1243,7 +1243,7 @@ function ComputePageContent() {
                                         name="name" 
                                         required 
                                         placeholder="Project Name (e.g. My Awesome API)" 
-                                        className="w-full bg-white/[0.01] hover:bg-white/[0.03] border border-white/10 rounded-[28px] h-[72px] px-8 text-lg font-black tracking-tight text-white placeholder:text-zinc-800 focus:border-blue-500/50 focus:bg-white/[0.05] focus:ring-4 focus:ring-blue-500/5 transition-all outline-none" 
+                                        className="w-full bg-white/[0.01] hover:bg-white/[0.03] border border-white/10 rounded-[28px] h-16 px-8 text-lg font-black tracking-tight text-white placeholder:text-zinc-800 focus:border-blue-500/50 focus:bg-white/[0.05] focus:ring-4 focus:ring-blue-500/5 transition-all outline-none" 
                                     />
                                     <div className="absolute right-6 top-1/2 -translate-y-1/2 opacity-0 group-focus-within/input:opacity-100 transition-opacity">
                                         <div className="w-2 h-2 rounded-full bg-blue-500 animate-ping" />
@@ -1283,7 +1283,7 @@ function ComputePageContent() {
 
                             {((formProvider === 'GITHUB' && !user?.github_profile) || 
                               (formProvider === 'GITLAB' && !user?.gitlab_profile)) ? (
-                                <div className="p-8 rounded-[36px] bg-blue-600/5 border border-blue-500/20 flex items-center justify-between group/verify animate-in fade-in slide-in-from-top-4 duration-500 relative overflow-hidden">
+                                <div className="p-6 rounded-[36px] bg-blue-600/5 border border-blue-500/20 flex items-center justify-between group/verify animate-in fade-in slide-in-from-top-4 duration-500 relative overflow-hidden">
                                     <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-transparent via-blue-500/40 to-transparent" />
                                     <div className="flex items-center gap-5 relative z-10">
                                         <div className="w-14 h-14 rounded-3xl bg-blue-600/10 flex items-center justify-center border border-blue-500/30 group-hover/verify:rotate-6 transition-transform shadow-lg shadow-blue-500/5">
@@ -1301,7 +1301,7 @@ function ComputePageContent() {
                                     </Button>
                                 </div>
                             ) : (
-                                <div className="p-8 rounded-[36px] bg-emerald-600/[0.03] border border-emerald-500/10 flex items-center justify-between group/verify animate-in fade-in slide-in-from-top-4 duration-500 relative overflow-hidden">
+                                <div className="p-6 rounded-[36px] bg-emerald-600/[0.03] border border-emerald-500/10 flex items-center justify-between group/verify animate-in fade-in slide-in-from-top-4 duration-500 relative overflow-hidden">
                                     <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-transparent via-emerald-500/20 to-transparent" />
                                     <div className="flex items-center gap-5 relative z-10">
                                         <div className="w-14 h-14 rounded-3xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 shadow-lg shadow-emerald-500/5">
@@ -1309,8 +1309,9 @@ function ComputePageContent() {
                                         </div>
                                         <div>
                                             <div className="text-[11px] font-black text-emerald-400 uppercase tracking-[0.2em] mb-1">Account Verified</div>
-                                            <div className="text-xs text-zinc-500 font-bold leading-none tracking-tight uppercase">
-                                                Connected as <span className="text-white">@{
+                                            <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest flex flex-col sm:flex-row sm:items-center gap-1">
+                                                <span>Connected as</span>
+                                                <span className="text-white">@{
                                                     formProvider === 'GITHUB' ? user?.github_profile?.username :
                                                     user?.gitlab_profile?.username
                                                 }</span>
@@ -1331,7 +1332,7 @@ function ComputePageContent() {
                                             type="button"
                                             onClick={() => setIsRepoMenuOpen(!isRepoMenuOpen)}
                                             className={cn(
-                                                "w-full bg-white/[0.01] hover:bg-white/[0.03] border border-white/10 rounded-[28px] h-[72px] px-8 font-bold flex items-center justify-between transition-all outline-none",
+                                                "w-full bg-white/[0.01] hover:bg-white/[0.03] border border-white/10 rounded-[28px] h-16 px-8 font-bold flex items-center justify-between transition-all outline-none",
                                                 isRepoMenuOpen ? "border-blue-500/50 bg-white/[0.05]" : ""
                                             )}
                                         >
@@ -1429,7 +1430,7 @@ function ComputePageContent() {
                                         name="repository_url" 
                                         required 
                                         placeholder={`https://${formProvider.toLowerCase()}.com/user/repo`} 
-                                        className="w-full bg-white/[0.01] hover:bg-white/[0.03] border border-white/10 rounded-[28px] h-[72px] px-8 text-sm font-black text-white focus:border-blue-500/50 transition-all outline-none" 
+                                        className="w-full bg-white/[0.01] hover:bg-white/[0.03] border border-white/10 rounded-[28px] h-16 px-8 text-sm font-black text-white focus:border-blue-500/50 transition-all outline-none" 
                                     />
                                 )}
                             </div>
@@ -1451,7 +1452,7 @@ function ComputePageContent() {
                                         name="custom_domain" 
                                         placeholder="app.example.com" 
                                         onChange={(e) => setCustomDomainInput(e.target.value)}
-                                        className="w-full bg-white/[0.01] hover:bg-white/[0.03] border border-white/10 rounded-[28px] h-[72px] px-8 text-sm font-black text-white focus:border-blue-500/50 transition-all outline-none" 
+                                        className="w-full bg-white/[0.01] hover:bg-white/[0.03] border border-white/10 rounded-[28px] h-16 px-8 text-sm font-black text-white focus:border-blue-500/50 transition-all outline-none" 
                                     />
                                 </div>
                             </div>
@@ -1460,17 +1461,17 @@ function ComputePageContent() {
                                 <div className="grid grid-cols-2 gap-5 animate-in fade-in slide-in-from-top-6 duration-500 pt-2">
                                     <div className="space-y-4">
                                         <label className="text-[10px] font-black uppercase tracking-[0.25em] text-blue-500/80 ml-1 block leading-none">Basic Auth Identity</label>
-                                        <input name="auth_user" placeholder="admin" className="w-full bg-blue-500/[0.03] border border-blue-500/20 rounded-[28px] h-[72px] px-8 text-sm font-black text-blue-400 placeholder:text-blue-900/40 focus:border-blue-500/50 transition-all outline-none" />
+                                        <input name="auth_user" placeholder="admin" className="w-full bg-blue-500/[0.03] border border-blue-500/20 rounded-[28px] h-16 px-8 text-sm font-black text-blue-400 placeholder:text-blue-900/40 focus:border-blue-500/50 transition-all outline-none" />
                                     </div>
                                     <div className="space-y-4">
                                         <label className="text-[10px] font-black uppercase tracking-[0.25em] text-blue-500/80 ml-1 block leading-none">Access Key</label>
-                                        <input name="auth_pass" type="password" placeholder="••••••••" className="w-full bg-blue-500/[0.03] border border-blue-500/20 rounded-[28px] h-[72px] px-8 text-sm font-black text-blue-400 placeholder:text-blue-900/40 focus:border-blue-500/50 transition-all outline-none" />
+                                        <input name="auth_pass" type="password" placeholder="••••••••" className="w-full bg-blue-500/[0.03] border border-blue-500/20 rounded-[28px] h-16 px-8 text-sm font-black text-blue-400 placeholder:text-blue-900/40 focus:border-blue-500/50 transition-all outline-none" />
                                     </div>
                                 </div>
                             )}
 
                             <div className="pt-8">
-                                <Button type="submit" className="w-full h-24 rounded-[40px] bg-blue-600 hover:bg-blue-500 font-black uppercase tracking-[0.3em] text-sm shadow-[0_20px_80px_rgba(59,130,246,0.3)] transform transition-all active:scale-[0.98] active:shadow-none group/submit overflow-hidden relative">
+                                <Button type="submit" className="w-full h-20 rounded-[40px] bg-blue-600 hover:bg-blue-500 font-black uppercase tracking-[0.3em] text-sm shadow-[0_20px_80px_rgba(59,130,246,0.3)] transform transition-all active:scale-[0.98] active:shadow-none group/submit overflow-hidden relative">
                                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/submit:translate-x-full transition-transform duration-1000" />
                                     <Rocket className="w-6 h-6 mr-4 group-hover:-translate-y-2 group-hover:translate-x-2 transition-transform duration-500" />
                                     Launch Virtual Node
