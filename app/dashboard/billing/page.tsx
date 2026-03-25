@@ -33,10 +33,16 @@ interface Subscription extends BaseSubscription {
     };
 }
 
+interface UsageStats {
+    service: string;
+    feature: string;
+    total_amount: number;
+}
+
 export default function BillingPage() {
     const [loading, setLoading] = useState(true);
     const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
-    const [usageStats, setUsageStats] = useState<any[]>([]);
+    const [usageStats, setUsageStats] = useState<UsageStats[]>([]);
     const [user, setUser] = useState<{ first_name: string, email: string, avatar?: string } | null>(null);
     const router = useRouter();
     const { showAlert } = useModal();
