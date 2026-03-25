@@ -38,21 +38,24 @@ export function CustomDropdown({ name, options, defaultValue, onChange, searchab
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
                 className={cn(
-                    "w-full bg-white/[0.01] hover:bg-white/[0.04] border border-white/5 rounded-2xl h-11 px-5 font-bold flex items-center justify-between transition-all outline-none relative overflow-hidden group/btn",
+                    "w-full bg-white/[0.01] hover:bg-white/[0.04] border border-white/5 rounded-[22px] h-[72px] px-6 font-bold flex items-center justify-between transition-all outline-none relative overflow-hidden group/btn",
                     isOpen ? "border-blue-500/40 bg-white/[0.05] ring-4 ring-blue-500/5 shadow-[0_0_30px_rgba(59,130,246,0.1)]" : ""
                 )}
             >
                 <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-blue-500/20 to-transparent opacity-0 group-hover/btn:opacity-100 transition-opacity" />
-                <div className="flex items-center gap-4 relative z-10">
+                <div className="flex items-center gap-5 relative z-10">
                     <div className={cn(
-                        "w-10 h-10 rounded-2xl flex items-center justify-center border transition-all duration-500",
+                        "w-12 h-12 rounded-[18px] flex items-center justify-center border transition-all duration-500 shadow-lg",
                         isOpen ? "bg-blue-600/20 border-blue-500/40 rotate-6" : "bg-white/[0.02] border-white/5"
                     )}>
-                        <selected.icon className={cn("w-5 h-5", isOpen ? "text-blue-400" : "text-zinc-500")} />
+                        <selected.icon className={cn("w-6 h-6", isOpen ? "text-blue-400" : "text-zinc-500")} />
                     </div>
-                    <span className={cn("text-sm font-black tracking-wide uppercase", isOpen ? "text-white" : "text-zinc-400")}>{selected.label}</span>
+                    <div className="flex flex-col items-start">
+                        <span className={cn("text-xs font-black tracking-[0.05em] uppercase leading-none mb-1", isOpen ? "text-white" : "text-zinc-400")}>{selected.label}</span>
+                        <span className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest leading-none">Selected</span>
+                    </div>
                 </div>
-                <ChevronDown className={cn("w-4 h-4 text-zinc-600 transition-all duration-500", isOpen && "rotate-180 text-blue-500 scale-125")} />
+                <ChevronDown className={cn("w-5 h-5 text-zinc-600 transition-all duration-500", isOpen && "rotate-180 text-blue-500 scale-125")} />
             </button>
 
             {isOpen && (

@@ -297,43 +297,43 @@ export function ProvisionNodeModal({
                 <div className="absolute bottom-[20%] right-[20%] w-[400px] h-[400px] bg-indigo-600/10 blur-[120px] rounded-full animate-pulse duration-[8s] delay-1000" />
             </div>
 
-            <div className="w-full max-w-lg bg-black border border-white/10 rounded-3xl p-6 md:p-8 shadow-[0_0_120px_rgba(0,0,0,0.9)] relative group transition-all duration-700 hover:border-white/20 my-4 md:my-8">
+            <div className="w-full max-w-xl bg-black border border-white/10 rounded-[40px] p-8 md:p-12 shadow-[0_0_120px_rgba(0,0,0,0.9)] relative group transition-all duration-700 hover:border-white/20 my-4 md:my-8 overflow-hidden">
                 {/* Internal Glow */}
-                <div className="absolute inset-0 rounded-3xl bg-gradient-to-tr from-blue-600/[0.02] to-transparent pointer-events-none" />
-                <div className="absolute top-0 right-0 w-64 h-64 bg-blue-600/5 blur-[100px] rounded-full pointer-events-none" />
+                <div className="absolute inset-0 rounded-[40px] bg-gradient-to-tr from-blue-600/[0.04] to-transparent pointer-events-none" />
+                <div className="absolute top-0 right-0 w-80 h-80 bg-blue-600/10 blur-[120px] rounded-full pointer-events-none" />
                 
-                <div className="flex items-center justify-between mb-6 relative z-10">
-                    <div>
-                        <h2 className="text-3xl font-black tracking-[calc(-0.05em)] uppercase leading-none text-white">Provision Node</h2>
-                        <p className="text-[10px] font-bold text-zinc-600 uppercase tracking-[0.2em] mt-3 bg-white/[0.03] border border-white/[0.05] rounded-full px-4 py-1.5 w-fit">Nano-Seconds Deployment</p>
+                <div className="flex items-center justify-between mb-10 relative z-10">
+                    <div className="space-y-4">
+                        <h2 className="text-4xl font-black tracking-tighter uppercase leading-none text-white">Provision Node</h2>
+                        <p className="text-[10px] font-black text-blue-500/80 uppercase tracking-[0.3em] bg-blue-500/[0.03] border border-blue-500/10 rounded-full px-5 py-2 w-fit shadow-2xl">Nano-Seconds Deployment</p>
                     </div>
                     <button 
                         onClick={handleClose} 
-                        className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-zinc-400 hover:bg-white/[0.05] hover:text-white transition-all transform hover:rotate-90 active:scale-90 shadow-2xl"
+                        className="w-12 h-12 rounded-full border border-white/10 bg-white/[0.02] flex items-center justify-center text-zinc-500 hover:bg-red-500/10 hover:border-red-500/20 hover:text-red-500 transition-all transform hover:rotate-90 active:scale-90 shadow-2xl"
                     >
-                        <X className="w-5 h-5" />
+                        <X className="w-6 h-6" />
                     </button>
                 </div>
 
-                <form onSubmit={handleCreateInstance} className="space-y-4 relative z-10">
-                    <div className="space-y-2">
-                        <label className="text-[10px] font-black uppercase tracking-[0.25em] text-zinc-500 ml-1 block leading-none">Instance Identity</label>
+                <form onSubmit={handleCreateInstance} className="space-y-8 relative z-10">
+                    <div className="space-y-3">
+                        <label className="text-[11px] font-black uppercase tracking-[0.3em] text-zinc-600 ml-1 block leading-none">Instance Identity</label>
                         <div className="relative group/input">
                             <input 
                                 name="name" 
                                 required 
                                 placeholder="Project Name (e.g. My Awesome API)" 
-                                className="w-full bg-white/[0.01] hover:bg-white/[0.03] border border-white/10 rounded-2xl h-11 px-6 text-sm font-black tracking-tight text-white placeholder:text-zinc-800 focus:border-blue-500/50 focus:bg-white/[0.05] focus:ring-4 focus:ring-blue-500/5 transition-all outline-none" 
+                                className="w-full bg-white/[0.01] hover:bg-white/[0.03] border border-white/10 rounded-[22px] h-16 px-8 text-sm font-black tracking-tight text-white placeholder:text-zinc-800 focus:border-blue-500/50 focus:bg-white/[0.05] focus:ring-8 focus:ring-blue-500/[0.03] transition-all outline-none" 
                             />
-                            <div className="absolute right-6 top-1/2 -translate-y-1/2 opacity-0 group-focus-within/input:opacity-100 transition-opacity">
-                                <div className="w-2 h-2 rounded-full bg-blue-500 animate-ping" />
+                            <div className="absolute right-8 top-1/2 -translate-y-1/2 opacity-0 group-focus-within/input:opacity-100 transition-opacity">
+                                <div className="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse shadow-[0_0_15px_rgba(59,130,246,0.6)]" />
                             </div>
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-5">
-                        <div className="space-y-2">
-                            <label className="text-[10px] font-black uppercase tracking-[0.25em] text-zinc-500 ml-1 block leading-none">Service Type</label>
+                    <div className="grid grid-cols-2 gap-6">
+                        <div className="space-y-3">
+                            <label className="text-[11px] font-black uppercase tracking-[0.3em] text-zinc-600 ml-1 block leading-none">Service Type</label>
                             <CustomDropdown
                                 name="type"
                                 options={[
@@ -343,8 +343,8 @@ export function ProvisionNodeModal({
                                 defaultValue="FRONTEND"
                             />
                         </div>
-                        <div className="space-y-2">
-                            <label className="text-[10px] font-black uppercase tracking-[0.25em] text-zinc-500 ml-1 block leading-none">Git Provider</label>
+                        <div className="space-y-3">
+                            <label className="text-[11px] font-black uppercase tracking-[0.3em] text-zinc-600 ml-1 block leading-none">Git Provider</label>
                             <CustomDropdown
                                 name="provider"
                                 options={[
@@ -361,74 +361,74 @@ export function ProvisionNodeModal({
 
                     {((formProvider === 'GITHUB' && !user?.github_profile) || 
                       (formProvider === 'GITLAB' && !user?.gitlab_profile)) ? (
-                        <div className="p-4 rounded-3xl bg-blue-600/5 border border-blue-500/20 flex items-center justify-between group/verify animate-in fade-in slide-in-from-top-4 duration-500 relative overflow-hidden">
+                        <div className="p-6 rounded-[32px] bg-blue-600/5 border border-blue-500/20 flex items-center justify-between group/verify animate-in fade-in slide-in-from-top-4 duration-500 relative overflow-hidden">
                             <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-transparent via-blue-500/40 to-transparent" />
-                            <div className="flex items-center gap-5 relative z-10">
-                                <div className="w-10 h-10 rounded-2xl bg-blue-600/10 flex items-center justify-center border border-blue-500/30 group-hover/verify:rotate-6 transition-transform shadow-lg shadow-blue-500/5">
-                                    {formProvider === 'GITHUB' ? <Github className="w-6 h-6 text-blue-500" /> : 
-                                      formProvider === 'GITLAB' ? <Gitlab className="w-6 h-6 text-orange-500" /> : 
-                                      <Github className="w-6 h-6 text-blue-500" />}
+                            <div className="flex items-center gap-6 relative z-10">
+                                <div className="w-14 h-14 rounded-2xl bg-blue-600/10 flex items-center justify-center border border-blue-500/30 group-hover/verify:rotate-6 transition-all duration-500 shadow-xl shadow-blue-500/10">
+                                    {formProvider === 'GITHUB' ? <Github className="w-8 h-8 text-blue-500" /> : 
+                                      formProvider === 'GITLAB' ? <Gitlab className="w-8 h-8 text-orange-500" /> : 
+                                      <Github className="w-8 h-8 text-blue-500" />}
                                 </div>
                                 <div>
-                                    <div className="text-[11px] font-black text-blue-400 uppercase tracking-[0.2em] mb-1">Authorization Required</div>
-                                    <div className="text-xs text-zinc-500 font-bold leading-none tracking-tight">Connect {formProvider.toLowerCase()} to access clusters.</div>
+                                    <div className="text-xs font-black text-blue-400 uppercase tracking-[0.3em] mb-2">Authorization Required</div>
+                                    <div className="text-[13px] text-zinc-500 font-bold leading-none tracking-tight">Connect {formProvider.toLowerCase()} to access clusters.</div>
                                 </div>
                             </div>
-                            <Button type="button" size="sm" onClick={() => handleConnectProvider(formProvider)} className="rounded-xl bg-blue-600 hover:bg-blue-500 text-[10px] font-black uppercase tracking-widest shadow-xl shadow-blue-500/30 px-6 h-10 shrink-0 transform active:scale-95 transition-all">
+                            <Button type="button" size="sm" onClick={() => handleConnectProvider(formProvider)} className="rounded-[18px] bg-blue-600 hover:bg-blue-500 text-[10px] font-black uppercase tracking-widest shadow-xl shadow-blue-500/30 px-8 h-12 shrink-0 transform active:scale-95 transition-all">
                                 Authorize
                             </Button>
                         </div>
                     ) : (
-                        <div className="p-4 rounded-3xl bg-emerald-600/[0.03] border border-emerald-500/10 flex items-center justify-between group/verify animate-in fade-in slide-in-from-top-4 duration-500 relative overflow-hidden">
+                        <div className="p-6 rounded-[32px] bg-emerald-600/[0.03] border border-emerald-500/10 flex items-center justify-between group/verify animate-in fade-in slide-in-from-top-4 duration-500 relative overflow-hidden">
                             <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-transparent via-emerald-500/20 to-transparent" />
-                            <div className="flex items-center gap-5 relative z-10">
-                                <div className="w-10 h-10 rounded-2xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 shadow-lg shadow-emerald-500/5">
-                                    <Check className="w-6 h-6 text-emerald-500" />
+                            <div className="flex items-center gap-6 relative z-10">
+                                <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 shadow-xl shadow-emerald-500/10 transition-all duration-500 group-hover/verify:rotate-6">
+                                    <Check className="w-8 h-8 text-emerald-500" />
                                 </div>
                                 <div>
-                                    <div className="text-[11px] font-black text-emerald-400 uppercase tracking-[0.2em] mb-1">Account Verified</div>
-                                    <div className="text-xs text-zinc-500 font-bold uppercase tracking-tight">
-                                        Connected as <span className="text-white ml-1">@{
+                                    <div className="text-xs font-black text-emerald-400 uppercase tracking-[0.3em] mb-2">Account Verified</div>
+                                    <div className="text-[13px] text-zinc-500 font-bold uppercase tracking-tight">
+                                        Connected as <span className="text-white ml-2 font-black">@{
                                             formProvider === 'GITHUB' ? user?.github_profile?.username :
                                             user?.gitlab_profile?.username
                                         }</span>
                                     </div>
                                 </div>
                             </div>
-                            <Button type="button" size="sm" onClick={() => handleConnectProvider(formProvider)} className="rounded-xl bg-white/[0.03] hover:bg-white/[0.07] border border-white/5 text-[10px] font-black uppercase tracking-widest text-zinc-500 hover:text-white px-6 h-10 shrink-0 transition-all">
+                            <Button type="button" size="sm" onClick={() => handleConnectProvider(formProvider)} className="rounded-[18px] bg-white/[0.03] hover:bg-white/[0.07] border border-white/5 text-[10px] font-black uppercase tracking-widest text-zinc-500 hover:text-white px-8 h-12 shrink-0 transition-all">
                                 Switch
                             </Button>
                         </div>
                     )}
 
-                    <div className="space-y-2">
-                        <label className="text-[10px] font-black uppercase tracking-[0.25em] text-zinc-500 ml-1 block leading-none">Repository Target</label>
+                    <div className="space-y-3">
+                        <label className="text-[11px] font-black uppercase tracking-[0.3em] text-zinc-600 ml-1 block leading-none">Repository Target</label>
                         {((formProvider === 'GITHUB' && user?.github_profile) || (formProvider === 'GITLAB' && user?.gitlab_profile)) ? (
                             <div className="relative repo-selector-container group/repo">
                                 <button
                                     type="button"
                                     onClick={() => setIsRepoMenuOpen(!isRepoMenuOpen)}
                                     className={cn(
-                                        "w-full bg-white/[0.01] hover:bg-white/[0.03] border border-white/10 rounded-2xl h-11 px-6 font-bold flex items-center justify-between transition-all outline-none",
+                                        "w-full bg-white/[0.01] hover:bg-white/[0.03] border border-white/10 rounded-[22px] h-16 px-8 font-bold flex items-center justify-between transition-all outline-none",
                                         isRepoMenuOpen ? "border-blue-500/50 bg-white/[0.05]" : ""
                                     )}
                                 >
-                                    <div className="flex items-center gap-4">
+                                    <div className="flex items-center gap-5">
                                         {selectedRepo ? (
-                                            <div className="flex items-center gap-4">
+                                            <div className="flex items-center gap-5">
                                                 <div className={cn(
-                                                    "w-8 h-8 rounded-xl flex items-center justify-center border transition-all",
-                                                    selectedRepo.private ? "bg-amber-500/10 border-amber-500/20 text-amber-500" : "bg-blue-500/10 border-blue-500/20 text-blue-500"
+                                                    "w-10 h-10 rounded-2xl flex items-center justify-center border transition-all shadow-xl",
+                                                    selectedRepo.private ? "bg-amber-500/10 border-amber-500/20 text-amber-500 shadow-amber-500/5" : "bg-blue-500/10 border-blue-500/20 text-blue-500 shadow-blue-500/5"
                                                 )}>
-                                                    {selectedRepo.private ? <Lock className="w-4 h-4" /> : <Globe className="w-4 h-4" />}
+                                                    {selectedRepo.private ? <Lock className="w-5 h-5" /> : <Globe className="w-5 h-5" />}
                                                 </div>
-                                                <span className="text-sm font-black text-white truncate max-w-[240px] uppercase tracking-tight">{selectedRepo.full_name}</span>
+                                                <span className="text-sm font-black text-white truncate max-w-[280px] uppercase tracking-tighter">{selectedRepo.full_name}</span>
                                             </div>
                                         ) : (
-                                            <span className="text-zinc-600 text-sm font-black uppercase tracking-widest">Select Repository ...</span>
+                                            <span className="text-zinc-700 text-xs font-black uppercase tracking-[0.25em]">Select Repository ...</span>
                                         )}
                                     </div>
-                                    <ChevronDown className={cn("w-5 h-5 text-zinc-500 transition-transform duration-500", isRepoMenuOpen && "rotate-180 text-blue-500")} />
+                                    <ChevronDown className={cn("w-6 h-6 text-zinc-600 transition-all duration-500", isRepoMenuOpen && "rotate-180 text-blue-500 scale-110")} />
                                 </button>
 
                                 {isRepoMenuOpen && (
@@ -499,14 +499,14 @@ export function ProvisionNodeModal({
                                 name="repository_url" 
                                 required 
                                 placeholder={`https://${formProvider.toLowerCase()}.com/user/repo`} 
-                                className="w-full bg-white/[0.01] hover:bg-white/[0.03] border border-white/10 rounded-2xl h-11 px-6 text-sm font-black text-white focus:border-blue-500/50 transition-all outline-none" 
+                                className="w-full bg-white/[0.01] hover:bg-white/[0.03] border border-white/10 rounded-[22px] h-16 px-8 text-sm font-black text-white focus:border-blue-500/50 transition-all outline-none" 
                             />
                         )}
                     </div>
 
-                    <div className="grid grid-cols-2 gap-5">
-                        <div className="space-y-2">
-                            <label className="text-[10px] font-black uppercase tracking-[0.25em] text-zinc-500 ml-1 block leading-none">Deployment Branch</label>
+                    <div className="grid grid-cols-2 gap-6">
+                        <div className="space-y-3">
+                            <label className="text-[11px] font-black uppercase tracking-[0.3em] text-zinc-600 ml-1 block leading-none">Deployment Branch</label>
                             <CustomDropdown
                                 key={`branch-${selectedRepo?.id || 'none'}`}
                                 name="branch"
@@ -515,13 +515,13 @@ export function ProvisionNodeModal({
                                 defaultValue={selectedRepo?.default_branch || 'main'}
                             />
                         </div>
-                        <div className="space-y-2">
-                            <label className="text-[10px] font-black uppercase tracking-[0.25em] text-zinc-500 ml-1 block leading-none">Custom Domain</label>
+                        <div className="space-y-3">
+                            <label className="text-[11px] font-black uppercase tracking-[0.3em] text-zinc-600 ml-1 block leading-none">Custom Domain</label>
                             <input 
                                 name="custom_domain" 
                                 placeholder="app.example.com" 
                                 onChange={(e) => setCustomDomainInput(e.target.value)}
-                                className="w-full bg-white/[0.01] hover:bg-white/[0.03] border border-white/10 rounded-2xl h-11 px-6 text-sm font-black text-white focus:border-blue-500/50 transition-all outline-none" 
+                                className="w-full bg-white/[0.01] hover:bg-white/[0.03] border border-white/10 rounded-[22px] h-16 px-8 text-sm font-black text-white focus:border-blue-500/50 transition-all outline-none" 
                             />
                         </div>
                     </div>
@@ -539,17 +539,18 @@ export function ProvisionNodeModal({
                         </div>
                     )}
 
-                    <div className="pt-6">
+                    <div className="pt-8 mb-4">
                         <Button 
                             type="submit" 
                             disabled={fetchingBranches || fetchingRepos}
-                            className="w-full h-12 rounded-2xl bg-blue-600 hover:bg-blue-500 font-black uppercase tracking-[0.3em] text-[10px] shadow-[0_10px_40px_rgba(59,130,246,0.2)] transform transition-all active:scale-[0.98] active:shadow-none group/submit overflow-hidden relative disabled:opacity-50 disabled:pointer-events-none"
+                            className="w-full h-16 rounded-[24px] bg-blue-600 hover:bg-blue-500 font-black uppercase tracking-[0.4em] text-[11px] shadow-[0_20px_60px_rgba(59,130,246,0.3)] transform transition-all active:scale-[0.98] active:shadow-none group/submit overflow-hidden relative disabled:opacity-50 disabled:pointer-events-none"
                         >
+                            <div className="absolute inset-x-0 top-0 h-px bg-white/20 z-20" />
                             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/submit:translate-x-full transition-transform duration-1000" />
-                            <Rocket className="w-6 h-6 mr-4 group-hover:-translate-y-2 group-hover:translate-x-2 transition-transform duration-500" />
-                            {fetchingBranches || fetchingRepos ? "Fetching Requirements..." : "Launch Virtual Node"}
+                            <Rocket className="w-7 h-7 mr-4 group-hover:-translate-y-2 group-hover:translate-x-2 transition-transform duration-500 relative z-10" />
+                            <span className="relative z-10">{fetchingBranches || fetchingRepos ? "Fetching Requirements..." : "Launch Virtual Node"}</span>
                         </Button>
-                        <p className="text-[10px] text-zinc-700 text-center mt-6 font-black uppercase tracking-[0.25em]">Automated SSL & Hybrid Load Balancing Active</p>
+                        <p className="text-[10px] text-zinc-800 text-center mt-8 font-black uppercase tracking-[0.3em]">Automated SSL & Hybrid Load Balancing Active</p>
                     </div>
                 </form>
             </div>
