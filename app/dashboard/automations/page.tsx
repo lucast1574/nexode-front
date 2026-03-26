@@ -152,6 +152,11 @@ export default function AutomationsPage() {
         });
     };
 
+    const n8nSub = subscriptions.find(s => s.service === 'n8n');
+    let subLimit = 1;
+    if (n8nSub?.plan?.slug === 'n8n-ultra') subLimit = 3;
+    else if (n8nSub?.plan?.slug === 'n8n-pro') subLimit = 2;
+
     if (loading) {
         return (
             <div className="min-h-screen bg-black flex items-center justify-center">
@@ -177,13 +182,13 @@ export default function AutomationsPage() {
                     </div>
                     <Button
                         onClick={() => setShowCreateModal(true)}
-                        disabled={instances.length >= 1}
+                        disabled={instances.length >= subLimit}
                         className={cn(
                             "rounded-2xl gap-2 font-bold shadow-lg transition-all",
-                            instances.length >= 1 ? "bg-zinc-800 text-zinc-500 cursor-not-allowed" : "bg-red-600 hover:bg-red-500 shadow-red-500/20"
+                            instances.length >= subLimit ? "bg-zinc-800 text-zinc-500 cursor-not-allowed" : "bg-red-600 hover:bg-red-500 shadow-red-500/20"
                         )}
                     >
-                        {instances.length >= 1 ? "Cluster Limit Reached" : <><Plus className="w-4 h-4" /> Provision n8n</>}
+                        {instances.length >= subLimit ? "Cluster Limit Reached" : <><Plus className="w-4 h-4" /> Provision n8n</>}
                     </Button>
                 </header>
 
