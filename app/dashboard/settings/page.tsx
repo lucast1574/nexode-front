@@ -66,6 +66,13 @@ export default function SettingsPage() {
                 const GQL_URL = process.env.NEXT_PUBLIC_API_URL || "https://backend.nexode.app/api-v1/graphql";
                 const query = `
                     query GetSettingsData {
+                        me {
+                           first_name
+                           last_name
+                           email
+                           avatar
+                           notifications_enabled
+                        }
                         mySubscriptions {
                             id
                             service
@@ -90,8 +97,23 @@ export default function SettingsPage() {
 
                 const result = await response.json();
                 if (result.data) {
-                    const allSubs = result.data.mySubscriptions || [];
-                    setSubscriptions(allSubs.filter((s: Subscription) => s && s.status === 'ACTIVE'));
+                    if (result.data.me) {
+                        const uFull = result.data.me;
+                        setUser(uFull);
+                        setFormData({
+                            first_name: uFull.first_name || "",
+                            last_name: uFull.last_name || "",
+                            email: uFull.email || "",
+                            notifications_enabled: uFull.notifications_enabled ?? true,
+                            avatar: uFull.avatar || "",
+                        });
+                        // Update local storage sync
+                        setAuthSession(undefined, undefined, uFull);
+                    }
+                    if (result.data.mySubscriptions) {
+                        const allSubs = result.data.mySubscriptions || [];
+                        setSubscriptions(allSubs.filter((s: Subscription) => s && s.status === 'ACTIVE'));
+                    }
                 }
 
                 setLoading(false);
