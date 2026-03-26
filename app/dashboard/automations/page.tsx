@@ -4,6 +4,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import { Workflow, Zap, Activity, Trash2, RefreshCw, ExternalLink, Search, Plus, Globe, Settings, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sidebar, Subscription } from "@/components/Sidebar";
+import { NotificationBell } from "@/components/NotificationBell";
 import { cn } from "@/lib/utils";
 import { getAccessToken } from "@/lib/auth-utils";
 import { useModal } from "@/components/ui/modal";
@@ -175,8 +176,9 @@ export default function AutomationsPage() {
             <main className="flex-1 flex flex-col overflow-hidden relative">
                 <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-red-600/5 blur-[120px] rounded-full pointer-events-none" />
 
-                <header className="h-20 border-b border-white/5 px-8 flex items-center justify-between bg-black/50 backdrop-blur-xl shrink-0 z-10">
-                    <div className="flex items-center gap-4">
+                <header className="h-28 border-b border-white/5 px-8 flex items-center justify-between bg-black/50 backdrop-blur-xl shrink-0 z-10">
+                    <div className="flex items-center gap-6">
+                        <NotificationBell />
                         <Workflow className="w-6 h-6 text-red-500" />
                         <h2 className="text-xl font-black tracking-tight">Automations (n8n)</h2>
                     </div>
@@ -239,11 +241,14 @@ export default function AutomationsPage() {
                             <div className="p-12 max-w-6xl mx-auto space-y-12 animate-in fade-in slide-in-from-bottom-6 duration-700">
                                 <div className="flex items-start justify-between">
                                     <div className="flex flex-col gap-6">
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-12 h-12 rounded-2xl bg-red-600/10 border border-red-500/20 flex items-center justify-center">
-                                                <Workflow className="w-6 h-6 text-red-500" />
+                                        <div className="flex items-center gap-6">
+                                            <NotificationBell />
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-12 h-12 rounded-2xl bg-red-600/10 border border-red-500/20 flex items-center justify-center">
+                                                    <Workflow className="w-6 h-6 text-red-500" />
+                                                </div>
+                                                <h1 className="text-4xl font-black uppercase tracking-tighter italic">{selectedInstance.name}</h1>
                                             </div>
-                                            <h1 className="text-4xl font-black uppercase tracking-tighter italic">{selectedInstance.name}</h1>
                                         </div>
                                         
                                         {/* Tabs */}

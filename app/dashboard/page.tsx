@@ -10,7 +10,6 @@ import {
     ExternalLink,
     ChevronRight,
     Search,
-    Bell,
     Zap,
     Workflow,
     Activity
@@ -18,6 +17,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Sidebar, Subscription } from "@/components/Sidebar";
+import { NotificationBell } from "@/components/NotificationBell";
 import { getAccessToken, setAuthSession } from "@/lib/auth-utils";
 
 export default function DashboardPage() {
@@ -198,10 +198,7 @@ export default function DashboardPage() {
                     </div>
 
                     <div className="flex items-center gap-6">
-                        <Button variant="ghost" size="icon" className="rounded-full relative w-12 h-12 hover:bg-white/5">
-                            <Bell className="w-6 h-6 text-zinc-400" />
-                            <span className="absolute top-3 right-3 w-2.5 h-2.5 bg-primary rounded-full border-2 border-black" />
-                        </Button>
+                        <NotificationBell />
                         <Button asChild className="rounded-2xl h-12 px-6 gap-2 font-bold shadow-lg shadow-primary/20 text-base">
                             <Link href="/checkout"><Plus className="w-5 h-5" /> New Service</Link>
                         </Button>

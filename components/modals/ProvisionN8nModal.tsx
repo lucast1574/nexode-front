@@ -20,6 +20,7 @@ export function ProvisionN8nModal({
     onSuccess, 
     subscriptions,
 }: ProvisionN8nModalProps) {
+    const [customDomain, setCustomDomain] = useState("");
     const [isDeploying, setIsDeploying] = useState(false);
     const { showAlert } = useModal();
 
@@ -41,6 +42,8 @@ export function ProvisionN8nModal({
             name: formData.get('name') as string,
             plan_slug: n8nSub.plan.slug,
             custom_domain: formData.get('custom_domain') as string || undefined,
+            username: formData.get('username') as string || undefined,
+            password: formData.get('password') as string || undefined,
             env_content: ""
         };
 
@@ -115,44 +118,70 @@ export function ProvisionN8nModal({
                     </button>
                 </div>
 
-                <form onSubmit={handleCreateInstance} className="space-y-8 relative z-10">
-                    <div className="space-y-3">
-                        <label className="text-[11px] font-black uppercase tracking-[0.3em] text-zinc-500 ml-1 block">Instance Identity</label>
+                <form onSubmit={handleCreateInstance} className="space-y-6 relative z-10">
+                    <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500 ml-1 block">Instance Identity</label>
                         <input 
                             name="name" 
                             required 
                             placeholder="e.g. Production Automations" 
-                            className="w-full bg-white/[0.02] border border-white/10 rounded-[22px] h-16 px-8 text-sm font-bold text-white focus:border-red-500/50 transition-all outline-none" 
+                            className="w-full bg-white/[0.02] border border-white/10 rounded-[22px] h-14 px-8 text-sm font-bold text-white focus:border-red-500/50 transition-all outline-none" 
                         />
                     </div>
 
-                    <div className="space-y-3">
-                        <label className="text-[11px] font-black uppercase tracking-[0.3em] text-zinc-500 ml-1 block">Custom Domain (Optional)</label>
+                    <div className="space-y-2">
+                        <label className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500 ml-1 block">Custom Domain (Optional)</label>
                         <div className="relative">
-                            <Globe className="absolute left-6 top-1/2 -translate-y-1/2 w-5 h-5 text-zinc-600" />
+                            <Globe className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
                             <input 
                                 name="custom_domain" 
+                                value={customDomain}
+                                onChange={(e) => setCustomDomain(e.target.value)}
                                 placeholder="n8n.your-domain.com" 
-                                className="w-full bg-white/[0.02] border border-white/10 rounded-[22px] h-16 pl-14 pr-8 text-sm font-bold text-white focus:border-red-500/50 transition-all outline-none" 
+                                className="w-full bg-white/[0.02] border border-white/10 rounded-[22px] h-14 pl-14 pr-8 text-sm font-bold text-white focus:border-red-500/50 transition-all outline-none" 
                             />
                         </div>
                     </div>
 
-                    <div className="bg-red-500/5 border border-red-500/10 rounded-3xl p-6 space-y-4">
-                        <h4 className="text-xs font-black uppercase tracking-widest text-red-400">Environment Specs</h4>
-                        <div className="grid grid-cols-2 gap-4">
+                    {customDomain.length > 0 && (
+                        <div className="grid grid-cols-2 gap-4 animate-in slide-in-from-top-4 duration-500">
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500 ml-1 block">Gateway User</label>
+                                <input 
+                                    name="username" 
+                                    required 
+                                    placeholder="admin" 
+                                    className="w-full bg-white/[0.02] border border-white/10 rounded-[22px] h-14 px-6 text-sm font-bold text-white focus:border-red-500/50 transition-all outline-none" 
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500 ml-1 block">Gateway Password</label>
+                                <input 
+                                    name="password" 
+                                    type="password"
+                                    required 
+                                    placeholder="••••••••" 
+                                    className="w-full bg-white/[0.02] border border-white/10 rounded-[22px] h-14 px-6 text-sm font-bold text-white focus:border-red-500/50 transition-all outline-none" 
+                                />
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="bg-red-500/5 border border-red-500/10 rounded-[32px] p-6 space-y-3">
+                        <h4 className="text-[10px] font-black uppercase tracking-widest text-red-400">Environment Specs</h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                             <div className="flex items-center gap-3">
                                 <Check className="w-4 h-4 text-emerald-500" />
-                                <span className="text-xs text-zinc-400">High-Availability</span>
+                                <span className="text-[11px] text-zinc-400 font-medium">Isolated Execution</span>
                             </div>
                             <div className="flex items-center gap-3">
                                 <Check className="w-4 h-4 text-emerald-500" />
-                                <span className="text-xs text-zinc-400">SSD Persistence</span>
+                                <span className="text-[11px] text-zinc-400 font-medium">SSD Persistence</span>
                             </div>
                         </div>
                     </div>
 
-                    <div className="pt-4">
+                    <div className="pt-2">
                         <Button 
                             type="submit" 
                             disabled={isDeploying}

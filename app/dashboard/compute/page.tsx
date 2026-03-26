@@ -27,6 +27,7 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { Sidebar, Subscription } from "@/components/Sidebar";
+import { NotificationBell } from "@/components/NotificationBell";
 import { cn } from "@/lib/utils";
 import { getAccessToken } from "@/lib/auth-utils";
 import { useModal } from "@/components/ui/modal";
@@ -429,10 +430,13 @@ function ComputePageContent() {
             <main className="flex-1 flex flex-col overflow-hidden relative">
                 <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-blue-600/10 blur-[120px] rounded-full pointer-events-none" />
 
-                <header className="h-20 border-b border-white/5 px-8 flex items-center justify-between bg-black/50 backdrop-blur-xl shrink-0 z-10">
-                    <div className="flex items-center gap-4">
-                        <Cpu className="w-6 h-6 text-blue-500" />
-                        <h2 className="text-xl font-black tracking-tight">Cloud Compute</h2>
+                <header className="h-28 border-b border-white/5 px-8 flex items-center justify-between bg-black/50 backdrop-blur-xl shrink-0 z-10">
+                    <div className="flex items-center gap-6">
+                        <NotificationBell />
+                        <div className="flex items-center gap-4">
+                            <Cpu className="w-6 h-6 text-blue-500" />
+                            <h2 className="text-xl font-black tracking-tight">Cloud Compute</h2>
+                        </div>
                     </div>
                     <Button
                         onClick={() => setShowCreateModal(true)}

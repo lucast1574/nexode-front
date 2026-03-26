@@ -18,6 +18,8 @@ import { Input } from "@/components/ui/input";
 import { getAccessToken, getAuthUser, setAuthSession } from "@/lib/auth-utils";
 import { User as UserType } from "@/lib/types";
 import { Sidebar, Subscription } from "@/components/Sidebar";
+import { NotificationBell } from "@/components/NotificationBell";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 
 export default function SettingsPage() {
@@ -29,6 +31,7 @@ export default function SettingsPage() {
         first_name: "",
         last_name: "",
         email: "",
+        notifications_enabled: true,
     });
 
     const router = useRouter();
@@ -49,6 +52,7 @@ export default function SettingsPage() {
                     first_name: u.first_name || "",
                     last_name: u.last_name || "",
                     email: u.email || "",
+                    notifications_enabled: u.notifications_enabled ?? true,
                 });
 
                 // Fetch Subscriptions for Sidebar
@@ -93,24 +97,66 @@ export default function SettingsPage() {
         fetchData();
     }, [router]);
 
-    const handleSave = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const handleSave = async (e?: React.FormEvent, overrideData?: Partial<typeof formData>) => {
+        if (e) e.preventDefault();
         setIsSaving(true);
 
-        // Mocking API call for now (matches profile page behavior)
-        setTimeout(() => {
-            if (user) {
-                const updatedUser: UserType = {
-                    ...user,
-                    first_name: formData.first_name,
-                    last_name: formData.last_name,
-                };
-                setAuthSession(undefined, undefined, updatedUser); // Using current tokens
-                setUser(updatedUser);
-                toast.success("Settings updated successfully!");
+        const token = getAccessToken();
+        if (!token) return;
+
+        try {
+            const GQL_URL = process.env.NEXT_PUBLIC_API_URL || "https://backend.nexode.app/api-v1/graphql";
+            const currentData = overrideData || formData;
+            
+            const query = `
+                mutation UpdateMe($input: UpdateUserInput!) {
+                    updateMe(input: $input) {
+                        id
+                        first_name
+                        last_name
+                        email
+                        notifications_enabled
+                    }
+                }
+            `;
+
+            const response = await fetch(GQL_URL, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify({
+                    query,
+                    variables: {
+                        input: {
+                            first_name: currentData.first_name,
+                            last_name: currentData.last_name,
+                            notifications_enabled: currentData.notifications_enabled,
+                        }
+                    }
+                }),
+            });
+
+            const result = await response.json();
+            if (result.data?.updateMe) {
+                const updated = result.data.updateMe;
+                setAuthSession(undefined, undefined, updated);
+                setUser(updated);
+                setFormData({
+                    ...formData,
+                    ...updated
+                });
+                toast.success("Settings synchronized successfully");
+            } else {
+                toast.error("Failed to update settings");
             }
+        } catch (error) {
+            console.error("Save error:", error);
+            toast.error("Internal Server Error: Could not reach endpoint");
+        } finally {
             setIsSaving(false);
-        }, 800);
+        }
     };
 
     if (loading) {
@@ -131,16 +177,17 @@ export default function SettingsPage() {
 
             {/* Main Content */}
             <main className="flex-1 flex flex-col overflow-y-auto">
-                <header className="h-20 border-b border-white/5 px-8 flex items-center justify-between bg-black/50 backdrop-blur-xl">
+                <header className="h-28 border-b border-white/5 px-8 flex items-center justify-between bg-black/50 backdrop-blur-xl shrink-0">
                     <h2 className="text-xl font-black tracking-tight uppercase">System Settings</h2>
-                    <div className="flex items-center gap-4">
-                        <Button asChild className="rounded-2xl gap-2 font-bold shadow-lg shadow-primary/20">
-                            <Link href="/checkout"><Plus className="w-4 h-4" /> New Service</Link>
+                    <div className="flex items-center gap-6">
+                        <NotificationBell />
+                        <Button asChild className="rounded-2xl h-12 px-6 gap-2 font-bold shadow-lg shadow-primary/20">
+                            <Link href="/checkout"><Plus className="w-5 h-5" /> New Service</Link>
                         </Button>
                     </div>
                 </header>
 
-                <div className="p-8 max-w-4xl mx-auto w-full">
+                <div className="p-8 pt-24 max-w-4xl mx-auto w-full">
                     <div className="mb-10">
                         <h1 className="text-3xl font-black tracking-tight mb-2">Configuration</h1>
                         <p className="text-zinc-500">Manage your system preferences and account data.</p>
@@ -202,12 +249,19 @@ export default function SettingsPage() {
 
                         {/* Preferences */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="bg-white/[0.02] border border-white/5 rounded-[40px] p-8 hover:bg-white/[0.04] transition-all group cursor-pointer">
+                            <div className="bg-white/[0.02] border border-white/5 rounded-[40px] p-8 hover:bg-white/[0.04] transition-all group">
                                 <div className="flex items-center justify-between mb-6">
                                     <div className="p-3 rounded-2xl bg-blue-500/10 text-blue-400 group-hover:scale-110 transition-transform">
                                         <Bell className="w-5 h-5" />
                                     </div>
-                                    <div className="px-2 py-1 rounded-full bg-emerald-500/10 text-emerald-500 text-[10px] font-black uppercase tracking-widest border border-emerald-500/20">Active</div>
+                                    <Switch 
+                                        checked={formData.notifications_enabled}
+                                        onCheckedChange={(checked) => {
+                                            const newData = { ...formData, notifications_enabled: checked };
+                                            setFormData(newData);
+                                            handleSave(undefined, newData);
+                                        }}
+                                    />
                                 </div>
                                 <h4 className="font-bold text-lg mb-1">Notification Protocol</h4>
                                 <p className="text-xs text-zinc-500 leading-relaxed">Configure how the system alerts you regarding instance health and billing events.</p>
