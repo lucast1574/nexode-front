@@ -47,7 +47,7 @@ export function ProvisionN8nModal({
         setIsDeploying(true);
         try {
             const token = getAccessToken();
-            const GQL_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api-v1/graphql";
+            const GQL_URL = process.env.NEXT_PUBLIC_API_URL || "https://backend.nexode.app/api-v1/graphql";
 
             const mutation = `
                 mutation CreateN8n($input: CreateN8nInput!) {

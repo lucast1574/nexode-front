@@ -34,7 +34,7 @@ export default function AutomationsPage() {
     const fetchInstances = useCallback(async () => {
         try {
             const token = getAccessToken();
-            const GQL_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api-v1/graphql";
+            const GQL_URL = process.env.NEXT_PUBLIC_API_URL || "https://backend.nexode.app/api-v1/graphql";
 
             if (!token) return;
 
@@ -71,7 +71,10 @@ export default function AutomationsPage() {
             const result = await res.json();
             if (result.data) {
                 setUser(result.data.me);
-                setSubscriptions(result.data.mySubscriptions || []);
+                // Filter for ACTIVE subscriptions just as in Dashboard
+                const allSubs = result.data.mySubscriptions || [];
+                const activeSubs = allSubs.filter((s: Subscription) => s && s.status === 'ACTIVE');
+                setSubscriptions(activeSubs);
                 const insts = result.data.n8nInstances || [];
                 setInstances(insts);
 
@@ -111,7 +114,7 @@ export default function AutomationsPage() {
     const handleRestart = async (id: string) => {
         try {
             const token = getAccessToken();
-            const GQL_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api-v1/graphql";
+            const GQL_URL = process.env.NEXT_PUBLIC_API_URL || "https://backend.nexode.app/api-v1/graphql";
             const mutation = `mutation Restart($id: ID!) { restartN8n(id: $id) { _id status } }`;
             await fetch(GQL_URL, {
                 method: "POST",
@@ -130,7 +133,7 @@ export default function AutomationsPage() {
             onConfirm: async () => {
                 try {
                     const token = getAccessToken();
-                    const GQL_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api-v1/graphql";
+                    const GQL_URL = process.env.NEXT_PUBLIC_API_URL || "https://backend.nexode.app/api-v1/graphql";
                     const mutation = `mutation Delete($id: ID!) { deleteN8n(id: $id) }`;
                     const res = await fetch(GQL_URL, {
                         method: "POST",

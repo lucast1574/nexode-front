@@ -71,7 +71,7 @@ const SERVICES: Service[] = [
         description: "Provision MySQL and PostgreSQL databases with zero setup — no manual setup, ready to query.",
         icon: Database,
         color: "bg-purple-500",
-        highlights: ["7 day free trial", "14 days of metrics", "Expandable storage options", "Connect via private or public network"],
+        highlights: ["14 days of metrics", "Expandable storage options", "Connect via private or public network"],
         tiers: [
             {
                 name: "Tier 1",
