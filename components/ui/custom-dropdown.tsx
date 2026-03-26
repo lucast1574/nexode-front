@@ -21,10 +21,20 @@ export function CustomDropdown({ name, options, defaultValue, onChange, searchab
     const [prevOptions, setPrevOptions] = useState(options);
     const [prevDefaultValue, setPrevDefaultValue] = useState(defaultValue);
 
-    if (options !== prevOptions || defaultValue !== prevDefaultValue) {
-        setPrevOptions(options);
+    if (defaultValue !== prevDefaultValue) {
         setPrevDefaultValue(defaultValue);
         setSelected(options.find(o => o.value === defaultValue) || options[0]);
+    }
+
+    if (options !== prevOptions) {
+        setPrevOptions(options);
+        const stillExists = options.find(o => o.value === selected.value);
+        if (!stillExists) {
+            setSelected(options.find(o => o.value === defaultValue) || options[0]);
+        } else {
+            // Update reference but keep the same selected value
+            setSelected(stillExists);
+        }
     }
 
     const filteredOptions = searchable 
