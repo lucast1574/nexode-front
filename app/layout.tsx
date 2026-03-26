@@ -51,6 +51,12 @@ export default function RootLayout({
                       background: '#09090b', // Zinc 950
                       border: '1px solid rgba(255, 255, 255, 0.1)',
                       color: '#fff',
+                    },
+                    actionButtonStyle: {
+                      background: '#3b82f6', // Nexode Primary Blue
+                      color: '#fff',
+                      fontWeight: 'bold',
+                      borderRadius: '12px',
                     }
                   }}
                 />

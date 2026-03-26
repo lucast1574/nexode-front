@@ -20,7 +20,6 @@ import { Input } from "@/components/ui/input";
 import { getAccessToken, getAuthUser, setAuthSession } from "@/lib/auth-utils";
 import { User as UserType } from "@/lib/types";
 import { Sidebar, Subscription } from "@/components/Sidebar";
-import { NotificationBell } from "@/components/NotificationBell";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -247,7 +246,6 @@ export default function SettingsPage() {
                 <header className="h-28 border-b border-white/5 px-8 flex items-center justify-between bg-black/50 backdrop-blur-xl shrink-0">
                     <h2 className="text-xl font-black tracking-tight uppercase">System Settings</h2>
                     <div className="flex items-center gap-6">
-                        <NotificationBell />
                         <Button asChild className="rounded-2xl h-12 px-6 gap-2 font-bold shadow-lg shadow-primary/20">
                             <Link href="/checkout"><Plus className="w-5 h-5" /> New Service</Link>
                         </Button>
