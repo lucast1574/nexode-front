@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
     CreditCard,
@@ -11,7 +12,8 @@ import {
     Bell,
     Save,
     ChevronRight,
-    Globe
+    Globe,
+    Camera
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,10 +23,12 @@ import { Sidebar, Subscription } from "@/components/Sidebar";
 import { NotificationBell } from "@/components/NotificationBell";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 export default function SettingsPage() {
     const [loading, setLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
+    const [isTogglingNotifications, setIsTogglingNotifications] = useState(false);
     const [user, setUser] = useState<UserType | null>(null);
     const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
     const [formData, setFormData] = useState({
@@ -32,7 +36,9 @@ export default function SettingsPage() {
         last_name: "",
         email: "",
         notifications_enabled: true,
+        avatar: "",
     });
+    const fileInputRef = React.useRef<HTMLInputElement>(null);
 
     const router = useRouter();
 
@@ -53,6 +59,7 @@ export default function SettingsPage() {
                     last_name: u.last_name || "",
                     email: u.email || "",
                     notifications_enabled: u.notifications_enabled ?? true,
+                    avatar: u.avatar || "",
                 });
 
                 // Fetch Subscriptions for Sidebar
@@ -98,15 +105,19 @@ export default function SettingsPage() {
     }, [router]);
 
     const handleSave = async (e?: React.FormEvent, overrideData?: Partial<typeof formData>) => {
-        if (e) e.preventDefault();
-        setIsSaving(true);
+        if (e) {
+            e.preventDefault();
+            setIsSaving(true);
+        } else {
+            setIsTogglingNotifications(true);
+        }
 
         const token = getAccessToken();
         if (!token) return;
 
         try {
             const GQL_URL = process.env.NEXT_PUBLIC_API_URL || "https://backend.nexode.app/api-v1/graphql";
-            const currentData = overrideData || formData;
+            const currentData = { ...formData, ...overrideData };
             
             const query = `
                 mutation UpdateMe($input: UpdateUserInput!) {
@@ -116,6 +127,7 @@ export default function SettingsPage() {
                         last_name
                         email
                         notifications_enabled
+                        avatar
                     }
                 }
             `;
@@ -133,6 +145,7 @@ export default function SettingsPage() {
                             first_name: currentData.first_name,
                             last_name: currentData.last_name,
                             notifications_enabled: currentData.notifications_enabled,
+                            avatar: currentData.avatar
                         }
                     }
                 }),
@@ -143,20 +156,52 @@ export default function SettingsPage() {
                 const updated = result.data.updateMe;
                 setAuthSession(undefined, undefined, updated);
                 setUser(updated);
-                setFormData({
-                    ...formData,
-                    ...updated
+                setFormData(prev => ({ ...prev, ...updated }));
+                toast.success("Identity synchronized", {
+                    description: "User preferences updated on Nexode Core",
+                    style: { background: 'rgba(16, 185, 129, 0.1)', borderColor: 'rgba(16, 185, 129, 0.2)', color: '#10b981' }
                 });
-                toast.success("Settings synchronized successfully");
             } else {
-                toast.error("Failed to update settings");
+                const errMsg = result.errors?.[0]?.message || "Identity update rejected by gateway";
+                toast.error("Protocol Error", {
+                    description: errMsg
+                });
             }
         } catch (error) {
             console.error("Save error:", error);
-            toast.error("Internal Server Error: Could not reach endpoint");
+            const message = error instanceof Error ? error.message : "Could not reach Nexode API";
+            toast.error("Internal Server Error", {
+                description: message
+            });
         } finally {
             setIsSaving(false);
+            setIsTogglingNotifications(false);
         }
+    };
+
+    const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        // Ensure it is an image
+        if (!file.type.startsWith('image/')) {
+            toast.error("Invalid File", { description: "You must provide an image file" });
+            return;
+        }
+
+        // Limit size (approx 2MB for base64 storage)
+        if (file.size > 2 * 1024 * 1024) {
+            toast.error("File oversized", { description: "Maximum avatar size is 2MB" });
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            const base64 = reader.result as string;
+            setFormData(prev => ({ ...prev, avatar: base64 }));
+            handleSave(undefined, { avatar: base64 });
+        };
+        reader.readAsDataURL(file);
     };
 
     if (loading) {
@@ -196,11 +241,46 @@ export default function SettingsPage() {
                     <div className="space-y-8">
                         {/* Profile Section */}
                         <div className="bg-white/[0.02] border border-white/5 rounded-[40px] p-8">
-                            <div className="flex items-center gap-3 mb-8">
-                                <div className="p-3 rounded-2xl bg-primary/10 text-primary">
-                                    <User className="w-5 h-5" />
+                            <div className="flex flex-col md:flex-row items-center gap-8 mb-10">
+                                <div 
+                                    className="relative w-28 h-28 group cursor-pointer"
+                                    onClick={() => fileInputRef.current?.click()}
+                                >
+                                    <div className={cn(
+                                        "w-full h-full rounded-[32px] overflow-hidden border-2 border-white/5 transition-all duration-500 group-hover:border-primary/50 relative",
+                                        !formData.avatar && "bg-primary/10 flex items-center justify-center text-primary"
+                                    )}>
+                                        {formData.avatar ? (
+                                            <Image 
+                                                src={formData.avatar} 
+                                                alt="Avatar" 
+                                                fill 
+                                                className="object-cover transition-transform duration-700 group-hover:scale-110" 
+                                            />
+                                        ) : (
+                                            <User className="w-10 h-10" />
+                                        )}
+                                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[2px]">
+                                            <Camera className="w-8 h-8 text-white" />
+                                        </div>
+                                    </div>
+                                    <input 
+                                        type="file" 
+                                        ref={fileInputRef} 
+                                        className="hidden" 
+                                        accept="image/*" 
+                                        onChange={handleAvatarUpload} 
+                                    />
+                                    {isTogglingNotifications && (
+                                        <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-[#020202] rounded-full border border-white/10 flex items-center justify-center">
+                                            <div className="w-3 h-3 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
+                                        </div>
+                                    )}
                                 </div>
-                                <h3 className="text-xl font-black">Identity & Profile</h3>
+                                <div className="text-center md:text-left">
+                                    <h3 className="text-xl font-black uppercase tracking-tight mb-1">Identity & Profile</h3>
+                                    <p className="text-xs text-zinc-500 font-medium">Coordinate your digital credentials and profile metadata.</p>
+                                </div>
                             </div>
 
                             <form onSubmit={handleSave} className="space-y-6">
@@ -249,13 +329,24 @@ export default function SettingsPage() {
 
                         {/* Preferences */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="bg-white/[0.02] border border-white/5 rounded-[40px] p-8 hover:bg-white/[0.04] transition-all group">
+                            <div className={cn(
+                                "bg-[#080808]/40 backdrop-blur-3xl border border-white/10 rounded-[40px] p-8 transition-all duration-700 group",
+                                formData.notifications_enabled && "border-emerald-500/20 bg-emerald-500/[0.02] shadow-[0_0_50px_-12px_rgba(16,185,129,0.1)]"
+                            )}>
                                 <div className="flex items-center justify-between mb-6">
-                                    <div className="p-3 rounded-2xl bg-blue-500/10 text-blue-400 group-hover:scale-110 transition-transform">
+                                    <div className={cn(
+                                        "p-3 rounded-2xl transition-all duration-700 group-hover:scale-110",
+                                        formData.notifications_enabled ? "bg-emerald-500/10 text-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.2)]" : "bg-white/5 text-zinc-400"
+                                    )}>
                                         <Bell className="w-5 h-5" />
                                     </div>
                                     <Switch 
                                         checked={formData.notifications_enabled}
+                                        disabled={isTogglingNotifications}
+                                        className={cn(
+                                            formData.notifications_enabled ? "bg-emerald-500 hover:bg-emerald-400" : "bg-white/10",
+                                            isTogglingNotifications && "opacity-50 cursor-not-allowed"
+                                        )}
                                         onCheckedChange={(checked) => {
                                             const newData = { ...formData, notifications_enabled: checked };
                                             setFormData(newData);
@@ -263,8 +354,8 @@ export default function SettingsPage() {
                                         }}
                                     />
                                 </div>
-                                <h4 className="font-bold text-lg mb-1">Notification Protocol</h4>
-                                <p className="text-xs text-zinc-500 leading-relaxed">Configure how the system alerts you regarding instance health and billing events.</p>
+                                <h4 className={cn("font-bold text-lg mb-1 transition-colors", formData.notifications_enabled ? "text-emerald-400" : "text-white")}>Notification Protocol</h4>
+                                <p className="text-xs text-zinc-500 leading-relaxed font-medium">Configure how the system alerts you regarding instance health, autonomous scaling events, and billing protocol.</p>
                             </div>
 
                             <div className="bg-white/[0.02] border border-white/5 rounded-[40px] p-8 hover:bg-white/[0.04] transition-all group cursor-pointer">
