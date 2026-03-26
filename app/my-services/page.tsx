@@ -144,8 +144,18 @@ export default function MyServicesPage() {
                                         >
                                             <Activity className="w-5 h-5" />
                                         </Button>
-                                        <Button variant="outline" className="flex-1 rounded-xl bg-white/5 border-white/10 hover:bg-white/10 gap-2 h-11">
-                                            Console <ExternalLink className="w-4 h-4" />
+                                        <Button 
+                                            asChild
+                                            variant="outline" 
+                                            className="flex-1 rounded-xl bg-white/5 border-white/10 hover:bg-white/10 gap-2 h-11"
+                                        >
+                                            <Link href={
+                                                sub.service === "database" ? "/dashboard/databases" :
+                                                sub.service === "n8n" ? "/dashboard/automations" :
+                                                "/dashboard/compute"
+                                            }>
+                                                Console <ExternalLink className="w-4 h-4" />
+                                            </Link>
                                         </Button>
                                         <Button variant="ghost" className="w-11 h-11 p-0 rounded-xl bg-white/5 hover:bg-white/10">
                                             <Settings className="w-5 h-5 text-zinc-400" />
