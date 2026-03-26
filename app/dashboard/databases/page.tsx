@@ -394,7 +394,7 @@ export default function DatabasesPage() {
                 <header className="h-28 border-b border-white/5 px-8 flex items-center justify-between bg-black/50 backdrop-blur-xl shrink-0">
                     <div className="flex items-center gap-6">
                         <div className="flex items-center gap-4">
-                            <Database className="w-6 h-6 text-emerald-500" />
+                            <Database className="w-6 h-6 text-purple-500" />
                             <h2 className="text-xl font-black tracking-tight">Cloud Databases</h2>
                         </div>
                     </div>
@@ -403,8 +403,10 @@ export default function DatabasesPage() {
                             onClick={() => setShowCreateModal(true)}
                             disabled={databases.length >= 1}
                             className={cn(
-                                "rounded-2xl gap-2 font-bold shadow-lg shadow-primary/20 transition-all",
-                                databases.length >= 1 ? "bg-zinc-800 text-zinc-500 border-white/5 cursor-not-allowed shadow-none" : ""
+                                "rounded-full h-12 px-6 gap-2 font-bold shadow-lg transition-all",
+                                databases.length >= 1 
+                                    ? "bg-zinc-800 text-zinc-500 border-white/5 cursor-not-allowed shadow-none" 
+                                    : "bg-purple-600 hover:bg-purple-500 shadow-purple-500/20 text-white"
                             )}
                         >
                             {databases.length >= 1 ? (
