@@ -31,6 +31,15 @@ export default function AutomationsPage() {
     const [showCreateModal, setShowCreateModal] = useState(false);
     
     const { showConfirm } = useModal();
+    
+    const getN8nUrl = (domain: string) => {
+        if (!domain) return '';
+        if (typeof window === 'undefined') return `https://${domain}`;
+        const isLocal = window.location.hostname.includes('localhost');
+        const protocol = isLocal ? 'http' : 'https';
+        const port = isLocal ? (window.location.port || '4000') : '';
+        return `${protocol}://${domain}${port ? `:${port}` : ''}`;
+    };
 
     const fetchInstances = useCallback(async () => {
         try {
@@ -273,7 +282,7 @@ export default function AutomationsPage() {
                                     </div>
                                     <div className="flex gap-4">
                                         <Button 
-                                            onClick={() => window.open(`https://${selectedInstance.generated_domain}`, '_blank')}
+                                            onClick={() => window.open(getN8nUrl(selectedInstance.generated_domain || ''), '_blank')}
                                             variant="outline"
                                             className="rounded-2xl h-14 px-8 border-white/10 bg-white/5 hover:bg-white/10 font-black uppercase tracking-widest text-[11px] text-zinc-500 gap-3"
                                         >
@@ -317,10 +326,10 @@ export default function AutomationsPage() {
                                                     </div>
                                                     <div>
                                                         <div className="text-[10px] font-black uppercase tracking-widest text-zinc-600 mb-1">Production URL</div>
-                                                        <code className="text-lg font-black text-white italic">https://{selectedInstance.generated_domain}</code>
+                                                        <code className="text-lg font-black text-white italic">{getN8nUrl(selectedInstance.generated_domain || '')}</code>
                                                     </div>
                                                 </div>
-                                                <Button variant="ghost" onClick={() => navigator.clipboard.writeText(`https://${selectedInstance.generated_domain}`)} className="rounded-2xl text-zinc-600 hover:text-white hover:bg-white/5 h-14 px-8 font-black uppercase tracking-widest text-xs">
+                                                <Button variant="ghost" onClick={() => navigator.clipboard.writeText(getN8nUrl(selectedInstance.generated_domain || ''))} className="rounded-2xl text-zinc-600 hover:text-white hover:bg-white/5 h-14 px-8 font-black uppercase tracking-widest text-xs">
                                                     Copy Endpoint
                                                 </Button>
                                             </div>
@@ -374,7 +383,7 @@ export default function AutomationsPage() {
                                 ) : (
                                     <div className="w-full h-[800px] bg-black rounded-[48px] border border-white/10 overflow-hidden relative group">
                                          <iframe 
-                                            src={`https://${selectedInstance.generated_domain}`}
+                                            src={getN8nUrl(selectedInstance.generated_domain || '')}
                                             className="w-full h-full border-none"
                                             title="n8n Designer"
                                         />
