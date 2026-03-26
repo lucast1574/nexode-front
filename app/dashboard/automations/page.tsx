@@ -22,6 +22,7 @@ interface N8nInstance {
 }
 
 export default function AutomationsPage() {
+    const [activeTab, setActiveTab] = useState<'designer' | 'overview'>('overview');
     const [loading, setLoading] = useState(true);
     const [instances, setInstances] = useState<N8nInstance[]>([]);
     const [user, setUser] = useState<{ first_name: string, email: string, avatar?: string } | null>(null);
@@ -232,28 +233,44 @@ export default function AutomationsPage() {
                         {selectedInstance ? (
                             <div className="p-12 max-w-6xl mx-auto space-y-12 animate-in fade-in slide-in-from-bottom-6 duration-700">
                                 <div className="flex items-start justify-between">
-                                    <div className="space-y-4">
+                                    <div className="flex flex-col gap-6">
                                         <div className="flex items-center gap-4">
                                             <div className="w-12 h-12 rounded-2xl bg-red-600/10 border border-red-500/20 flex items-center justify-center">
                                                 <Workflow className="w-6 h-6 text-red-500" />
                                             </div>
                                             <h1 className="text-4xl font-black uppercase tracking-tighter italic">{selectedInstance.name}</h1>
                                         </div>
-                                        <div className="flex items-center gap-6 px-4 py-2 bg-white/5 rounded-2xl border border-white/10 w-fit">
-                                            <div className="flex items-center gap-2 text-emerald-400 font-bold text-[10px] uppercase tracking-widest">
-                                                <Activity className="w-3 h-3" /> API Ready
-                                            </div>
-                                            <div className="flex items-center gap-2 text-zinc-500 font-bold text-[10px] uppercase tracking-widest border-l border-white/10 pl-6">
-                                                <Globe className="w-3 h-3" /> NVMe Optimized
-                                            </div>
+                                        
+                                        {/* Tabs */}
+                                        <div className="flex gap-8 border-b border-white/5">
+                                            {[
+                                                { id: 'overview', label: 'Cloud Overview', icon: Activity },
+                                                { id: 'designer', label: 'Workflow Designer', icon: Zap },
+                                            ].map((tab) => (
+                                                <button
+                                                    key={tab.id}
+                                                    onClick={() => setActiveTab(tab.id as 'overview' | 'designer')}
+                                                    className={cn(
+                                                        "flex items-center gap-3 pb-6 text-[11px] font-black uppercase tracking-[0.2em] transition-all relative",
+                                                        activeTab === tab.id ? "text-red-500" : "text-zinc-600 hover:text-zinc-400"
+                                                    )}
+                                                >
+                                                    <tab.icon className="w-4 h-4" />
+                                                    {tab.label}
+                                                    {activeTab === tab.id && (
+                                                        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-red-600 shadow-[0_0_12px_rgba(239,68,68,0.5)]" />
+                                                    )}
+                                                </button>
+                                            ))}
                                         </div>
                                     </div>
                                     <div className="flex gap-4">
                                         <Button 
                                             onClick={() => window.open(`https://${selectedInstance.generated_domain}`, '_blank')}
-                                            className="rounded-2xl h-14 px-8 bg-red-600 hover:bg-red-500 font-black uppercase tracking-widest text-[11px] shadow-xl shadow-red-500/20 gap-3"
+                                            variant="outline"
+                                            className="rounded-2xl h-14 px-8 border-white/10 bg-white/5 hover:bg-white/10 font-black uppercase tracking-widest text-[11px] text-zinc-500 gap-3"
                                         >
-                                            <ExternalLink className="w-4 h-4" /> Open Designer
+                                            <ExternalLink className="w-4 h-4" /> Popup
                                         </Button>
                                         <Button variant="outline" onClick={() => handleRestart(selectedInstance._id)} className="rounded-2xl h-14 w-14 p-0 border-white/10 bg-white/5 hover:bg-white/10">
                                             <RefreshCw className="w-5 h-5 text-zinc-500" />
@@ -264,77 +281,98 @@ export default function AutomationsPage() {
                                     </div>
                                 </div>
 
-                                {/* Endpoint Card */}
-                                <div className="bg-white/[0.02] border border-white/5 rounded-[48px] p-10 space-y-8 relative overflow-hidden">
-                                    <div className="absolute top-0 right-0 p-10">
-                                         <Shield className="w-12 h-12 text-white/5 rotate-12" />
-                                    </div>
-                                    
-                                    <div>
-                                        <h3 className="text-xs font-black uppercase tracking-[0.3em] text-zinc-500 mb-2">Internal Webhook Endpoint</h3>
-                                        <p className="text-sm font-bold text-zinc-300">Natively proxied through Nexode Cloud Armor.</p>
-                                    </div>
-
-                                    <div className="p-8 rounded-[32px] bg-black border border-white/5 flex items-center justify-between group">
-                                        <div className="flex items-center gap-6">
-                                            <div className="w-14 h-14 rounded-2xl bg-red-600/5 border border-red-500/10 flex items-center justify-center group-hover:bg-red-600/10 transition-colors">
-                                                <Zap className="w-7 h-7 text-red-500" />
+                                {activeTab === 'overview' ? (
+                                    <>
+                                        <div className="flex items-center gap-6 px-4 py-2 bg-white/5 rounded-2xl border border-white/10 w-fit">
+                                            <div className="flex items-center gap-2 text-emerald-400 font-bold text-[10px] uppercase tracking-widest">
+                                                <Activity className="w-3 h-3" /> API Ready
                                             </div>
+                                            <div className="flex items-center gap-2 text-zinc-500 font-bold text-[10px] uppercase tracking-widest border-l border-white/10 pl-6">
+                                                <Globe className="w-3 h-3" /> NVMe Optimized
+                                            </div>
+                                        </div>
+
+                                        {/* Endpoint Card */}
+                                        <div className="bg-white/[0.02] border border-white/5 rounded-[48px] p-10 space-y-8 relative overflow-hidden">
+                                            <div className="absolute top-0 right-0 p-10">
+                                                <Shield className="w-12 h-12 text-white/5 rotate-12" />
+                                            </div>
+                                            
                                             <div>
-                                                <div className="text-[10px] font-black uppercase tracking-widest text-zinc-600 mb-1">Production URL</div>
-                                                <code className="text-lg font-black text-white italic">https://{selectedInstance.generated_domain}</code>
+                                                <h3 className="text-xs font-black uppercase tracking-[0.3em] text-zinc-500 mb-2">Internal Webhook Endpoint</h3>
+                                                <p className="text-sm font-bold text-zinc-300">Natively proxied through Nexode Cloud Armor.</p>
                                             </div>
-                                        </div>
-                                        <Button variant="ghost" onClick={() => navigator.clipboard.writeText(`https://${selectedInstance.generated_domain}`)} className="rounded-2xl text-zinc-600 hover:text-white hover:bg-white/5 h-14 px-8 font-black uppercase tracking-widest text-xs">
-                                            Copy Endpoint
-                                        </Button>
-                                    </div>
-                                </div>
 
-                                {/* Lifecycle / Events */}
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                    <div className="bg-white/[0.02] border border-white/5 rounded-[40px] p-10">
-                                        <div className="flex items-center gap-3 mb-8">
-                                            <Settings className="w-5 h-5 text-zinc-500" />
-                                            <h3 className="text-xs font-black uppercase tracking-[0.3em] text-zinc-500">Service Events</h3>
-                                        </div>
-                                        <div className="space-y-6">
-                                            {selectedInstance.events?.slice(-4).reverse().map((e, idx) => (
-                                                <div key={idx} className="flex gap-6 pb-6 border-b border-white/5 last:border-0 last:pb-0">
-                                                    <div className={cn(
-                                                        "w-1.5 h-1.5 rounded-full mt-1.5",
-                                                        e.type === 'error' ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]' : 'bg-red-400'
-                                                    )} />
-                                                    <div className="flex-1 min-w-0">
-                                                        <div className="text-[11px] font-black uppercase tracking-tighter text-zinc-300 break-words mb-1">{e.message}</div>
-                                                        <div className="text-[9px] font-bold text-zinc-600 uppercase italic">
-                                                            {new Date(e.timestamp).toLocaleString()}
-                                                        </div>
+                                            <div className="p-8 rounded-[32px] bg-black border border-white/5 flex items-center justify-between group">
+                                                <div className="flex items-center gap-6">
+                                                    <div className="w-14 h-14 rounded-2xl bg-red-600/5 border border-red-500/10 flex items-center justify-center group-hover:bg-red-600/10 transition-colors">
+                                                        <Zap className="w-7 h-7 text-red-500" />
+                                                    </div>
+                                                    <div>
+                                                        <div className="text-[10px] font-black uppercase tracking-widest text-zinc-600 mb-1">Production URL</div>
+                                                        <code className="text-lg font-black text-white italic">https://{selectedInstance.generated_domain}</code>
                                                     </div>
                                                 </div>
-                                            ))}
+                                                <Button variant="ghost" onClick={() => navigator.clipboard.writeText(`https://${selectedInstance.generated_domain}`)} className="rounded-2xl text-zinc-600 hover:text-white hover:bg-white/5 h-14 px-8 font-black uppercase tracking-widest text-xs">
+                                                    Copy Endpoint
+                                                </Button>
+                                            </div>
                                         </div>
-                                    </div>
 
-                                    <div className="bg-white/[0.02] border border-white/5 rounded-[40px] p-10 flex flex-col items-center justify-center text-center relative overflow-hidden group">
-                                        <div className="absolute inset-0 bg-red-600/[0.01] group-hover:bg-red-600/[0.02] transition-colors" />
-                                        <Workflow className="w-16 h-16 text-zinc-800 mb-6 group-hover:text-red-900/40 transition-colors" />
-                                        <h3 className="text-lg font-black uppercase italic tracking-tighter mb-4 text-zinc-400">Node Configuration</h3>
-                                        <p className="text-xs font-bold text-zinc-600 max-w-xs leading-relaxed uppercase tracking-widest">
-                                            This instance is running an isolated n8n core with dedicated persistent storage and encryption keys.
-                                        </p>
-                                        <div className="mt-8 pt-8 border-t border-white/5 w-full flex justify-around">
-                                            <div className="text-center">
-                                                <div className="text-[9px] font-black text-zinc-700 uppercase mb-1">Status</div>
-                                                <div className="text-xs font-black text-zinc-300 tracking-tighter">{selectedInstance.status.toUpperCase()}</div>
+                                        {/* Lifecycle / Events */}
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                            <div className="bg-white/[0.02] border border-white/5 rounded-[40px] p-10">
+                                                <div className="flex items-center gap-3 mb-8">
+                                                    <Settings className="w-5 h-5 text-zinc-500" />
+                                                    <h3 className="text-xs font-black uppercase tracking-[0.3em] text-zinc-500">Service Events</h3>
+                                                </div>
+                                                <div className="space-y-6">
+                                                    {selectedInstance.events?.slice(-4).reverse().map((e, idx) => (
+                                                        <div key={idx} className="flex gap-6 pb-6 border-b border-white/5 last:border-0 last:pb-0">
+                                                            <div className={cn(
+                                                                "w-1.5 h-1.5 rounded-full mt-1.5",
+                                                                e.type === 'error' ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]' : 'bg-red-400'
+                                                            )} />
+                                                            <div className="flex-1 min-w-0">
+                                                                <div className="text-[11px] font-black uppercase tracking-tighter text-zinc-300 break-words mb-1">{e.message}</div>
+                                                                <div className="text-[9px] font-bold text-zinc-600 uppercase italic">
+                                                                    {new Date(e.timestamp).toLocaleString()}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
                                             </div>
-                                            <div className="text-center">
-                                                <div className="text-[9px] font-black text-zinc-700 uppercase mb-1">Region</div>
-                                                <div className="text-xs font-black text-zinc-300 tracking-tighter">US-EAST-1</div>
+
+                                            <div className="bg-white/[0.02] border border-white/5 rounded-[40px] p-10 flex flex-col items-center justify-center text-center relative overflow-hidden group">
+                                                <div className="absolute inset-0 bg-red-600/[0.01] group-hover:bg-red-600/[0.02] transition-colors" />
+                                                <Workflow className="w-16 h-16 text-zinc-800 mb-6 group-hover:text-red-900/40 transition-colors" />
+                                                <h3 className="text-lg font-black uppercase italic tracking-tighter mb-4 text-zinc-400">Node Configuration</h3>
+                                                <p className="text-xs font-bold text-zinc-600 max-w-xs leading-relaxed uppercase tracking-widest">
+                                                    This instance is running an isolated n8n core with dedicated persistent storage and encryption keys.
+                                                </p>
+                                                <div className="mt-8 pt-8 border-t border-white/5 w-full flex justify-around">
+                                                    <div className="text-center">
+                                                        <div className="text-[9px] font-black text-zinc-700 uppercase mb-1">Status</div>
+                                                        <div className="text-xs font-black text-zinc-300 tracking-tighter">{selectedInstance.status.toUpperCase()}</div>
+                                                    </div>
+                                                    <div className="text-center">
+                                                        <div className="text-[9px] font-black text-zinc-700 uppercase mb-1">Region</div>
+                                                        <div className="text-xs font-black text-zinc-300 tracking-tighter">US-EAST-1</div>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
+                                    </>
+                                ) : (
+                                    <div className="w-full h-[800px] bg-black rounded-[48px] border border-white/10 overflow-hidden relative group">
+                                         <iframe 
+                                            src={`https://${selectedInstance.generated_domain}`}
+                                            className="w-full h-full border-none"
+                                            title="n8n Designer"
+                                        />
                                     </div>
-                                </div>
+                                )}
                             </div>
                         ) : (
                             <div className="h-full flex flex-col items-center justify-center p-12 text-center">
