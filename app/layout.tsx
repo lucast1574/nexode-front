@@ -42,7 +42,18 @@ export default function RootLayout({
             >
               <ModalProvider>
                 {children}
-                <Toaster position="top-center" richColors />
+                <Toaster 
+                  position="top-center" 
+                  richColors 
+                  theme="dark"
+                  toastOptions={{
+                    style: {
+                      background: '#09090b', // Zinc 950
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      color: '#fff',
+                    }
+                  }}
+                />
               </ModalProvider>
             </ThemeProvider>
           </ApolloWrapper>
