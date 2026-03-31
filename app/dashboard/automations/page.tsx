@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useCallback } from "react";
-import { Workflow, Zap, Activity, Trash2, RefreshCw, ExternalLink, Search, Plus, Globe, Settings, Shield } from "lucide-react";
+import { Workflow, Zap, Activity, Trash2, RefreshCw, ExternalLink, Search, Plus, Globe, Settings, Shield, Copy, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sidebar, Subscription } from "@/components/Sidebar";
 import { cn } from "@/lib/utils";
@@ -29,6 +29,7 @@ export default function AutomationsPage() {
     const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
     const [selectedInstance, setSelectedInstance] = useState<N8nInstance | null>(null);
     const [showCreateModal, setShowCreateModal] = useState(false);
+    const [copied, setCopied] = useState(false);
     
     const { showConfirm } = useModal();
     
@@ -329,9 +330,26 @@ export default function AutomationsPage() {
                                                         <code className="text-lg font-black text-white italic">{getN8nUrl(selectedInstance.generated_domain || '')}</code>
                                                     </div>
                                                 </div>
-                                                <Button variant="ghost" onClick={() => navigator.clipboard.writeText(getN8nUrl(selectedInstance.generated_domain || ''))} className="rounded-2xl text-zinc-600 hover:text-white hover:bg-white/5 h-14 px-8 font-black uppercase tracking-widest text-xs">
-                                                    Copy Endpoint
-                                                </Button>
+                                                <div className="flex items-center gap-2">
+                                                    <Button 
+                                                        variant="ghost" 
+                                                        onClick={() => {
+                                                            navigator.clipboard.writeText(getN8nUrl(selectedInstance.generated_domain || ''));
+                                                            setCopied(true);
+                                                            setTimeout(() => setCopied(false), 2000);
+                                                        }} 
+                                                        className="w-14 h-14 p-0 shrink-0 rounded-2xl text-zinc-600 hover:text-white hover:bg-white/5"
+                                                    >
+                                                        {copied ? <Check className="w-5 h-5 text-emerald-400" /> : <Copy className="w-5 h-5" />}
+                                                    </Button>
+                                                    <Button 
+                                                        variant="ghost" 
+                                                        onClick={() => window.open(getN8nUrl(selectedInstance.generated_domain || ''), '_blank')}
+                                                        className="w-14 h-14 p-0 shrink-0 rounded-2xl text-zinc-600 hover:text-white hover:bg-white/5"
+                                                    >
+                                                        <ExternalLink className="w-5 h-5" />
+                                                    </Button>
+                                                </div>
                                             </div>
                                         </div>
 
