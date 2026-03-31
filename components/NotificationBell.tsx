@@ -209,7 +209,7 @@ export function NotificationBell() {
             </Button>
 
             {isOpen && (
-                <div className="absolute right-0 mt-4 w-[400px] bg-[#0A0A0A]/90 backdrop-blur-2xl border border-white/10 rounded-3xl shadow-2xl z-50 overflow-hidden animate-in fade-in zoom-in duration-200">
+                <div className="absolute right-0 mt-4 w-[400px] bg-zinc-900 border border-white/10 rounded-3xl shadow-2xl z-50 overflow-hidden animate-in fade-in zoom-in duration-200">
                     <div className="p-6 border-b border-white/10 flex items-center justify-between bg-white/5">
                         <div>
                             <h3 className="text-lg font-black tracking-tight">Protocol Alerts</h3>
