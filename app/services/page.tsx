@@ -135,10 +135,10 @@ export default function ServicesPage() {
         compute: null,
         n8n: null,
     });
-    const [currentSubSlugs, setCurrentSubSlugs] = useState<string[]>([]);
     const { showAlert } = useModal();
 
     useEffect(() => {
+        // We still fetch current subs if we want, but we don't block them from buying more.
         const fetchCurrentSubs = async () => {
             const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
             if (!token) return;
@@ -165,11 +165,7 @@ export default function ServicesPage() {
                 });
                 const result = await response.json();
                 if (result.data?.mySubscriptions) {
-                    const activeSlugs = result.data.mySubscriptions
-                        .filter((s: { status: string; plan?: { slug: string } }) => s.status === 'ACTIVE')
-                        .map((s: { status: string; plan?: { slug: string } }) => s.plan?.slug)
-                        .filter((slug: string | undefined): slug is string => !!slug);
-                    setCurrentSubSlugs(activeSlugs);
+                    // Kept for analytics or future use if needed, but not actively used to block UI
                 }
             } catch (err) {
                 console.error("Error fetching current subs:", err);
@@ -207,17 +203,31 @@ export default function ServicesPage() {
             if (items.length === 0) return;
 
             const GQL_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api-v1/graphql";
-            const mutation = `
+            
+            const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
+            
+            let query = `
                 mutation CreateGuestCheckout($items: [CheckoutItemInput!]!) {
                     createGuestCheckoutSession(items: $items)
                 }
             `;
+            
+            if (token) {
+                query = `
+                    mutation CreateCheckout($items: [CheckoutItemInput!]!) {
+                        createCheckoutSession(items: $items)
+                    }
+                `;
+            }
 
             const response = await fetch(GQL_URL, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: { 
+                    "Content-Type": "application/json",
+                    "Authorization": token ? `Bearer ${token}` : ""
+                },
                 body: JSON.stringify({
-                    query: mutation,
+                    query: query,
                     variables: { items }
                 }),
             });
@@ -234,7 +244,7 @@ export default function ServicesPage() {
                 return;
             }
 
-            const checkoutUrl = result.data.createGuestCheckoutSession;
+            const checkoutUrl = token ? result.data.createCheckoutSession : result.data.createGuestCheckoutSession;
             if (checkoutUrl) {
                 window.location.href = checkoutUrl;
             }
@@ -255,7 +265,7 @@ export default function ServicesPage() {
                 <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
                     <Link href="/" className="text-2xl font-black italic tracking-tighter text-primary">NEXODE</Link>
                     <div className="flex items-center gap-6">
-                        <Link href="/services" className="text-sm font-medium text-white transition-colors">Marketplace</Link>
+                        <Link href="/services" className="text-sm font-medium text-white transition-colors">Sumar subscripción</Link>
                         <Link href="/dashboard" className="text-sm font-medium text-zinc-400 hover:text-white transition-colors">Dashboard</Link>
                         <UserNav />
                     </div>
@@ -309,7 +319,7 @@ export default function ServicesPage() {
                             </div>
 
                             <div className="space-y-3">
-                                {service.tiers.filter(t => !currentSubSlugs.includes(t.slug)).map((tier) => {
+                                {service.tiers.map((tier) => {
                                     const isSelected = selectedTiers[service.id] === tier.slug;
                                     return (
                                         <button

@@ -32,6 +32,9 @@ export default function AutomationsPage() {
     const [copied, setCopied] = useState(false);
     const [dnsStatus, setDnsStatus] = useState<'checking' | 'resolved' | 'failed' | null>(null);
     const [dnsMessage, setDnsMessage] = useState<string>('');
+    const [restarting, setRestarting] = useState<boolean>(false);
+    const [cooldown, setCooldown] = useState<number>(0);
+
     
     const { showConfirm } = useModal();
     
@@ -153,7 +156,11 @@ export default function AutomationsPage() {
         checkDns();
     }, [selectedInstance?.generated_domain]);
 
-    const handleRestart = async (id: string) => {
+    const handleRestart = async (id: string, force = false) => {
+        if (!force && (cooldown > 0 || restarting)) return;
+        setRestarting(true);
+        if (!force) setCooldown(60);
+        
         try {
             const token = getAccessToken();
             const GQL_URL = process.env.NEXT_PUBLIC_API_URL || "https://backend.nexode.app/api-v1/graphql";
@@ -166,6 +173,16 @@ export default function AutomationsPage() {
             fetchInstances();
         } catch (error) { console.error(error); }
     };
+
+    useEffect(() => {
+        let timer: NodeJS.Timeout;
+        if (cooldown > 0) {
+            timer = setTimeout(() => setCooldown(c => c - 1), 1000);
+        } else {
+            setRestarting(false);
+        }
+        return () => clearTimeout(timer);
+    }, [cooldown]);
 
     const handleDelete = async (id: string) => {
         showConfirm({
@@ -320,8 +337,14 @@ export default function AutomationsPage() {
                                         >
                                             <ExternalLink className="w-4 h-4" /> Popup
                                         </Button>
-                                        <Button variant="outline" onClick={() => handleRestart(selectedInstance._id)} className="rounded-2xl h-14 w-14 p-0 border-white/10 bg-white/5 hover:bg-white/10">
-                                            <RefreshCw className="w-5 h-5 text-zinc-500" />
+                                        <Button 
+                                            variant="outline" 
+                                            onClick={() => handleRestart(selectedInstance._id)} 
+                                            disabled={cooldown > 0 || restarting}
+                                            className="rounded-2xl h-14 min-w-[56px] px-4 border-white/10 bg-white/5 hover:bg-white/10 gap-2"
+                                        >
+                                            <RefreshCw className={cn("w-5 h-5 text-zinc-500", restarting ? "animate-spin text-red-500" : "")} />
+                                            {cooldown > 0 && <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">{cooldown}s</span>}
                                         </Button>
                                         <Button onClick={() => handleDelete(selectedInstance._id)} className="rounded-2xl h-14 w-14 p-0 bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500/20">
                                             <Trash2 className="w-5 h-5" />

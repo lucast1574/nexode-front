@@ -88,6 +88,8 @@ function ComputePageContent() {
 
     const [terminalLogs, setTerminalLogs] = useState<{ type: 'input' | 'output' | 'error', text: string }[]>(INITIAL_TERMINAL_LOGS);
     const [isExecuting, setIsExecuting] = useState(false);
+    const [restarting, setRestarting] = useState<boolean>(false);
+    const [cooldown, setCooldown] = useState<number>(0);
     const { showAlert, showConfirm } = useModal();
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -246,7 +248,11 @@ function ComputePageContent() {
         }
     };
 
-    const handleRestart = async (id: string) => {
+    const handleRestart = async (id: string, force = false) => {
+        if (!force && (cooldown > 0 || restarting)) return;
+        setRestarting(true);
+        if (!force) setCooldown(60);
+
         try {
             const token = getAccessToken();
             const GQL_URL = process.env.NEXT_PUBLIC_API_URL || "https://backend.nexode.app/api-v1/graphql";
@@ -260,6 +266,16 @@ function ComputePageContent() {
             if (result.data) fetchInstances();
         } catch (error) { console.error(error); }
     };
+
+    useEffect(() => {
+        let timer: NodeJS.Timeout;
+        if (cooldown > 0) {
+            timer = setTimeout(() => setCooldown(c => c - 1), 1000);
+        } else {
+            setRestarting(false);
+        }
+        return () => clearTimeout(timer);
+    }, [cooldown]);
 
     const handleToggleAutoDeploy = async (enabled: boolean) => {
         if (!selectedInstance) return;
@@ -322,7 +338,7 @@ function ComputePageContent() {
             const result = await res.json();
             if (result.data) {
                 showAlert({ title: "Environment Saved", message: "Environment variables successfully applied. Instance is restarting.", type: "success" });
-                handleRestart(id);
+                handleRestart(id, true);
                 fetchInstances();
             }
         } catch (error) {
@@ -519,7 +535,15 @@ function ComputePageContent() {
                                                 <Activity className="w-4 h-4" /> Check Status
                                             </Button>
                                         )}
-                                        <Button variant="outline" onClick={() => handleRestart(selectedInstance._id)} className="rounded-xl border-white/10 bg-white/5 hover:bg-white/10"><RefreshCw className="w-4 h-4 mr-2" /> Redploy</Button>
+                                        <Button 
+                                            variant="outline" 
+                                            onClick={() => handleRestart(selectedInstance._id)} 
+                                            disabled={cooldown > 0 || restarting}
+                                            className="rounded-xl border-white/10 bg-white/5 hover:bg-white/10 min-w-[100px]"
+                                        >
+                                            <RefreshCw className={cn("w-4 h-4 mr-2", restarting ? "animate-spin text-blue-500" : "")} />
+                                            {cooldown > 0 ? `${cooldown}s` : 'Redeploy'}
+                                        </Button>
                                         <Button onClick={() => handleDelete(selectedInstance._id)} className="rounded-xl bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20"><Trash2 className="w-4 h-4" /></Button>
                                     </div>
                                 </div>

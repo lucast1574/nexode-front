@@ -152,6 +152,40 @@ export default function BillingPage() {
         return acc + (sub.billing_cycle === 'monthly' ? sub.plan.price_monthly : (sub.plan.price_annual / 12));
     }, 0);
 
+    const getNextBillingDate = (createdOn: string, billingCycle: string) => {
+        let dateObj = new Date(createdOn);
+        if (isNaN(dateObj.getTime())) {
+            dateObj = new Date(Number(createdOn));
+        }
+        
+        const now = new Date();
+        const cycle = (billingCycle || 'monthly').toLowerCase();
+        
+        // Loop until dateObj is in the future
+        while (dateObj <= now) {
+            if (cycle === 'monthly') {
+                dateObj.setMonth(dateObj.getMonth() + 1);
+            } else if (cycle === 'annual' || cycle === 'yearly') {
+                dateObj.setFullYear(dateObj.getFullYear() + 1);
+            } else {
+                dateObj.setMonth(dateObj.getMonth() + 1);
+            }
+        }
+        return dateObj;
+    };
+
+    const nextInvoiceDate = subscriptions.length > 0 
+        ? subscriptions.reduce((closestDate, sub) => {
+            const currentSubNextDate = getNextBillingDate(sub.created_on, sub.billing_cycle);
+            if (!closestDate) return currentSubNextDate;
+            return currentSubNextDate < closestDate ? currentSubNextDate : closestDate;
+        }, null as Date | null)
+        : null;
+
+    const aggregateNextInvoiceStr = nextInvoiceDate 
+        ? nextInvoiceDate.toLocaleString('en-US', { month: 'short', day: 'numeric' })
+        : 'N/A';
+
     const handleManageBilling = async () => {
         try {
             const token = getAccessToken();
@@ -227,7 +261,7 @@ export default function BillingPage() {
                                     <Clock className="w-4 h-4" />
                                     <span className="text-xs font-bold uppercase tracking-widest">Next Invoice</span>
                                 </div>
-                                <div className="text-4xl font-black tracking-tighter mb-1">Mar 10</div>
+                                <div className="text-4xl font-black tracking-tighter mb-1">{aggregateNextInvoiceStr}</div>
                                 <div className="text-xs text-zinc-500 font-bold uppercase tracking-widest">Automatic Charge</div>
                             </div>
                         </div>
@@ -327,7 +361,7 @@ export default function BillingPage() {
                                                 </div>
                                                 <div className="text-right">
                                                     <div className="font-black text-lg">${sub.billing_cycle === 'monthly' ? sub.plan.price_monthly : sub.plan.price_annual}</div>
-                                                    <div className="text-[10px] uppercase font-bold text-zinc-400 tracking-tighter">next charge mar 10</div>
+                                                    <div className="text-[10px] uppercase font-bold text-zinc-400 tracking-tighter">next charge {getNextBillingDate(sub.created_on, sub.billing_cycle).toLocaleString('en-US', { month: 'short', day: 'numeric' }).toLowerCase()}</div>
                                                 </div>
                                             </div>
                                         ))

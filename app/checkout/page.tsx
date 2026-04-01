@@ -2,157 +2,53 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { Check, Zap, Database, Cpu, Workflow, ArrowRight, Shield, Globe, CreditCard } from "lucide-react";
+import { Database, Cpu, Workflow, ArrowRight, Shield, Globe, CreditCard, Settings, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { UserNav } from "@/components/user-nav";
 import { getAccessToken } from "@/lib/auth-utils";
 import { useModal } from "@/components/ui/modal";
 
-interface Tier {
-    name: string;
-    slug: string;
-    price: number;
-    specs: Record<string, string>;
-    features: string[];
-}
-
-interface Service {
+interface Subscription {
     id: string;
-    title: string;
-    description: string;
-    icon: React.ElementType;
-    color: string;
-    tiers: Tier[];
-    highlights: string[];
+    service: string;
+    status: string;
+    billing_cycle: string;
+    created_on: string;
+    plan: {
+        name: string;
+        price_monthly: number;
+        price_annual: number;
+    };
 }
-
-const SERVICES: Service[] = [
-    {
-        id: "n8n",
-        title: "n8n Automation",
-        description: "Self-hosted workflow automation. Connect everything and design complex logic with ease.",
-        icon: Workflow,
-        color: "bg-red-500",
-        highlights: ["Nodes for 400+ apps", "Self-hosted privacy", "Unlimited triggers", "Custom JS nodes"],
-        tiers: [
-            {
-                name: "Basic",
-                slug: "n8n-basic",
-                price: 5,
-                specs: { "EXECS": "1,000 /mo", "TYPE": "Shared" },
-                features: ["3 Workflows", "Daily Logs"]
-            },
-            {
-                name: "Standard",
-                slug: "n8n-standard",
-                price: 10,
-                specs: { "EXECS": "5,000 /mo", "TYPE": "1GB RAM" },
-                features: ["10 Workflows", "Priority Support"]
-            },
-            {
-                name: "Pro",
-                slug: "n8n-pro",
-                price: 20,
-                specs: { "EXECS": "20,000 /mo", "TYPE": "2GB RAM" },
-                features: ["50 Workflows", "HA Ready"]
-            },
-            {
-                name: "Ultra",
-                slug: "n8n-ultra",
-                price: 40,
-                specs: { "EXECS": "50,000 /mo", "TYPE": "4GB RAM" },
-                features: ["Max Throughput", "Enterprise SLA"]
-            },
-        ]
-    },
-    {
-        id: "database",
-        title: "Database",
-        description: "High-availability MySQL and PostgreSQL instances for your mission-critical data.",
-        icon: Database,
-        color: "bg-purple-500",
-        highlights: ["Automated Backups", "Vertical Scaling", "Metrics Dashboard", "Private Networking"],
-        tiers: [
-            {
-                name: "Basic",
-                slug: "db-tier-1",
-                price: 1,
-                specs: { "RAM": "Shared", "STORAGE": "0.25 GB" },
-                features: ["Daily Backups", "Shared CPU"]
-            },
-            {
-                name: "Standard",
-                slug: "db-tier-2",
-                price: 5,
-                specs: { "RAM": "Shared", "STORAGE": "1 GB" },
-                features: ["Priority Support", "Point-in-time Recovery"]
-            },
-            {
-                name: "Performance",
-                slug: "db-tier-3",
-                price: 10,
-                specs: { "RAM": "Shared", "STORAGE": "5 GB" },
-                features: ["24/7 Monitoring", "High Availability"]
-            },
-            {
-                name: "Ultra",
-                slug: "db-tier-4",
-                price: 20,
-                specs: { "RAM": "Shared", "STORAGE": "10 GB" },
-                features: ["Enterprise SLA", "Dedicated instances"]
-            },
-        ]
-    },
-    {
-        id: "compute",
-        title: "Compute",
-        description: "Liquid-cooled virtual servers built for extreme high-frequency performance.",
-        icon: Cpu,
-        color: "bg-blue-500",
-        highlights: ["NVMe Storage", "Global Edge", "Zero-downtime upscaling", "Advanced DDoS Protection"],
-        tiers: [
-            {
-                name: "Instance Nano",
-                slug: "compute-basic",
-                price: 15,
-                specs: { "CPU": "1 vCPU", "RAM": "2 GB", "NETWORK": "1 TB" },
-                features: ["Fast SSDs", "Public IP"]
-            },
-            {
-                name: "Instance Pro",
-                slug: "compute-pro",
-                price: 45,
-                specs: { "CPU": "4 vCPU", "RAM": "8 GB", "NETWORK": "5 TB" },
-                features: ["Optimized I/O", "Snapshots", "Premium Support"]
-            },
-        ]
-    }
-];
 
 export default function CheckoutPage() {
-    const [selectedTiers, setSelectedTiers] = useState<Record<string, string | null>>({
-        database: null,
-        compute: null,
-        n8n: null,
-    });
-    const [loading, setLoading] = useState(false);
-    const [currentSubSlugs, setCurrentSubSlugs] = useState<string[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
     const { showAlert } = useModal();
 
     useEffect(() => {
         const fetchCurrentSubs = async () => {
             const token = getAccessToken();
-            if (!token) return;
+            if (!token) {
+                setLoading(false);
+                return;
+            }
 
             try {
                 const GQL_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api-v1/graphql";
                 const query = `
                     query GetUserSubs {
                         mySubscriptions {
+                            id
+                            service
                             status
+                            billing_cycle
+                            created_on
                             plan {
-                                slug
+                                name
+                                price_monthly
+                                price_annual
                             }
                         }
                     }
@@ -167,122 +63,59 @@ export default function CheckoutPage() {
                 });
                 const result = await response.json();
                 if (result.data?.mySubscriptions) {
-                    const activeSlugs = result.data.mySubscriptions
-                        .filter((s: { status: string; plan?: { slug: string } }) => s.status === 'ACTIVE')
-                        .map((s: { status: string; plan?: { slug: string } }) => s.plan?.slug)
-                        .filter((slug: string | undefined): slug is string => !!slug);
-                    setCurrentSubSlugs(activeSlugs);
+                    const activeSubs = result.data.mySubscriptions
+                        .filter((s: { status: string; service: string }) => s.status === 'ACTIVE' && s.service !== 'nexus');
+                    setSubscriptions(activeSubs);
                 }
             } catch (err) {
                 console.error("Error fetching current subs:", err);
+            } finally {
+                setLoading(false);
             }
         };
 
         fetchCurrentSubs();
     }, []);
 
-    const handleSelectTier = (serviceId: string, tierSlug: string) => {
-        setSelectedTiers((prev) => ({
-            ...prev,
-            [serviceId]: prev[serviceId] === tierSlug ? null : tierSlug,
-        }));
-    };
-
-    const totalPrice = Object.entries(selectedTiers).reduce((acc, [serviceId, tierSlug]) => {
-        if (!tierSlug) return acc;
-        const service = SERVICES.find(s => s.id === serviceId);
-        const tier = service?.tiers.find(t => t.slug === tierSlug);
-        return acc + (tier?.price || 0);
-    }, 0);
-
-    const selectedCount = Object.values(selectedTiers).filter(Boolean).length;
-
-    const handleCheckout = async () => {
-        setLoading(true);
+    const handleManageBilling = async () => {
         try {
-            const items = Object.values(selectedTiers)
-                .filter(Boolean)
-                .map(slug => ({
-                    planSlug: slug,
-                    billingCycle: "monthly"
-                }));
-
-            if (items.length === 0) return;
-
-            // In a real app, we'd get the token from localStorage/cookies
-            const GQL_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api-v1/graphql";
-            const mutation = `
-                mutation CreateCheckout($items: [CheckoutItemInput!]!) {
-                    createCheckoutSession(items: $items)
-                }
-            `;
-
             const token = getAccessToken();
-
-            const response = await fetch(GQL_URL, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": token ? `Bearer ${token}` : ""
-                },
-                body: JSON.stringify({
-                    query: mutation,
-                    variables: { items }
-                }),
-            });
-
-            const result = await response.json();
-
-            if (result.errors) {
-                console.error("GraphQL Errors for authenticated session:", result.errors);
-
-                // Fallback to guest checkout if authenticated session failed
-                // Attempt to get user email from localStorage to preserve session linkage
-                const storedUser = typeof window !== "undefined" ? localStorage.getItem("user") : null;
-                const userObj = storedUser ? JSON.parse(storedUser) : null;
-                const userEmail = userObj?.email;
-
-                console.warn(`Attempting fallback to Guest Checkout. Preserved email: ${userEmail || 'None'}`);
-
-                const guestMutation = `
-                    mutation CreateGuestCheckout($items: [CheckoutItemInput!]!, $email: String) {
-                        createGuestCheckoutSession(items: $items, email: $email)
-                    }
-                `;
-                const guestRes = await fetch(GQL_URL, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        query: guestMutation,
-                        variables: { items, email: userEmail }
-                    }),
-                });
-                const guestResult = await guestRes.json();
-                if (guestResult.data?.createGuestCheckoutSession) {
-                    window.location.href = guestResult.data.createGuestCheckoutSession;
-                    return;
-                }
+            if (!token) {
                 showAlert({
-                    title: "Checkout Error",
-                    message: `Checkout failed. Error: ${result.errors[0]?.message || 'Unknown error'}`,
-                    type: "error"
+                    title: "Authentication Required",
+                    message: "Please log in to manage your subscriptions.",
+                    type: "warning"
                 });
                 return;
             }
+            const GQL_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api-v1/graphql";
 
-            const checkoutUrl = result.data.createCheckoutSession;
-            if (checkoutUrl) {
-                window.location.href = checkoutUrl;
-            }
-        } catch (error) {
-            console.error("Checkout Error:", error);
-            showAlert({
-                title: "Checkout Failed",
-                message: "Checkout failed. Is the backend running?",
-                type: "error"
+            const mutation = `
+                mutation {
+                    createCustomerPortalSession
+                }
+            `;
+
+            const res = await fetch(GQL_URL, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify({ query: mutation }),
             });
-        } finally {
-            setLoading(false);
+            const result = await res.json();
+            if (result.data?.createCustomerPortalSession) {
+                window.location.href = result.data.createCustomerPortalSession;
+            } else {
+                showAlert({
+                    title: "Portal Error",
+                    message: "Could not open billing portal. Do you have an active Stripe subscription?",
+                    type: "warning"
+                });
+            }
+        } catch (err) {
+            console.error(err);
         }
     };
 
@@ -298,7 +131,7 @@ export default function CheckoutPage() {
                 <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
                     <Link href="/" className="text-2xl font-black italic tracking-tighter text-primary">NEXODE</Link>
                     <div className="flex items-center gap-6">
-                        <Link href="/services" className="text-sm font-medium text-zinc-400 hover:text-white transition-colors">Marketplace</Link>
+                        <Link href="/services" className="text-sm font-bold text-primary hover:text-primary/80 transition-colors">Sumar subscripción</Link>
                         <Link href="/dashboard" className="text-sm font-medium text-zinc-400 hover:text-white transition-colors">Dashboard</Link>
                         <UserNav />
                     </div>
@@ -307,114 +140,95 @@ export default function CheckoutPage() {
 
             <header className="relative z-10 pt-20 pb-16 px-6 text-center max-w-4xl mx-auto">
                 <h1 className="text-4xl md:text-6xl font-black tracking-tight mb-6">
-                    Provision Your <span className="text-primary italic underline decoration-primary/30 decoration-8 underline-offset-8">Infrastructure</span>
+                    Administra tu <span className="text-primary italic underline decoration-primary/30 decoration-8 underline-offset-8">Infraestructura</span>
                 </h1>
-                <p className="text-lg text-zinc-400 leading-relaxed">
-                    Configure your high-frequency hosting environment. Select high-availability instances tailored for your mission-critical workload.
+                <p className="text-lg text-zinc-400 leading-relaxed max-w-2xl mx-auto">
+                    Revisa tus suscripciones activas. Cada plan que sumes aumenta tus límites para desplegar nuevas bases de datos, clusters de compute o instancias n8n.
                 </p>
+                
+                <div className="mt-8">
+                    <Button asChild size="lg" className="rounded-full shadow-lg shadow-primary/20 px-8 text-lg font-bold gap-2 bg-primary text-white hover:bg-primary/90">
+                        <Link href="/services">
+                            <Plus className="w-5 h-5" /> Sumar subscripción
+                        </Link>
+                    </Button>
+                </div>
             </header>
 
-            <main className="relative z-10 pb-40 px-6 max-w-5xl mx-auto space-y-16">
-                {SERVICES.map((service) => (
-                    <div key={service.id} className="space-y-6">
-                        <div className="flex items-center gap-4 border-l-4 border-primary pl-6">
-                            <div className={cn("p-2 rounded-xl", service.color)}>
-                                <service.icon className="w-6 h-6 text-white" />
-                            </div>
-                            <div>
-                                <h2 className="text-2xl font-bold">{service.title}</h2>
-                                <p className="text-sm text-zinc-500">{service.description}</p>
-                            </div>
+            <main className="relative z-10 pb-40 px-6 max-w-4xl mx-auto">
+                <div className="bg-white/[0.02] border border-white/5 rounded-3xl p-8 mb-12 shadow-xl shadow-black">
+                    <h2 className="text-2xl font-black mb-8 flex items-center gap-3">
+                        <Database className="w-6 h-6 text-primary" /> Tus Suscripciones Activas
+                    </h2>
+                    
+                    {loading ? (
+                        <div className="animate-pulse space-y-4">
+                            <div className="h-24 bg-white/5 rounded-2xl w-full"></div>
+                            <div className="h-24 bg-white/5 rounded-2xl w-full"></div>
                         </div>
+                    ) : subscriptions.length === 0 ? (
+                        <div className="text-center py-16 border-2 border-dashed border-white/10 rounded-2xl">
+                            <div className="mx-auto w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mb-4">
+                                <Shield className="w-8 h-8 text-zinc-500" />
+                            </div>
+                            <h3 className="text-xl font-bold mb-2">No tienes suscripciones activas</h3>
+                            <p className="text-zinc-500 mb-6">Adquiere un plan para comenzar a desplegar infraestructura.</p>
+                            <Button asChild variant="outline" className="rounded-full border-white/20 hover:bg-white/10">
+                                <Link href="/services">Explorar Servicios</Link>
+                            </Button>
+                        </div>
+                    ) : (
+                        <div className="space-y-4">
+                            {subscriptions.map((sub, index) => {
+                                let Icon = Database;
+                                let color = "text-purple-400 bg-purple-500/10";
+                                if (sub.service === "n8n") {
+                                    Icon = Workflow;
+                                    color = "text-red-400 bg-red-500/10";
+                                } else if (sub.service === "compute") {
+                                    Icon = Cpu;
+                                    color = "text-blue-400 bg-blue-500/10";
+                                }
 
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                            {service.tiers.filter(t => !currentSubSlugs.includes(t.slug)).map((tier) => {
-                                const isSelected = selectedTiers[service.id] === tier.slug;
+                                const isAnnual = sub.billing_cycle === 'annual';
+                                const price = isAnnual ? sub.plan.price_annual : sub.plan.price_monthly;
+
                                 return (
-                                    <button
-                                        key={tier.slug}
-                                        onClick={() => handleSelectTier(service.id, tier.slug)}
-                                        className={cn(
-                                            "relative flex flex-col p-6 rounded-[24px] border transition-all duration-300 text-left group overflow-hidden",
-                                            isSelected
-                                                ? "bg-white/10 border-primary ring-2 ring-primary/20 shadow-2xl shadow-primary/10"
-                                                : "bg-white/[0.03] border-white/5 hover:bg-white/[0.06] hover:border-white/10"
-                                        )}
-                                    >
-                                        <div className="mb-4">
-                                            <div className="text-xs font-bold uppercase tracking-widest text-zinc-500 mb-1">{tier.name}</div>
-                                            <div className="text-3xl font-black">${tier.price}<span className="text-xs font-normal text-zinc-500">/mo</span></div>
-                                        </div>
-
-                                        <div className="space-y-3 mb-6 flex-1">
-                                            {Object.entries(tier.specs).map(([label, value]) => (
-                                                <div key={label} className="flex items-center justify-between text-xs">
-                                                    <span className="text-zinc-500 font-medium">{label}</span>
-                                                    <span className="font-bold">{value}</span>
-                                                </div>
-                                            ))}
-                                        </div>
-
-                                        <div className={cn(
-                                            "mt-auto py-2 px-4 rounded-xl text-xs font-bold text-center transition-all",
-                                            isSelected ? "bg-primary text-white" : "bg-white/5 text-zinc-400 group-hover:bg-white/10"
-                                        )}>
-                                            {(() => {
-                                                if (isSelected) return "Selected";
-
-                                                const activeTierSlug = service.tiers.find(t => currentSubSlugs.includes(t.slug))?.slug;
-                                                if (activeTierSlug) {
-                                                    const activeTier = service.tiers.find(t => t.slug === activeTierSlug);
-                                                    if (activeTier) {
-                                                        return tier.price > activeTier.price ? "Upgrade Plan" : "Downgrade Plan";
-                                                    }
-                                                }
-                                                return "Select Tier";
-                                            })()}
-                                        </div>
-
-                                        {isSelected && (
-                                            <div className="absolute -top-6 -right-6 w-12 h-12 bg-primary rotate-45 flex items-end justify-center pb-1">
-                                                <Check className="w-3 h-3 text-white stroke-[4] -rotate-45" />
+                                    <div key={sub.id || index} className="flex flex-col sm:flex-row sm:items-center justify-between p-6 bg-white/[0.03] border border-white/10 rounded-2xl hover:bg-white/[0.05] transition-all group">
+                                        <div className="flex items-center gap-4 mb-4 sm:mb-0">
+                                            <div className={cn("p-4 rounded-xl", color)}>
+                                                <Icon className="w-6 h-6" />
                                             </div>
-                                        )}
-                                    </button>
+                                            <div>
+                                                <div className="text-sm font-bold text-zinc-400 uppercase tracking-widest">{sub.service} Cluster</div>
+                                                <div className="text-xl font-black">{sub.plan.name || "Custom Plan"}</div>
+                                            </div>
+                                        </div>
+                                        <div className="flex flex-col sm:items-end gap-2">
+                                            <div className="text-2xl font-black">${price} <span className="text-sm font-normal text-zinc-500">/{isAnnual ? 'yr' : 'mo'}</span></div>
+                                            <Button onClick={handleManageBilling} variant="outline" size="sm" className="rounded-xl border-white/20 group-hover:bg-white/10 gap-2">
+                                                <Settings className="w-4 h-4" /> Modificar Plan
+                                            </Button>
+                                        </div>
+                                    </div>
                                 );
                             })}
                         </div>
-                    </div>
-                ))}
-            </main>
+                    )}
+                </div>
 
-            {/* Floating Summary Bar */}
-            <div className={cn(
-                "fixed bottom-8 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-2xl transition-all duration-500",
-                selectedCount > 0 ? "translate-y-0 opacity-100" : "translate-y-20 opacity-0 pointer-events-none"
-            )}>
-                <div className="bg-zinc-900/80 backdrop-blur-2xl border border-white/10 rounded-[32px] p-4 flex flex-col sm:flex-row items-center gap-4 shadow-2xl">
-                    <div className="flex items-center gap-4 px-4 flex-1">
-                        <div className="w-12 h-12 rounded-2xl bg-primary/20 flex items-center justify-center relative">
-                            <Zap className="w-6 h-6 text-primary" />
-                            <div className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-white text-[10px] font-black rounded-full flex items-center justify-center border-2 border-zinc-900">
-                                {selectedCount}
-                            </div>
-                        </div>
-                        <div>
-                            <div className="text-xs text-zinc-500 font-bold uppercase tracking-widest">Hosting Commitment</div>
-                            <div className="text-2xl font-black">${totalPrice}</div>
-                        </div>
-                    </div>
-
-                    <Button
-                        size="lg"
-                        onClick={handleCheckout}
-                        disabled={loading}
-                        className="w-full sm:w-auto rounded-[20px] h-14 px-8 gap-3 text-lg font-bold shadow-xl shadow-primary/20 transition-transform active:scale-95 bg-primary hover:bg-primary/90 text-white"
-                    >
-                        {loading ? "Provisioning..." : "Pay & Deploy Instance"} <div className="flex items-center gap-1 border-l border-black/10 pl-3 ml-1"><CreditCard className="w-5 h-5" /><ArrowRight className="w-4 h-4" /></div>
+                <div className="text-center mt-12 bg-primary/10 border border-primary/20 rounded-3xl p-10">
+                    <h3 className="text-2xl font-black mb-4">¿Necesitas más capacidad?</h3>
+                    <p className="text-zinc-400 mb-8 max-w-xl mx-auto">
+                        Aumenta tus límites de bases de datos, entornos compute o workflows de n8n sumando suscripciones adicionales a tu cuenta.
+                    </p>
+                    <Button asChild size="lg" className="rounded-full shadow-xl shadow-primary/20 px-10 text-lg font-bold gap-3 transition-transform hover:scale-105 bg-primary text-white hover:bg-primary/90">
+                        <Link href="/services">
+                            Sumar Suscripción <ArrowRight className="w-5 h-5" />
+                        </Link>
                     </Button>
                 </div>
-            </div>
+            </main>
 
             <footer className="relative z-10 py-12 px-6 border-t border-white/5 text-center text-zinc-400 text-sm">
                 <div className="flex items-center justify-center gap-8 mb-6 text-zinc-400 flex-wrap">
