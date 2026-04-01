@@ -49,7 +49,7 @@ export default function RootLayout({
                   toastOptions={{
                     style: {
                       background: '#09090b', // Zinc 950
-                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      border: '1px solid #27272a',
                       color: '#fff',
                     },
                     actionButtonStyle: {

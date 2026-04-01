@@ -196,8 +196,8 @@ export function NotificationBell() {
                 size="icon"
                 onClick={() => setIsOpen(!isOpen)}
                 className={cn(
-                    "rounded-full relative w-12 h-12 hover:bg-white/5 transition-all",
-                    isOpen && "bg-white/5"
+                    "rounded-full relative w-12 h-12 hover:bg-zinc-800 transition-all",
+                    isOpen && "bg-zinc-800"
                 )}
             >
                 <Bell className={cn("w-6 h-6 transition-all", unviewedCount > 0 ? "text-primary animate-pulse" : "text-zinc-400")} />
@@ -209,8 +209,8 @@ export function NotificationBell() {
             </Button>
 
             {isOpen && (
-                <div className="absolute right-0 mt-4 w-[400px] bg-zinc-900 border border-white/10 rounded-3xl shadow-2xl z-50 overflow-hidden animate-in fade-in zoom-in duration-200">
-                    <div className="p-6 border-b border-white/10 flex items-center justify-between bg-white/5">
+                <div className="absolute right-0 mt-4 w-[400px] bg-zinc-900 border border-zinc-800 rounded-3xl shadow-2xl z-50 overflow-hidden animate-in fade-in zoom-in duration-200">
+                    <div className="p-6 border-b border-zinc-800 flex items-center justify-between bg-zinc-800">
                         <div>
                             <h3 className="text-lg font-black tracking-tight">Protocol Alerts</h3>
                             <p className="text-xs text-zinc-500 font-medium">System events and status updates</p>
@@ -220,7 +220,7 @@ export function NotificationBell() {
                                 variant="ghost"
                                 size="sm"
                                 onClick={markAllAsViewed}
-                                className="text-xs py-1 h-auto rounded-xl hover:bg-white/10 text-primary font-bold gap-2"
+                                className="text-xs py-1 h-auto rounded-xl hover:bg-zinc-700 text-primary font-bold gap-2"
                             >
                                 <Check className="w-3.5 h-3.5" /> Read All
                             </Button>
@@ -229,8 +229,8 @@ export function NotificationBell() {
 
                     <div className="max-h-[450px] overflow-y-auto custom-scrollbar">
                         {notifications.length === 0 ? (
-                            <div className="p-12 text-center">
-                                <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4 border border-white/10">
+                            <div className="p-12 text-center bg-zinc-900">
+                                <div className="w-16 h-16 bg-zinc-800 rounded-full flex items-center justify-center mx-auto mb-4 border border-zinc-700">
                                     <Bell className="w-8 h-8 text-zinc-600" />
                                 </div>
                                 <h4 className="text-zinc-400 font-bold mb-1">Silence is Golden</h4>
@@ -242,14 +242,14 @@ export function NotificationBell() {
                                     key={n._id}
                                     onClick={() => handleNotificationClick(n)}
                                     className={cn(
-                                        "p-5 border-b border-white/5 cursor-pointer transition-all hover:bg-white/5 group relative",
-                                        !n.viewed && "bg-primary/5 border-l-2 border-l-primary"
+                                        "p-5 border-b border-zinc-800 cursor-pointer transition-all hover:bg-zinc-800 group relative bg-zinc-900",
+                                        !n.viewed && "bg-zinc-800 border-l-2 border-l-primary"
                                     )}
                                 >
                                     <div className="flex gap-4">
                                         <div className={cn(
-                                            "w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border border-white/10 transition-colors group-hover:border-white/20",
-                                            !n.viewed ? "bg-primary/10" : "bg-white/5"
+                                            "w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border border-zinc-700 transition-colors group-hover:border-zinc-600",
+                                            !n.viewed ? "bg-zinc-700" : "bg-zinc-800"
                                         )}>
                                             {getTypeIcon(n.type)}
                                         </div>
@@ -279,8 +279,8 @@ export function NotificationBell() {
                     </div>
 
                     {notifications.length > 0 && (
-                        <div className="p-4 bg-white/5 text-center border-t border-white/10">
-                            <p className="text-[10px] text-zinc-600 uppercase font-black tracking-widest">
+                        <div className="p-4 bg-zinc-800 text-center border-t border-zinc-700">
+                            <p className="text-[10px] text-zinc-500 uppercase font-black tracking-widest">
                                 Alerts auto-expire after 7 days
                             </p>
                         </div>
