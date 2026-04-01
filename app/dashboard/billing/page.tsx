@@ -5,11 +5,9 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
     Plus,
-    ArrowUpRight,
     TrendingUp,
     DollarSign,
     Clock,
-    ChevronRight,
     Zap,
     ExternalLink,
     PieChart,
@@ -39,10 +37,20 @@ interface UsageStats {
     total_amount: number;
 }
 
+interface UsageLog {
+    id: string;
+    service: string;
+    feature: string;
+    amount: number;
+    description: string;
+    created_on: string;
+}
+
 export default function BillingPage() {
     const [loading, setLoading] = useState(true);
     const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
     const [usageStats, setUsageStats] = useState<UsageStats[]>([]);
+    const [usageHistory, setUsageHistory] = useState<UsageLog[]>([]);
     const [user, setUser] = useState<{ first_name: string, email: string, avatar?: string } | null>(null);
     const router = useRouter();
     const { showAlert } = useModal();
@@ -81,6 +89,14 @@ export default function BillingPage() {
                             feature
                             total_amount
                         }
+                        myUsageHistory(limit: 5) {
+                            id
+                            service
+                            feature
+                            amount
+                            description
+                            created_on
+                        }
                     }
                 `;
 
@@ -98,6 +114,9 @@ export default function BillingPage() {
                     setUser(result.data.me);
                     if (result.data.myUsageStats) {
                         setUsageStats(result.data.myUsageStats);
+                    }
+                    if (result.data.myUsageHistory) {
+                        setUsageHistory(result.data.myUsageHistory);
                     }
                     const subs = (result.data.mySubscriptions || [])
                         .filter((s: Subscription) => s.status === 'ACTIVE' && s.service !== 'nexus');
@@ -366,25 +385,35 @@ export default function BillingPage() {
                             <div className="bg-white/[0.03] border border-white/5 rounded-[40px] p-8">
                                 <h3 className="text-sm font-bold uppercase tracking-widest text-zinc-500 mb-6">Recent Activity</h3>
                                 <div className="space-y-6">
-                                    {[
-                                        { icon: ArrowUpRight, label: 'Plan Upgrade', date: 'Yesterday', desc: 'Compute Nano → Pro' },
-                                        { icon: Activity, label: 'Scaling Event', date: '3 days ago', desc: 'Auto-scaled DB Storage' },
-                                        { icon: DollarSign, label: 'Payment Success', date: 'Feb 10', desc: 'Inv #NX-9921' },
-                                    ].map((action, i) => (
-                                        <div key={i} className="flex gap-4 group cursor-pointer">
-                                            <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center shrink-0 border border-white/10 group-hover:border-primary/50 transition-colors">
-                                                <action.icon className="w-4 h-4 text-zinc-400 group-hover:text-primary" />
-                                            </div>
-                                            <div>
-                                                <div className="text-sm font-bold">{action.label}</div>
-                                                <div className="text-[10px] text-zinc-500">{action.date} • {action.desc}</div>
-                                            </div>
-                                        </div>
-                                    ))}
+                                    {usageHistory.length === 0 ? (
+                                        <div className="text-xs text-zinc-500 italic">No recent activity detected.</div>
+                                    ) : (
+                                        usageHistory.map((action) => {
+                                            let Icon = Activity;
+                                            if (action.service === 'n8n') Icon = Workflow;
+                                            if (action.service === 'compute') Icon = Cpu;
+                                            if (action.service === 'database') Icon = Database;
+
+                                            let dateObj = new Date(action.created_on);
+                                            if (isNaN(dateObj.getTime())) {
+                                                dateObj = new Date(Number(action.created_on));
+                                            }
+                                            const dateStr = dateObj.toLocaleString('en-US', { month: 'short', day: 'numeric' });
+
+                                            return (
+                                                <div key={action.id} className="flex gap-4 group cursor-pointer">
+                                                    <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center shrink-0 border border-white/10 group-hover:border-primary/50 transition-colors">
+                                                        <Icon className="w-4 h-4 text-zinc-400 group-hover:text-primary" />
+                                                    </div>
+                                                    <div>
+                                                        <div className="text-sm font-bold capitalize">{action.service} {action.feature}</div>
+                                                        <div className="text-[10px] text-zinc-500">{dateStr} • {action.description}</div>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })
+                                    )}
                                 </div>
-                                <Button variant="ghost" className="w-full mt-8 rounded-xl text-xs font-bold text-zinc-500 hover:text-white hover:bg-white/5">
-                                    View Full Logs <ChevronRight className="w-4 h-4" />
-                                </Button>
                             </div>
                         </div>
                     </div>

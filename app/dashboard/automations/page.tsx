@@ -30,6 +30,8 @@ export default function AutomationsPage() {
     const [selectedInstance, setSelectedInstance] = useState<N8nInstance | null>(null);
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [copied, setCopied] = useState(false);
+    const [dnsStatus, setDnsStatus] = useState<'checking' | 'resolved' | 'failed' | null>(null);
+    const [dnsMessage, setDnsMessage] = useState<string>('');
     
     const { showConfirm } = useModal();
     
@@ -121,6 +123,35 @@ export default function AutomationsPage() {
             if (interval) clearInterval(interval);
         };
     }, [instances, fetchInstances]);
+
+    // Check DNS when instance changes
+    useEffect(() => {
+        if (!selectedInstance?.generated_domain) {
+            setDnsStatus(null);
+            return;
+        }
+
+        const checkDns = async () => {
+            setDnsStatus('checking');
+            setDnsMessage('Checking DNS records...');
+            try {
+                const res = await fetch(`/api/dns?domain=${selectedInstance.generated_domain}`);
+                const data = await res.json();
+                if (data.resolved) {
+                    setDnsStatus('resolved');
+                    setDnsMessage(`DNS resolved to ${data.addresses.join(', ')}`);
+                } else {
+                    setDnsStatus('failed');
+                    setDnsMessage(`DNS query failed: ${data.error}`);
+                }
+            } catch (err: unknown) {
+                setDnsStatus('failed');
+                setDnsMessage((err as Error).message || 'DNS query failed');
+            }
+        };
+
+        checkDns();
+    }, [selectedInstance?.generated_domain]);
 
     const handleRestart = async (id: string) => {
         try {
@@ -361,6 +392,24 @@ export default function AutomationsPage() {
                                                     <h3 className="text-xs font-black uppercase tracking-[0.3em] text-zinc-500">Service Events</h3>
                                                 </div>
                                                 <div className="space-y-6">
+                                                    {dnsStatus && (
+                                                        <div className="flex gap-6 pb-6 border-b border-white/5 last:border-0 last:pb-0">
+                                                            <div className={cn(
+                                                                "w-1.5 h-1.5 rounded-full mt-1.5",
+                                                                dnsStatus === 'resolved' ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 
+                                                                dnsStatus === 'failed' ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]' : 
+                                                                'bg-yellow-500 animate-pulse'
+                                                            )} />
+                                                            <div className="flex-1 min-w-0">
+                                                                <div className="text-[11px] font-black uppercase tracking-tighter text-zinc-300 break-words mb-1">
+                                                                    DNS Verification: {dnsStatus === 'checking' ? 'Resolving Wildcard...' : dnsStatus === 'resolved' ? 'Propagation Successful' : 'Wildcard Resolution Failed'}
+                                                                </div>
+                                                                <div className="text-[9px] font-bold text-zinc-600 uppercase italic">
+                                                                    {dnsMessage || 'Checking DNS records...'}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    )}
                                                     {selectedInstance.events?.slice(-4).reverse().map((e, idx) => (
                                                         <div key={idx} className="flex gap-6 pb-6 border-b border-white/5 last:border-0 last:pb-0">
                                                             <div className={cn(
