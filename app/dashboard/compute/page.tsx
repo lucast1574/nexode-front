@@ -30,6 +30,7 @@ import { Sidebar, Subscription } from "@/components/Sidebar";
 import { cn } from "@/lib/utils";
 import { getAccessToken } from "@/lib/auth-utils";
 import { useModal } from "@/components/ui/modal";
+import { toast } from "sonner";
 import { ProvisionNodeModal } from "@/components/modals/ProvisionNodeModal";
 
 interface ComputeInstance {
@@ -958,18 +959,52 @@ function ComputePageContent() {
                                                         <div className="flex items-center justify-between mb-4">
                                                             <div className="flex items-center gap-2">
                                                                 <Globe className="w-4 h-4 text-blue-500" />
-                                                                <h4 className="font-bold text-sm">Deployment Domain</h4>
+                                                                <h4 className="font-bold text-sm">Custom Domain</h4>
                                                             </div>
-                                                            <span className="text-[9px] font-black text-zinc-600 uppercase">CDN & SSL Active</span>
+                                                            <span className="text-[9px] font-black text-zinc-600 uppercase">SSL Auto-configured</span>
                                                         </div>
-                                                        <div className="flex gap-4">
+                                                        <form onSubmit={async (e) => {
+                                                            e.preventDefault();
+                                                            const formData = new FormData(e.currentTarget);
+                                                            const domain = (formData.get('custom_domain') as string)?.trim();
+                                                            if (!domain) return;
+                                                            try {
+                                                                const token = getAccessToken();
+                                                                const GQL_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api-v1/graphql';
+                                                                const res = await fetch(GQL_URL, {
+                                                                    method: 'POST',
+                                                                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                                                                    credentials: 'include',
+                                                                    body: JSON.stringify({
+                                                                        query: `mutation UpdateDomain($id: String!, $custom_domain: String!) { updateComputeCustomDomain(id: $id, custom_domain: $custom_domain) { _id custom_domain } }`,
+                                                                        variables: { id: selectedInstance._id, custom_domain: domain },
+                                                                    }),
+                                                                });
+                                                                const result = await res.json();
+                                                                if (result.data?.updateComputeCustomDomain) {
+                                                                    toast.success(`Domain updated to ${domain}`);
+                                                                    fetchInstances();
+                                                                } else if (result.errors) {
+                                                                    toast.error(result.errors[0]?.message || 'Failed to update domain');
+                                                                }
+                                                            } catch (err) {
+                                                                toast.error('Failed to update domain');
+                                                            }
+                                                        }} className="flex gap-4">
                                                             <input
+                                                                name="custom_domain"
                                                                 className="flex-1 bg-black border border-white/10 rounded-2xl px-6 h-14 text-sm font-bold placeholder:text-zinc-700 focus:border-blue-500/50 transition-all outline-none"
                                                                 placeholder="e.g. app.myproject.com"
                                                                 defaultValue={selectedInstance.custom_domain}
                                                             />
-                                                            <Button className="rounded-2xl h-14 px-8 bg-blue-600 hover:bg-blue-500 font-bold uppercase tracking-widest text-xs">Update</Button>
-                                                        </div>
+                                                            <Button type="submit" className="rounded-2xl h-14 px-8 bg-blue-600 hover:bg-blue-500 font-bold uppercase tracking-widest text-xs">Update</Button>
+                                                        </form>
+                                                        {selectedInstance.generated_domain && (
+                                                            <div className="mt-3 flex items-center gap-2 text-[10px] text-zinc-500">
+                                                                <Globe className="w-3 h-3" />
+                                                                <span>Auto-assigned: <code className="text-zinc-400">{selectedInstance.generated_domain}</code></span>
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 </div>
                                             </div>

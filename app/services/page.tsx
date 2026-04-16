@@ -116,14 +116,14 @@ const SERVICES: Service[] = [
                 slug: "compute-basic",
                 price: 15,
                 specs: { "CPU": "1 vCPU", "RAM": "2 GB", "BANDWIDTH": "1 TB" },
-                features: ["Free Dedicated IP", "Standard SLA"]
+                features: ["Custom Subdomain", "Auto SSL"]
             },
             {
                 name: "Compute Pro",
                 slug: "compute-pro",
                 price: 45,
                 specs: { "CPU": "4 vCPU", "RAM": "8 GB", "BANDWIDTH": "5 TB" },
-                features: ["Custom ISO", "Premium SLA", "Snapshot API"]
+                features: ["Custom Domain", "Auto SSL", "Priority Support"]
             },
         ]
     }

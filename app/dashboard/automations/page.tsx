@@ -142,14 +142,14 @@ export default function AutomationsPage() {
                 const data = await res.json();
                 if (data.resolved) {
                     setDnsStatus('resolved');
-                    setDnsMessage(`DNS resolved to ${data.addresses.join(', ')}`);
+                    setDnsMessage('Domain is reachable and properly configured.');
                 } else {
                     setDnsStatus('failed');
-                    setDnsMessage(`DNS query failed: ${data.error}`);
+                    setDnsMessage('Domain could not be resolved. DNS propagation may still be in progress.');
                 }
             } catch (err: unknown) {
                 setDnsStatus('failed');
-                setDnsMessage((err as Error).message || 'DNS query failed');
+                setDnsMessage('DNS verification temporarily unavailable.');
             }
         };
 

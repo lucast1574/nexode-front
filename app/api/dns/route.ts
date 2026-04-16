@@ -13,9 +13,10 @@ export async function GET(request: Request) {
     }
 
     try {
-        const addresses = await resolveDns(domain);
-        return NextResponse.json({ resolved: true, addresses });
+        await resolveDns(domain);
+        // Only return resolution status, never expose IP addresses
+        return NextResponse.json({ resolved: true });
     } catch (error: unknown) {
-        return NextResponse.json({ resolved: false, error: (error as Error).message });
+        return NextResponse.json({ resolved: false, error: 'Domain could not be resolved' });
     }
 }
