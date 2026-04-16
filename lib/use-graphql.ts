@@ -62,6 +62,7 @@ export function useGraphQL<T = Record<string, unknown>>({
                 const response = await fetch(GQL_URL, {
                     method: "POST",
                     headers,
+                    credentials: "include",
                     body: JSON.stringify({
                         query,
                         variables: overrideVars ?? variables,

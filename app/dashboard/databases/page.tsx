@@ -22,6 +22,7 @@ import { cn } from "@/lib/utils";
 import { getAccessToken } from "@/lib/auth-utils";
 import { DeleteDatabaseModal } from "@/components/modals/DeleteDatabaseModal";
 import { useModal } from "@/components/ui/modal";
+import { useActionLock } from "@/lib/use-action-lock";
 
 interface DatabaseInstance {
     _id: string;
@@ -68,6 +69,9 @@ export default function DatabasesPage() {
     const [terminalLogs, setTerminalLogs] = useState<{ type: 'input' | 'output' | 'error', text: string }[]>(INITIAL_TERMINAL_LOGS);
     const [isExecuting, setIsExecuting] = useState(false);
     const { showAlert } = useModal();
+    const createLock = useActionLock(5000);
+    const restartLock = useActionLock(5000);
+    const deleteLock = useActionLock(5000);
 
     const fetchDatabases = useCallback(async () => {
         try {
@@ -154,6 +158,7 @@ export default function DatabasesPage() {
 
     const handleCreateDb = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        if (createLock.isLocked) return;
         const formData = new FormData(e.currentTarget);
         const name = formData.get('name') as string;
         const type = formData.get('type') as string;
@@ -250,6 +255,8 @@ export default function DatabasesPage() {
     };
 
     const handleRestartDb = async (id: string) => {
+        if (restartLock.isLocked) return;
+        await restartLock.execute(async () => {
         try {
             const token = getAccessToken();
             const GQL_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api-v1/graphql";
@@ -292,6 +299,7 @@ export default function DatabasesPage() {
                 type: "error"
             });
         }
+        });
     };
 
     const handleDeleteDb = async (db: DatabaseInstance) => {
@@ -301,6 +309,8 @@ export default function DatabasesPage() {
 
     const confirmDelete = async () => {
         if (!dbToDelete) return;
+        if (deleteLock.isLocked) return;
+        await deleteLock.execute(async () => {
 
         try {
             const token = getAccessToken();
@@ -347,6 +357,7 @@ export default function DatabasesPage() {
                 type: "error"
             });
         }
+        });
     };
 
     const handleExecuteCommand = async (e: React.FormEvent<HTMLFormElement>) => {

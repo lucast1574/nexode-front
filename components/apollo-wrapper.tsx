@@ -10,6 +10,7 @@ import {
 function makeClient() {
     const httpLink = new HttpLink({
         uri: process.env.NEXT_PUBLIC_API_URL || "https://backend.nexode.app/api-v1/graphql",
+        credentials: "include",
     });
 
     return new ApolloClient({
