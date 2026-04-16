@@ -22,7 +22,7 @@ interface N8nInstance {
 }
 
 export default function AutomationsPage() {
-    const [activeTab, setActiveTab] = useState<'designer' | 'overview'>('overview');
+
     const [loading, setLoading] = useState(true);
     const [instances, setInstances] = useState<N8nInstance[]>([]);
     const [user, setUser] = useState<{ first_name: string, email: string, avatar?: string } | null>(null);
@@ -303,28 +303,7 @@ export default function AutomationsPage() {
                                             </div>
                                         </div>
                                         
-                                        {/* Tabs */}
-                                        <div className="flex gap-8 border-b border-white/5">
-                                            {[
-                                                { id: 'overview', label: 'Cloud Overview', icon: Activity },
-                                                { id: 'designer', label: 'Workflow Designer', icon: Zap },
-                                            ].map((tab) => (
-                                                <button
-                                                    key={tab.id}
-                                                    onClick={() => setActiveTab(tab.id as 'overview' | 'designer')}
-                                                    className={cn(
-                                                        "flex items-center gap-3 pb-6 text-[11px] font-black uppercase tracking-[0.2em] transition-all relative",
-                                                        activeTab === tab.id ? "text-red-500" : "text-zinc-600 hover:text-zinc-400"
-                                                    )}
-                                                >
-                                                    <tab.icon className="w-4 h-4" />
-                                                    {tab.label}
-                                                    {activeTab === tab.id && (
-                                                        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-red-600 shadow-[0_0_12px_rgba(239,68,68,0.5)]" />
-                                                    )}
-                                                </button>
-                                            ))}
-                                        </div>
+
                                     </div>
                                     <div className="flex gap-4">
                                         <Button 
@@ -353,8 +332,6 @@ export default function AutomationsPage() {
                                     </div>
                                 </div>
 
-                                {activeTab === 'overview' ? (
-                                    <>
                                         <div className="flex items-center gap-6 px-4 py-2 bg-white/5 rounded-2xl border border-white/10 w-fit">
                                             <div className="flex items-center gap-2 text-emerald-400 font-bold text-[10px] uppercase tracking-widest">
                                                 <Activity className="w-3 h-3" /> API Ready
@@ -470,28 +447,6 @@ export default function AutomationsPage() {
                                                 </div>
                                             </div>
                                         </div>
-                                    </>
-                                ) : (
-                                    <div className="w-full h-[800px] bg-black rounded-[48px] border border-white/10 overflow-hidden relative group">
-                                         <iframe 
-                                            src={getN8nUrl(selectedInstance.generated_domain || '')}
-                                            className="w-full h-full border-none"
-                                            title="n8n Designer"
-                                            allow="clipboard-read; clipboard-write"
-                                            referrerPolicy="no-referrer-when-downgrade"
-                                        />
-                                        {/* Overlay hint if iframe fails to load */}
-                                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/80 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-                                            <p className="text-zinc-400 text-sm font-bold mb-2">Having trouble loading?</p>
-                                            <button
-                                                className="pointer-events-auto px-6 py-3 bg-red-600 hover:bg-red-500 text-white text-xs font-black uppercase tracking-widest rounded-2xl transition-colors"
-                                                onClick={() => window.open(getN8nUrl(selectedInstance.generated_domain || ''), '_blank')}
-                                            >
-                                                Open in New Tab
-                                            </button>
-                                        </div>
-                                    </div>
-                                )}
                             </div>
                         ) : (
                             <div className="h-full flex flex-col items-center justify-center p-12 text-center">
