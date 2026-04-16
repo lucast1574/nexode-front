@@ -453,13 +453,13 @@ function ComputePageContent() {
                     </div>
                     <Button
                         onClick={() => setShowCreateModal(true)}
-                        disabled={instances.length >= 2}
+                        
                         className={cn(
                             "rounded-2xl gap-2 font-bold shadow-lg transition-all",
-                            instances.length >= 2 ? "bg-zinc-800 text-zinc-500 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-500 shadow-blue-500/20"
+                            "bg-blue-600 hover:bg-blue-500 shadow-blue-500/20"
                         )}
                     >
-                        {instances.length >= 2 ? "Cluster Limit Reached" : <><Plus className="w-4 h-4" /> Deploy Instance</>}
+                        {<><Plus className="w-4 h-4" /> Deploy Instance</>}
                     </Button>
                 </header>
 
@@ -1028,7 +1028,7 @@ function ComputePageContent() {
                                 </div>
                                 <h2 className="text-5xl font-black tracking-tighter uppercase mb-4">Command Center</h2>
                                 <p className="text-zinc-500 max-w-md mx-auto text-lg mb-12">Provision high-performance compute clusters and deploy your applications globally in nano-seconds.</p>
-                                <Button onClick={() => setShowCreateModal(true)} disabled={instances.length >= 2} className="h-16 px-12 rounded-3xl bg-blue-600 hover:bg-blue-500 font-black uppercase tracking-widest shadow-2xl shadow-blue-500/20">
+                                <Button onClick={() => setShowCreateModal(true)}  className="h-16 px-12 rounded-3xl bg-blue-600 hover:bg-blue-500 font-black uppercase tracking-widest shadow-2xl shadow-blue-500/20">
                                     Deploy First Node <ChevronRight className="w-5 h-5 ml-2" />
                                 </Button>
                             </div>

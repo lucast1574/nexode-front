@@ -237,13 +237,13 @@ export default function AutomationsPage() {
                     </div>
                     <Button
                         onClick={() => setShowCreateModal(true)}
-                        disabled={instances.length >= subLimit}
+                        
                         className={cn(
                             "rounded-2xl gap-2 font-bold shadow-lg transition-all",
-                            instances.length >= subLimit ? "bg-zinc-800 text-zinc-500 cursor-not-allowed" : "bg-red-600 hover:bg-red-500 shadow-red-500/20"
+                            "bg-red-600 hover:bg-red-500 shadow-red-500/20"
                         )}
                     >
-                        {instances.length >= subLimit ? "Cluster Limit Reached" : <><Plus className="w-4 h-4" /> Provision n8n</>}
+                        {<><Plus className="w-4 h-4" /> Provision n8n</>}
                     </Button>
                 </header>
 
