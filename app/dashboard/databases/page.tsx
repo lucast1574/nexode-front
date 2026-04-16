@@ -17,7 +17,7 @@ import {
     EyeOff
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Sidebar, Subscription } from "@/components/Sidebar";
+import { Subscription } from "@/components/Sidebar";
 import { cn } from "@/lib/utils";
 import { getAccessToken } from "@/lib/auth-utils";
 import { DeleteDatabaseModal } from "@/components/modals/DeleteDatabaseModal";
@@ -41,11 +41,7 @@ interface DatabaseInstance {
     events?: { timestamp: string; message: string; type: string }[];
 }
 
-interface User {
-    first_name: string;
-    email: string;
-    avatar?: string;
-}
+
 
 const INITIAL_TERMINAL_LOGS: { type: 'input' | 'output' | 'error', text: string }[] = [
     { type: 'output', text: 'Nexode Secure Terminal v1.1.0' },
@@ -56,7 +52,6 @@ const INITIAL_TERMINAL_LOGS: { type: 'input' | 'output' | 'error', text: string 
 export default function DatabasesPage() {
     const [loading, setLoading] = useState(true);
     const [databases, setDatabases] = useState<DatabaseInstance[]>([]);
-    const [user, setUser] = useState<User | null>(null);
     const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
     const [selectedDb, setSelectedDb] = useState<DatabaseInstance | null>(null);
     const [showCreateModal, setShowCreateModal] = useState(false);
@@ -89,7 +84,6 @@ export default function DatabasesPage() {
 
             const query = `
                 query GetDatabases {
-                    me { first_name email avatar }
                     mySubscriptions { id service status plan { name slug features } }
                     myDatabases {
                         _id name type status host port username password db_name connection_string public_uri internal_uri created_on
@@ -109,7 +103,6 @@ export default function DatabasesPage() {
 
             const result = await res.json();
             if (result.data) {
-                setUser(result.data.me);
                 setSubscriptions(result.data.mySubscriptions || []);
                 const dbs = result.data.myDatabases || [];
                 setDatabases(dbs);
@@ -484,7 +477,8 @@ export default function DatabasesPage() {
                                                 "text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full border",
                                                 db.type === 'postgres' ? 'text-blue-400 border-blue-400/20 bg-blue-400/10' :
                                                     db.type === 'mongodb' ? 'text-emerald-400 border-emerald-400/20 bg-emerald-400/10' :
-                                                        'text-red-400 border-red-400/20 bg-red-400/10'
+                                                        db.type === 'mysql' ? 'text-blue-500 border-blue-500/20 bg-blue-500/10' :
+                                                            'text-red-400 border-red-400/20 bg-red-400/10'
                                             )}>
                                                 {db.type}
                                             </span>
@@ -577,13 +571,13 @@ export default function DatabasesPage() {
                                                             selectedDb.type === 'mongodb' ? 'bg-emerald-500/10 border-emerald-500/20' :
                                                                 selectedDb.type === 'postgres' ? 'bg-blue-500/10 border-blue-500/20' :
                                                                     selectedDb.type === 'redis' ? 'bg-red-500/10 border-red-500/20' :
-                                                                        selectedDb.type === 'mysql' ? 'bg-[#00758F]/10 border-[#00758F]/20' :
+                                                                        selectedDb.type === 'mysql' ? 'bg-blue-600/10 border-blue-600/20' :
                                                                             'bg-primary/10 border-primary/20'
                                                         )}>
                                                             {selectedDb.type === 'mongodb' ? <Database className="w-5 h-5 text-emerald-400" /> :
                                                                 selectedDb.type === 'postgres' ? <Database className="w-5 h-5 text-blue-400" /> :
                                                                     selectedDb.type === 'redis' ? <Database className="w-5 h-5 text-red-500" /> :
-                                                                        selectedDb.type === 'mysql' ? <Database className="w-5 h-5 text-[#00758F]" /> :
+                                                                        selectedDb.type === 'mysql' ? <Database className="w-5 h-5 text-blue-500" /> :
                                                                             <Database className="w-5 h-5 text-primary" />}
                                                         </div>
                                                         <div>
@@ -757,7 +751,7 @@ export default function DatabasesPage() {
                                                         value: `jdbc:mysql://${selectedDb.host || 'backend.nexode.app'}:${selectedDb.port || 3306}/${selectedDb.db_name}`,
                                                         field: 'jdbc_mysql', secret: true
                                                     }] : [])
-                                                ].map((item) => (
+                                                ].map((item: { label: string, value: string | undefined, field: string, secret?: boolean }) => (
                                                     <div key={item.field} className="group p-6 rounded-[24px] bg-white/[0.03] border border-white/5 hover:border-primary/20 transition-all">
                                                         <div className="flex items-center justify-between mb-4">
                                                             <span className="text-xs font-black uppercase tracking-widest text-zinc-500">{item.label}</span>
@@ -771,8 +765,8 @@ export default function DatabasesPage() {
                                                             </Button>
                                                         </div>
                                                         <div className="bg-black/50 p-4 rounded-xl border border-white/5 font-mono text-sm break-all flex items-center justify-between gap-3">
-                                                            <span className="flex-1 overflow-hidden">{maskValue(item.value, item.field, !!(item as any).secret)}</span>
-                                                            {(item as any).secret && (
+                                                            <span className="flex-1 overflow-hidden">{maskValue(item.value, item.field, !!item.secret)}</span>
+                                                            {item.secret && (
                                                                 <button
                                                                     onClick={() => toggleReveal(item.field)}
                                                                     className="shrink-0 p-1.5 rounded-lg hover:bg-white/10 text-zinc-500 hover:text-white transition-colors"
