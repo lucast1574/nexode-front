@@ -20,6 +20,31 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Nexode - Fast Deploy Center",
   description: "Deploy high-performance servers, databases, and automation workflows in seconds.",
+  icons: {
+    icon: "/favicon.svg",
+    apple: "/apple-touch-icon.png",
+  },
+  openGraph: {
+    title: "Nexode - Fast Deploy Center",
+    description: "Deploy high-performance servers, databases, and automation workflows in seconds.",
+    url: "https://dash.nexode.app",
+    siteName: "Nexode",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Nexode",
+      },
+    ],
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Nexode - Fast Deploy Center",
+    description: "Deploy high-performance servers, databases, and automation workflows in seconds.",
+    images: ["/og-image.png"],
+  },
 };
 
 export default function RootLayout({

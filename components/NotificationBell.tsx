@@ -202,7 +202,7 @@ export function NotificationBell() {
             >
                 <Bell className={cn("w-6 h-6 transition-all", unviewedCount > 0 ? "text-primary animate-pulse" : "text-zinc-400")} />
                 {unviewedCount > 0 && (
-                    <span className="absolute top-2.5 right-2.5 px-1.5 py-0.5 min-w-[18px] h-[18px] bg-primary text-white text-[10px] font-black rounded-full border-2 border-white/20 flex items-center justify-center">
+                    <span className="absolute top-2.5 right-2.5 px-1.5 py-0.5 min-w-[18px] h-[18px] bg-primary text-white text-[10px] font-black rounded-full flex items-center justify-center">
                         {unviewedCount > 9 ? "9+" : unviewedCount}
                     </span>
                 )}
