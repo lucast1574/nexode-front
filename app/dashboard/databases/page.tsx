@@ -622,7 +622,7 @@ export default function DatabasesPage() {
                                                         </div>
                                                         <div>
                                                             <div className="font-bold text-emerald-400">Optimal</div>
-                                                            <div className="text-xs text-zinc-500">99.99% Uptime</div>
+                                                            <div className="text-xs text-zinc-500">Monitored</div>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -696,7 +696,7 @@ export default function DatabasesPage() {
                                                         {selectedDb.events.map((event, idx) => (
                                                             <div key={idx} className="flex gap-6 relative">
                                                                 <div className={cn(
-                                                                    "w-4 h-4 rounded-full border-2 border-[#050505] relative z-10 shrink-0 mt-1",
+                                                                    "w-4 h-4 rounded-full border-2 border-zinc-700 relative z-10 shrink-0 mt-1",
                                                                     event.type === 'success' ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' :
                                                                         event.type === 'error' ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]' : 'bg-primary'
                                                                 )} />

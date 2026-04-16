@@ -461,7 +461,7 @@ export default function AutomationsPage() {
                                                     </div>
                                                     <div className="text-center">
                                                         <div className="text-[9px] font-black text-zinc-700 uppercase mb-1">Region</div>
-                                                        <div className="text-xs font-black text-zinc-300 tracking-tighter">US-EAST-1</div>
+                                                        <div className="text-xs font-black text-zinc-300 tracking-tighter">Local Server</div>
                                                     </div>
                                                 </div>
                                             </div>

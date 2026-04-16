@@ -362,7 +362,7 @@ export default function ServicesPage() {
                         <div className="flex items-center gap-6 px-4">
                             <div className="bg-primary/20 p-3 rounded-2xl relative">
                                 <Zap className="w-6 h-6 text-primary" />
-                                <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-[#050505]">
+                                <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white/20">
                                     {selectedCount}
                                 </span>
                             </div>
@@ -424,7 +424,7 @@ export default function ServicesPage() {
                     </div>
                 </div>
                 <div className="mt-24 pt-12 border-t border-white/5 text-center text-zinc-400 text-sm">
-                    © {new Date().getFullYear()} Nexode Technologies. Built for elite scale.
+                    © {new Date().getFullYear()} Nexode Technologies. All rights reserved.
                 </div>
             </footer>
         </div>

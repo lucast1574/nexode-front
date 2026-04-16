@@ -410,14 +410,9 @@ export default function SettingsPage() {
                         </div>
 
                         {/* System Info */}
-                        <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row items-center justify-between gap-4">
-                            <div className="flex items-center gap-2 text-[10px] font-bold text-zinc-400 uppercase tracking-[0.2em]">
-                                <Globe className="w-3 h-3 text-white" /> Infrastructure Edge: North Virginia (US-EAST-1)
-                            </div>
-                            <div className="flex items-center gap-4 text-[10px] font-bold text-zinc-500 uppercase tracking-widest">
-                                <span className="hover:text-primary transition-colors cursor-pointer">Compliance</span>
-                                <span className="hover:text-primary transition-colors cursor-pointer">Terms of Service</span>
-                                <span className="text-white">v2.4.0-prod</span>
+                        <div className="pt-8 border-t border-white/5 flex items-center justify-center">
+                            <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">
+                                © {new Date().getFullYear()} Nexode Technologies
                             </div>
                         </div>
                     </div>

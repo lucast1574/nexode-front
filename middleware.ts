@@ -23,6 +23,11 @@ export function middleware(request: NextRequest) {
         return NextResponse.redirect(loginUrl);
     }
 
+    // Landing page: redirect to dashboard if already logged in
+    if (pathname === "/" && isAuthenticated) {
+        return NextResponse.redirect(new URL("/dashboard", request.url));
+    }
+
     // Auth routes: redirect to dashboard if already logged in
     const isAuthRoute = AUTH_ROUTES.some((route) => pathname.startsWith(route));
 
@@ -35,6 +40,7 @@ export function middleware(request: NextRequest) {
 
 export const config = {
     matcher: [
+        "/",
         "/dashboard/:path*",
         "/checkout/:path*",
         "/auth/:path*",

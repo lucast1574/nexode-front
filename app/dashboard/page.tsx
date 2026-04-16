@@ -177,17 +177,17 @@ export default function DashboardPage() {
                         <Zap className="absolute -bottom-4 -right-4 w-32 h-32 text-primary/5 -rotate-12 group-hover:scale-110 transition-transform duration-500" />
                     </div>
                     <div className="bg-white/[0.03] border border-white/10 rounded-[32px] p-8">
-                        <h3 className="text-xl font-bold mb-4">Instance Health</h3>
+                        <h3 className="text-xl font-bold mb-4">System Status</h3>
                         <div className="space-y-4">
                             <div className="flex items-center justify-between text-sm">
-                                <span className="text-zinc-500">Uptime</span>
-                                <span className="font-bold text-emerald-400">99.98%</span>
+                                <span className="text-zinc-500">Services</span>
+                                <span className="font-bold text-emerald-400">{subscriptions.length} Active</span>
                             </div>
                             <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
-                                <div className="h-full bg-emerald-400 w-[99.98%]" />
+                                <div className="h-full bg-emerald-400" style={{ width: '100%' }} />
                             </div>
                             <div className="flex items-center justify-between text-sm">
-                                <span className="text-zinc-500">Global Connectivity</span>
+                                <span className="text-zinc-500">Infrastructure</span>
                                 <span className="font-bold text-primary">Operational</span>
                             </div>
                         </div>

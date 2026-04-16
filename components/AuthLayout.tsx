@@ -50,17 +50,17 @@ const AuthLayout = ({ children }: AuthLayoutProps) => {
                                     <div className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center">
                                         <div className="w-12 h-12 bg-primary rounded-lg animate-bounce" />
                                     </div>
-                                    <h2 className="text-2xl font-bold">Boost Your Business</h2>
+                                    <h2 className="text-2xl font-bold">Deploy in Seconds</h2>
                                     <p className="text-muted-foreground max-w-[300px]">
-                                        The most powerful platform to manage and grow your seller account.
+                                        Servers, databases, and automation workflows — ready when you are.
                                     </p>
                                 </div>
                             </div>
                         </div>
 
                         <div className="space-y-2">
-                            <h3 className="text-xl font-semibold">Join thousands of sellers</h3>
-                            <p className="text-sm text-muted-foreground">Nexode provides the tools you need to succeed in the digital marketplace.</p>
+                            <h3 className="text-xl font-semibold">Infrastructure made simple</h3>
+                            <p className="text-sm text-muted-foreground">Nexode gives you everything you need to deploy and scale your projects.</p>
                         </div>
                     </div>
                 </div>

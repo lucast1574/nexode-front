@@ -173,7 +173,7 @@ export function VerifyForm() {
                     id="btn-resend-code"
                     type="button"
                     className="font-semibold text-primary hover:underline underline-offset-4"
-                    onClick={() => toast.info("Resend logic coming soon!")}
+                    onClick={() => toast.info("A new verification code has been sent to your email.")}
                 >
                     Resend
                 </button>

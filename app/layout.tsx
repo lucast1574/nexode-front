@@ -18,8 +18,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Nexode - Premium Seller Platform",
-  description: "The most powerful platform to manage and grow your seller account.",
+  title: "Nexode - Fast Deploy Center",
+  description: "Deploy high-performance servers, databases, and automation workflows in seconds.",
 };
 
 export default function RootLayout({

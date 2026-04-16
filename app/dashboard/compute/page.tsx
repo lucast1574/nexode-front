@@ -65,7 +65,7 @@ interface User {
 
 
 const INITIAL_TERMINAL_LOGS: { type: 'input' | 'output' | 'error', text: string }[] = [
-    { type: 'output', text: 'Nexode Cloud Armor v2.4.0 — Secure Shell Proxy' },
+    { type: 'output', text: 'Nexode Secure Terminal — Secure Shell Proxy' },
     { type: 'output', text: 'Establishing isolated TTY session...' },
     { type: 'output', text: 'Environment: Ephemeral Compute Node (Filtered Access)' },
     { type: 'output', text: 'Type "help" to see available commands.' }
@@ -735,7 +735,7 @@ function ComputePageContent() {
                                                 {selectedInstance.events?.map((e, idx) => (
                                                     <div key={idx} className="flex gap-10 relative group">
                                                         <div className={cn(
-                                                            "w-4 h-4 rounded-full border-2 border-[#050505] relative z-10 shrink-0 mt-2 transition-all",
+                                                            "w-4 h-4 rounded-full border-2 border-zinc-700 relative z-10 shrink-0 mt-2 transition-all",
                                                             e.type === 'success' ? 'bg-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.5)]' :
                                                                 e.type === 'error' ? 'bg-red-500 shadow-[0_0_12px_rgba(239,68,68,0.3)]' : 'bg-blue-500 shadow-[0_0_12px_rgba(59,130,246,0.3)]'
                                                         )} />
