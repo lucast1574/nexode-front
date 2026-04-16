@@ -336,12 +336,16 @@ export default function AutomationsPage() {
                                         </Button>
                                         <Button 
                                             variant="outline" 
+                                            title="Redeploy this n8n instance"
                                             onClick={() => handleRestart(selectedInstance._id)} 
                                             disabled={cooldown > 0 || restarting}
-                                            className="rounded-2xl h-14 min-w-[56px] px-4 border-white/10 bg-white/5 hover:bg-white/10 gap-2"
+                                            className="rounded-2xl h-14 px-6 border-white/10 bg-white/5 hover:bg-white/10 gap-2"
                                         >
-                                            <RefreshCw className={cn("w-5 h-5 text-zinc-500", restarting ? "animate-spin text-red-500" : "")} />
-                                            {cooldown > 0 && <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">{cooldown}s</span>}
+                                            <RefreshCw className={cn("w-5 h-5", restarting ? "animate-spin text-red-500" : "text-zinc-500")} />
+                                            {cooldown > 0 
+                                                ? <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">{cooldown}s</span>
+                                                : <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest">Redeploy</span>
+                                            }
                                         </Button>
                                         <Button onClick={() => handleDelete(selectedInstance._id)} className="rounded-2xl h-14 w-14 p-0 bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500/20">
                                             <Trash2 className="w-5 h-5" />
