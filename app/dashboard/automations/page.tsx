@@ -309,9 +309,10 @@ export default function AutomationsPage() {
                                         <Button 
                                             onClick={() => window.open(getN8nUrl(selectedInstance.generated_domain || ''), '_blank')}
                                             variant="outline"
-                                            className="rounded-2xl h-14 px-8 border-white/10 bg-white/5 hover:bg-white/10 font-black uppercase tracking-widest text-[11px] text-zinc-500 gap-3"
+                                            disabled={selectedInstance.status.toLowerCase() !== 'running'}
+                                            className="rounded-2xl h-14 px-8 border-white/10 bg-white/5 hover:bg-white/10 font-black uppercase tracking-widest text-[11px] text-zinc-500 gap-3 disabled:opacity-30 disabled:cursor-not-allowed"
                                         >
-                                            <ExternalLink className="w-4 h-4" /> Popup
+                                            <ExternalLink className="w-4 h-4" /> {selectedInstance.status.toLowerCase() === 'running' ? 'Open' : 'Deploying...'}
                                         </Button>
                                         <Button 
                                             variant="outline" 
@@ -359,9 +360,17 @@ export default function AutomationsPage() {
                                                     </div>
                                                     <div>
                                                         <div className="text-[10px] font-black uppercase tracking-widest text-zinc-600 mb-1">Production URL</div>
-                                                        <code className="text-lg font-black text-white italic">{getN8nUrl(selectedInstance.generated_domain || '')}</code>
+                                                        {selectedInstance.status.toLowerCase() === 'running' ? (
+                                                            <code className="text-lg font-black text-white italic">{getN8nUrl(selectedInstance.generated_domain || '')}</code>
+                                                        ) : (
+                                                            <div className="flex items-center gap-3">
+                                                                <div className="w-4 h-4 border-2 border-red-500/30 border-t-red-500 rounded-full animate-spin" />
+                                                                <span className="text-sm font-bold text-zinc-500">Deploying... URL will appear when ready</span>
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 </div>
+                                                {selectedInstance.status.toLowerCase() === 'running' && (
                                                 <div className="flex items-center gap-2">
                                                     <Button 
                                                         variant="ghost" 
@@ -382,6 +391,7 @@ export default function AutomationsPage() {
                                                         <ExternalLink className="w-5 h-5" />
                                                     </Button>
                                                 </div>
+                                                )}
                                             </div>
                                         </div>
 
