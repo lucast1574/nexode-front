@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import {
     Database,
     Plus,
@@ -73,6 +73,13 @@ export default function DatabasesPage() {
     const restartLock = useActionLock(5000);
     const deleteLock = useActionLock(5000);
 
+    const selectedDbIdRef = useRef<string | null>(null);
+
+    // Keep ref in sync
+    useEffect(() => {
+        selectedDbIdRef.current = selectedDb?._id || null;
+    }, [selectedDb?._id]);
+
     const fetchDatabases = useCallback(async () => {
         try {
             const token = getAccessToken();
@@ -107,8 +114,9 @@ export default function DatabasesPage() {
                 const dbs = result.data.myDatabases || [];
                 setDatabases(dbs);
 
-                if (selectedDb) {
-                    const updated = dbs.find((d: DatabaseInstance) => d._id === selectedDb._id);
+                const currentId = selectedDbIdRef.current;
+                if (currentId) {
+                    const updated = dbs.find((d: DatabaseInstance) => d._id === currentId);
                     if (updated) {
                         setSelectedDb(updated);
                     } else {
@@ -123,7 +131,7 @@ export default function DatabasesPage() {
         } finally {
             setLoading(false);
         }
-    }, [selectedDb]);
+    }, []);
 
     useEffect(() => {
         fetchDatabases();
