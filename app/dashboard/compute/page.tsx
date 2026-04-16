@@ -607,22 +607,15 @@ function ComputePageContent() {
                                                                 <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
                                                                     <Activity className="w-5 h-5 text-blue-500" />
                                                                 </div>
-                                                                <code className="text-sm font-black truncate text-blue-100">https://{selectedInstance.generated_domain}</code>
+                                                                <code className="text-sm font-black truncate text-blue-100">
+                                                                    https://{selectedInstance.generated_domain}{selectedInstance.type === 'BACKEND' ? '/health' : ''}
+                                                                </code>
                                                             </div>
                                                             <div className="flex gap-2">
-                                                                <Button variant="ghost" size="icon" onClick={() => handleCopy(`https://${selectedInstance.generated_domain}`, 'prod_url')} className="hover:bg-blue-500/10 text-zinc-400 hover:text-blue-500 rounded-xl">
+                                                                <Button variant="ghost" size="icon" onClick={() => handleCopy(`https://${selectedInstance.generated_domain}${selectedInstance.type === 'BACKEND' ? '/health' : ''}`, 'prod_url')} className="hover:bg-blue-500/10 text-zinc-400 hover:text-blue-500 rounded-xl">
                                                                     {copiedField === 'prod_url' ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
                                                                 </Button>
-                                                                <Button 
-                                                                    variant="ghost" 
-                                                                    size="icon" 
-                                                                    title="Check Backend Status (/status)"
-                                                                    onClick={() => window.open(`https://${selectedInstance.generated_domain}/status`, '_blank')}
-                                                                    className="hover:bg-blue-500/10 text-zinc-400 hover:text-emerald-500 rounded-xl"
-                                                                >
-                                                                    <Activity className="w-4 h-4" />
-                                                                </Button>
-                                                                <Button variant="ghost" size="icon" onClick={() => window.open(`https://${selectedInstance.generated_domain}`, '_blank')} className="hover:bg-blue-500/10 text-zinc-400 hover:text-blue-500 rounded-xl">
+                                                                <Button variant="ghost" size="icon" onClick={() => window.open(`https://${selectedInstance.generated_domain}${selectedInstance.type === 'BACKEND' ? '/health' : ''}`, '_blank')} className="hover:bg-blue-500/10 text-zinc-400 hover:text-blue-500 rounded-xl">
                                                                     <ExternalLink className="w-4 h-4" />
                                                                 </Button>
                                                             </div>
