@@ -17,9 +17,11 @@ export function middleware(request: NextRequest) {
         pathname.startsWith(route)
     );
 
-    if (isProtected && !isAuthenticated) {
+    const hasSessionId = request.nextUrl.searchParams.has("session_id");
+
+    if (isProtected && !isAuthenticated && !hasSessionId) {
         const loginUrl = new URL("/auth/login", request.url);
-        loginUrl.searchParams.set("redirect", pathname);
+        loginUrl.searchParams.set("redirect", request.nextUrl.pathname + request.nextUrl.search);
         return NextResponse.redirect(loginUrl);
     }
 
