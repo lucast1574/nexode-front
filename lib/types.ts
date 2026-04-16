@@ -4,6 +4,7 @@ export interface User {
     first_name: string;
     last_name: string;
     avatar: string;
+    notifications_enabled?: boolean;
     role: {
         slug: string;
     };

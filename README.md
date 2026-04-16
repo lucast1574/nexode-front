@@ -1,103 +1,95 @@
-# 🌐 Nexode Frontend
+# Nexode Frontend
 
-> **The Cockpit for Your Cloud.** A premium, high-performance dashboard built with Next.js 15+ to manage your Nexode infrastructure, n8n instances, and cloud services.
+Cloud infrastructure management dashboard built with Next.js 16.
 
-[![Next.js](https://img.shields.io/badge/framework-Next.js%2015-000000?style=for-the-badge&logo=nextdotjs)](https://nextjs.org/)
-[![Tailwind CSS](https://img.shields.io/badge/styling-Tailwind%204.0-38BDB8?style=for-the-badge&logo=tailwindcss)](https://tailwindcss.com/)
-[![Aesthetic](https://img.shields.io/badge/aesthetic-premium-FFD700?style=for-the-badge)](https://nexode.app)
+## Stack
 
----
+- **Framework:** Next.js 16 (App Router)
+- **Styling:** Tailwind CSS + shadcn/ui (Radix primitives)
+- **API:** Apollo Client + GraphQL (NestJS backend)
+- **Auth:** JWT via HttpOnly cookies + Google OAuth + Cloudflare Turnstile
+- **Icons:** Lucide React
+- **Notifications:** Sonner (toast)
 
-## ✨ Features
+## Architecture
 
-Nexode Front is designed to provide a world-class user experience for managing complex cloud workflows.
+```
+app/
+├── page.tsx                    # Landing (Server Component, SSR)
+├── layout.tsx                  # Root layout (ThemeProvider, Apollo, Google OAuth)
+├── middleware.ts               # Edge auth guard (protects /dashboard, /checkout)
+├── auth/
+│   ├── login/                  # Email + Google login
+│   ├── register/               # Registration with password strength
+│   └── verify-email/           # 6-char code verification (auto-submit from URL)
+├── services/                   # Public pricing catalog (n8n, Database, Compute)
+├── checkout/                   # Subscription management (Stripe portal)
+├── dashboard/
+│   ├── layout.tsx              # Shared sidebar, auth context (useDashboard hook)
+│   ├── error.tsx               # Error boundary
+│   ├── loading.tsx             # Route transition skeleton
+│   ├── page.tsx                # System overview (service cards)
+│   ├── automations/            # n8n instance management + embedded designer
+│   ├── databases/              # DB provisioning + credentials (masked) + terminal
+│   ├── compute/                # Git-based deployments via Dokploy
+│   ├── billing/                # Usage stats, invoices, Stripe portal
+│   └── settings/               # Profile, notifications, security, danger zone
+└── api/dns/                    # DNS propagation checker (Node.js dns module)
 
-- 🎨 **Modern UI/UX**: Built with a "premium-first" approach using high-end glassmorphism and subtle animations.
-- ⚡ **Next.js 15+ Core**: Leveraging the latest App Router, Server Components, and Streaming for lightning-fast speeds.
-- 🔐 **Secure Access**: Integrated flows for Login, Registration (with password strength check), and Social Auth.
-- 📊 **Real-time Dashboards**: Visual insight into your running n8n nodes, DB status, and resource usage.
-- 🌑 **Adaptive Dark Mode**: Native support for light/dark themes via `next-themes`.
-- 📱 **Fully Responsive**: Optimized for every device, from mobile to ultra-wide displays.
+components/
+├── PublicNav.tsx                # Shared nav for public pages
+├── Sidebar.tsx                 # Dashboard sidebar (dynamic based on subscriptions)
+├── AuthLayout.tsx              # Split-screen auth layout
+├── NotificationBell.tsx        # Real-time notification dropdown
+├── apollo-wrapper.tsx          # Apollo Client provider (credentials: include)
+├── user-nav.tsx                # User dropdown (avatar, settings, logout)
+└── modals/                     # ProvisionN8n, ProvisionNode, DeleteDatabase
 
----
-
-## 🏗 Technology
-
-- **Framework**: [Next.js 15.1+](https://nextjs.org/)
-- **Styling**: [Tailwind CSS 4.0](https://tailwindcss.com/)
-- **Components**: Radix UI & Lucide Icons
-- **State Management**: SWR & React Context
-- **Transitions**: Framer Motion
-- **Notifications**: Sonner
-
----
-
-## 🚀 Getting Started
-
-### Prerequisites
-
-- Node.js (v20 or higher)
-- npm or pnpm
-
-### Installation
-
-1. **Clone the repository**
-
-   ```bash
-   git clone https://github.com/nexode-org/nexode-front.git
-   cd nexode-front
-   ```
-
-2. **Install dependencies**
-
-   ```bash
-   npm install
-   ```
-
-3. **Configure Environment**
-
-   ```bash
-   cp .env.example .env
-   # Update variables in .env
-   ```
-
-4. **Launch Development Server**
-
-   ```bash
-   npm run dev
-   ```
-
----
-
-## 📁 Key Directories
-
-```text
-app/        # App router (Pages and API routes)
-components/ # Shared UI and functional components
-lib/        # Utility functions and shared logic
-public/     # Static assets (logos, illustrations)
-styles/     # Gloabl CSS and Tailwind configuration
+lib/
+├── auth-utils.ts               # Session management (HttpOnly cookie aware)
+├── api-client.ts               # gqlFetch() with auto token refresh on 401
+├── graphql-operations.ts       # All queries/mutations with fragments
+├── graphql-mutations.ts        # Auth mutations (legacy, used by auth forms)
+├── use-graphql.ts              # useGraphQL hook (fetch wrapper with auth)
+├── use-action-lock.ts          # Debounce hook for destructive actions
+├── apollo-client.ts            # Apollo client config
+├── types.ts                    # Shared TypeScript interfaces
+└── utils.ts                    # cn() classname utility
 ```
 
----
+## Security
 
-## 🎨 Design Philosophy
+- **HttpOnly cookies** for access/refresh tokens (immune to XSS)
+- `has_session` non-HttpOnly flag for middleware and UI checks
+- Edge middleware redirects unauthenticated users before page loads
+- Cloudflare Turnstile on login/register forms
+- Credentials masked by default on database detail pages (eye toggle to reveal)
+- Action lock (5s cooldown) on deploy/restart/delete buttons
 
-Nexode Front follows a "Minimalist-Industrial" design language:
+## Getting Started
 
-- **Depth**: Using subtle shadows and border gradients.
-- **Micro-interactions**: Every button and link feels alive through Framer Motion.
-- **Contrast**: High legibility in both light and dark modes.
+```bash
+# Install
+npm install
 
----
+# Development
+npm run dev
 
-## 🤝 Community & Support
+# Build
+npm run build
+npm start
+```
 
-Join us in building the future of cloud automation.
+## Environment Variables
 
-- **Author**: Nexode Engineering
-- **Website**: [nexode.app](https://nexode.app)
+```env
+NEXT_PUBLIC_API_URL=http://localhost:4000/api-v1/graphql
+NEXT_PUBLIC_TURNSTILE_SITE_KEY=           # Optional: Cloudflare Turnstile
+NEXT_PUBLIC_GOOGLE_CLIENT_ID=             # Google OAuth client ID
+```
 
-## 📄 License
+## User Flows
 
-Nexode Front is proprietary software. All rights reserved.
+**New user:** Landing → Services (pricing) → Select plan → Stripe checkout → Dashboard
+**Existing user:** Login → Dashboard → Open Console → Manage instances
+**Guest checkout:** Stripe → auto-login via session_id → Dashboard
