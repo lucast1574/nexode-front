@@ -248,7 +248,7 @@ export default function SettingsPage() {
                     </div>
                 </header>
 
-                <div className="p-8 pt-24 max-w-4xl mx-auto w-full">
+                <div className="flex-1 overflow-y-auto p-8 pt-24 max-w-4xl mx-auto w-full">
                     <div className="mb-10">
                         <h1 className="text-3xl font-black tracking-tight mb-2">Configuration</h1>
                         <p className="text-zinc-500">Manage your system preferences and account data.</p>
