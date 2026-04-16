@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Database, Cpu, Workflow, ArrowRight, Shield, Globe, CreditCard, Settings, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { UserNav } from "@/components/user-nav";
+import { PublicNav } from "@/components/PublicNav";
 import { getAccessToken } from "@/lib/auth-utils";
 import { useModal } from "@/components/ui/modal";
 
@@ -127,16 +127,7 @@ export default function CheckoutPage() {
                 <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-600/10 blur-[150px] rounded-full" />
             </div>
 
-            <nav className="relative z-50 border-b border-white/5 bg-black/50 backdrop-blur-xl">
-                <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-                    <Link href="/" className="text-2xl font-black italic tracking-tighter text-primary">NEXODE</Link>
-                    <div className="flex items-center gap-6">
-                        <Link href="/services" className="text-sm font-bold text-primary hover:text-primary/80 transition-colors">Add Service</Link>
-                        <Link href="/dashboard" className="text-sm font-medium text-zinc-400 hover:text-white transition-colors">Dashboard</Link>
-                        <UserNav />
-                    </div>
-                </div>
-            </nav>
+            <PublicNav />
 
             <header className="relative z-10 pt-20 pb-16 px-6 text-center max-w-4xl mx-auto">
                 <h1 className="text-4xl md:text-6xl font-black tracking-tight mb-6">

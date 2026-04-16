@@ -84,7 +84,7 @@ export function Sidebar({ user, subscriptions }: SidebarProps) {
             </nav>
 
             <div className="p-6 border-t border-white/5 mx-4 mb-6">
-                <Link href="/profile" className="flex items-center gap-3 mb-6 p-2 rounded-2xl hover:bg-white/5 transition-all group">
+                <Link href="/dashboard/settings" className="flex items-center gap-3 mb-6 p-2 rounded-2xl hover:bg-white/5 transition-all group">
                     <div className="w-10 h-10 rounded-full bg-zinc-800 border border-white/10 overflow-hidden relative group-hover:border-primary/50 transition-colors">
                         {user?.avatar && (
                             <Image

@@ -43,3 +43,51 @@ export interface RegisterData {
 export interface VerifyEmailData {
     verifyEmail: AuthResponse;
 }
+
+
+// Subscription types (used across dashboard pages)
+export interface SubscriptionPlan {
+    name: string;
+    slug: string;
+    features: Record<string, string>;
+    price_monthly?: number;
+    price_annual?: number;
+}
+
+export interface SubscriptionBase {
+    id: string;
+    service: string;
+    status: string;
+    billing_cycle?: string;
+    created_on?: string;
+    plan: SubscriptionPlan;
+}
+
+// Database instance types
+export interface DatabaseInstance {
+    _id: string;
+    name: string;
+    type: string;
+    status: string;
+    host?: string;
+    port?: number;
+    username?: string;
+    password?: string;
+    db_name?: string;
+    connection_string?: string;
+    public_uri?: string;
+    internal_uri?: string;
+    created_on: string;
+    events?: { timestamp: string; message: string; type: string }[];
+}
+
+// Notification types
+export interface Notification {
+    id: string;
+    title: string;
+    message: string;
+    type: string;
+    link?: string;
+    read: boolean;
+    created_on: string;
+}

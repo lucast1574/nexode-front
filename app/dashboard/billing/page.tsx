@@ -122,7 +122,7 @@ export default function BillingPage() {
                         .filter((s: Subscription) => s.status === 'ACTIVE' && s.service !== 'nexus');
 
                     if (subs.length === 0) {
-                        router.push("/checkout");
+                        router.push("/services");
                         return;
                     }
                     setSubscriptions(subs);
@@ -229,7 +229,7 @@ export default function BillingPage() {
                     <h2 className="text-xl font-black tracking-tight">Finance / Billing</h2>
                     <div className="flex items-center gap-4">
                         <Button asChild className="rounded-2xl gap-2 font-bold shadow-lg shadow-primary/20">
-                            <Link href="/checkout"><Plus className="w-4 h-4" /> New Service</Link>
+                            <Link href="/services"><Plus className="w-4 h-4" /> New Service</Link>
                         </Button>
                     </div>
                 </header>

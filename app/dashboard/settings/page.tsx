@@ -247,7 +247,7 @@ export default function SettingsPage() {
                     <h2 className="text-xl font-black tracking-tight uppercase">System Settings</h2>
                     <div className="flex items-center gap-6">
                         <Button asChild className="rounded-2xl h-12 px-6 gap-2 font-bold shadow-lg shadow-primary/20">
-                            <Link href="/checkout"><Plus className="w-5 h-5" /> New Service</Link>
+                            <Link href="/services"><Plus className="w-5 h-5" /> New Service</Link>
                         </Button>
                     </div>
                 </header>
@@ -388,6 +388,15 @@ export default function SettingsPage() {
                                 <h4 className="font-bold text-lg mb-1">Security & Access</h4>
                                 <p className="text-xs text-zinc-500 leading-relaxed">Manage your authentication methods, session timeout settings, and 2FA status.</p>
                             </div>
+                        </div>
+
+                        {/* Danger Zone */}
+                        <div className="bg-red-500/[0.03] border border-red-500/10 rounded-[40px] p-8">
+                            <h3 className="text-lg font-bold text-red-500 mb-2">Danger Zone</h3>
+                            <p className="text-sm text-zinc-500 mb-6">Once you delete your account, there is no going back. Please be certain.</p>
+                            <Button variant="outline" className="rounded-xl border-red-500/20 text-red-500 hover:bg-red-500/10 hover:border-red-500/30">
+                                Delete Account
+                            </Button>
                         </div>
 
                         {/* Billing Quick Link */}

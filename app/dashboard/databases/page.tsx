@@ -12,7 +12,9 @@ import {
     Copy,
     Check,
     RefreshCw,
-    Shield
+    Shield,
+    Eye,
+    EyeOff
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sidebar, Subscription } from "@/components/Sidebar";
@@ -60,6 +62,7 @@ export default function DatabasesPage() {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [dbToDelete, setDbToDelete] = useState<DatabaseInstance | null>(null);
     const [copiedField, setCopiedField] = useState<string | null>(null);
+    const [revealedFields, setRevealedFields] = useState<Set<string>>(new Set());
     const [activeTab, setActiveTab] = useState<'overview' | 'credentials' | 'terminal'>('overview');
 
     const [terminalLogs, setTerminalLogs] = useState<{ type: 'input' | 'output' | 'error', text: string }[]>(INITIAL_TERMINAL_LOGS);
@@ -126,6 +129,22 @@ export default function DatabasesPage() {
     useEffect(() => {
         setTerminalLogs([...INITIAL_TERMINAL_LOGS]);
     }, [selectedDb?._id, activeTab]);
+
+    const toggleReveal = (field: string) => {
+        setRevealedFields(prev => {
+            const next = new Set(prev);
+            if (next.has(field)) next.delete(field);
+            else next.add(field);
+            return next;
+        });
+    };
+
+    const maskValue = (value: string | undefined, field: string, isSecret: boolean) => {
+        if (!value) return 'Generating...';
+        if (!isSecret) return value;
+        if (revealedFields.has(field)) return value;
+        return '•'.repeat(Math.min(value.length, 32));
+    };
 
     const handleCopy = (text: string, field: string) => {
         navigator.clipboard.writeText(text);
@@ -714,23 +733,23 @@ export default function DatabasesPage() {
                                                                 selectedDb.type === 'redis' ? 'Public Redis URL (RedisInsight/cli)' :
                                                                     selectedDb.type === 'mysql' ? 'Standard URI (Workbench/HeidiSQL/mysql)' : 'Public Connection URI',
                                                         value: selectedDb.public_uri,
-                                                        field: 'public'
+                                                        field: 'public', secret: true
                                                     },
-                                                    { label: 'Internal Connection URI (In-Service)', value: selectedDb.internal_uri, field: 'internal' },
+                                                    { label: 'Internal Connection URI (In-Service)', value: selectedDb.internal_uri, field: 'internal', secret: true },
                                                     ...(selectedDb.type === 'postgres' ? [{
                                                         label: 'JDBC Connection String',
                                                         value: `jdbc:postgresql://${selectedDb.host || 'backend.nexode.app'}:${selectedDb.port || 5432}/${selectedDb.db_name}?user=${selectedDb.username}&password=${selectedDb.password}`,
-                                                        field: 'jdbc'
+                                                        field: 'jdbc', secret: true
                                                     }] : []),
                                                     ...(selectedDb.type === 'redis' ? [{
                                                         label: 'JDBC Connection String (DataGrip)',
                                                         value: `jdbc:redis://${selectedDb.host || 'backend.nexode.app'}:${selectedDb.port || 6379}/0`,
-                                                        field: 'jdbc_redis'
+                                                        field: 'jdbc_redis', secret: true
                                                     }] : []),
                                                     ...(selectedDb.type === 'mysql' ? [{
                                                         label: 'JDBC Connection String (DataGrip)',
                                                         value: `jdbc:mysql://${selectedDb.host || 'backend.nexode.app'}:${selectedDb.port || 3306}/${selectedDb.db_name}`,
-                                                        field: 'jdbc_mysql'
+                                                        field: 'jdbc_mysql', secret: true
                                                     }] : [])
                                                 ].map((item) => (
                                                     <div key={item.field} className="group p-6 rounded-[24px] bg-white/[0.03] border border-white/5 hover:border-primary/20 transition-all">
@@ -745,8 +764,17 @@ export default function DatabasesPage() {
                                                                 {copiedField === item.field ? <><Check className="w-3 h-3 mr-2" /> Copied</> : <><Copy className="w-3 h-3 mr-2" /> Copy Item</>}
                                                             </Button>
                                                         </div>
-                                                        <div className="bg-black/50 p-4 rounded-xl border border-white/5 font-mono text-sm break-all">
-                                                            {item.value || 'Generating...'}
+                                                        <div className="bg-black/50 p-4 rounded-xl border border-white/5 font-mono text-sm break-all flex items-center justify-between gap-3">
+                                                            <span className="flex-1 overflow-hidden">{maskValue(item.value, item.field, !!(item as any).secret)}</span>
+                                                            {(item as any).secret && (
+                                                                <button
+                                                                    onClick={() => toggleReveal(item.field)}
+                                                                    className="shrink-0 p-1.5 rounded-lg hover:bg-white/10 text-zinc-500 hover:text-white transition-colors"
+                                                                    title={revealedFields.has(item.field) ? 'Hide' : 'Reveal'}
+                                                                >
+                                                                    {revealedFields.has(item.field) ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                                                </button>
+                                                            )}
                                                         </div>
                                                     </div>
                                                 ))}
