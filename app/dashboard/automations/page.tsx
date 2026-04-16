@@ -477,7 +477,19 @@ export default function AutomationsPage() {
                                             src={getN8nUrl(selectedInstance.generated_domain || '')}
                                             className="w-full h-full border-none"
                                             title="n8n Designer"
+                                            allow="clipboard-read; clipboard-write"
+                                            referrerPolicy="no-referrer-when-downgrade"
                                         />
+                                        {/* Overlay hint if iframe fails to load */}
+                                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/80 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                                            <p className="text-zinc-400 text-sm font-bold mb-2">Having trouble loading?</p>
+                                            <button
+                                                className="pointer-events-auto px-6 py-3 bg-red-600 hover:bg-red-500 text-white text-xs font-black uppercase tracking-widest rounded-2xl transition-colors"
+                                                onClick={() => window.open(getN8nUrl(selectedInstance.generated_domain || ''), '_blank')}
+                                            >
+                                                Open in New Tab
+                                            </button>
+                                        </div>
                                     </div>
                                 )}
                             </div>
