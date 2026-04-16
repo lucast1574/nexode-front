@@ -265,7 +265,7 @@ export default function ServicesPage() {
                 <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
                     <Link href="/" className="text-2xl font-black italic tracking-tighter text-primary">NEXODE</Link>
                     <div className="flex items-center gap-6">
-                        <Link href="/services" className="text-sm font-medium text-white transition-colors">Sumar subscripción</Link>
+                        <Link href="/services" className="text-sm font-medium text-white transition-colors">Services</Link>
                         <Link href="/dashboard" className="text-sm font-medium text-zinc-400 hover:text-white transition-colors">Dashboard</Link>
                         <UserNav />
                     </div>

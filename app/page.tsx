@@ -57,12 +57,19 @@ export default function Home() {
 
         <div className="flex flex-col sm:flex-row gap-4 items-center">
           <Button id="btn-home-launch" asChild size="lg" className="rounded-full px-8 text-lg h-14 shadow-xl shadow-primary/20">
-            <Link href="/checkout">Launch System</Link>
+            <Link href="/services">Explore Services</Link>
           </Button>
           <Button id="btn-home-signin" asChild variant="outline" size="lg" className="rounded-full px-8 text-lg h-14 bg-background/50 backdrop-blur-sm">
             <Link href="/auth/login">Sign In</Link>
           </Button>
         </div>
+
+        <p className="text-sm text-muted-foreground -mt-6">
+          Already have an account?{" "}
+          <Link href="/auth/login" className="text-primary hover:underline font-medium">
+            Sign in
+          </Link>
+        </p>
 
         <div className="pt-12 grid grid-cols-2 md:grid-cols-4 gap-8 opacity-50 grayscale hover:grayscale-0 transition-all duration-500">
           <div className="flex items-center justify-center font-bold text-xl tracking-tighter italic">TRUSTED</div>

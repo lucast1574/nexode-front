@@ -200,7 +200,7 @@ export default function DashboardPage() {
                     <div className="flex items-center gap-6">
                         <NotificationBell />
                         <Button asChild className="rounded-2xl h-12 px-6 gap-2 font-bold shadow-lg shadow-primary/20 text-base">
-                            <Link href="/checkout"><Plus className="w-5 h-5" /> New Service</Link>
+                            <Link href="/services"><Plus className="w-5 h-5" /> New Service</Link>
                         </Button>
                     </div>
                 </header>
@@ -306,7 +306,7 @@ export default function DashboardPage() {
 
                                             {!isHighestTier && (
                                                 <Button asChild variant="ghost" className="w-full rounded-xl h-11 font-bold gap-2 text-primary hover:bg-primary/10 hover:text-primary">
-                                                    <Link href="/checkout"><Zap className="w-4 h-4" /> Upgrade Plan</Link>
+                                                    <Link href="/services"><Zap className="w-4 h-4" /> Upgrade Plan</Link>
                                                 </Button>
                                             )}
                                         </div>
@@ -330,7 +330,7 @@ export default function DashboardPage() {
                                         <h3 className="font-bold text-lg mb-2">Add {svc.title}</h3>
                                         <p className="text-xs text-zinc-500 mb-6 max-w-[200px]">Provision this resource to expand your infrastructure.</p>
                                         <Button asChild size="sm" variant="outline" className="rounded-xl border-zinc-800 text-zinc-400 hover:text-white hover:bg-white/5">
-                                            <Link href="/checkout">Provision Now</Link>
+                                            <Link href="/services">Provision Now</Link>
                                         </Button>
                                     </div>
                                 ));
@@ -344,7 +344,7 @@ export default function DashboardPage() {
                                 <h3 className="text-xl font-bold mb-2">Upgrade Performance</h3>
                                 <p className="text-sm text-zinc-400 max-w-xs mb-6">Need more compute power? Upscale your instances with zero downtime.</p>
                                 <Button asChild size="sm" variant="outline" className="rounded-xl border-primary/50 text-primary hover:bg-primary/20">
-                                    <Link href="/checkout">View Tiers</Link>
+                                    <Link href="/services">View Tiers</Link>
                                 </Button>
                             </div>
                             <Zap className="absolute -bottom-4 -right-4 w-32 h-32 text-primary/5 -rotate-12 group-hover:scale-110 transition-transform duration-500" />

@@ -131,7 +131,7 @@ export default function CheckoutPage() {
                 <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
                     <Link href="/" className="text-2xl font-black italic tracking-tighter text-primary">NEXODE</Link>
                     <div className="flex items-center gap-6">
-                        <Link href="/services" className="text-sm font-bold text-primary hover:text-primary/80 transition-colors">Sumar subscripción</Link>
+                        <Link href="/services" className="text-sm font-bold text-primary hover:text-primary/80 transition-colors">Add Service</Link>
                         <Link href="/dashboard" className="text-sm font-medium text-zinc-400 hover:text-white transition-colors">Dashboard</Link>
                         <UserNav />
                     </div>
@@ -140,16 +140,16 @@ export default function CheckoutPage() {
 
             <header className="relative z-10 pt-20 pb-16 px-6 text-center max-w-4xl mx-auto">
                 <h1 className="text-4xl md:text-6xl font-black tracking-tight mb-6">
-                    Administra tu <span className="text-primary italic underline decoration-primary/30 decoration-8 underline-offset-8">Infraestructura</span>
+                    Manage Your <span className="text-primary italic underline decoration-primary/30 decoration-8 underline-offset-8">Infrastructure</span>
                 </h1>
                 <p className="text-lg text-zinc-400 leading-relaxed max-w-2xl mx-auto">
-                    Revisa tus suscripciones activas. Cada plan que sumes aumenta tus límites para desplegar nuevas bases de datos, clusters de compute o instancias n8n.
+                    Review your active subscriptions. Each plan you add increases your limits to deploy new databases, compute clusters, or n8n instances.
                 </p>
                 
                 <div className="mt-8">
                     <Button asChild size="lg" className="rounded-full shadow-lg shadow-primary/20 px-8 text-lg font-bold gap-2 bg-primary text-white hover:bg-primary/90">
                         <Link href="/services">
-                            <Plus className="w-5 h-5" /> Sumar subscripción
+                            <Plus className="w-5 h-5" /> Add Service
                         </Link>
                     </Button>
                 </div>
@@ -171,10 +171,10 @@ export default function CheckoutPage() {
                             <div className="mx-auto w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mb-4">
                                 <Shield className="w-8 h-8 text-zinc-500" />
                             </div>
-                            <h3 className="text-xl font-bold mb-2">No tienes suscripciones activas</h3>
-                            <p className="text-zinc-500 mb-6">Adquiere un plan para comenzar a desplegar infraestructura.</p>
+                            <h3 className="text-xl font-bold mb-2">No active subscriptions</h3>
+                            <p className="text-zinc-500 mb-6">Subscribe to a plan to start deploying infrastructure.</p>
                             <Button asChild variant="outline" className="rounded-full border-white/20 hover:bg-white/10">
-                                <Link href="/services">Explorar Servicios</Link>
+                                <Link href="/services">Explore Services</Link>
                             </Button>
                         </div>
                     ) : (
@@ -207,7 +207,7 @@ export default function CheckoutPage() {
                                         <div className="flex flex-col sm:items-end gap-2">
                                             <div className="text-2xl font-black">${price} <span className="text-sm font-normal text-zinc-500">/{isAnnual ? 'yr' : 'mo'}</span></div>
                                             <Button onClick={handleManageBilling} variant="outline" size="sm" className="rounded-xl border-white/20 group-hover:bg-white/10 gap-2">
-                                                <Settings className="w-4 h-4" /> Modificar Plan
+                                                <Settings className="w-4 h-4" /> Manage Plan
                                             </Button>
                                         </div>
                                     </div>
@@ -218,13 +218,13 @@ export default function CheckoutPage() {
                 </div>
 
                 <div className="text-center mt-12 bg-primary/10 border border-primary/20 rounded-3xl p-10">
-                    <h3 className="text-2xl font-black mb-4">¿Necesitas más capacidad?</h3>
+                    <h3 className="text-2xl font-black mb-4">Need more capacity?</h3>
                     <p className="text-zinc-400 mb-8 max-w-xl mx-auto">
-                        Aumenta tus límites de bases de datos, entornos compute o workflows de n8n sumando suscripciones adicionales a tu cuenta.
+                        Increase your database, compute, or n8n workflow limits by adding additional subscriptions to your account.
                     </p>
                     <Button asChild size="lg" className="rounded-full shadow-xl shadow-primary/20 px-10 text-lg font-bold gap-3 transition-transform hover:scale-105 bg-primary text-white hover:bg-primary/90">
                         <Link href="/services">
-                            Sumar Suscripción <ArrowRight className="w-5 h-5" />
+                            Add Service <ArrowRight className="w-5 h-5" />
                         </Link>
                     </Button>
                 </div>
