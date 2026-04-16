@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 import {
     LayoutDashboard,
     CreditCard,
+    BarChart3,
     Settings,
     LogOut,
     Database,
@@ -52,6 +53,7 @@ export function Sidebar({ user, subscriptions }: SidebarProps) {
         { icon: Workflow, label: "Automations", href: "/dashboard/automations", visible: hasN8n },
         { icon: Cpu, label: "Compute", href: "/dashboard/compute", visible: hasCompute },
         { icon: Database, label: "Databases", href: "/dashboard/databases", visible: hasDatabase },
+        { icon: BarChart3, label: "Metrics", href: "/dashboard/metrics" },
         { icon: CreditCard, label: "Billing", href: "/dashboard/billing" },
         { icon: Settings, label: "Settings", href: "/dashboard/settings" },
     ].filter(item => item.visible !== false);

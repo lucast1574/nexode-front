@@ -1000,8 +1000,6 @@ function ComputePageContent() {
                         )}
                     </div>
                 </div>
-            </main>
-
             <ProvisionNodeModal 
                 isOpen={showCreateModal}
                 onClose={() => setShowCreateModal(false)}
@@ -1010,7 +1008,7 @@ function ComputePageContent() {
                 subscriptions={subscriptions}
                 initialProvider={initialProvider}
             />
-        </div>
+        </>
     );
 }
 

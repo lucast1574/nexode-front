@@ -66,7 +66,8 @@ export function LoginForm() {
                 )
 
                 toast.success("Login successful!")
-                router.push(getAuthRedirectPath(data.login.user))
+                // Use window.location for full navigation to ensure cookies are sent
+                window.location.href = getAuthRedirectPath(data.login.user)
             } else {
                 toast.error(data?.login?.message || "Login failed")
             }
@@ -100,7 +101,7 @@ export function LoginForm() {
                 )
 
                 toast.success("Google login successful!")
-                router.push(getAuthRedirectPath(data.signInWithGoogle.user))
+                window.location.href = getAuthRedirectPath(data.signInWithGoogle.user)
             } else {
                 toast.error(data?.signInWithGoogle?.message || "Google login failed")
             }

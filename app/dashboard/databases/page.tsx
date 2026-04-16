@@ -417,10 +417,7 @@ export default function DatabasesPage() {
     }
 
     return (
-        <div className="h-screen bg-[#020202] text-white flex overflow-hidden">
-            <Sidebar user={user} subscriptions={subscriptions} />
-
-            <main className="flex-1 flex flex-col overflow-hidden">
+        <>
                 <header className="h-28 border-b border-white/5 px-8 flex items-center justify-between bg-black/50 backdrop-blur-xl shrink-0">
                     <div className="flex items-center gap-6">
                         <div className="flex items-center gap-4">
@@ -1000,6 +997,6 @@ export default function DatabasesPage() {
                 onConfirm={confirmDelete}
                 dbName={dbToDelete?.name || ""}
             />
-        </div >
+        </>
     );
 }

@@ -238,11 +238,7 @@ export default function SettingsPage() {
 
 
     return (
-        <div className="h-screen bg-[#020202] text-white flex overflow-hidden font-sans">
-            <Sidebar user={user} subscriptions={subscriptions} />
-
-            {/* Main Content */}
-            <main className="flex-1 flex flex-col overflow-y-auto">
+        <>
                 <header className="h-28 border-b border-white/5 px-8 flex items-center justify-between bg-black/50 backdrop-blur-xl shrink-0">
                     <h2 className="text-xl font-black tracking-tight uppercase">System Settings</h2>
                     <div className="flex items-center gap-6">
@@ -426,7 +422,6 @@ export default function SettingsPage() {
                         </div>
                     </div>
                 </div>
-            </main>
-        </div>
+            </>
     );
 }
