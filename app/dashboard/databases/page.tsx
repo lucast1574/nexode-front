@@ -867,7 +867,7 @@ export default function DatabasesPage() {
                         )}
                     </div>
                 </div>
-            </main >
+
 
             {/* Create Database Modal */}
             {

@@ -439,10 +439,8 @@ function ComputePageContent() {
     }
 
     return (
-        <div className="h-screen bg-[#020202] text-white flex overflow-hidden">
-            <Sidebar user={user} subscriptions={subscriptions} />
-
-            <main className="flex-1 flex flex-col overflow-hidden relative">
+        <>
+            <div className="flex-1 flex flex-col overflow-hidden relative">
                 <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-blue-600/10 blur-[120px] rounded-full pointer-events-none" />
 
                 <header className="h-28 border-b border-white/5 px-8 flex items-center justify-between bg-black/50 backdrop-blur-xl shrink-0 z-10">
@@ -1000,6 +998,7 @@ function ComputePageContent() {
                         )}
                     </div>
                 </div>
+            </div>
             <ProvisionNodeModal 
                 isOpen={showCreateModal}
                 onClose={() => setShowCreateModal(false)}
@@ -1011,6 +1010,7 @@ function ComputePageContent() {
         </>
     );
 }
+
 
 export default function ComputePage() {
     return (
