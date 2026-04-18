@@ -138,11 +138,9 @@ export default function CheckoutPage() {
                 </p>
                 
                 <div className="mt-8">
-                    <Button asChild size="lg" className="rounded-full shadow-lg shadow-primary/20 px-8 text-lg font-bold gap-2 bg-primary text-white hover:bg-primary/90">
-                        <Link href="/services">
+                    <Button render={<Link href="/services" />} size="lg" className="rounded-full shadow-lg shadow-primary/20 px-8 text-lg font-bold gap-2 bg-primary text-white hover:bg-primary/90">
                             <Plus className="w-5 h-5" /> Add Service
-                        </Link>
-                    </Button>
+                        </Button>
                 </div>
             </header>
 
@@ -164,8 +162,8 @@ export default function CheckoutPage() {
                             </div>
                             <h3 className="text-xl font-bold mb-2">No active subscriptions</h3>
                             <p className="text-zinc-500 mb-6">Subscribe to a plan to start deploying infrastructure.</p>
-                            <Button asChild variant="outline" className="rounded-full border-white/20 hover:bg-white/10">
-                                <Link href="/services">Explore Services</Link>
+                            <Button render={<Link href="/services" />} variant="outline" className="rounded-full border-white/20 hover:bg-white/10">
+                                Explore Services
                             </Button>
                         </div>
                     ) : (
@@ -213,11 +211,9 @@ export default function CheckoutPage() {
                     <p className="text-zinc-400 mb-8 max-w-xl mx-auto">
                         Increase your database, compute, or n8n workflow limits by adding additional subscriptions to your account.
                     </p>
-                    <Button asChild size="lg" className="rounded-full shadow-xl shadow-primary/20 px-10 text-lg font-bold gap-3 transition-transform hover:scale-105 bg-primary text-white hover:bg-primary/90">
-                        <Link href="/services">
+                    <Button render={<Link href="/services" />} size="lg" className="rounded-full shadow-xl shadow-primary/20 px-10 text-lg font-bold gap-3 transition-transform hover:scale-105 bg-primary text-white hover:bg-primary/90">
                             Add Service <ArrowRight className="w-5 h-5" />
-                        </Link>
-                    </Button>
+                        </Button>
                 </div>
             </main>
 

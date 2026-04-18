@@ -34,7 +34,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
-import { Sidebar, Subscription } from "@/components/Sidebar";
+import { Subscription } from "@/app/dashboard/layout";
 import { cn } from "@/lib/utils";
 import { getAccessToken } from "@/lib/auth-utils";
 import { useModal } from "@/components/ui/modal";

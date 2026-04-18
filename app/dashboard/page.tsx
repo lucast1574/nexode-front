@@ -1,186 +1,185 @@
-"use client";
+"use client"
 
-import React from "react";
-import Link from "next/link";
+import React from "react"
+import Link from "next/link"
 import {
     Database,
     Cpu,
     Plus,
     ExternalLink,
     ChevronRight,
-    Search,
     Zap,
     Workflow
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
-import { NotificationBell } from "@/components/NotificationBell";
-import { useDashboard } from "./layout";
+} from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Separator } from "@/components/ui/separator"
+import {
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbList,
+    BreadcrumbPage,
+} from "@/components/ui/breadcrumb"
+import { SidebarTrigger } from "@/components/ui/sidebar"
+import { cn } from "@/lib/utils"
+import { NotificationBell } from "@/components/NotificationBell"
+import { useDashboard } from "./layout"
 
 export default function DashboardPage() {
-    const { subscriptions } = useDashboard();
+    const { subscriptions } = useDashboard()
 
     return (
         <>
-            <header className="h-28 border-b border-white/5 px-12 flex items-center justify-between bg-black/50 backdrop-blur-xl shrink-0">
-                <div className="relative flex items-center gap-4 w-[450px]">
-                    <Search className="absolute left-4 w-5 h-5 text-zinc-500 pointer-events-none" />
-                    <Input
-                        type="text"
-                        placeholder="Search instances, services..."
-                        className="pl-12 h-12 rounded-2xl bg-white/5 border-white/10 focus-visible:border-primary/50 focus-visible:bg-white/10 text-base font-medium placeholder:text-zinc-500"
-                    />
-                </div>
-
-                <div className="flex items-center gap-6">
+            <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
+                <SidebarTrigger className="-ml-1" />
+                <Separator orientation="vertical" className="mr-2 data-vertical:h-4 data-vertical:self-auto" />
+                <Breadcrumb>
+                    <BreadcrumbList>
+                        <BreadcrumbItem>
+                            <BreadcrumbPage>Dashboard</BreadcrumbPage>
+                        </BreadcrumbItem>
+                    </BreadcrumbList>
+                </Breadcrumb>
+                <div className="flex-1" />
+                <div className="flex items-center gap-4">
                     <NotificationBell />
-                    <Button asChild className="rounded-2xl h-12 px-6 gap-2 font-bold shadow-lg shadow-primary/20 text-base">
-                        <Link href="/services"><Plus className="w-5 h-5" /> New Service</Link>
+                    <Button render={<Link href="/services" />} className="gap-2">
+                        <Plus className="size-4" /> New Service
                     </Button>
                 </div>
             </header>
 
-            <div className="flex-1 overflow-y-auto px-8 py-24 max-w-7xl mx-auto w-full">
-                <div className="mb-20">
-                    <h1 className="text-4xl font-black tracking-tight mb-4">System Overview</h1>
-                    <p className="text-zinc-500 text-lg">Monitor and manage your active cloud resources.</p>
+            <div className="flex-1 overflow-y-auto p-6">
+                <div className="flex flex-col gap-2 mb-8">
+                    <h1 className="text-2xl font-bold tracking-tight">System Overview</h1>
+                    <p className="text-muted-foreground">Monitor and manage your active cloud resources.</p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {subscriptions.map((sub) => {
                         const isHighestTier =
                             sub.plan.name.toLowerCase().includes("ultra") ||
                             sub.plan.name.toLowerCase().includes("tier 4") ||
-                            (sub.service === "compute" && sub.plan.name.toLowerCase().includes("pro"));
+                            (sub.service === "compute" && sub.plan.name.toLowerCase().includes("pro"))
 
                         return (
                             <Card key={sub.id} className={cn(
-                                "group relative rounded-[32px] p-0 transition-all duration-500 flex flex-col border",
+                                "group relative transition-all duration-500 flex flex-col",
                                 sub.service === "n8n"
-                                    ? "bg-gradient-to-br from-red-500/10 to-transparent border-red-500/20 hover:bg-red-500/15"
+                                    ? "bg-gradient-to-br from-primary/10 to-transparent border-primary/20 hover:bg-primary/15"
                                     : sub.service === "compute"
-                                        ? "bg-gradient-to-br from-blue-500/10 to-transparent border-blue-500/20 hover:bg-blue-500/15"
+                                        ? "bg-gradient-to-br from-primary/10 to-transparent border-primary/20 hover:bg-primary/15"
                                         : sub.service === "database"
-                                            ? "bg-gradient-to-br from-purple-500/10 to-transparent border-purple-500/20 hover:bg-purple-500/15"
-                                            : "bg-white/[0.03] border-white/5 hover:bg-white/[0.06]"
+                                            ? "bg-gradient-to-br from-primary/10 to-transparent border-primary/20 hover:bg-primary/15"
+                                            : "bg-card border-border"
                             )}>
                                 <Link
                                     href={sub.service === "database" ? "/dashboard/databases" : sub.service === "n8n" ? "/dashboard/automations" : sub.service === "compute" ? "/dashboard/compute" : "#"}
                                     className="flex-1"
                                 >
-                                    <CardHeader className="p-8 pb-0">
+                                    <CardHeader className="p-6 pb-0">
                                         <div className="flex items-start justify-between mb-4">
-                                            <div className={cn(
-                                                "p-4 rounded-2xl shadow-inner",
-                                                sub.service === "database" ? "bg-purple-500/20 text-purple-400" :
-                                                    sub.service === "n8n" ? "bg-red-500/20 text-red-400" :
-                                                        "bg-blue-500/20 text-blue-400"
-                                            )}>
-                                                {sub.service === "database" ? <Database className="w-8 h-8" /> :
-                                                    sub.service === "n8n" ? <Workflow className="w-8 h-8" /> :
-                                                        <Cpu className="w-8 h-8" />}
+                                            <div className="p-3 bg-primary/10 text-primary">
+                                                {sub.service === "database" ? <Database className="size-6" /> :
+                                                    sub.service === "n8n" ? <Workflow className="size-6" /> :
+                                                        <Cpu className="size-6" />}
                                             </div>
                                             <div className="flex flex-col items-end gap-2">
-                                                <Badge variant="outline" className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20 text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full">
+                                                <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 text-[10px] font-bold uppercase tracking-widest px-2 py-0.5">
                                                     {sub.status}
                                                 </Badge>
-                                                <span className="text-[10px] text-zinc-400 font-bold uppercase tracking-widest">Active Runtime</span>
                                             </div>
                                         </div>
-                                        <CardTitle className="text-2xl font-black capitalize">{sub.service} {sub.service === 'n8n' ? 'Flow' : 'Cluster'}</CardTitle>
-                                        <CardDescription className="text-zinc-500 font-medium text-sm">{sub.plan.name} Instance</CardDescription>
+                                        <CardTitle className="text-lg font-bold capitalize">{sub.service} {sub.service === 'n8n' ? 'Flow' : 'Cluster'}</CardTitle>
+                                        <CardDescription className="text-muted-foreground text-sm">{sub.plan.name} Instance</CardDescription>
                                     </CardHeader>
 
-                                    <CardContent className="p-8 pt-4">
-                                        <div className="grid grid-cols-2 gap-4">
+                                    <CardContent className="p-6 pt-4">
+                                        <div className="grid grid-cols-2 gap-3">
                                             {Object.entries(sub.plan.features).slice(0, 4).map(([key, val]: [string, string]) => (
-                                                <div key={key} className="space-y-1 bg-white/5 p-3 rounded-2xl border border-white/5">
-                                                    <div className="text-[9px] text-zinc-500 font-black uppercase tracking-wider">{key}</div>
-                                                    <div className="text-sm font-bold text-zinc-200">{val}</div>
+                                                <div key={key} className="flex flex-col gap-1 bg-muted/50 p-2 border">
+                                                    <div className="text-[9px] text-muted-foreground font-bold uppercase tracking-wider">{key}</div>
+                                                    <div className="text-sm font-semibold">{val}</div>
                                                 </div>
                                             ))}
                                         </div>
                                     </CardContent>
                                 </Link>
 
-                                <CardFooter className="p-8 pt-0 flex flex-col gap-3">
+                                <CardFooter className="p-6 pt-0 flex flex-col gap-3">
                                     <div className="flex items-center gap-3 w-full">
-                                        <Button asChild className="flex-1 rounded-xl h-11 font-bold gap-2">
-                                            <Link href={
-                                                sub.service === "database" ? "/dashboard/databases" :
-                                                    sub.service === "n8n" ? "/dashboard/automations" :
-                                                        sub.service === "compute" ? "/dashboard/compute" : "#"
-                                            }>
-                                                Open Console <ExternalLink className="w-4 h-4" />
-                                            </Link>
-                                        </Button>
-                                        <Button variant="outline" className="w-11 h-11 p-0 rounded-xl bg-white/5 border-white/10 hover:bg-white/10">
-                                            <ChevronRight className="w-5 h-5 text-zinc-400" />
+                                        <Button render={<Link href={
+                                                    sub.service === "database" ? "/dashboard/databases" :
+                                                        sub.service === "n8n" ? "/dashboard/automations" :
+                                                            sub.service === "compute" ? "/dashboard/compute" : "#"
+                                                } />} className="flex-1 gap-2">
+                                                Open Console <ExternalLink className="size-4" />
+                                            </Button>
+                                        <Button variant="outline" size="icon" className="shrink-0">
+                                            <ChevronRight className="size-4" />
                                         </Button>
                                     </div>
 
                                     {!isHighestTier && (
-                                        <Button asChild variant="ghost" className="w-full rounded-xl h-11 font-bold gap-2 text-primary hover:bg-primary/10 hover:text-primary">
-                                            <Link href="/services"><Zap className="w-4 h-4" /> Upgrade Plan</Link>
+                                        <Button variant="ghost" render={<Link href="/services" />} className="w-full gap-2 text-primary hover:bg-primary/10 hover:text-primary">
+                                            <Zap className="size-4" /> Upgrade Plan
                                         </Button>
                                     )}
                                 </CardFooter>
                             </Card>
-                        );
+                        )
                     })}
 
                     {(() => {
-                        const hasService = (id: string) => subscriptions.some(s => s.service === id);
-                        const missing = [];
-                        if (!hasService('n8n')) missing.push({ id: 'n8n', title: 'n8n Automation', color: 'border-red-500/20' });
-                        if (!hasService('database')) missing.push({ id: 'database', title: 'Database Cluster', color: 'border-purple-500/20' });
-                        if (!hasService('compute')) missing.push({ id: 'compute', title: 'Compute Instance', color: 'border-blue-500/20' });
+                        const hasService = (id: string) => subscriptions.some(s => s.service === id)
+                        const missing = []
+                        if (!hasService('n8n')) missing.push({ id: 'n8n', title: 'n8n Automation' })
+                        if (!hasService('database')) missing.push({ id: 'database', title: 'Database Cluster' })
+                        if (!hasService('compute')) missing.push({ id: 'compute', title: 'Compute Instance' })
 
                         return missing.map(svc => (
-                            <Card key={svc.id} className={cn("relative group border border-dashed rounded-[32px] bg-white/[0.01] hover:bg-white/[0.03] flex flex-col items-center justify-center text-center transition-all", svc.color)}>
+                            <Card key={svc.id} className="relative group border border-dashed flex flex-col items-center justify-center text-center transition-all">
                                 <CardContent className="p-8 flex flex-col items-center">
-                                    <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                                        <Plus className="w-6 h-6 text-zinc-400" />
+                                    <div className="size-12 bg-muted flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                                        <Plus className="size-6 text-muted-foreground" />
                                     </div>
                                     <CardTitle className="text-lg font-bold mb-2">Add {svc.title}</CardTitle>
-                                    <CardDescription className="text-xs text-zinc-500 mb-6 max-w-[200px]">Provision this resource to expand your infrastructure.</CardDescription>
-                                    <Button asChild size="sm" variant="outline" className="rounded-xl border-zinc-800 text-zinc-400 hover:text-white hover:bg-white/5">
-                                        <Link href="/services">Provision Now</Link>
+                                    <CardDescription className="text-xs text-muted-foreground mb-6 max-w-[200px]">Provision this resource to expand your infrastructure.</CardDescription>
+                                    <Button variant="outline" size="sm" render={<Link href="/services" />}>
+                                        Provision Now
                                     </Button>
                                 </CardContent>
                             </Card>
-                        ));
+                        ))
                     })()}
                 </div>
 
-                <div className="mt-24 grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <Card className="bg-gradient-to-br from-primary/10 to-transparent border border-primary/20 rounded-[32px] p-0 relative overflow-hidden group">
-                        <CardContent className="p-8 relative z-10">
-                            <h3 className="text-xl font-bold mb-2">Upgrade Performance</h3>
-                            <p className="text-sm text-zinc-400 max-w-xs mb-6">Need more compute power? Upscale your instances with zero downtime.</p>
-                            <Button asChild size="sm" variant="outline" className="rounded-xl border-primary/50 text-primary hover:bg-primary/20">
-                                <Link href="/services">View Tiers</Link>
+                <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <Card className="bg-gradient-to-br from-primary/10 to-transparent border border-primary/20 relative overflow-hidden group">
+                        <CardContent className="p-6 relative z-10">
+                            <h3 className="text-lg font-bold mb-2">Upgrade Performance</h3>
+                            <p className="text-sm text-muted-foreground max-w-xs mb-6">Need more compute power? Upscale your instances with zero downtime.</p>
+                            <Button variant="outline" size="sm" render={<Link href="/services" />}>
+                                View Tiers
                             </Button>
                         </CardContent>
-                        <Zap className="absolute -bottom-4 -right-4 w-32 h-32 text-primary/5 -rotate-12 group-hover:scale-110 transition-transform duration-500" />
+                        <Zap className="absolute -bottom-4 -right-4 size-32 text-primary/5 -rotate-12 group-hover:scale-110 transition-transform duration-500" />
                     </Card>
-                    <Card className="bg-white/[0.03] border border-white/10 rounded-[32px] p-0">
-                        <CardContent className="p-8">
-                            <h3 className="text-xl font-bold mb-4">System Status</h3>
-                            <div className="space-y-4">
+                    <Card className="border">
+                        <CardContent className="p-6">
+                            <h3 className="text-lg font-bold mb-4">System Status</h3>
+                            <div className="flex flex-col gap-4">
                                 <div className="flex items-center justify-between text-sm">
-                                    <span className="text-zinc-500">Services</span>
-                                    <span className="font-bold text-emerald-400">{subscriptions.length} Active</span>
+                                    <span className="text-muted-foreground">Services</span>
+                                    <span className="font-bold text-primary">{subscriptions.length} Active</span>
                                 </div>
-                                <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
-                                    <div className="h-full bg-emerald-400" style={{ width: '100%' }} />
+                                <div className="h-1.5 w-full bg-muted overflow-hidden">
+                                    <div className="h-full bg-primary" style={{ width: '100%' }} />
                                 </div>
                                 <div className="flex items-center justify-between text-sm">
-                                    <span className="text-zinc-500">Infrastructure</span>
-                                    <Badge variant="outline" className="text-primary border-primary/30 font-bold">Operational</Badge>
+                                    <span className="text-muted-foreground">Infrastructure</span>
+                                    <Badge variant="outline" className="text-primary font-bold">Operational</Badge>
                                 </div>
                             </div>
                         </CardContent>
@@ -188,5 +187,5 @@ export default function DashboardPage() {
                 </div>
             </div>
         </>
-    );
+    )
 }

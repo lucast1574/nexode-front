@@ -154,21 +154,20 @@ export function LoginForm({
                             type={showPassword ? "text" : "password"}
                             required
                             autoComplete="current-password"
-                            className="pr-10"
+                            className="pr-9"
                         />
-                        <Button
+                        <button
                             type="button"
-                            variant="ghost"
-                            size="icon-xs"
                             onClick={() => setShowPassword((prev) => !prev)}
-                            className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground hover:text-foreground"
+                            className="absolute inset-y-0 right-0 flex items-center justify-center w-9 text-muted-foreground hover:text-foreground"
+                            aria-label={showPassword ? "Hide password" : "Show password"}
                         >
                             {showPassword ? (
-                                <EyeOff className="h-4 w-4" />
+                                <EyeOff className="size-4" />
                             ) : (
-                                <Eye className="h-4 w-4" />
+                                <Eye className="size-4" />
                             )}
-                        </Button>
+                        </button>
                     </div>
                 </Field>
 

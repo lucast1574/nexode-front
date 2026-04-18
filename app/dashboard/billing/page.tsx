@@ -18,7 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Subscription as BaseSubscription } from "@/components/Sidebar";
+import { Subscription as BaseSubscription } from "@/app/dashboard/layout";
 import { cn } from "@/lib/utils";
 import { getAccessToken } from "@/lib/auth-utils";
 import { useModal } from "@/components/ui/modal";
@@ -171,8 +171,8 @@ export default function BillingPage() {
             <header className="h-20 border-b border-white/5 px-8 flex items-center justify-between bg-black/50 backdrop-blur-xl shrink-0">
                 <h2 className="text-xl font-black tracking-tight">Billing</h2>
                 <div className="flex items-center gap-4">
-                    <Button asChild className="rounded-2xl gap-2 font-bold shadow-lg shadow-primary/20">
-                        <Link href="/services"><Plus className="w-4 h-4" /> New Service</Link>
+                    <Button render={<Link href="/services" />} className="rounded-2xl gap-2 font-bold shadow-lg shadow-primary/20">
+                        <Plus className="w-4 h-4" /> New Service
                     </Button>
                 </div>
             </header>

@@ -11,8 +11,8 @@
   --color-card-foreground: #fafafa;
   --color-popover: #0a0a0c;
   --color-popover-foreground: #fafafa;
-  --color-primary: #3b82f6;
-  --color-primary-foreground: #ffffff;
+  --color-primary: #10dc79;
+  --color-primary-foreground: #09090b;
   --color-secondary: #18181b;
   --color-secondary-foreground: #fafafa;
   --color-muted: #18181b;
@@ -23,7 +23,7 @@
   --color-destructive-foreground: #fafafa;
   --color-border: #27272a;
   --color-input: #27272a;
-  --color-ring: #3b82f6;
+  --color-ring: #10dc79;
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
   --background: oklch(0.07 0.005 270);
@@ -32,8 +32,8 @@
   --card-foreground: oklch(0.98 0 0);
   --popover: oklch(0.09 0.005 270);
   --popover-foreground: oklch(0.98 0 0);
-  --primary: oklch(0.646 0.222 258);
-  --primary-foreground: oklch(1 0 0);
+  --primary: oklch(0.79 0.2 160);
+  --primary-foreground: oklch(0.07 0.005 270);
   --secondary: oklch(0.16 0.01 270);
   --secondary-foreground: oklch(0.98 0 0);
   --muted: oklch(0.16 0.01 270);
@@ -44,21 +44,21 @@
   --destructive-foreground: oklch(1 0 0);
   --border: oklch(0.23 0.01 270);
   --input: oklch(0.23 0.01 270);
-  --ring: oklch(0.646 0.222 258);
-  --chart-1: oklch(0.646 0.222 258);
+  --ring: oklch(0.79 0.2 160);
+  --chart-1: oklch(0.79 0.2 160);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.546 0.198 38.228);
   --chart-4: oklch(0.596 0.151 343.253);
   --chart-5: oklch(0.546 0.158 49.157);
-  --radius: 0.625rem;
+  --radius: 0rem;
   --sidebar: oklch(0.07 0.005 270);
   --sidebar-foreground: oklch(0.98 0 0);
-  --sidebar-primary: oklch(0.646 0.222 258);
+  --sidebar-primary: oklch(0.79 0.2 160);
   --sidebar-primary-foreground: oklch(1 0 0);
   --sidebar-accent: oklch(0.16 0.01 270);
   --sidebar-accent-foreground: oklch(0.98 0 0);
   --sidebar-border: oklch(0.23 0.01 270);
-  --sidebar-ring: oklch(0.646 0.222 258);
+  --sidebar-ring: oklch(0.79 0.2 160);
 }
 
 body {

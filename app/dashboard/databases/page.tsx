@@ -23,7 +23,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Subscription } from "@/components/Sidebar";
+import { Subscription } from "@/app/dashboard/layout";
 import { cn } from "@/lib/utils";
 import { getAccessToken } from "@/lib/auth-utils";
 import { DeleteDatabaseModal } from "@/components/modals/DeleteDatabaseModal";

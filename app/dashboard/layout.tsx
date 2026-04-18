@@ -1,22 +1,34 @@
-"use client";
+"use client"
 
-import React, { useEffect, useState, createContext, useContext } from "react";
-import { useRouter } from "next/navigation";
-import { Sidebar, Subscription } from "@/components/Sidebar";
-import { getAccessToken, setAuthSession } from "@/lib/auth-utils";
+import React, { useEffect, useState, createContext, useContext } from "react"
+import { useRouter } from "next/navigation"
+import { AppSidebar } from "@/components/app-sidebar"
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
+import { getAccessToken, setAuthSession } from "@/lib/auth-utils"
 
 interface DashboardUser {
-    first_name: string;
-    last_name?: string;
-    email: string;
-    avatar?: string;
+    first_name: string
+    last_name?: string
+    email: string
+    avatar?: string
+}
+
+export interface Subscription {
+    id: string
+    service: string
+    status: string
+    plan: {
+        name: string
+        slug: string
+        features: Record<string, string>
+    }
 }
 
 interface DashboardContextType {
-    user: DashboardUser | null;
-    subscriptions: Subscription[];
-    loading: boolean;
-    refetch: () => Promise<void>;
+    user: DashboardUser | null
+    subscriptions: Subscription[]
+    loading: boolean
+    refetch: () => Promise<void>
 }
 
 const DashboardContext = createContext<DashboardContextType>({
@@ -24,32 +36,31 @@ const DashboardContext = createContext<DashboardContextType>({
     subscriptions: [],
     loading: true,
     refetch: async () => {},
-});
+})
 
-export const useDashboard = () => useContext(DashboardContext);
+export const useDashboard = () => useContext(DashboardContext)
 
 export default function DashboardLayout({
     children,
 }: {
-    children: React.ReactNode;
+    children: React.ReactNode
 }) {
-    const [loading, setLoading] = useState(true);
-    const [statusMessage, setStatusMessage] = useState("Authenticating System...");
-    const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
-    const [user, setUser] = useState<DashboardUser | null>(null);
-    const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
-    const router = useRouter();
+    const [loading, setLoading] = useState(true)
+    const [statusMessage, setStatusMessage] = useState("Authenticating System...")
+    const [subscriptions, setSubscriptions] = useState<Subscription[]>([])
+    const [user, setUser] = useState<DashboardUser | null>(null)
+    const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null)
+    const router = useRouter()
 
     const fetchData = async () => {
         try {
-            const urlParams = new URLSearchParams(window.location.search);
-            const sessionId = urlParams.get("session_id");
-            let token = getAccessToken();
-            const GQL_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api-v1/graphql";
+            const urlParams = new URLSearchParams(window.location.search)
+            const sessionId = urlParams.get("session_id")
+            let token = getAccessToken()
+            const GQL_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api-v1/graphql"
 
-            // AUTO-LOGIN FOR GUEST CHECKOUT OR SESSION RECOVERY
             if (sessionId) {
-                setStatusMessage("Initializing Secure Session...");
+                setStatusMessage("Initializing Secure Session...")
 
                 const stripeMutation = `
                     mutation StripeLogin($sessionId: String!) {
@@ -71,7 +82,7 @@ export default function DashboardLayout({
                             }
                         }
                     }
-                `;
+                `
 
                 try {
                     const stripeRes = await fetch(GQL_URL, {
@@ -81,26 +92,26 @@ export default function DashboardLayout({
                             query: stripeMutation,
                             variables: { sessionId },
                         }),
-                    });
-                    const stripeResult = await stripeRes.json();
+                    })
+                    const stripeResult = await stripeRes.json()
 
                     if (stripeResult.data?.stripeLogin?.success) {
-                        const { access_token, refresh_token, user } = stripeResult.data.stripeLogin;
-                        setAuthSession(access_token, refresh_token, user);
-                        token = access_token;
-                        window.history.replaceState({}, document.title, "/dashboard");
+                        const { access_token, refresh_token, user } = stripeResult.data.stripeLogin
+                        setAuthSession(access_token, refresh_token, user)
+                        token = access_token
+                        window.history.replaceState({}, document.title, "/dashboard")
                     }
                 } catch (err) {
-                    console.error("[Dashboard] Stripe login mutation error:", err);
+                    console.error("[Dashboard] Stripe login mutation error:", err)
                 }
             }
 
             if (!token) {
-                router.push("/auth/login");
-                return;
+                router.push("/auth/login")
+                return
             }
 
-            setStatusMessage("Loading Infrastructure...");
+            setStatusMessage("Loading Infrastructure...")
             const query = `
                 query GetDashboardData {
                     me {
@@ -120,7 +131,7 @@ export default function DashboardLayout({
                         }
                     }
                 }
-            `;
+            `
 
             const response = await fetch(GQL_URL, {
                 method: "POST",
@@ -129,71 +140,69 @@ export default function DashboardLayout({
                     Authorization: `Bearer ${token}`,
                 },
                 body: JSON.stringify({ query }),
-            });
+            })
 
-            const result = await response.json();
+            const result = await response.json()
 
             if (result.data) {
-                setUser(result.data.me);
-                const allSubs = result.data.mySubscriptions || [];
+                setUser(result.data.me)
+                const allSubs = result.data.mySubscriptions || []
                 const paidSubs = allSubs.filter(
                     (s: Subscription) => s && s.status === "ACTIVE" && s.service !== "nexus"
-                );
+                )
 
                 const sortedSubs = [...paidSubs].sort((a, b) => {
-                    if (a.service === "n8n") return -1;
-                    if (b.service === "n8n") return 1;
-                    return 0;
-                });
+                    if (a.service === "n8n") return -1
+                    if (b.service === "n8n") return 1
+                    return 0
+                })
 
                 if (paidSubs.length === 0) {
-                    router.push("/services");
-                    return;
+                    router.push("/services")
+                    return
                 }
 
-                setSubscriptions(sortedSubs);
-                setIsAuthorized(true);
+                setSubscriptions(sortedSubs)
+                setIsAuthorized(true)
             } else {
-                router.push("/auth/login");
+                router.push("/auth/login")
             }
         } catch (error) {
-            console.error("Dashboard fetch error:", error);
-            router.push("/auth/login");
+            console.error("Dashboard fetch error:", error)
+            router.push("/auth/login")
         } finally {
-            setLoading(false);
+            setLoading(false)
         }
-    };
+    }
 
     useEffect(() => {
-        fetchData();
+        fetchData()
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [])
 
     if (loading || isAuthorized === null) {
         return (
-            <div className="min-h-screen bg-black flex items-center justify-center">
+            <div className="min-h-screen bg-background flex items-center justify-center">
                 <div className="flex flex-col items-center gap-6">
-                    <div className="w-16 h-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
-                    <p className="text-zinc-500 font-bold tracking-widest uppercase text-xs animate-pulse">
+                    <div className="size-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
+                    <p className="text-muted-foreground font-bold tracking-widest uppercase text-xs animate-pulse">
                         {statusMessage}
                     </p>
                 </div>
             </div>
-        );
+        )
     }
 
-    if (!isAuthorized) return null;
+    if (!isAuthorized) return null
 
     return (
-        <DashboardContext.Provider
-            value={{ user, subscriptions, loading, refetch: fetchData }}
-        >
-            <div className="h-screen bg-[#020202] text-white flex overflow-hidden">
-                <Sidebar user={user} subscriptions={subscriptions} />
-                <main className="flex-1 flex flex-col overflow-hidden">
+        <DashboardContext.Provider value={{ user, subscriptions, loading, refetch: fetchData }}>
+            <SidebarProvider>
+                <AppSidebar />
+                <SidebarInset>
                     {children}
-                </main>
-            </div>
+                </SidebarInset>
+            </SidebarProvider>
         </DashboardContext.Provider>
-    );
+    )
 }

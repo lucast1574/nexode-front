@@ -33,20 +33,20 @@ export default function Home() {
                 <div className="flex flex-col sm:flex-row gap-4 items-center">
                     <Button
                         id="btn-home-launch"
-                        asChild
+                        render={<Link href="/services" />}
                         size="lg"
                         className="rounded-full px-8 text-lg h-14 shadow-xl shadow-primary/20"
                     >
-                        <Link href="/services">Explore Services</Link>
+                        Explore Services
                     </Button>
                     <Button
                         id="btn-home-signin"
-                        asChild
+                        render={<Link href="/auth/login" />}
                         variant="outline"
                         size="lg"
                         className="rounded-full px-8 text-lg h-14 bg-background/50 backdrop-blur-sm"
                     >
-                        <Link href="/auth/login">Sign In</Link>
+                        Sign In
                     </Button>
                 </div>
 
