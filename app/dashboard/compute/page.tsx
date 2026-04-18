@@ -32,6 +32,7 @@ import { getAccessToken } from "@/lib/auth-utils";
 import { useModal } from "@/components/ui/modal";
 import { toast } from "sonner";
 import { ProvisionNodeModal } from "@/components/modals/ProvisionNodeModal";
+import { SubscriptionLimitModal } from "@/components/modals/SubscriptionLimitModal";
 
 interface ComputeInstance {
     _id: string;
@@ -81,6 +82,7 @@ function ComputePageContent() {
     const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
     const [selectedInstance, setSelectedInstance] = useState<ComputeInstance | null>(null);
     const [showCreateModal, setShowCreateModal] = useState(false);
+    const [showLimitModal, setShowLimitModal] = useState(false);
     const [copiedField, setCopiedField] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState<'overview' | 'deployments' | 'env' | 'logs' | 'terminal' | 'settings'>('overview');
     const [envDraft, setEnvDraft] = useState('');
@@ -168,7 +170,7 @@ function ComputePageContent() {
                 type: status,
                 onConfirm: () => {
                     setInitialProvider(githubStatus ? 'GITHUB' : 'GITLAB');
-                    setShowCreateModal(true);
+                    handleCreateClick();
                 }
             });
 
@@ -184,6 +186,20 @@ function ComputePageContent() {
     useEffect(() => {
         fetchInstances();
     }, [fetchInstances]);
+
+    // Subscription slot check
+    const computeSubscriptions = subscriptions.filter(s => s.service === 'compute');
+    const computeUsedSlots = instances.length;
+    const computeTotalSlots = computeSubscriptions.length;
+    const canCreateCompute = computeUsedSlots < computeTotalSlots;
+
+    const handleCreateClick = () => {
+        if (canCreateCompute) {
+            setShowCreateModal(true);
+        } else {
+            setShowLimitModal(true);
+        }
+    };
 
     // Auto-refresh when deploying
     useEffect(() => {
@@ -452,7 +468,7 @@ function ComputePageContent() {
                         </div>
                     </div>
                     <Button
-                        onClick={() => setShowCreateModal(true)}
+                        onClick={handleCreateClick}
                         
                         className={cn(
                             "rounded-2xl gap-2 font-bold shadow-lg transition-all",
@@ -1028,7 +1044,7 @@ function ComputePageContent() {
                                 </div>
                                 <h2 className="text-5xl font-black tracking-tighter uppercase mb-4">Command Center</h2>
                                 <p className="text-zinc-500 max-w-md mx-auto text-lg mb-12">Provision high-performance compute clusters and deploy your applications globally in nano-seconds.</p>
-                                <Button onClick={() => setShowCreateModal(true)}  className="h-16 px-12 rounded-3xl bg-blue-600 hover:bg-blue-500 font-black uppercase tracking-widest shadow-2xl shadow-blue-500/20">
+                                <Button onClick={handleCreateClick}  className="h-16 px-12 rounded-3xl bg-blue-600 hover:bg-blue-500 font-black uppercase tracking-widest shadow-2xl shadow-blue-500/20">
                                     Deploy First Node <ChevronRight className="w-5 h-5 ml-2" />
                                 </Button>
                             </div>
@@ -1043,6 +1059,14 @@ function ComputePageContent() {
                 user={user}
                 subscriptions={subscriptions}
                 initialProvider={initialProvider}
+            />
+            <SubscriptionLimitModal
+                isOpen={showLimitModal}
+                onClose={() => setShowLimitModal(false)}
+                serviceName="Compute"
+                serviceId="compute"
+                usedSlots={computeUsedSlots}
+                totalSlots={computeTotalSlots}
             />
         </>
     );

@@ -277,7 +277,7 @@ export default function ServicesPage() {
 
             <main className="relative z-10 pb-32 px-6 max-w-6xl mx-auto space-y-24">
                 {SERVICES.map((service) => (
-                    <section key={service.id} className="space-y-10">
+                    <section key={service.id} id={service.id} className="space-y-10 scroll-mt-24">
                         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                             <div className="space-y-4 max-w-2xl">
                                 <div className="flex items-center gap-4">

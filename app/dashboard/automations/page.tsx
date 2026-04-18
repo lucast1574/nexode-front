@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { getAccessToken } from "@/lib/auth-utils";
 import { useModal } from "@/components/ui/modal";
 import { ProvisionN8nModal } from "@/components/modals/ProvisionN8nModal";
+import { SubscriptionLimitModal } from "@/components/modals/SubscriptionLimitModal";
 
 interface N8nInstance {
     _id: string;
@@ -29,6 +30,7 @@ export default function AutomationsPage() {
     const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
     const [selectedInstance, setSelectedInstance] = useState<N8nInstance | null>(null);
     const [showCreateModal, setShowCreateModal] = useState(false);
+    const [showLimitModal, setShowLimitModal] = useState(false);
     const [copied, setCopied] = useState(false);
     const [dnsStatus, setDnsStatus] = useState<'checking' | 'resolved' | 'failed' | null>(null);
     const [dnsMessage, setDnsMessage] = useState<string>('');
@@ -112,6 +114,20 @@ export default function AutomationsPage() {
     useEffect(() => {
         fetchInstances();
     }, [fetchInstances]);
+
+    // Subscription slot check
+    const n8nSubscriptions = subscriptions.filter(s => s.service === 'n8n');
+    const n8nUsedSlots = instances.length;
+    const n8nTotalSlots = n8nSubscriptions.length;
+    const canCreateN8n = n8nUsedSlots < n8nTotalSlots;
+
+    const handleCreateClick = () => {
+        if (canCreateN8n) {
+            setShowCreateModal(true);
+        } else {
+            setShowLimitModal(true);
+        }
+    };
 
     // Auto-refresh when provisioning
     useEffect(() => {
@@ -236,7 +252,7 @@ export default function AutomationsPage() {
                         <h2 className="text-xl font-black tracking-tight">Automations (n8n)</h2>
                     </div>
                     <Button
-                        onClick={() => setShowCreateModal(true)}
+                        onClick={handleCreateClick}
                         
                         className={cn(
                             "rounded-2xl gap-2 font-bold shadow-lg transition-all",
@@ -473,7 +489,7 @@ export default function AutomationsPage() {
                                 </p>
                                 <div className="flex gap-4">
                                     <Button 
-                                        onClick={() => setShowCreateModal(true)} 
+                                        onClick={handleCreateClick} 
                                         className="rounded-2xl h-16 px-10 gap-3 font-black uppercase tracking-widest text-[11px] bg-red-600 hover:bg-red-500 shadow-2xl shadow-red-500/20"
                                     >
                                         Deploy Cluster <ArrowRight className="w-4 h-4" />
@@ -492,6 +508,14 @@ export default function AutomationsPage() {
                     onClose={() => setShowCreateModal(false)}
                     onSuccess={fetchInstances}
                     subscriptions={subscriptions}
+                />
+                <SubscriptionLimitModal
+                    isOpen={showLimitModal}
+                    onClose={() => setShowLimitModal(false)}
+                    serviceName="n8n Automation"
+                    serviceId="n8n"
+                    usedSlots={n8nUsedSlots}
+                    totalSlots={n8nTotalSlots}
                 />
             </>
     );

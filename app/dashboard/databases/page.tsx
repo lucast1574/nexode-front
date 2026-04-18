@@ -21,6 +21,7 @@ import { Subscription } from "@/components/Sidebar";
 import { cn } from "@/lib/utils";
 import { getAccessToken } from "@/lib/auth-utils";
 import { DeleteDatabaseModal } from "@/components/modals/DeleteDatabaseModal";
+import { SubscriptionLimitModal } from "@/components/modals/SubscriptionLimitModal";
 import { useModal } from "@/components/ui/modal";
 import { useActionLock } from "@/lib/use-action-lock";
 
@@ -55,6 +56,7 @@ export default function DatabasesPage() {
     const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
     const [selectedDb, setSelectedDb] = useState<DatabaseInstance | null>(null);
     const [showCreateModal, setShowCreateModal] = useState(false);
+    const [showLimitModal, setShowLimitModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [dbToDelete, setDbToDelete] = useState<DatabaseInstance | null>(null);
     const [copiedField, setCopiedField] = useState<string | null>(null);
@@ -129,6 +131,20 @@ export default function DatabasesPage() {
     useEffect(() => {
         fetchDatabases();
     }, [fetchDatabases]);
+
+    // Check if user can create more instances (slots available)
+    const dbSubscriptions = subscriptions.filter(s => s.service === 'database');
+    const usedSlots = databases.length;
+    const totalSlots = dbSubscriptions.length;
+    const canCreate = usedSlots < totalSlots;
+
+    const handleCreateClick = () => {
+        if (canCreate) {
+            setShowCreateModal(true);
+        } else {
+            setShowLimitModal(true);
+        }
+    };
 
     // Auto-poll while any database is in a transitional state (provisioning, deploying, restarting, deleting)
     useEffect(() => {
@@ -441,7 +457,7 @@ export default function DatabasesPage() {
                     </div>
                     <div className="flex items-center gap-4">
                         <Button
-                            onClick={() => setShowCreateModal(true)}
+                            onClick={handleCreateClick}
                             className="rounded-full h-12 px-6 gap-2 font-bold shadow-lg transition-all bg-purple-600 hover:bg-purple-500 shadow-purple-500/20 text-white"
                         >
                             <Plus className="w-4 h-4" /> New Instance
@@ -1001,6 +1017,15 @@ export default function DatabasesPage() {
                 }}
                 onConfirm={confirmDelete}
                 dbName={dbToDelete?.name || ""}
+            />
+            {/* Subscription Limit Modal */}
+            <SubscriptionLimitModal
+                isOpen={showLimitModal}
+                onClose={() => setShowLimitModal(false)}
+                serviceName="Database"
+                serviceId="database"
+                usedSlots={usedSlots}
+                totalSlots={totalSlots}
             />
         </>
     );
