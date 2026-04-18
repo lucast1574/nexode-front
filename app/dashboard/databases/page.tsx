@@ -130,6 +130,19 @@ export default function DatabasesPage() {
         fetchDatabases();
     }, [fetchDatabases]);
 
+    // Auto-poll while any database is in a transitional state (provisioning, deploying, restarting, deleting)
+    useEffect(() => {
+        const transitionalStatuses = ['provisioning', 'deploying', 'restarting', 'deleting', 'pending'];
+        const hasTransitional = databases.some(db => transitionalStatuses.includes(db.status));
+        if (!hasTransitional) return;
+
+        const interval = setInterval(() => {
+            fetchDatabases();
+        }, 3000);
+
+        return () => clearInterval(interval);
+    }, [databases, fetchDatabases]);
+
     // Clear terminal logs when database changes, tab changes, or on initial load
     useEffect(() => {
         setTerminalLogs([...INITIAL_TERMINAL_LOGS]);
