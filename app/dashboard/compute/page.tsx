@@ -92,6 +92,7 @@ function ComputePageContent() {
 
     const [terminalLogs, setTerminalLogs] = useState<{ type: 'input' | 'output' | 'error', text: string }[]>(INITIAL_TERMINAL_LOGS);
     const [isExecuting, setIsExecuting] = useState(false);
+    const [liveDeployStatus, setLiveDeployStatus] = useState<string | null>(null);
     const [restarting, setRestarting] = useState<boolean>(false);
     const [cooldown, setCooldown] = useState<number>(0);
     const { showAlert, showConfirm } = useModal();
@@ -217,6 +218,38 @@ function ComputePageContent() {
             if (interval) clearInterval(interval);
         };
     }, [instances, fetchInstances]);
+
+    // Poll Dokploy deploy status for the selected instance
+    useEffect(() => {
+        if (!selectedInstance?._id || selectedInstance.status !== 'running') {
+            setLiveDeployStatus(null);
+            return;
+        }
+        let cancelled = false;
+        const checkStatus = async () => {
+            try {
+                const token = getAccessToken();
+                const GQL_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api-v1/graphql';
+                const res = await fetch(GQL_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ query: `query { computeDeployStatus(id: "${selectedInstance._id}") }` }),
+                });
+                const result = await res.json();
+                if (!cancelled) {
+                    const status = result.data?.computeDeployStatus;
+                    setLiveDeployStatus(status || null);
+                    // If deploy just finished, refresh instances to get latest
+                    if (status === 'done' && liveDeployStatus === 'running') {
+                        fetchInstances();
+                    }
+                }
+            } catch { /* ignore */ }
+        };
+        checkStatus();
+        const interval = setInterval(checkStatus, 8000);
+        return () => { cancelled = true; clearInterval(interval); };
+    }, [selectedInstance?._id, selectedInstance?.status]);
 
     // Reset terminal when instance or tab changes
     useEffect(() => {
@@ -565,6 +598,26 @@ function ComputePageContent() {
                                         <Button onClick={() => handleDelete(selectedInstance._id)} className="rounded-xl bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20"><Trash2 className="w-4 h-4" /></Button>
                                     </div>
                                 </div>
+
+                                {/* Live Deploy Status Banner */}
+                                {liveDeployStatus === 'running' && (
+                                    <div className="mb-6 relative overflow-hidden rounded-2xl border border-blue-500/20 bg-blue-500/5 p-4">
+                                        <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-cyan-500/10 to-blue-500/10 animate-pulse" />
+                                        <div className="relative flex items-center gap-4">
+                                            <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center">
+                                                <RefreshCw className="w-5 h-5 text-blue-400 animate-spin" />
+                                            </div>
+                                            <div>
+                                                <div className="text-sm font-bold text-blue-300 uppercase tracking-wider">Deploying New Version</div>
+                                                <div className="text-xs text-blue-400/60 mt-0.5">A new push was detected. Building and deploying automatically...</div>
+                                            </div>
+                                            <div className="ml-auto flex items-center gap-2">
+                                                <div className="w-2 h-2 rounded-full bg-blue-400 animate-ping" />
+                                                <span className="text-xs font-mono text-blue-400/80">BUILDING</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
 
                                 {/* Tabs Navigation */}
                                 <div className="flex gap-8 border-b border-white/5 mb-12 overflow-x-auto scrollbar-hide">
