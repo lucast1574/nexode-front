@@ -2,7 +2,7 @@
 
 import React from "react"
 import Link from "next/link"
-import { GalleryVerticalEndIcon } from "lucide-react"
+import Image from "next/image"
 
 interface AuthLayoutProps {
     children: React.ReactNode
@@ -27,10 +27,12 @@ const AuthLayout = ({ children }: AuthLayoutProps) => {
                 </div>
             </div>
             <div className="relative hidden bg-muted lg:block">
-                <img
+                <Image
                     src="/og-image.png"
                     alt="Nexode"
-                    className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
+                    fill
+                    className="object-cover dark:brightness-[0.2] dark:grayscale"
+                    priority
                 />
             </div>
         </div>

@@ -202,7 +202,6 @@ export function LoginForm({
                         <GoogleLogin
                             onSuccess={handleGoogleSuccess}
                             onError={() => toast.error("Google Login Failed")}
-                            useOneTap
                             theme="outline"
                             width="100%"
                         />

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
+import { useSearchParams } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -17,7 +17,6 @@ export function VerifyForm({
     className,
     ...props
 }: React.ComponentProps<"form">) {
-    const router = useRouter()
     const searchParams = useSearchParams()
     const [isLoading, setIsLoading] = useState(false)
     const [email, setEmail] = useState("")
@@ -44,7 +43,7 @@ export function VerifyForm({
         } finally {
             setIsLoading(false)
         }
-    }, [verifyEmail, router])
+    }, [verifyEmail])
 
     useEffect(() => {
         const emailFromQuery = searchParams.get("email")
