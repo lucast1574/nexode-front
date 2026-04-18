@@ -1,10 +1,12 @@
 "use client"
 
 import { useState } from "react"
+import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
+import { Field, FieldGroup, FieldLabel, FieldDescription, FieldSeparator } from "@/components/ui/field"
 import { Loader2, CheckCircle2, Circle, Eye, EyeOff } from "lucide-react"
 import { toast } from "sonner"
 import Turnstile from "react-turnstile"
@@ -13,7 +15,10 @@ import { REGISTER_MUTATION } from "@/lib/graphql-mutations"
 import { setAuthSession } from "@/lib/auth-utils"
 import { RegisterData } from "@/lib/types"
 
-export function RegisterForm() {
+export function RegisterForm({
+    className,
+    ...props
+}: React.ComponentProps<"form">) {
     const router = useRouter()
     const [showPassword, setShowPassword] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
@@ -66,8 +71,6 @@ export function RegisterForm() {
         setIsLoading(true)
 
         try {
-            console.log("Registering with:", formData)
-
             const nameParts = formData.name.trim().split(" ")
             const first_name = nameParts[0]
             const last_name = nameParts.length > 1 ? nameParts.slice(1).join(" ") : ""
@@ -86,7 +89,6 @@ export function RegisterForm() {
             if (data?.register?.success) {
                 toast.success("Account created successfully!")
 
-                // Use setAuthSession to store tokens
                 if (data.register.access_token || data.register.refresh_token) {
                     setAuthSession(data.register.access_token, data.register.refresh_token)
                 }
@@ -96,7 +98,6 @@ export function RegisterForm() {
                 toast.error(data?.register?.message || "Registration failed")
             }
         } catch (error: unknown) {
-            console.error("Registration error:", error)
             const message = error instanceof Error ? error.message : "Registration failed. Please try again."
             toast.error(message)
         } finally {
@@ -105,10 +106,10 @@ export function RegisterForm() {
     }
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-1">
-                <h1 className="text-2xl font-extrabold tracking-tight">Create an account</h1>
-                <p className="text-sm text-muted-foreground">
+        <form onSubmit={handleSubmit} className={cn("flex flex-col gap-6", className)} {...props}>
+            <div className="flex flex-col items-center gap-1 text-center">
+                <h1 className="text-2xl font-bold">Create an account</h1>
+                <p className="text-sm text-balance text-muted-foreground">
                     Enter your details below to create your account
                 </p>
             </div>
@@ -127,12 +128,12 @@ export function RegisterForm() {
                 </Field>
 
                 <Field>
-                    <FieldLabel htmlFor="email">Email address</FieldLabel>
+                    <FieldLabel htmlFor="email">Email</FieldLabel>
                     <Input
                         id="email"
                         name="email"
                         type="email"
-                        placeholder="name@example.com"
+                        placeholder="m@example.com"
                         required
                         autoComplete="email"
                         value={formData.email}
@@ -147,16 +148,16 @@ export function RegisterForm() {
                             id="password"
                             name="password"
                             type={showPassword ? "text" : "password"}
-                            placeholder="••••••••"
                             required
                             autoComplete="new-password"
                             value={formData.password}
                             onChange={handlePasswordChange}
                             className="pr-10"
                         />
-                        <button
-                            id="btn-toggle-password"
+                        <Button
                             type="button"
+                            variant="ghost"
+                            size="icon-xs"
                             onClick={() => setShowPassword((prev) => !prev)}
                             className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground hover:text-foreground"
                         >
@@ -165,7 +166,7 @@ export function RegisterForm() {
                             ) : (
                                 <Eye className="h-4 w-4" />
                             )}
-                        </button>
+                        </Button>
                     </div>
 
                     {formData.password && (
@@ -192,24 +193,26 @@ export function RegisterForm() {
                     </Field>
                 )}
 
-                <Button id="btn-register-submit" type="submit" className="w-full" disabled={isLoading}>
-                    {isLoading ? (
-                        <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            Creating account...
-                        </>
-                    ) : (
-                        "Create Account"
-                    )}
-                </Button>
+                <Field>
+                    <Button id="btn-register-submit" type="submit" className="w-full" disabled={isLoading}>
+                        {isLoading ? (
+                            <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                Creating account...
+                            </>
+                        ) : (
+                            "Create Account"
+                        )}
+                    </Button>
+                </Field>
             </FieldGroup>
 
-            <p className="text-center text-sm text-muted-foreground">
+            <FieldDescription className="text-center">
                 Already have an account?{" "}
-                <a id="link-login" href="/auth/login" className="font-semibold text-primary hover:underline underline-offset-4">
+                <Link href="/auth/login" className="underline underline-offset-4">
                     Sign in
-                </a>
-            </p>
+                </Link>
+            </FieldDescription>
         </form>
     )
 }

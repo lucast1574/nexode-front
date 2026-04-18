@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
-import { X, Globe, Zap, Rocket, ChevronRight, Check } from "lucide-react";
+import { Globe, Zap, Rocket, ChevronRight, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { getAccessToken } from "@/lib/auth-utils";
 import { useModal } from "@/components/ui/modal";
 import { Subscription } from "@/components/Sidebar";
@@ -14,10 +15,10 @@ interface ProvisionN8nModalProps {
     subscriptions: Subscription[];
 }
 
-export function ProvisionN8nModal({ 
-    isOpen, 
-    onClose, 
-    onSuccess, 
+export function ProvisionN8nModal({
+    isOpen,
+    onClose,
+    onSuccess,
     subscriptions,
 }: ProvisionN8nModalProps) {
     const [customDomain, setCustomDomain] = useState("");
@@ -94,108 +95,97 @@ export function ProvisionN8nModal({
         }
     };
 
-    if (!isOpen) return null;
-
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-500">
-            <div className="w-full max-w-xl bg-[#080808] border border-white/10 rounded-[40px] p-10 relative overflow-hidden shadow-2xl">
-                {/* Visual Flair */}
-                <div className="absolute top-0 right-0 w-64 h-64 bg-red-600/10 blur-[100px] rounded-full pointer-events-none" />
-                
-                <div className="flex items-center justify-between mb-10 relative z-10">
-                    <div className="space-y-2">
-                        <div className="flex items-center gap-3 text-red-500 mb-2">
-                            <Zap className="w-5 h-5 fill-current" />
-                            <span className="text-[10px] font-black uppercase tracking-[0.3em]">Isolated Automation Cluster</span>
+        <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
+            <DialogContent className="sm:max-w-lg" showCloseButton>
+                <DialogHeader>
+                    <div className="flex items-center gap-3">
+                        <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-red-500/10">
+                            <Zap className="w-5 h-5 text-red-500 fill-current" />
                         </div>
-                        <h2 className="text-4xl font-black tracking-tighter uppercase leading-none text-white">Provision n8n</h2>
+                        <div>
+                            <DialogTitle>Provision n8n</DialogTitle>
+                            <DialogDescription>Deploy a new n8n automation instance.</DialogDescription>
+                        </div>
                     </div>
-                    <button 
-                        onClick={onClose} 
-                        className="w-12 h-12 rounded-full border border-white/10 bg-white/[0.02] flex items-center justify-center text-zinc-500 hover:bg-white/5 transition-all"
-                    >
-                        <X className="w-6 h-6" />
-                    </button>
-                </div>
+                </DialogHeader>
 
-                <form onSubmit={handleCreateInstance} className="space-y-6 relative z-10">
+                <form onSubmit={handleCreateInstance} className="space-y-4">
                     <div className="space-y-2">
-                        <label className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500 ml-1 block">Instance Identity</label>
-                        <input 
-                            name="name" 
-                            required 
-                            placeholder="e.g. Production Automations" 
-                            className="w-full bg-white/[0.02] border border-white/10 rounded-[22px] h-14 px-8 text-sm font-bold text-white focus:border-red-500/50 transition-all outline-none" 
+                        <label className="text-sm font-medium text-muted-foreground">Instance Name</label>
+                        <input
+                            name="name"
+                            required
+                            placeholder="e.g. Production Automations"
+                            className="w-full bg-transparent border border-input rounded-lg h-12 px-4 text-sm font-medium outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/10 transition-all"
                         />
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500 ml-1 block">Custom Domain (Optional)</label>
+                        <label className="text-sm font-medium text-muted-foreground">Custom Domain (Optional)</label>
                         <div className="relative">
-                            <Globe className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-600" />
-                            <input 
-                                name="custom_domain" 
+                            <Globe className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                            <input
+                                name="custom_domain"
                                 value={customDomain}
                                 onChange={(e) => setCustomDomain(e.target.value)}
-                                placeholder="n8n.your-domain.com" 
-                                className="w-full bg-white/[0.02] border border-white/10 rounded-[22px] h-14 pl-14 pr-8 text-sm font-bold text-white focus:border-red-500/50 transition-all outline-none" 
+                                placeholder="n8n.your-domain.com"
+                                className="w-full bg-transparent border border-input rounded-lg h-12 pl-11 pr-4 text-sm font-medium outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/10 transition-all"
                             />
                         </div>
                     </div>
 
                     {customDomain.length > 0 && (
-                        <div className="grid grid-cols-2 gap-4 animate-in slide-in-from-top-4 duration-500">
+                        <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500 ml-1 block">Gateway User</label>
-                                <input 
-                                    name="username" 
-                                    required 
-                                    placeholder="admin" 
-                                    className="w-full bg-white/[0.02] border border-white/10 rounded-[22px] h-14 px-6 text-sm font-bold text-white focus:border-red-500/50 transition-all outline-none" 
+                                <label className="text-sm font-medium text-muted-foreground">Gateway User</label>
+                                <input
+                                    name="username"
+                                    required
+                                    placeholder="admin"
+                                    className="w-full bg-transparent border border-input rounded-lg h-12 px-4 text-sm font-medium outline-none focus:border-primary/50 transition-all"
                                 />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500 ml-1 block">Gateway Password</label>
-                                <input 
-                                    name="password" 
+                                <label className="text-sm font-medium text-muted-foreground">Gateway Password</label>
+                                <input
+                                    name="password"
                                     type="password"
-                                    required 
-                                    placeholder="••••••••" 
-                                    className="w-full bg-white/[0.02] border border-white/10 rounded-[22px] h-14 px-6 text-sm font-bold text-white focus:border-red-500/50 transition-all outline-none" 
+                                    required
+                                    placeholder="••••••••"
+                                    className="w-full bg-transparent border border-input rounded-lg h-12 px-4 text-sm font-medium outline-none focus:border-primary/50 transition-all"
                                 />
                             </div>
                         </div>
                     )}
 
-                    <div className="bg-red-500/5 border border-red-500/10 rounded-[32px] p-6 space-y-3">
-                        <h4 className="text-[10px] font-black uppercase tracking-widest text-red-400">Environment Specs</h4>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                            <div className="flex items-center gap-3">
+                    <div className="rounded-xl border bg-muted/50 p-4 space-y-3">
+                        <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Environment Specs</h4>
+                        <div className="grid grid-cols-2 gap-2">
+                            <div className="flex items-center gap-2">
                                 <Check className="w-4 h-4 text-emerald-500" />
-                                <span className="text-[11px] text-zinc-400 font-medium">Isolated Execution</span>
+                                <span className="text-xs text-muted-foreground">Isolated Execution</span>
                             </div>
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-2">
                                 <Check className="w-4 h-4 text-emerald-500" />
-                                <span className="text-[11px] text-zinc-400 font-medium">SSD Persistence</span>
+                                <span className="text-xs text-muted-foreground">SSD Persistence</span>
                             </div>
                         </div>
                     </div>
 
-                    <div className="pt-2">
-                        <Button 
-                            type="submit" 
-                            disabled={isDeploying}
-                            className="w-full h-16 rounded-[24px] bg-red-600 hover:bg-red-500 font-black uppercase tracking-[0.3em] text-xs shadow-xl shadow-red-500/20 gap-3"
-                        >
-                            {isDeploying ? (
-                                <><Rocket className="w-5 h-5 animate-bounce" /> Provisioning...</>
-                            ) : (
-                                <><Rocket className="w-5 h-5" /> Launch Designer <ChevronRight className="w-4 h-4" /></>
-                            )}
-                        </Button>
-                    </div>
+                    <Button
+                        type="submit"
+                        disabled={isDeploying}
+                        className="w-full h-12 gap-2"
+                    >
+                        {isDeploying ? (
+                            <><Rocket className="w-4 h-4 animate-bounce" /> Provisioning...</>
+                        ) : (
+                            <><Rocket className="w-4 h-4" /> Launch Designer <ChevronRight className="w-4 h-4" /></>
+                        )}
+                    </Button>
                 </form>
-            </div>
-        </div>
+            </DialogContent>
+        </Dialog>
     );
 }

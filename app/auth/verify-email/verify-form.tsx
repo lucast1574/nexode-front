@@ -2,9 +2,10 @@
 
 import { useState, useEffect, useCallback } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
+import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
+import { Field, FieldGroup, FieldLabel, FieldDescription } from "@/components/ui/field"
 import { Loader2, Mail } from "lucide-react"
 import { toast } from "sonner"
 import { useMutation } from "@apollo/client/react"
@@ -12,7 +13,10 @@ import { VERIFY_EMAIL_MUTATION } from "@/lib/graphql-mutations"
 import { setAuthSession, getAuthRedirectPath } from "@/lib/auth-utils"
 import { VerifyEmailData } from "@/lib/types"
 
-export function VerifyForm() {
+export function VerifyForm({
+    className,
+    ...props
+}: React.ComponentProps<"form">) {
     const router = useRouter()
     const searchParams = useSearchParams()
     const [isLoading, setIsLoading] = useState(false)
@@ -54,10 +58,8 @@ export function VerifyForm() {
             const upCode = codeFromQuery.trim().toUpperCase()
             setCode(upCode)
 
-            // Auto-submit if both are present and we haven't submitted yet
             if (emailFromQuery && upCode.length === 6 && !isLoading) {
                 const cleanEmail = emailFromQuery.trim().toLowerCase()
-                // Use a small timeout to ensure states are updated
                 const timer = setTimeout(() => {
                     handleAutoSubmit(cleanEmail, upCode)
                 }, 500)
@@ -115,25 +117,25 @@ export function VerifyForm() {
     }
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="space-y-1 text-center">
-                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
-                    <Mail className="h-6 w-6 text-primary" />
+        <form onSubmit={handleSubmit} className={cn("flex flex-col gap-6", className)} {...props}>
+            <div className="flex flex-col items-center gap-1 text-center">
+                <div className="mb-2 flex size-9 items-center justify-center rounded-lg bg-primary/10">
+                    <Mail className="size-5 text-primary" />
                 </div>
-                <h1 className="text-2xl font-extrabold tracking-tight">Verify your email</h1>
-                <p className="text-sm text-muted-foreground">
+                <h1 className="text-2xl font-bold">Verify your email</h1>
+                <p className="text-sm text-balance text-muted-foreground">
                     We&apos;ve sent a 6-character verification code to your email
                 </p>
             </div>
 
             <FieldGroup>
                 <Field>
-                    <FieldLabel htmlFor="email">Email address</FieldLabel>
+                    <FieldLabel htmlFor="email">Email</FieldLabel>
                     <Input
                         id="email"
                         name="email"
                         type="email"
-                        placeholder="name@example.com"
+                        placeholder="m@example.com"
                         required
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
@@ -155,29 +157,31 @@ export function VerifyForm() {
                     />
                 </Field>
 
-                <Button id="btn-verify-submit" type="submit" className="w-full" disabled={isLoading}>
-                    {isLoading ? (
-                        <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            Verifying...
-                        </>
-                    ) : (
-                        "Verify Email"
-                    )}
-                </Button>
+                <Field>
+                    <Button id="btn-verify-submit" type="submit" className="w-full" disabled={isLoading}>
+                        {isLoading ? (
+                            <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                Verifying...
+                            </>
+                        ) : (
+                            "Verify Email"
+                        )}
+                    </Button>
+                </Field>
             </FieldGroup>
 
-            <p className="text-center text-sm text-muted-foreground">
+            <FieldDescription className="text-center">
                 Didn&apos;t receive the code?{" "}
                 <button
                     id="btn-resend-code"
                     type="button"
-                    className="font-semibold text-primary hover:underline underline-offset-4"
+                    className="underline underline-offset-4"
                     onClick={() => toast.info("A new verification code has been sent to your email.")}
                 >
                     Resend
                 </button>
-            </p>
+            </FieldDescription>
         </form>
     )
 }

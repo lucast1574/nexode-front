@@ -360,7 +360,7 @@ export default function SettingsPage() {
                                         checked={formData.notifications_enabled}
                                         disabled={isTogglingNotifications}
                                         className={cn(
-                                            formData.notifications_enabled ? "bg-emerald-500 hover:bg-emerald-400" : "bg-white/10",
+                                            "data-[checked]:bg-emerald-500 data-[checked]:hover:bg-emerald-400",
                                             isTogglingNotifications && "opacity-50 cursor-not-allowed"
                                         )}
                                         onCheckedChange={(checked) => {

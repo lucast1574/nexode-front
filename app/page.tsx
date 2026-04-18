@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 export default function Home() {
     return (
         <div className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden bg-background">
-            {/* Background decoration */}
             <div className="absolute inset-0 z-0 opacity-20 pointer-events-none">
                 <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] bg-primary/20 blur-[150px] rounded-full animate-pulse" />
                 <div className="absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] bg-blue-500/20 blur-[150px] rounded-full animate-pulse" />
@@ -12,9 +13,9 @@ export default function Home() {
 
             <main className="relative z-10 flex flex-col items-center text-center px-4 max-w-4xl mx-auto space-y-12">
                 <div className="space-y-6">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold tracking-wider uppercase animate-fade-in">
+                    <Badge variant="outline" className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border-primary/20 text-primary text-xs font-bold tracking-wider uppercase animate-fade-in">
                         Next Generation Platform
-                    </div>
+                    </Badge>
 
                     <h1 className="text-5xl md:text-7xl font-black tracking-tight leading-[1.1]">
                         Scale Your{" "}
@@ -59,20 +60,24 @@ export default function Home() {
                     </Link>
                 </p>
 
-                <div className="pt-12 grid grid-cols-2 md:grid-cols-4 gap-8 opacity-50 grayscale hover:grayscale-0 transition-all duration-500">
-                    <div className="flex items-center justify-center font-bold text-xl tracking-tighter italic">
-                        TRUSTED
-                    </div>
-                    <div className="flex items-center justify-center font-bold text-xl tracking-tighter italic">
-                        PARTNERED
-                    </div>
-                    <div className="flex items-center justify-center font-bold text-xl tracking-tighter italic">
-                        SCALABLE
-                    </div>
-                    <div className="flex items-center justify-center font-bold text-xl tracking-tighter italic">
-                        NEXODE
-                    </div>
-                </div>
+                <Card className="bg-transparent border-0 shadow-none p-0 w-full">
+                    <CardContent className="p-0">
+                        <div className="pt-12 grid grid-cols-2 md:grid-cols-4 gap-8 opacity-50 grayscale hover:grayscale-0 transition-all duration-500">
+                            <div className="flex items-center justify-center font-bold text-xl tracking-tighter italic">
+                                TRUSTED
+                            </div>
+                            <div className="flex items-center justify-center font-bold text-xl tracking-tighter italic">
+                                PARTNERED
+                            </div>
+                            <div className="flex items-center justify-center font-bold text-xl tracking-tighter italic">
+                                SCALABLE
+                            </div>
+                            <div className="flex items-center justify-center font-bold text-xl tracking-tighter italic">
+                                NEXODE
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
             </main>
 
             <footer className="absolute bottom-8 text-sm text-muted-foreground">

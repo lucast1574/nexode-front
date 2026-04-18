@@ -1,21 +1,29 @@
 "use client";
 
 import React, { useEffect, useState, useCallback } from "react";
-import { 
-    X, 
-    Globe, 
-    Server, 
-    Github, 
-    Gitlab, 
-    Check, 
-    Lock, 
-    ChevronDown, 
-    Search, 
-    RefreshCw, 
-    Rocket 
+import {
+    X,
+    Globe,
+    Server,
+    Github,
+    Gitlab,
+    Check,
+    Lock,
+    ChevronDown,
+    Search,
+    RefreshCw,
+    Rocket
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { CustomDropdown } from "@/components/ui/custom-dropdown";
+import {
+    Select,
+    SelectContent,
+    SelectGroup,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { getAccessToken } from "@/lib/auth-utils";
 import { useModal } from "@/components/ui/modal";
@@ -53,11 +61,11 @@ interface ProvisionNodeModalProps {
     initialProvider?: string;
 }
 
-export function ProvisionNodeModal({ 
-    isOpen, 
-    onClose, 
-    onSuccess, 
-    user, 
+export function ProvisionNodeModal({
+    isOpen,
+    onClose,
+    onSuccess,
+    user,
     subscriptions,
     initialProvider = 'GITHUB'
 }: ProvisionNodeModalProps) {
@@ -71,17 +79,18 @@ export function ProvisionNodeModal({
     const [fetchingBranches, setFetchingBranches] = useState(false);
     const [repoSearch, setRepoSearch] = useState('');
     const [isRepoMenuOpen, setIsRepoMenuOpen] = useState(false);
-    
+    const [instanceName, setInstanceName] = useState('');
+    const [instanceType, setInstanceType] = useState('FRONTEND');
+    const [selectedBranch, setSelectedBranch] = useState('');
+
     const { showAlert } = useModal();
 
-    // Reset when closing
     const handleClose = () => {
         setIsRepoMenuOpen(false);
         setRepoSearch('');
         onClose();
     };
 
-    // Close repo menu on click outside
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (isRepoMenuOpen && !(event.target as Element).closest('.repo-selector-container')) {
@@ -111,7 +120,7 @@ export function ProvisionNodeModal({
             setFetchingRepos(false);
         }
     }, [user?.github_profile]);
- 
+
     const fetchGitlabRepos = useCallback(async () => {
         if (!user?.gitlab_profile) return;
         setFetchingRepos(true);
@@ -138,7 +147,7 @@ export function ProvisionNodeModal({
         try {
             const token = getAccessToken();
             const API_URL = process.env.NEXT_PUBLIC_API_URL?.replace('/graphql', '') || "https://backend.nexode.app/api-v1";
-            
+
             let url = "";
             if (formProvider === 'GITHUB') {
                 const parts = selectedRepo.full_name.split('/');
@@ -193,13 +202,11 @@ export function ProvisionNodeModal({
             const endpoint = provider === 'GITHUB' ? '/github/connect' : '/gitlab/connect';
 
             const res = await fetch(`${API_URL}${endpoint}`, {
-                headers: {
-                    "Authorization": `Bearer ${token}`
-                }
+                headers: { "Authorization": `Bearer ${token}` }
             });
 
             const result = await res.json();
-            
+
             if (res.ok && result.url) {
                 window.location.href = result.url;
             } else {
@@ -221,7 +228,6 @@ export function ProvisionNodeModal({
 
     const handleCreateInstance = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        const formData = new FormData(e.currentTarget);
 
         const computeSub = subscriptions.find(s => s.service === 'compute');
         if (!computeSub) {
@@ -234,13 +240,13 @@ export function ProvisionNodeModal({
         }
 
         const input = {
-            name: formData.get('name') as string,
-            type: formData.get('type') as string,
-            provider: formData.get('provider') as string,
-            repository_url: formData.get('repository_url') as string,
-            branch: (formData.get('branch') as string) === 'loading' ? 'main' : (formData.get('branch') as string || 'main'),
+            name: instanceName,
+            type: instanceType,
+            provider: formProvider,
+            repository_url: selectedRepo?.url || '',
+            branch: selectedBranch || selectedRepo?.default_branch || 'main',
             plan_slug: computeSub.plan.slug,
-            custom_domain: formData.get('custom_domain') as string || undefined
+            custom_domain: customDomainInput || undefined
         };
 
         try {
@@ -287,177 +293,176 @@ export function ProvisionNodeModal({
         }
     };
 
-    if (!isOpen) return null;
-
     return (
-        <div className="fixed inset-0 z-[100] flex items-start justify-center p-4 md:p-8 bg-black/40 backdrop-blur-sm animate-in fade-in duration-700 overflow-y-auto overflow-x-hidden transition-all">
-            {/* Background Blobs for depth */}
-            <div className="fixed inset-0 pointer-events-none overflow-hidden select-none">
-                <div className="absolute top-[20%] left-[20%] w-[500px] h-[500px] bg-blue-600/20 blur-[150px] rounded-full animate-pulse duration-[10s]" />
-                <div className="absolute bottom-[20%] right-[20%] w-[400px] h-[400px] bg-indigo-600/10 blur-[120px] rounded-full animate-pulse duration-[8s] delay-1000" />
-            </div>
+        <Dialog open={isOpen} onOpenChange={(open) => { if (!open) handleClose(); }}>
+            <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto" showCloseButton>
+                <DialogHeader>
+                    <DialogTitle className="text-xl font-bold tracking-tight">Provision Node</DialogTitle>
+                    <DialogDescription>Deploy a new compute instance from your repository.</DialogDescription>
+                </DialogHeader>
 
-            <div className="w-full max-w-xl bg-black border border-white/10 rounded-[40px] p-8 md:p-12 shadow-[0_0_120px_rgba(0,0,0,0.9)] relative group transition-all duration-700 hover:border-white/20 my-4 md:my-8 overflow-hidden">
-                {/* Internal Glow */}
-                <div className="absolute inset-0 rounded-[40px] bg-gradient-to-tr from-blue-600/[0.04] to-transparent pointer-events-none" />
-                <div className="absolute top-0 right-0 w-80 h-80 bg-blue-600/10 blur-[120px] rounded-full pointer-events-none" />
-                
-                <div className="flex items-center justify-between mb-10 relative z-10">
-                    <div className="space-y-4">
-                        <h2 className="text-4xl font-black tracking-tighter uppercase leading-none text-white">Provision Node</h2>
-                        <p className="text-[10px] font-black text-blue-500/80 uppercase tracking-[0.3em] bg-blue-500/[0.03] border border-blue-500/10 rounded-full px-5 py-2 w-fit shadow-2xl">Nano-Seconds Deployment</p>
+                <form onSubmit={handleCreateInstance} className="space-y-6">
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium text-muted-foreground">Instance Name</label>
+                        <input
+                            name="name"
+                            required
+                            value={instanceName}
+                            onChange={(e) => setInstanceName(e.target.value)}
+                            placeholder="Project Name (e.g. My Awesome API)"
+                            className="w-full bg-transparent border border-input rounded-lg h-12 px-4 text-sm font-medium focus:border-primary/50 focus:ring-2 focus:ring-primary/10 transition-all outline-none"
+                        />
                     </div>
-                    <button 
-                        onClick={handleClose} 
-                        className="w-12 h-12 rounded-full border border-white/10 bg-white/[0.02] flex items-center justify-center text-zinc-500 hover:bg-red-500/10 hover:border-red-500/20 hover:text-red-500 transition-all transform hover:rotate-90 active:scale-90 shadow-2xl"
-                    >
-                        <X className="w-6 h-6" />
-                    </button>
-                </div>
 
-                <form onSubmit={handleCreateInstance} className="space-y-8 relative z-10">
-                    <div className="space-y-3">
-                        <label className="text-[11px] font-black uppercase tracking-[0.3em] text-zinc-600 ml-1 block leading-none">Instance Identity</label>
-                        <div className="relative group/input">
-                            <input 
-                                name="name" 
-                                required 
-                                placeholder="Project Name (e.g. My Awesome API)" 
-                                className="w-full bg-white/[0.01] hover:bg-white/[0.03] border border-white/10 rounded-[22px] h-16 px-8 text-sm font-black tracking-tight text-white placeholder:text-zinc-800 focus:border-blue-500/50 focus:bg-white/[0.05] focus:ring-8 focus:ring-blue-500/[0.03] transition-all outline-none" 
-                            />
-                            <div className="absolute right-8 top-1/2 -translate-y-1/2 opacity-0 group-focus-within/input:opacity-100 transition-opacity">
-                                <div className="w-2.5 h-2.5 rounded-full bg-blue-500 animate-pulse shadow-[0_0_15px_rgba(59,130,246,0.6)]" />
-                            </div>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-muted-foreground">Service Type</label>
+                            <Select value={instanceType} onValueChange={(value) => setInstanceType(value ?? 'FRONTEND')}>
+                                <SelectTrigger className="w-full h-12">
+                                    <SelectValue placeholder="Select type" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectGroup>
+                                        <SelectItem value="FRONTEND">
+                                            <div className="flex items-center gap-2">
+                                                <Globe className="w-4 h-4" />
+                                                Frontend Web
+                                            </div>
+                                        </SelectItem>
+                                        <SelectItem value="BACKEND">
+                                            <div className="flex items-center gap-2">
+                                                <Server className="w-4 h-4" />
+                                                Backend API
+                                            </div>
+                                        </SelectItem>
+                                    </SelectGroup>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-muted-foreground">Git Provider</label>
+                            <Select value={formProvider} onValueChange={(value) => setFormProvider(value ?? 'GITHUB')}>
+                                <SelectTrigger className="w-full h-12">
+                                    <SelectValue placeholder="Select provider" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectGroup>
+                                        <SelectItem value="GITHUB">
+                                            <div className="flex items-center gap-2">
+                                                <Github className="w-4 h-4" />
+                                                GitHub
+                                            </div>
+                                        </SelectItem>
+                                        <SelectItem value="GITLAB">
+                                            <div className="flex items-center gap-2">
+                                                <Gitlab className="w-4 h-4" />
+                                                GitLab
+                                            </div>
+                                        </SelectItem>
+                                    </SelectGroup>
+                                </SelectContent>
+                            </Select>
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-6">
-                        <div className="space-y-3">
-                            <label className="text-[11px] font-black uppercase tracking-[0.3em] text-zinc-600 ml-1 block leading-none">Service Type</label>
-                            <CustomDropdown
-                                name="type"
-                                options={[
-                                    { value: 'FRONTEND', label: 'Frontend Web', icon: Globe },
-                                    { value: 'BACKEND', label: 'Backend API', icon: Server }
-                                ]}
-                                defaultValue="FRONTEND"
-                            />
-                        </div>
-                        <div className="space-y-3">
-                            <label className="text-[11px] font-black uppercase tracking-[0.3em] text-zinc-600 ml-1 block leading-none">Git Provider</label>
-                            <CustomDropdown
-                                name="provider"
-                                options={[
-                                    { value: 'GITHUB', label: 'GitHub', icon: Github },
-                                    { value: 'GITLAB', label: 'GitLab', icon: Gitlab }
-                                ]}
-                                defaultValue={formProvider}
-                                onChange={(v) => {
-                                    setFormProvider(v);
-                                }}
-                            />
-                        </div>
-                    </div>
+                    <input type="hidden" name="type" value={instanceType} />
+                    <input type="hidden" name="provider" value={formProvider} />
 
-                    {((formProvider === 'GITHUB' && !user?.github_profile) || 
+                    {((formProvider === 'GITHUB' && !user?.github_profile) ||
                       (formProvider === 'GITLAB' && !user?.gitlab_profile)) ? (
-                        <div className="p-6 rounded-[32px] bg-blue-600/5 border border-blue-500/20 flex items-center justify-between group/verify animate-in fade-in slide-in-from-top-4 duration-500 relative overflow-hidden">
-                            <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-transparent via-blue-500/40 to-transparent" />
-                            <div className="flex items-center gap-6 relative z-10">
-                                <div className="w-14 h-14 rounded-2xl bg-blue-600/10 flex items-center justify-center border border-blue-500/30 group-hover/verify:rotate-6 transition-all duration-500 shadow-xl shadow-blue-500/10">
-                                    {formProvider === 'GITHUB' ? <Github className="w-8 h-8 text-blue-500" /> : 
-                                      formProvider === 'GITLAB' ? <Gitlab className="w-8 h-8 text-orange-500" /> : 
-                                      <Github className="w-8 h-8 text-blue-500" />}
+                        <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 flex items-center justify-between">
+                            <div className="flex items-center gap-4">
+                                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center border border-primary/30">
+                                    {formProvider === 'GITHUB' ? <Github className="w-5 h-5 text-primary" /> :
+                                      <Gitlab className="w-5 h-5 text-orange-500" />}
                                 </div>
                                 <div>
-                                    <div className="text-xs font-black text-blue-400 uppercase tracking-[0.3em] mb-2">Authorization Required</div>
-                                    <div className="text-[13px] text-zinc-500 font-bold leading-none tracking-tight">Connect {formProvider.toLowerCase()} to access clusters.</div>
+                                    <div className="text-sm font-semibold">Authorization Required</div>
+                                    <div className="text-xs text-muted-foreground">Connect {formProvider.toLowerCase()} to access repositories.</div>
                                 </div>
                             </div>
-                            <Button type="button" size="sm" onClick={() => handleConnectProvider(formProvider)} className="rounded-[18px] bg-blue-600 hover:bg-blue-500 text-[10px] font-black uppercase tracking-widest shadow-xl shadow-blue-500/30 px-8 h-12 shrink-0 transform active:scale-95 transition-all">
+                            <Button type="button" size="sm" onClick={() => handleConnectProvider(formProvider)} className="shrink-0">
                                 Authorize
                             </Button>
                         </div>
                     ) : (
-                        <div className="p-6 rounded-[32px] bg-emerald-600/[0.03] border border-emerald-500/10 flex items-center justify-between group/verify animate-in fade-in slide-in-from-top-4 duration-500 relative overflow-hidden">
-                            <div className="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-transparent via-emerald-500/20 to-transparent" />
-                            <div className="flex items-center gap-6 relative z-10">
-                                <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 shadow-xl shadow-emerald-500/10 transition-all duration-500 group-hover/verify:rotate-6">
-                                    <Check className="w-8 h-8 text-emerald-500" />
+                        <div className="rounded-xl border border-emerald-500/10 bg-emerald-500/5 p-4 flex items-center justify-between">
+                            <div className="flex items-center gap-4">
+                                <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
+                                    <Check className="w-5 h-5 text-emerald-500" />
                                 </div>
                                 <div>
-                                    <div className="text-xs font-black text-emerald-400 uppercase tracking-[0.3em] mb-2">Account Verified</div>
-                                    <div className="text-[13px] text-zinc-500 font-bold uppercase tracking-tight">
-                                        Connected as <span className="text-white ml-2 font-black">@{
-                                            formProvider === 'GITHUB' ? user?.github_profile?.username :
-                                            user?.gitlab_profile?.username
+                                    <div className="text-sm font-semibold text-emerald-400">Account Verified</div>
+                                    <div className="text-xs text-muted-foreground">
+                                        Connected as <span className="font-semibold text-foreground">@{
+                                            formProvider === 'GITHUB' ? user?.github_profile?.username : user?.gitlab_profile?.username
                                         }</span>
                                     </div>
                                 </div>
                             </div>
-                            <Button type="button" size="sm" onClick={() => handleConnectProvider(formProvider)} className="rounded-[18px] bg-white/[0.03] hover:bg-white/[0.07] border border-white/5 text-[10px] font-black uppercase tracking-widest text-zinc-500 hover:text-white px-8 h-12 shrink-0 transition-all">
+                            <Button type="button" size="sm" variant="outline" onClick={() => handleConnectProvider(formProvider)} className="shrink-0">
                                 Switch
                             </Button>
                         </div>
                     )}
 
-                    <div className="space-y-3">
-                        <label className="text-[11px] font-black uppercase tracking-[0.3em] text-zinc-600 ml-1 block leading-none">Repository Target</label>
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium text-muted-foreground">Repository</label>
                         {((formProvider === 'GITHUB' && user?.github_profile) || (formProvider === 'GITLAB' && user?.gitlab_profile)) ? (
-                            <div className="relative repo-selector-container group/repo">
+                            <div className="relative repo-selector-container">
                                 <button
                                     type="button"
                                     onClick={() => setIsRepoMenuOpen(!isRepoMenuOpen)}
                                     className={cn(
-                                        "w-full bg-white/[0.01] hover:bg-white/[0.03] border border-white/10 rounded-[22px] h-16 px-8 font-bold flex items-center justify-between transition-all outline-none",
-                                        isRepoMenuOpen ? "border-blue-500/50 bg-white/[0.05]" : ""
+                                        "w-full bg-transparent border border-input rounded-lg h-12 px-4 font-medium flex items-center justify-between transition-all outline-none",
+                                        isRepoMenuOpen ? "border-primary/50 ring-2 ring-primary/10" : ""
                                     )}
                                 >
-                                    <div className="flex items-center gap-5">
+                                    <div className="flex items-center gap-3">
                                         {selectedRepo ? (
-                                            <div className="flex items-center gap-5">
+                                            <div className="flex items-center gap-3">
                                                 <div className={cn(
-                                                    "w-10 h-10 rounded-2xl flex items-center justify-center border transition-all shadow-xl",
-                                                    selectedRepo.private ? "bg-amber-500/10 border-amber-500/20 text-amber-500 shadow-amber-500/5" : "bg-blue-500/10 border-blue-500/20 text-blue-500 shadow-blue-500/5"
+                                                    "w-8 h-8 rounded-lg flex items-center justify-center border",
+                                                    selectedRepo.private ? "bg-amber-500/10 border-amber-500/20 text-amber-500" : "bg-primary/10 border-primary/20 text-primary"
                                                 )}>
-                                                    {selectedRepo.private ? <Lock className="w-5 h-5" /> : <Globe className="w-5 h-5" />}
+                                                    {selectedRepo.private ? <Lock className="w-4 h-4" /> : <Globe className="w-4 h-4" />}
                                                 </div>
-                                                <span className="text-sm font-black text-white truncate max-w-[280px] uppercase tracking-tighter">{selectedRepo.full_name}</span>
+                                                <span className="text-sm font-medium truncate max-w-[250px]">{selectedRepo.full_name}</span>
                                             </div>
                                         ) : (
-                                            <span className="text-zinc-700 text-xs font-black uppercase tracking-[0.25em]">Select Repository ...</span>
+                                            <span className="text-muted-foreground text-sm">Select repository...</span>
                                         )}
                                     </div>
-                                    <ChevronDown className={cn("w-6 h-6 text-zinc-600 transition-all duration-500", isRepoMenuOpen && "rotate-180 text-blue-500 scale-110")} />
+                                    <ChevronDown className={cn("w-4 h-4 text-muted-foreground transition-all", isRepoMenuOpen && "rotate-180")} />
                                 </button>
 
                                 {isRepoMenuOpen && (
-                                    <div className="absolute top-full left-0 right-0 mt-4 bg-[#080808]/95 backdrop-blur-3xl border border-white/10 rounded-2xl overflow-hidden z-[110] shadow-[0_40px_100px_rgba(0,0,0,0.8)] animate-in fade-in slide-in-from-top-6 duration-500 border-t-white/20">
-                                        <div className="p-4 border-b border-white/5 bg-white/[0.02]">
-                                            <div className="relative group/search">
-                                                <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500 group-focus-within/search:text-blue-500 transition-colors" />
-                                                <input 
-                                                    autoFocus
-                                                    placeholder="Filter your sources..."
-                                                    className="w-full bg-black/40 border border-white/10 rounded-xl h-11 pl-12 pr-4 text-xs font-black uppercase tracking-widest focus:border-blue-500/50 focus:ring-4 focus:ring-blue-500/5 transition-all outline-none"
-                                                    value={repoSearch}
-                                                    onChange={(e) => setRepoSearch(e.target.value)}
-                                                />
-                                            </div>
-                                        </div>
-                                        
-                                        <div className="max-h-[280px] overflow-y-auto scrollbar-hide py-2 px-2">
-                                            {fetchingRepos ? (
-                                                <div className="flex flex-col items-center justify-center py-8 gap-4">
-                                                    <div className="w-6 h-6 border-2 border-blue-500/20 border-t-blue-500 rounded-full animate-spin" />
-                                                    <span className="text-[10px] font-black uppercase text-zinc-600 tracking-[0.3em]">Querying {formProvider}...</span>
+                                    <>
+                                        <div className="fixed inset-0 z-[110]" onClick={() => setIsRepoMenuOpen(false)} />
+                                        <div className="absolute top-full left-0 right-0 mt-2 bg-popover border border-border rounded-lg overflow-hidden z-[120] shadow-lg">
+                                            <div className="p-3 border-b border-border">
+                                                <div className="relative">
+                                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                                                    <input
+                                                        autoFocus
+                                                        placeholder="Filter repositories..."
+                                                        className="w-full bg-transparent border border-input rounded-md h-9 pl-9 pr-4 text-sm outline-none focus:border-primary/50"
+                                                        value={repoSearch}
+                                                        onChange={(e) => setRepoSearch(e.target.value)}
+                                                    />
                                                 </div>
-                                            ) : (
-                                                <div className="grid gap-1">
-                                                    {(formProvider === 'GITHUB' ? githubRepos : gitlabRepos)
+                                            </div>
+                                            <div className="max-h-[250px] overflow-y-auto">
+                                                {fetchingRepos ? (
+                                                    <div className="flex flex-col items-center justify-center py-6 gap-2">
+                                                        <div className="w-5 h-5 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
+                                                        <span className="text-xs text-muted-foreground">Loading repositories...</span>
+                                                    </div>
+                                                ) : (
+                                                    (formProvider === 'GITHUB' ? githubRepos : gitlabRepos)
                                                         .filter(repo => repo.full_name.toLowerCase().includes(repoSearch.toLowerCase()))
                                                         .map(repo => (
-                                                            <button 
+                                                            <button
                                                                 key={repo.id}
                                                                 type="button"
                                                                 onClick={() => {
@@ -465,95 +470,106 @@ export function ProvisionNodeModal({
                                                                     setIsRepoMenuOpen(false);
                                                                     setRepoSearch('');
                                                                 }}
-                                                                className="w-full flex items-center justify-between px-4 py-3 hover:bg-white/[0.04] rounded-xl group/item transition-all"
+                                                                className={cn(
+                                                                    "w-full flex items-center justify-between px-4 py-3 hover:bg-accent transition-colors",
+                                                                    selectedRepo?.id === repo.id && "bg-primary/10"
+                                                                )}
                                                             >
-                                                                <div className="flex items-center gap-4">
+                                                                <div className="flex items-center gap-3">
                                                                     <div className={cn(
-                                                                        "w-8 h-8 rounded-lg flex items-center justify-center border transition-all duration-300",
-                                                                        repo.private ? "bg-amber-500/5 border-amber-500/10 text-amber-500 group-hover/item:border-amber-500/30" : "bg-blue-500/5 border-blue-500/10 text-blue-500 group-hover/item:border-blue-500/30"
+                                                                        "w-7 h-7 rounded-md flex items-center justify-center border",
+                                                                        repo.private ? "bg-amber-500/5 border-amber-500/10 text-amber-500" : "bg-primary/5 border-primary/10 text-primary"
                                                                     )}>
-                                                                        {repo.private ? <Lock className="w-4 h-4" /> : <Globe className="w-4 h-4" />}
+                                                                        {repo.private ? <Lock className="w-3.5 h-3.5" /> : <Globe className="w-3.5 h-3.5" />}
                                                                     </div>
                                                                     <div className="text-left">
-                                                                        <div className="text-xs font-black text-white group-hover/item:text-blue-400 transition-colors uppercase tracking-tight">{repo.full_name}</div>
-                                                                        <div className="text-[9px] font-black uppercase tracking-[0.1em] text-zinc-600 mt-0.5">{repo.language || 'Code'} • {repo.default_branch}</div>
+                                                                        <div className="text-sm font-medium">{repo.full_name}</div>
+                                                                        <div className="text-xs text-muted-foreground">{repo.language || 'Code'} &middot; {repo.default_branch}</div>
                                                                     </div>
                                                                 </div>
                                                                 {selectedRepo?.id === repo.id && (
-                                                                    <div className="w-6 h-6 rounded-full bg-blue-500/10 flex items-center justify-center border border-blue-500/20">
-                                                                        <Check className="w-3 h-3 text-blue-500" />
-                                                                    </div>
+                                                                    <Check className="w-4 h-4 text-primary" />
                                                                 )}
                                                             </button>
                                                         ))
-                                                    }
-                                                </div>
-                                            )}
+                                                )}
+                                            </div>
                                         </div>
-                                    </div>
+                                    </>
                                 )}
                                 <input type="hidden" name="repository_url" value={selectedRepo?.url || ''} required />
                             </div>
                         ) : (
-                            <input 
-                                name="repository_url" 
-                                required 
-                                placeholder={`https://${formProvider.toLowerCase()}.com/user/repo`} 
-                                className="w-full bg-white/[0.01] hover:bg-white/[0.03] border border-white/10 rounded-[22px] h-16 px-8 text-sm font-black text-white focus:border-blue-500/50 transition-all outline-none" 
+                            <input
+                                name="repository_url"
+                                required
+                                placeholder={`https://${formProvider.toLowerCase()}.com/user/repo`}
+                                className="w-full bg-transparent border border-input rounded-lg h-12 px-4 text-sm font-medium focus:border-primary/50 focus:ring-2 focus:ring-primary/10 transition-all outline-none"
                             />
                         )}
                     </div>
 
-                    <div className="grid grid-cols-2 gap-6">
-                        <div className="space-y-3">
-                            <label className="text-[11px] font-black uppercase tracking-[0.3em] text-zinc-600 ml-1 block leading-none">Deployment Branch</label>
-                            <CustomDropdown
-                                key={`branch-${selectedRepo?.id || 'none'}`}
-                                name="branch"
-                                searchable={branches.length > 5}
-                                options={fetchingBranches ? [{ value: 'loading', label: 'Fetching Branches...', icon: RefreshCw }] : (branches.length > 0 ? branches.map(b => ({ value: b, label: b, icon: Check })) : [{ value: selectedRepo?.default_branch || 'main', label: selectedRepo?.default_branch || 'main', icon: Check }])}
-                                defaultValue={selectedRepo?.default_branch || 'main'}
-                            />
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-muted-foreground">Deployment Branch</label>
+                            {branches.length > 0 ? (
+                                <Select value={selectedBranch || selectedRepo?.default_branch || 'main'} onValueChange={(value) => setSelectedBranch(value ?? 'main')}>
+                                    <SelectTrigger className="w-full h-12">
+                                        <SelectValue placeholder="Select branch" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectGroup>
+                                            {branches.map(b => (
+                                                <SelectItem key={b} value={b}>{b}</SelectItem>
+                                            ))}
+                                        </SelectGroup>
+                                    </SelectContent>
+                                </Select>
+                            ) : (
+                                <input
+                                    name="branch"
+                                    value={selectedBranch || selectedRepo?.default_branch || 'main'}
+                                    onChange={(e) => setSelectedBranch(e.target.value)}
+                                    className="w-full bg-transparent border border-input rounded-lg h-12 px-4 text-sm font-medium outline-none"
+                                />
+                            )}
+                            <input type="hidden" name="branch" value={selectedBranch || selectedRepo?.default_branch || 'main'} />
                         </div>
-                        <div className="space-y-3">
-                            <label className="text-[11px] font-black uppercase tracking-[0.3em] text-zinc-600 ml-1 block leading-none">Custom Domain</label>
-                            <input 
-                                name="custom_domain" 
-                                placeholder="app.example.com" 
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-muted-foreground">Custom Domain</label>
+                            <input
+                                name="custom_domain"
+                                placeholder="app.example.com"
+                                value={customDomainInput}
                                 onChange={(e) => setCustomDomainInput(e.target.value)}
-                                className="w-full bg-white/[0.01] hover:bg-white/[0.03] border border-white/10 rounded-[22px] h-16 px-8 text-sm font-black text-white focus:border-blue-500/50 transition-all outline-none" 
+                                className="w-full bg-transparent border border-input rounded-lg h-12 px-4 text-sm font-medium focus:border-primary/50 focus:ring-2 focus:ring-primary/10 transition-all outline-none"
                             />
                         </div>
                     </div>
 
                     {customDomainInput.trim().length > 0 && (
-                        <div className="grid grid-cols-2 gap-5 animate-in fade-in slide-in-from-top-6 duration-500 pt-2">
+                        <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black uppercase tracking-[0.25em] text-blue-500/80 ml-1 block leading-none">Basic Auth Identity</label>
-                                <input name="auth_user" placeholder="admin" className="w-full bg-blue-500/[0.03] border border-blue-500/20 rounded-2xl h-11 px-6 text-sm font-black text-blue-400 placeholder:text-blue-900/40 focus:border-blue-500/50 transition-all outline-none" />
+                                <label className="text-xs font-medium text-primary/80">Basic Auth Username</label>
+                                <input name="auth_user" placeholder="admin" className="w-full bg-primary/5 border border-primary/20 rounded-lg h-10 px-4 text-sm font-medium focus:border-primary/50 outline-none" />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-[10px] font-black uppercase tracking-[0.25em] text-blue-500/80 ml-1 block leading-none">Access Key</label>
-                                <input name="auth_pass" type="password" placeholder="••••••••" className="w-full bg-blue-500/[0.03] border border-blue-500/20 rounded-2xl h-11 px-6 text-sm font-black text-blue-400 placeholder:text-blue-900/40 focus:border-blue-500/50 transition-all outline-none" />
+                                <label className="text-xs font-medium text-primary/80">Access Key</label>
+                                <input name="auth_pass" type="password" placeholder="••••••••" className="w-full bg-primary/5 border border-primary/20 rounded-lg h-10 px-4 text-sm font-medium focus:border-primary/50 outline-none" />
                             </div>
                         </div>
                     )}
 
-                    <div className="pt-8 mb-4">
-                        <Button 
-                            type="submit" 
-                            disabled={fetchingBranches || fetchingRepos}
-                            className="w-full h-16 rounded-[24px] bg-blue-600 hover:bg-blue-500 font-black uppercase tracking-[0.4em] text-[11px] shadow-[0_20px_60px_rgba(59,130,246,0.3)] transform transition-all active:scale-[0.98] active:shadow-none group/submit overflow-hidden relative disabled:opacity-50 disabled:pointer-events-none"
-                        >
-                            <div className="absolute inset-x-0 top-0 h-px bg-white/20 z-20" />
-                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover/submit:translate-x-full transition-transform duration-1000" />
-                            <Rocket className="w-7 h-7 mr-4 group-hover:-translate-y-2 group-hover:translate-x-2 transition-transform duration-500 relative z-10" />
-                            <span className="relative z-10">{fetchingBranches || fetchingRepos ? "Fetching Requirements..." : "Launch Virtual Node"}</span>
-                        </Button>
-                        <p className="text-[10px] text-zinc-800 text-center mt-8 font-black uppercase tracking-[0.3em]">Automated SSL & Hybrid Load Balancing Active</p>
-                    </div>
+                    <Button
+                        type="submit"
+                        disabled={fetchingBranches || fetchingRepos}
+                        className="w-full h-12 gap-2"
+                    >
+                        <Rocket className="w-4 h-4" />
+                        {fetchingBranches || fetchingRepos ? "Fetching Requirements..." : "Launch Virtual Node"}
+                    </Button>
                 </form>
-            </div>
-        </div>
+            </DialogContent>
+        </Dialog>
     );
 }

@@ -17,6 +17,12 @@ import {
     EyeOff
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 import { Subscription } from "@/components/Sidebar";
 import { cn } from "@/lib/utils";
 import { getAccessToken } from "@/lib/auth-utils";
@@ -61,7 +67,7 @@ export default function DatabasesPage() {
     const [dbToDelete, setDbToDelete] = useState<DatabaseInstance | null>(null);
     const [copiedField, setCopiedField] = useState<string | null>(null);
     const [revealedFields, setRevealedFields] = useState<Set<string>>(new Set());
-    const [activeTab, setActiveTab] = useState<'overview' | 'credentials' | 'terminal'>('overview');
+    const [activeTab, setActiveTab] = useState<string>('overview');
     const [isSuperuser, setIsSuperuser] = useState(false);
 
     const [terminalLogs, setTerminalLogs] = useState<{ type: 'input' | 'output' | 'error', text: string }[]>(INITIAL_TERMINAL_LOGS);
@@ -73,7 +79,6 @@ export default function DatabasesPage() {
 
     const selectedDbIdRef = useRef<string | null>(null);
 
-    // Keep ref in sync
     useEffect(() => {
         selectedDbIdRef.current = selectedDb?._id || null;
     }, [selectedDb?._id]);
@@ -135,7 +140,6 @@ export default function DatabasesPage() {
         fetchDatabases();
     }, [fetchDatabases]);
 
-    // Check if user can create more instances (slots available)
     const dbSubscriptions = subscriptions.filter(s => s.service === 'database');
     const usedSlots = databases.length;
     const totalSlots = dbSubscriptions.length;
@@ -149,7 +153,6 @@ export default function DatabasesPage() {
         }
     };
 
-    // Auto-poll while any database is in a transitional state (provisioning, deploying, restarting, deleting)
     useEffect(() => {
         const transitionalStatuses = ['provisioning', 'deploying', 'restarting', 'deleting', 'pending'];
         const hasTransitional = databases.some(db => transitionalStatuses.includes(db.status));
@@ -162,7 +165,6 @@ export default function DatabasesPage() {
         return () => clearInterval(interval);
     }, [databases, fetchDatabases]);
 
-    // Clear terminal logs when database changes, tab changes, or on initial load
     useEffect(() => {
         setTerminalLogs([...INITIAL_TERMINAL_LOGS]);
     }, [selectedDb?._id, activeTab]);
@@ -196,7 +198,6 @@ export default function DatabasesPage() {
         const name = formData.get('name') as string;
         const type = formData.get('type') as string;
 
-        // Extract the correct plan slug from active subscriptions
         const dbPlan = subscriptions.find(s => s.service === 'database');
 
         if (!dbPlan) {
@@ -469,15 +470,14 @@ export default function DatabasesPage() {
                 </header>
 
                 <div className="flex-1 flex overflow-hidden">
-                    {/* Database List Sidebar */}
                     <div className="w-80 border-r border-white/5 bg-black/20 flex flex-col">
                         <div className="p-4 border-b border-white/5">
-                            <div className="flex items-center gap-3 bg-white/5 px-4 py-2 rounded-xl border border-white/10">
+                            <div className="flex items-center gap-3">
                                 <Search className="w-4 h-4 text-zinc-500" />
-                                <input
+                                <Input
                                     type="text"
                                     placeholder="Search clusters..."
-                                    className="bg-transparent border-none outline-none text-xs w-full placeholder:text-zinc-400"
+                                    className="bg-white/5 border-white/10 text-xs h-8"
                                 />
                             </div>
                         </div>
@@ -505,15 +505,15 @@ export default function DatabasesPage() {
                                         )}
                                     >
                                         <div className="flex items-center justify-between mb-2">
-                                            <span className={cn(
-                                                "text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full border",
+                                            <Badge variant="outline" className={cn(
+                                                "text-[9px] font-black uppercase tracking-widest",
                                                 db.type === 'postgres' ? 'text-blue-400 border-blue-400/20 bg-blue-400/10' :
                                                     db.type === 'mongodb' ? 'text-emerald-400 border-emerald-400/20 bg-emerald-400/10' :
                                                         db.type === 'mysql' ? 'text-blue-500 border-blue-500/20 bg-blue-500/10' :
                                                             'text-red-400 border-red-400/20 bg-red-400/10'
                                             )}>
                                                 {db.type}
-                                            </span>
+                                            </Badge>
                                             <div className={cn(
                                                 "w-2 h-2 rounded-full",
                                                 db.status === 'running' ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' :
@@ -530,7 +530,6 @@ export default function DatabasesPage() {
                         </div>
                     </div>
 
-                    {/* Database Details */}
                     <div className="flex-1 flex flex-col bg-[#050505]">
                         {selectedDb ? (
                             <>
@@ -539,13 +538,13 @@ export default function DatabasesPage() {
                                         <div>
                                             <div className="flex items-center gap-3 mb-2">
                                                 <h1 className="text-3xl font-black tracking-tight">{selectedDb.name}</h1>
-                                                <span className={cn(
-                                                    "px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border",
+                                                <Badge variant="outline" className={cn(
+                                                    "text-[10px] font-black uppercase tracking-widest",
                                                     selectedDb.status === 'running' ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20" :
                                                         "bg-amber-500/10 text-amber-500 border-amber-500/20"
                                                 )}>
                                                     ● {selectedDb.status}
-                                                </span>
+                                                </Badge>
                                             </div>
                                             <p className="text-zinc-500 text-sm font-medium">Instance ID: {selectedDb._id}</p>
                                         </div>
@@ -567,191 +566,197 @@ export default function DatabasesPage() {
                                         </div>
                                     </div>
 
-                                    <div className="flex gap-8 mt-8 border-b border-white/5">
-                                        {[
-                                            { id: 'overview', label: 'Overview', icon: Activity },
-                                            { id: 'credentials', label: 'Credentials', icon: Key },
-                                            { id: 'terminal', label: 'Terminal', icon: Terminal },
-                                        ].map((tab) => (
-                                            <button
-                                                key={tab.id}
-                                                onClick={() => setActiveTab(tab.id as 'overview' | 'credentials' | 'terminal')}
-                                                className={cn(
-                                                    "flex items-center gap-2 pb-4 text-sm font-bold transition-all relative",
-                                                    activeTab === tab.id ? "text-primary" : "text-zinc-500 hover:text-white"
-                                                )}
-                                            >
-                                                <tab.icon className="w-4 h-4" />
-                                                {tab.label}
-                                                {activeTab === tab.id && (
-                                                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary shadow-[0_0_12px_rgba(255,59,48,0.5)]" />
-                                                )}
-                                            </button>
-                                        ))}
-                                    </div>
+                                    <Tabs value={activeTab} onValueChange={setActiveTab}>
+                                        <TabsList variant="line" className="mt-8 gap-8">
+                                            <TabsTrigger value="overview" className="flex items-center gap-2">
+                                                <Activity className="w-4 h-4" /> Overview
+                                            </TabsTrigger>
+                                            <TabsTrigger value="credentials" className="flex items-center gap-2">
+                                                <Key className="w-4 h-4" /> Credentials
+                                            </TabsTrigger>
+                                            <TabsTrigger value="terminal" className="flex items-center gap-2">
+                                                <Terminal className="w-4 h-4" /> Terminal
+                                            </TabsTrigger>
+                                        </TabsList>
+                                    </Tabs>
                                 </div>
 
                                 <div className="flex-1 overflow-y-auto p-8">
-                                    {activeTab === 'overview' && (
-                                        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                                    <TabsContent value="overview" className="animate-in fade-in slide-in-from-bottom-4 duration-500" >
+                                        <div className="space-y-8">
                                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                                <div className="bg-white/[0.03] border border-white/5 rounded-3xl p-6">
-                                                    <div className="text-zinc-500 text-[10px] font-black uppercase tracking-widest mb-4">Core Technology</div>
-                                                    <div className="flex items-center gap-3">
-                                                        <div className={cn(
-                                                            "w-10 h-10 rounded-xl flex items-center justify-center border",
-                                                            selectedDb.type === 'mongodb' ? 'bg-emerald-500/10 border-emerald-500/20' :
-                                                                selectedDb.type === 'postgres' ? 'bg-blue-500/10 border-blue-500/20' :
-                                                                    selectedDb.type === 'redis' ? 'bg-red-500/10 border-red-500/20' :
-                                                                        selectedDb.type === 'mysql' ? 'bg-blue-600/10 border-blue-600/20' :
-                                                                            'bg-primary/10 border-primary/20'
-                                                        )}>
-                                                            {selectedDb.type === 'mongodb' ? <Database className="w-5 h-5 text-emerald-400" /> :
-                                                                selectedDb.type === 'postgres' ? <Database className="w-5 h-5 text-blue-400" /> :
-                                                                    selectedDb.type === 'redis' ? <Database className="w-5 h-5 text-red-500" /> :
-                                                                        selectedDb.type === 'mysql' ? <Database className="w-5 h-5 text-blue-500" /> :
-                                                                            <Database className="w-5 h-5 text-primary" />}
-                                                        </div>
-                                                        <div>
-                                                            <div className="font-bold leading-tight">{selectedDb.type === 'postgres' ? 'PostgreSQL' :
-                                                                selectedDb.type === 'mongodb' ? 'MongoDB' :
-                                                                    selectedDb.type === 'redis' ? 'Redis' :
-                                                                        selectedDb.type === 'mysql' ? 'MySQL' : selectedDb.type} Enterprise</div>
-                                                            <div className="text-[10px] text-zinc-500 font-medium">
-                                                                {selectedDb.type === 'postgres' ? 'v16.2 Stable' :
-                                                                    selectedDb.type === 'mongodb' ? 'v6.0 Latest' :
-                                                                        selectedDb.type === 'redis' ? 'v7.2 stable' :
-                                                                            selectedDb.type === 'mysql' ? 'v8.0 Stable' : 'Latest'}
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div className="bg-white/[0.03] border border-white/5 rounded-3xl p-6">
-                                                    <div className="text-zinc-500 text-[10px] font-black uppercase tracking-widest mb-4">Availability Zone</div>
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center border border-blue-500/20">
-                                                            <Shield className="w-5 h-5 text-blue-400" />
-                                                        </div>
-                                                        <div>
-                                                            <div className="font-bold">US-East (Virginia)</div>
-                                                            <div className="text-xs text-zinc-500">Multi-AZ Enabled</div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div className="bg-white/[0.03] border border-white/5 rounded-3xl p-6">
-                                                    <div className="text-zinc-500 text-[10px] font-black uppercase tracking-widest mb-4">Instance Health</div>
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
-                                                            <Activity className="w-5 h-5 text-emerald-400" />
-                                                        </div>
-                                                        <div>
-                                                            <div className="font-bold text-emerald-400">Optimal</div>
-                                                            <div className="text-xs text-zinc-500">Monitored</div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div className="bg-white/[0.02] border border-white/5 rounded-[32px] p-8">
-                                                <h3 className="text-lg font-bold mb-6">Connection Endpoints</h3>
-                                                <div className="space-y-4">
-                                                    <div className="p-4 rounded-2xl bg-black border border-white/10 flex items-center justify-between">
-                                                        <div className="flex-1 overflow-hidden">
-                                                            <div className="text-[10px] text-zinc-500 font-bold uppercase mb-1">Public Connection URI</div>
-                                                            <code className="text-sm text-primary truncate block">{selectedDb.public_uri || selectedDb.connection_string || 'provisioning...'}</code>
-                                                        </div>
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="icon"
-                                                            className="shrink-0"
-                                                            onClick={() => handleCopy(selectedDb.public_uri || selectedDb.connection_string || '', 'uri')}
-                                                        >
-                                                            {copiedField === 'uri' ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
-                                                        </Button>
-                                                    </div>
-
-                                                    <div className="p-4 rounded-2xl bg-black border border-white/10 flex items-center justify-between">
-                                                        <div className="flex-1 overflow-hidden">
-                                                            <div className="text-[10px] text-zinc-500 font-bold uppercase mb-1">Internal Connection URI</div>
-                                                            <code className="text-sm text-emerald-400 truncate block">{selectedDb.internal_uri || 'provisioning...'}</code>
-                                                        </div>
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="icon"
-                                                            className="shrink-0"
-                                                            onClick={() => handleCopy(selectedDb.internal_uri || '', 'internal_uri')}
-                                                        >
-                                                            {copiedField === 'internal_uri' ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
-                                                        </Button>
-                                                    </div>
-
-                                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                                        <div className="p-4 rounded-2xl bg-black border border-white/10 flex items-center justify-between">
-                                                            <div>
-                                                                <div className="text-[10px] text-zinc-500 font-bold uppercase mb-1">Host</div>
-                                                                <code className="text-sm">{selectedDb.host || 'backend.nexode.app'}</code>
-                                                            </div>
-                                                        </div>
-                                                        <div className="p-4 rounded-2xl bg-black border border-white/10 flex items-center justify-between">
-                                                            <div>
-                                                                <div className="text-[10px] text-zinc-500 font-bold uppercase mb-1">Port</div>
-                                                                <code className="text-sm">{selectedDb.port || '...'}</code>
-                                                            </div>
-                                                        </div>
-                                                        <div className="p-4 rounded-2xl bg-black border border-white/10 flex items-center justify-between">
-                                                            <div>
-                                                                <div className="text-[10px] text-zinc-500 font-bold uppercase mb-1">Database Name</div>
-                                                                <code className="text-sm">{selectedDb.db_name || '...'}</code>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            {/* Deployment Timeline */}
-                                            {selectedDb.events && selectedDb.events.length > 0 && (
-                                                <div className="bg-white/[0.02] border border-white/5 rounded-[32px] p-8 mt-8">
-                                                    <div className="flex items-center justify-between mb-8">
-                                                        <h3 className="text-lg font-bold">Deployment Timeline</h3>
-                                                        <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Real-time Logs</span>
-                                                    </div>
-                                                    <div className="space-y-6 relative ml-2">
-                                                        <div className="absolute left-[7px] top-2 bottom-2 w-0.5 bg-white/5" />
-                                                        {selectedDb.events.map((event, idx) => (
-                                                            <div key={idx} className="flex gap-6 relative">
-                                                                <div className={cn(
-                                                                    "w-4 h-4 rounded-full border-2 border-zinc-700 relative z-10 shrink-0 mt-1",
-                                                                    event.type === 'success' ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' :
-                                                                        event.type === 'error' ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]' : 'bg-primary'
+                                                <Card className="bg-white/[0.03] border-white/5 rounded-3xl">
+                                                    <CardContent className="p-6">
+                                                        <div className="text-zinc-500 text-[10px] font-black uppercase tracking-widest mb-4">Core Technology</div>
+                                                        <div className="flex items-center gap-3">
+                                                            <div className={cn(
+                                                                "w-10 h-10 rounded-xl flex items-center justify-center border",
+                                                                selectedDb.type === 'mongodb' ? 'bg-emerald-500/10 border-emerald-500/20' :
+                                                                    selectedDb.type === 'postgres' ? 'bg-blue-500/10 border-blue-500/20' :
+                                                                        selectedDb.type === 'redis' ? 'bg-red-500/10 border-red-500/20' :
+                                                                            selectedDb.type === 'mysql' ? 'bg-blue-600/10 border-blue-600/20' :
+                                                                                'bg-primary/10 border-primary/20'
+                                                            )}>
+                                                                <Database className={cn(
+                                                                    "w-5 h-5",
+                                                                    selectedDb.type === 'mongodb' ? 'text-emerald-400' :
+                                                                        selectedDb.type === 'postgres' ? 'text-blue-400' :
+                                                                            selectedDb.type === 'redis' ? 'text-red-500' :
+                                                                                selectedDb.type === 'mysql' ? 'text-blue-500' : 'text-primary'
                                                                 )} />
-                                                                <div className="flex-1">
-                                                                    <div className="flex items-center justify-between mb-1">
-                                                                        <p className={cn(
-                                                                            "text-sm font-bold",
-                                                                            event.type === 'error' ? 'text-red-400' :
-                                                                                event.type === 'success' ? 'text-emerald-400' : 'text-zinc-200'
-                                                                        )}>
-                                                                            {event.message}
-                                                                        </p>
-                                                                        <span className="text-[10px] font-medium text-zinc-400">
-                                                                            {new Date(event.timestamp).toLocaleTimeString()}
-                                                                        </span>
-                                                                    </div>
+                                                            </div>
+                                                            <div>
+                                                                <div className="font-bold leading-tight">{selectedDb.type === 'postgres' ? 'PostgreSQL' :
+                                                                    selectedDb.type === 'mongodb' ? 'MongoDB' :
+                                                                        selectedDb.type === 'redis' ? 'Redis' :
+                                                                            selectedDb.type === 'mysql' ? 'MySQL' : selectedDb.type} Enterprise</div>
+                                                                <div className="text-[10px] text-zinc-500 font-medium">
+                                                                    {selectedDb.type === 'postgres' ? 'v16.2 Stable' :
+                                                                        selectedDb.type === 'mongodb' ? 'v6.0 Latest' :
+                                                                            selectedDb.type === 'redis' ? 'v7.2 stable' :
+                                                                                selectedDb.type === 'mysql' ? 'v8.0 Stable' : 'Latest'}
                                                                 </div>
                                                             </div>
-                                                        ))}
+                                                        </div>
+                                                    </CardContent>
+                                                </Card>
+                                                <Card className="bg-white/[0.03] border-white/5 rounded-3xl">
+                                                    <CardContent className="p-6">
+                                                        <div className="text-zinc-500 text-[10px] font-black uppercase tracking-widest mb-4">Availability Zone</div>
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center border border-blue-500/20">
+                                                                <Shield className="w-5 h-5 text-blue-400" />
+                                                            </div>
+                                                            <div>
+                                                                <div className="font-bold">US-East (Virginia)</div>
+                                                                <div className="text-xs text-zinc-500">Multi-AZ Enabled</div>
+                                                            </div>
+                                                        </div>
+                                                    </CardContent>
+                                                </Card>
+                                                <Card className="bg-white/[0.03] border-white/5 rounded-3xl">
+                                                    <CardContent className="p-6">
+                                                        <div className="text-zinc-500 text-[10px] font-black uppercase tracking-widest mb-4">Instance Health</div>
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
+                                                                <Activity className="w-5 h-5 text-emerald-400" />
+                                                            </div>
+                                                            <div>
+                                                                <div className="font-bold text-emerald-400">Optimal</div>
+                                                                <div className="text-xs text-zinc-500">Monitored</div>
+                                                            </div>
+                                                        </div>
+                                                    </CardContent>
+                                                </Card>
+                                            </div>
+
+                                            <Card className="bg-white/[0.02] border-white/5 rounded-[32px]">
+                                                <CardContent className="p-8">
+                                                    <h3 className="text-lg font-bold mb-6">Connection Endpoints</h3>
+                                                    <div className="space-y-4">
+                                                        <div className="p-4 rounded-2xl bg-black border border-white/10 flex items-center justify-between">
+                                                            <div className="flex-1 overflow-hidden">
+                                                                <div className="text-[10px] text-zinc-500 font-bold uppercase mb-1">Public Connection URI</div>
+                                                                <code className="text-sm text-primary truncate block">{selectedDb.public_uri || selectedDb.connection_string || 'provisioning...'}</code>
+                                                            </div>
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="icon"
+                                                                className="shrink-0"
+                                                                onClick={() => handleCopy(selectedDb.public_uri || selectedDb.connection_string || '', 'uri')}
+                                                            >
+                                                                {copiedField === 'uri' ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
+                                                            </Button>
+                                                        </div>
+
+                                                        <div className="p-4 rounded-2xl bg-black border border-white/10 flex items-center justify-between">
+                                                            <div className="flex-1 overflow-hidden">
+                                                                <div className="text-[10px] text-zinc-500 font-bold uppercase mb-1">Internal Connection URI</div>
+                                                                <code className="text-sm text-emerald-400 truncate block">{selectedDb.internal_uri || 'provisioning...'}</code>
+                                                            </div>
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="icon"
+                                                                className="shrink-0"
+                                                                onClick={() => handleCopy(selectedDb.internal_uri || '', 'internal_uri')}
+                                                            >
+                                                                {copiedField === 'internal_uri' ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
+                                                            </Button>
+                                                        </div>
+
+                                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                                            <Card className="bg-black border-white/10 rounded-2xl">
+                                                                <CardContent className="p-4">
+                                                                    <div className="text-[10px] text-zinc-500 font-bold uppercase mb-1">Host</div>
+                                                                    <code className="text-sm">{selectedDb.host || 'backend.nexode.app'}</code>
+                                                                </CardContent>
+                                                            </Card>
+                                                            <Card className="bg-black border-white/10 rounded-2xl">
+                                                                <CardContent className="p-4">
+                                                                    <div className="text-[10px] text-zinc-500 font-bold uppercase mb-1">Port</div>
+                                                                    <code className="text-sm">{selectedDb.port || '...'}</code>
+                                                                </CardContent>
+                                                            </Card>
+                                                            <Card className="bg-black border-white/10 rounded-2xl">
+                                                                <CardContent className="p-4">
+                                                                    <div className="text-[10px] text-zinc-500 font-bold uppercase mb-1">Database Name</div>
+                                                                    <code className="text-sm">{selectedDb.db_name || '...'}</code>
+                                                                </CardContent>
+                                                            </Card>
+                                                        </div>
                                                     </div>
-                                                </div>
+                                                </CardContent>
+                                            </Card>
+
+                                            {selectedDb.events && selectedDb.events.length > 0 && (
+                                                <Card className="bg-white/[0.02] border-white/5 rounded-[32px]">
+                                                    <CardContent className="p-8">
+                                                        <div className="flex items-center justify-between mb-8">
+                                                            <h3 className="text-lg font-bold">Deployment Timeline</h3>
+                                                            <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Real-time Logs</span>
+                                                        </div>
+                                                        <div className="space-y-6 relative ml-2">
+                                                            <div className="absolute left-[7px] top-2 bottom-2 w-0.5 bg-white/5" />
+                                                            {selectedDb.events.map((event, idx) => (
+                                                                <div key={idx} className="flex gap-6 relative">
+                                                                    <div className={cn(
+                                                                        "w-4 h-4 rounded-full border-2 border-zinc-700 relative z-10 shrink-0 mt-1",
+                                                                        event.type === 'success' ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' :
+                                                                            event.type === 'error' ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]' : 'bg-primary'
+                                                                    )} />
+                                                                    <div className="flex-1">
+                                                                        <div className="flex items-center justify-between mb-1">
+                                                                            <p className={cn(
+                                                                                "text-sm font-bold",
+                                                                                event.type === 'error' ? 'text-red-400' :
+                                                                                    event.type === 'success' ? 'text-emerald-400' : 'text-zinc-200'
+                                                                            )}>
+                                                                                {event.message}
+                                                                            </p>
+                                                                            <span className="text-[10px] font-medium text-zinc-400">
+                                                                                {new Date(event.timestamp).toLocaleTimeString()}
+                                                                            </span>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </CardContent>
+                                                </Card>
                                             )}
                                         </div>
-                                    )}
+                                    </TabsContent>
 
-                                    {activeTab === 'credentials' && (
-                                        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                            <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-4 flex gap-3 text-red-400">
-                                                <Shield className="w-5 h-5 shrink-0" />
-                                                <p className="text-xs leading-relaxed">Security Warning: Never share your database credentials. Use environment variables in your applications to store these safely.</p>
-                                            </div>
+                                    <TabsContent value="credentials" className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                                        <div className="space-y-6">
+                                            <Card className="border-red-500/20 bg-red-500/10 rounded-2xl">
+                                                <CardContent className="p-4">
+                                                    <div className="flex gap-3 text-red-400">
+                                                        <Shield className="w-5 h-5 shrink-0" />
+                                                        <p className="text-xs leading-relaxed">Security Warning: Never share your database credentials. Use environment variables in your applications to store these safely.</p>
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
 
                                             <div className="grid grid-cols-1 gap-4">
                                                 {[
@@ -784,40 +789,41 @@ export default function DatabasesPage() {
                                                         field: 'jdbc_mysql', secret: true
                                                     }] : [])
                                                 ].map((item: { label: string, value: string | undefined, field: string, secret?: boolean }) => (
-                                                    <div key={item.field} className="group p-6 rounded-[24px] bg-white/[0.03] border border-white/5 hover:border-primary/20 transition-all">
-                                                        <div className="flex items-center justify-between mb-4">
-                                                            <span className="text-xs font-black uppercase tracking-widest text-zinc-500">{item.label}</span>
-                                                            <Button
-                                                                variant="ghost"
-                                                                size="sm"
-                                                                className="h-8 rounded-lg hover:bg-primary/10 hover:text-primary"
-                                                                onClick={() => handleCopy(item.value || '', item.field)}
-                                                            >
-                                                                {copiedField === item.field ? <><Check className="w-3 h-3 mr-2" /> Copied</> : <><Copy className="w-3 h-3 mr-2" /> Copy Item</>}
-                                                            </Button>
-                                                        </div>
-                                                        <div className="bg-black/50 p-4 rounded-xl border border-white/5 font-mono text-sm break-all flex items-center justify-between gap-3">
-                                                            <span className="flex-1 overflow-hidden">{maskValue(item.value, item.field, !!item.secret)}</span>
-                                                            {item.secret && (
-                                                                <button
-                                                                    onClick={() => toggleReveal(item.field)}
-                                                                    className="shrink-0 p-1.5 rounded-lg hover:bg-white/10 text-zinc-500 hover:text-white transition-colors"
-                                                                    title={revealedFields.has(item.field) ? 'Hide' : 'Reveal'}
+                                                    <Card key={item.field} className="bg-white/[0.03] border-white/5 hover:border-primary/20 transition-all rounded-[24px] group">
+                                                        <CardContent className="p-6">
+                                                            <div className="flex items-center justify-between mb-4">
+                                                                <Label className="text-xs font-black uppercase tracking-widest text-zinc-500">{item.label}</Label>
+                                                                <Button
+                                                                    variant="ghost"
+                                                                    size="sm"
+                                                                    className="h-8 rounded-lg hover:bg-primary/10 hover:text-primary"
+                                                                    onClick={() => handleCopy(item.value || '', item.field)}
                                                                 >
-                                                                    {revealedFields.has(item.field) ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                                                                </button>
-                                                            )}
-                                                        </div>
-                                                    </div>
+                                                                    {copiedField === item.field ? <><Check className="w-3 h-3 mr-2" /> Copied</> : <><Copy className="w-3 h-3 mr-2" /> Copy Item</>}
+                                                                </Button>
+                                                            </div>
+                                                            <div className="bg-black/50 p-4 rounded-xl border border-white/5 font-mono text-sm break-all flex items-center justify-between gap-3">
+                                                                <span className="flex-1 overflow-hidden">{maskValue(item.value, item.field, !!item.secret)}</span>
+                                                                {item.secret && (
+                                                                    <button
+                                                                        onClick={() => toggleReveal(item.field)}
+                                                                        className="shrink-0 p-1.5 rounded-lg hover:bg-white/10 text-zinc-500 hover:text-white transition-colors"
+                                                                        title={revealedFields.has(item.field) ? 'Hide' : 'Reveal'}
+                                                                    >
+                                                                        {revealedFields.has(item.field) ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                                                    </button>
+                                                                )}
+                                                            </div>
+                                                        </CardContent>
+                                                    </Card>
                                                 ))}
                                             </div>
                                         </div>
-                                    )}
+                                    </TabsContent>
 
-                                    {activeTab === 'terminal' && (
-                                        <div className="h-full flex flex-col bg-[#080808] rounded-[32px] border border-white/5 overflow-hidden animate-in fade-in zoom-in-95 duration-500">
-                                            {/* Terminal Header */}
-                                            <div className="px-6 py-4 border-b border-white/5 bg-black/40 flex items-center justify-between">
+                                    <TabsContent value="terminal" className="animate-in fade-in zoom-in-95 duration-500">
+                                        <Card className="bg-[#080808] border-white/5 rounded-[32px] h-full flex flex-col overflow-hidden">
+                                            <CardHeader className="px-6 py-4 border-b border-white/5 bg-black/40 flex items-center justify-between">
                                                 <div className="flex items-center gap-3">
                                                     <div className="flex gap-1.5">
                                                         <div className="w-2.5 h-2.5 rounded-full bg-red-500/20 border border-red-500/40" />
@@ -830,15 +836,12 @@ export default function DatabasesPage() {
                                                                 selectedDb.type === 'redis' ? 'Redis-CLI' : 'MySQL'} Proxy — {selectedDb.name}
                                                     </span>
                                                 </div>
-                                                <div className="flex items-center gap-4">
-                                                    <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-tighter flex items-center gap-1.5">
-                                                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Connected
-                                                    </span>
-                                                </div>
-                                            </div>
+                                                <Badge variant="outline" className="text-[10px] font-bold text-emerald-500 uppercase tracking-tighter">
+                                                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse mr-1.5" /> Connected
+                                                </Badge>
+                                            </CardHeader>
 
-                                            {/* Terminal Output */}
-                                            <div className="flex-1 overflow-y-auto p-6 font-mono text-xs leading-relaxed space-y-2 selection:bg-primary/30 scrollbar-hide">
+                                            <CardContent className="flex-1 overflow-y-auto p-6 font-mono text-xs leading-relaxed space-y-2 selection:bg-primary/30 scrollbar-hide">
                                                 {terminalLogs.map((log, i) => (
                                                     <div key={i} className={cn(
                                                         "break-all whitespace-pre-wrap",
@@ -854,36 +857,37 @@ export default function DatabasesPage() {
                                                         <RefreshCw className="w-3 h-3 animate-spin" /> Processing request...
                                                     </div>
                                                 )}
-                                            </div>
+                                            </CardContent>
 
-                                            {/* Terminal Input */}
-                                            <form onSubmit={handleExecuteCommand} className="p-4 bg-black border-t border-white/5 flex items-center gap-3">
-                                                <span className="text-primary font-bold ml-2">➜</span>
-                                                <input
-                                                    name="command"
-                                                    autoComplete="off"
-                                                    placeholder={
-                                                        selectedDb.type === 'mongodb' ? "Enter command (e.g. db.stats())" :
-                                                            selectedDb.type === 'postgres' || selectedDb.type === 'mysql' ? "Enter SQL query (e.g. SELECT version())" :
-                                                                "Enter Redis command (e.g. INFO)"
-                                                    }
-                                                    className="flex-1 bg-transparent border-none outline-none text-sm font-mono text-white placeholder:text-zinc-700"
-                                                />
-                                                <Button
-                                                    type="submit"
-                                                    disabled={isExecuting}
-                                                    size="sm"
-                                                    className="h-8 rounded-lg px-4 bg-white/5 border border-white/10 hover:bg-white/10 text-[10px] font-black uppercase tracking-widest transition-all"
-                                                >
-                                                    Run Cmd
-                                                </Button>
-                                            </form>
-                                        </div>
-                                    )}
+                                            <CardFooter className="p-4 bg-black border-t border-white/5">
+                                                <form onSubmit={handleExecuteCommand} className="flex items-center gap-3 w-full">
+                                                    <span className="text-primary font-bold ml-2">➜</span>
+                                                    <input
+                                                        name="command"
+                                                        autoComplete="off"
+                                                        placeholder={
+                                                            selectedDb.type === 'mongodb' ? "Enter command (e.g. db.stats())" :
+                                                                selectedDb.type === 'postgres' || selectedDb.type === 'mysql' ? "Enter SQL query (e.g. SELECT version())" :
+                                                                    "Enter Redis command (e.g. INFO)"
+                                                        }
+                                                        className="flex-1 bg-transparent border-none outline-none text-sm font-mono text-white placeholder:text-zinc-700"
+                                                    />
+                                                    <Button
+                                                        type="submit"
+                                                        disabled={isExecuting}
+                                                        size="sm"
+                                                        className="h-8 rounded-lg px-4 bg-white/5 border border-white/10 hover:bg-white/10 text-[10px] font-black uppercase tracking-widest transition-all"
+                                                    >
+                                                        Run Cmd
+                                                    </Button>
+                                                </form>
+                                            </CardFooter>
+                                        </Card>
+                                    </TabsContent>
                                 </div>
                             </>
                         ) : (
-                            <div className="flex-1 flex flex-col items-center justify-center text-center p-8">
+                            <div className="h-full flex flex-col items-center justify-center text-center p-8">
                                 <Database className="w-16 h-16 text-white mb-6" />
                                 <h1 className="text-2xl font-black mb-2">Select a Database</h1>
                                 <p className="text-zinc-500 max-w-xs mx-auto">Choose a cluster from the sidebar to view metrics, credentials and management tools.</p>
@@ -893,116 +897,111 @@ export default function DatabasesPage() {
                 </div>
 
 
-            {/* Create Database Modal */}
-            {
-                showCreateModal && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-300">
-                        <div className="w-full max-w-md bg-[#0A0A0A] border border-white/10 rounded-[32px] p-8 shadow-2xl relative">
-                            <h2 className="text-2xl font-black mb-6">Provision New Database</h2>
-                            <form onSubmit={handleCreateDb} className="space-y-6">
-                                <div className="space-y-2">
-                                    <label className="text-xs font-black uppercase tracking-widest text-zinc-500 px-1">Instance Name</label>
-                                    <input
-                                        name="name"
-                                        required
-                                        type="text"
-                                        placeholder="e.g. Production Cluster"
-                                        className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-sm focus:border-primary transition-colors outline-none"
-                                    />
-                                </div>
+            {showCreateModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-300">
+                    <div className="w-full max-w-md bg-[#0A0A0A] border border-white/10 rounded-[32px] p-8 shadow-2xl relative">
+                        <h2 className="text-2xl font-black mb-6">Provision New Database</h2>
+                        <form onSubmit={handleCreateDb} className="space-y-6">
+                            <div className="space-y-2">
+                                <Label className="text-xs font-black uppercase tracking-widest text-zinc-500 px-1">Instance Name</Label>
+                                <Input
+                                    name="name"
+                                    required
+                                    type="text"
+                                    placeholder="e.g. Production Cluster"
+                                    className="bg-white/5 border-white/10 rounded-2xl h-12 text-sm focus:border-primary"
+                                />
+                            </div>
 
-                                <div className="space-y-4">
-                                    <label className="text-xs font-black uppercase tracking-widest text-zinc-500 px-1">Engine Type</label>
-                                    <div className="grid grid-cols-3 gap-4">
-                                        {[
-                                            {
-                                                id: 'postgres',
-                                                label: 'PostgreSQL',
-                                                color: '#336791',
-                                                svg: (
-                                                    <svg viewBox="0 0 24 24" className="w-8 h-8">
-                                                        <path fill="#336791" d="M19.07 13.13c-.15-.55-.38-1.09-.69-1.58.11-.11.23-.22.34-.33.15-.15.28-.31.39-.47.16-.27.27-.55.33-.85.1-.49.1-1 .02-1.49-.07-.49-.24-.96-.48-1.39-.24-.44-.57-.82-.97-1.12-.39-.3-.84-.52-1.32-.64-.48-.12-.98-.15-1.48-.09-.5.06-.98.21-1.43.43-.45.22-.85.52-1.18.89-.04.04-.08.09-.11.13-.19.22-.36.46-.5.71-.14.25-.26.51-.34.78-.08.27-.13.55-.15.82-.02.27-.01.55.03.82.04.27.12.53.22.78.1.25.23.49.39.71.16.22.34.42.55.6.14.12.29.23.45.33.12.08.25.15.38.2.14.07.28.11.43.14-.3.44-.56.91-.77 1.41-.33.78-.5 1.62-.51 2.47a5.13 5.13 0 0 0 .15 1.2c.11.39.27.76.49 1.11.22.34.5.64.83.89.33.25.71.44 1.12.56.41.12.83.17 1.25.14.36-.02.71-.08 1.05-.18a4.93 4.93 0 0 0 1.34-.69c.17-.12.33-.25.48-.39s.29-.3.42-.46c.13-.16.24-.32.34-.5s.17-.35.24-.54c.14-.38.21-.77.21-1.16a5.15 5.15 0 0 0-.11-1.07Z" />
-                                                    </svg>
-                                                )
-                                            },
-                                            {
-                                                id: 'mongodb',
-                                                label: 'MongoDB',
-                                                color: '#47A248',
-                                                svg: (
-                                                    <svg viewBox="0 0 24 24" className="w-8 h-8">
-                                                        <path fill="#47A248" d="M17.18 10.15c-.46-3.14-1.89-6.3-3.08-8.2-.3-.5-.5-.9-.6-.94-.04 0-.25.46-.53.97-1.16 2.1-2.4 5.23-2.6 8.2-.18 2.6.28 4.67 1.43 6.32 1.43 2.03 2.94 2.8 3.51 2.8.5 0 .58-.46.74-.82.64-1.39.92-2.94 1-4.9.04-1.25-.13-2.58-.87-3.43Z" />
-                                                        <path fill="#3F3E3E" d="M12.91 17.51c-1.18 0-2.31-.48-3.14-1.32-.84-.84-1.32-1.97-1.32-3.14 0-1.18.48-2.31 1.32-3.14.84-.84 1.97-1.32 3.14-1.32v8.92Z" opacity=".1" />
-                                                    </svg>
-                                                )
-                                            },
-                                            {
-                                                id: 'redis',
-                                                label: 'Redis',
-                                                color: '#DC382D',
-                                                svg: (
-                                                    <svg viewBox="0 0 24 24" className="w-8 h-8">
-                                                        <path fill="#DC382D" d="M22.5 12c0 5.8-4.7 10.5-10.5 10.5S1.5 17.8 1.5 12 6.2 1.5 12 1.5 22.5 6.2 22.5 12Z" opacity=".1" />
-                                                        <path fill="#DC382D" d="M19 10h-2V8h2v2Zm-3 0h-2V8h2v2Zm-3 0h-2V8h2v2Zm-3 0H8V8h2v2Zm-3 0H5V8h2v2Zm14 3h-2v-2h2v2Zm-3 0h-2v-2h2v2Zm-3 0h-2v-2h2v2Zm-3 0H8v-2h2v2Zm-3 0H5v-2h2v2Zm14 3h-2v-2h2v2Zm-3 0h-2v-2h2v2Zm-3 0h-2v-2h2v2Zm-3 0H8v-2h2v2Zm-3 0H5v-2h2v2Z" />
-                                                    </svg>
-                                                )
-                                            },
+                            <div className="space-y-4">
+                                <Label className="text-xs font-black uppercase tracking-widest text-zinc-500 px-1">Engine Type</Label>
+                                <div className="grid grid-cols-3 gap-4">
+                                    {[
+                                        {
+                                            id: 'postgres',
+                                            label: 'PostgreSQL',
+                                            color: '#336791',
+                                            svg: (
+                                                <svg viewBox="0 0 24 24" className="w-8 h-8">
+                                                    <path fill="#336791" d="M19.07 13.13c-.15-.55-.38-1.09-.69-1.58.11-.11.23-.22.34-.33.15-.15.28-.31.39-.47.16-.27.27-.55.33-.85.1-.49.1-1 .02-1.49-.07-.49-.24-.96-.48-1.39-.24-.44-.57-.82-.97-1.12-.39-.3-.84-.52-1.32-.64-.48-.12-.98-.15-1.48-.09-.5.06-.98.21-1.43.43-.45.22-.85.52-1.18.89-.04.04-.08.09-.11.13-.19.22-.36.46-.5.71-.14.25-.26.51-.34.78-.08.27-.13.55-.15.82-.02.27-.01.55.03.82.04.27.12.53.22.78.1.25.23.49.39.71.16.22.34.42.55.6.14.12.29.23.45.33.12.08.25.15.38.2.14.07.28.11.43.14-.3.44-.56.91-.77 1.41-.33.78-.5 1.62-.51 2.47a5.13 5.13 0 0 0 .15 1.2c.11.39.27.76.49 1.11.22.34.5.64.83.89.33.25.71.44 1.12.56.41.12.83.17 1.25.14.36-.02.71-.08 1.05-.18a4.93 4.93 0 0 0 1.34-.69c.17-.12.33-.25.48-.39s.29-.3.42-.46c.13-.16.24-.32.34-.5s.17-.35.24-.54c.14-.38.21-.77.21-1.16a5.15 5.15 0 0 0-.11-1.07Z" />
+                                                </svg>
+                                            )
+                                        },
+                                        {
+                                            id: 'mongodb',
+                                            label: 'MongoDB',
+                                            color: '#47A248',
+                                            svg: (
+                                                <svg viewBox="0 0 24 24" className="w-8 h-8">
+                                                    <path fill="#47A248" d="M17.18 10.15c-.46-3.14-1.89-6.3-3.08-8.2-.3-.5-.5-.9-.6-.94-.04 0-.25.46-.53.97-1.16 2.1-2.4 5.23-2.6 8.2-.18 2.6.28 4.67 1.43 6.32 1.43 2.03 2.94 2.8 3.51 2.8.5 0 .58-.46.74-.82.64-1.39.92-2.94 1-4.9.04-1.25-.13-2.58-.87-3.43Z" />
+                                                    <path fill="#3F3E3E" d="M12.91 17.51c-1.18 0-2.31-.48-3.14-1.32-.84-.84-1.32-1.97-1.32-3.14 0-1.18.48-2.31 1.32-3.14.84-.84 1.97-1.32 3.14-1.32v8.92Z" opacity=".1" />
+                                                </svg>
+                                            )
+                                        },
+                                        {
+                                            id: 'redis',
+                                            label: 'Redis',
+                                            color: '#DC382D',
+                                            svg: (
+                                                <svg viewBox="0 0 24 24" className="w-8 h-8">
+                                                    <path fill="#DC382D" d="M22.5 12c0 5.8-4.7 10.5-10.5 10.5S1.5 17.8 1.5 12 6.2 1.5 12 1.5 22.5 6.2 22.5 12Z" opacity=".1" />
+                                                    <path fill="#DC382D" d="M19 10h-2V8h2v2Zm-3 0h-2V8h2v2Zm-3 0h-2V8h2v2Zm-3 0H8V8h2v2Zm-3 0H5V8h2v2Zm14 3h-2v-2h2v2Zm-3 0h-2v-2h2v2Zm-3 0h-2v-2h2v2Zm-3 0H8v-2h2v2Zm-3 0H5v-2h2v2Zm14 3h-2v-2h2v2Zm-3 0h-2v-2h2v2Zm-3 0h-2v-2h2v2Zm-3 0H8v-2h2v2Zm-3 0H5v-2h2v2Z" />
+                                                </svg>
+                                            )
+                                        },
 
-                                        ].map((type) => (
-                                            <label key={type.id} className="relative cursor-pointer group">
-                                                <input
-                                                    type="radio"
-                                                    name="type"
-                                                    value={type.id}
-                                                    defaultChecked={type.id === 'postgres'}
-                                                    className="peer hidden"
-                                                />
-                                                <div className="h-28 p-4 rounded-[24px] border border-white/5 bg-white/[0.02] peer-checked:bg-primary/5 peer-checked:border-primary/40 peer-checked:ring-1 peer-checked:ring-primary/20 transition-all flex flex-col items-center justify-center gap-3 hover:bg-white/[0.04] hover:border-white/10">
-                                                    <div className="relative">
-                                                        <div
-                                                            className="absolute inset-0 blur-lg opacity-20 group-hover:opacity-40 transition-opacity"
-                                                            style={{ backgroundColor: type.color }}
-                                                        />
-                                                        <div className="relative transform group-hover:scale-110 transition-transform duration-300">
-                                                            {type.svg}
-                                                        </div>
-                                                    </div>
-                                                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 peer-checked:text-white transition-colors">{type.label}</span>
-
-                                                    {/* Selection Indicator */}
-                                                    <div className="absolute top-2 right-2 opacity-0 peer-checked:opacity-100 transition-opacity">
-                                                        <div className="w-4 h-4 rounded-full bg-primary flex items-center justify-center">
-                                                            <Check className="w-2.5 h-2.5 text-white" />
-                                                        </div>
+                                    ].map((type) => (
+                                        <label key={type.id} className="relative cursor-pointer group">
+                                            <input
+                                                type="radio"
+                                                name="type"
+                                                value={type.id}
+                                                defaultChecked={type.id === 'postgres'}
+                                                className="peer hidden"
+                                            />
+                                            <div className="h-28 p-4 rounded-[24px] border border-white/5 bg-white/[0.02] peer-checked:bg-primary/5 peer-checked:border-primary/40 peer-checked:ring-1 peer-checked:ring-primary/20 transition-all flex flex-col items-center justify-center gap-3 hover:bg-white/[0.04] hover:border-white/10">
+                                                <div className="relative">
+                                                    <div
+                                                        className="absolute inset-0 blur-lg opacity-20 group-hover:opacity-40 transition-opacity"
+                                                        style={{ backgroundColor: type.color }}
+                                                    />
+                                                    <div className="relative transform group-hover:scale-110 transition-transform duration-300">
+                                                        {type.svg}
                                                     </div>
                                                 </div>
-                                            </label>
-                                        ))}
-                                    </div>
-                                </div>
+                                                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 peer-checked:text-white transition-colors">{type.label}</span>
 
-                                <div className="pt-4 flex gap-4">
-                                    <Button
-                                        type="button"
-                                        variant="ghost"
-                                        className="flex-1 rounded-2xl h-12 font-bold text-zinc-500 hover:text-white"
-                                        onClick={() => setShowCreateModal(false)}
-                                    >
-                                        Cancel
-                                    </Button>
-                                    <Button
-                                        type="submit"
-                                        className="flex-1 rounded-2xl h-12 font-bold bg-primary text-white hover:bg-primary/90 shadow-lg shadow-primary/20"
-                                    >
-                                        Provision Now
-                                    </Button>
+                                                <div className="absolute top-2 right-2 opacity-0 peer-checked:opacity-100 transition-opacity">
+                                                    <div className="w-4 h-4 rounded-full bg-primary flex items-center justify-center">
+                                                        <Check className="w-2.5 h-2.5 text-white" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </label>
+                                    ))}
                                 </div>
-                            </form>
-                        </div>
+                            </div>
+
+                            <div className="pt-4 flex gap-4">
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    className="flex-1 rounded-2xl h-12 font-bold text-zinc-500 hover:text-white"
+                                    onClick={() => setShowCreateModal(false)}
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    type="submit"
+                                    className="flex-1 rounded-2xl h-12 font-bold bg-primary text-white hover:bg-primary/90 shadow-lg shadow-primary/20"
+                                >
+                                    Provision Now
+                                </Button>
+                            </div>
+                        </form>
                     </div>
-                )
-            }
-            {/* Delete Confirmation Modal */}
+                </div>
+            )}
             <DeleteDatabaseModal
                 isOpen={showDeleteModal}
                 onClose={() => {
@@ -1012,7 +1011,6 @@ export default function DatabasesPage() {
                 onConfirm={confirmDelete}
                 dbName={dbToDelete?.name || ""}
             />
-            {/* Subscription Limit Modal */}
             <SubscriptionLimitModal
                 isOpen={showLimitModal}
                 onClose={() => setShowLimitModal(false)}

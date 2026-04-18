@@ -1,19 +1,15 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "sonner";
 import { ApolloWrapper } from "@/components/apollo-wrapper";
 import GoogleAuthProvider from "@/components/google-auth-provider";
 import { ModalProvider } from "@/components/ui/modal";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
 });
 
@@ -53,9 +49,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className={inter.variable}>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className="antialiased"
       >
         <GoogleAuthProvider>
           <ApolloWrapper>
@@ -65,27 +61,29 @@ export default function RootLayout({
               enableSystem
               disableTransitionOnChange
             >
-              <ModalProvider>
-                {children}
-                <Toaster 
-                  position="top-center" 
-                  richColors 
-                  theme="dark"
-                  toastOptions={{
-                    style: {
-                      background: '#09090b', // Zinc 950
-                      border: '1px solid #27272a',
-                      color: '#fff',
-                    },
-                    actionButtonStyle: {
-                      background: '#3b82f6', // Nexode Primary Blue
-                      color: '#fff',
-                      fontWeight: 'bold',
-                      borderRadius: '12px',
-                    }
-                  }}
-                />
-              </ModalProvider>
+              <TooltipProvider>
+                <ModalProvider>
+                  {children}
+                  <Toaster 
+                    position="top-center" 
+                    richColors 
+                    theme="dark"
+                    toastOptions={{
+                      style: {
+                        background: '#09090b',
+                        border: '1px solid #27272a',
+                        color: '#fff',
+                      },
+                      actionButtonStyle: {
+                        background: '#3b82f6',
+                        color: '#fff',
+                        fontWeight: 'bold',
+                        borderRadius: '12px',
+                      }
+                    }}
+                  />
+                </ModalProvider>
+              </TooltipProvider>
             </ThemeProvider>
           </ApolloWrapper>
         </GoogleAuthProvider>

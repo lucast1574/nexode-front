@@ -3,6 +3,8 @@
 import React, { useState, useEffect } from "react";
 import { Check, Database, Cpu, Zap, ArrowRight, Shield, Globe, Workflow } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { PublicNav } from "@/components/PublicNav";
@@ -138,7 +140,6 @@ export default function ServicesPage() {
     const { showAlert } = useModal();
 
     useEffect(() => {
-        // We still fetch current subs if we want, but we don't block them from buying more.
         const fetchCurrentSubs = async () => {
             const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
             if (!token) return;
@@ -264,9 +265,9 @@ export default function ServicesPage() {
             <PublicNav />
 
             <header className="relative z-10 pt-20 pb-12 px-6 text-center max-w-5xl mx-auto">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-primary text-xs font-bold tracking-wider uppercase mb-6">
+                <Badge variant="outline" className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border-white/10 text-primary text-xs font-bold tracking-wider uppercase mb-6">
                     <Zap className="w-3 h-3 fill-current" /> Scalable Infrastructure
-                </div>
+                </Badge>
                 <h1 className="text-5xl md:text-7xl font-black tracking-tight mb-6">
                     Launch Your <span className="text-primary italic">Infrastructure</span>
                 </h1>
@@ -313,40 +314,44 @@ export default function ServicesPage() {
                                 {service.tiers.map((tier) => {
                                     const isSelected = selectedTiers[service.id] === tier.slug;
                                     return (
-                                        <button
+                                        <Card
                                             key={tier.slug}
-                                            onClick={() => handleSelectTier(service.id, tier.slug)}
                                             className={cn(
-                                                "w-full text-left grid grid-cols-12 items-center px-6 py-6 rounded-2xl border transition-all duration-300 group",
+                                                "cursor-pointer rounded-2xl p-0 transition-all duration-300",
                                                 isSelected
                                                     ? "bg-white/10 border-primary ring-1 ring-primary/50 shadow-[0_0_20px_rgba(var(--primary),0.1)]"
                                                     : "bg-white/[0.03] border-white/5 hover:border-white/10 hover:bg-white/[0.05]"
                                             )}
                                         >
-                                            <div className="col-span-4 md:col-span-3 flex items-center gap-3">
-                                                <div className={cn(
-                                                    "w-5 h-5 rounded-full border flex items-center justify-center transition-colors",
-                                                    isSelected ? "bg-primary border-primary" : "border-white/20 group-hover:border-white/40"
-                                                )}>
-                                                    {isSelected && <Check className="w-3 h-3 text-white stroke-[3]" />}
+                                            <button
+                                                onClick={() => handleSelectTier(service.id, tier.slug)}
+                                                className="w-full text-left grid grid-cols-12 items-center px-6 py-6"
+                                            >
+                                                <div className="col-span-4 md:col-span-3 flex items-center gap-3">
+                                                    <div className={cn(
+                                                        "w-5 h-5 rounded-full border flex items-center justify-center transition-colors",
+                                                        isSelected ? "bg-primary border-primary" : "border-white/20 group-hover:border-white/40"
+                                                    )}>
+                                                        {isSelected && <Check className="w-3 h-3 text-white stroke-[3]" />}
+                                                    </div>
+                                                    <span className="font-bold text-lg">{tier.name}</span>
                                                 </div>
-                                                <span className="font-bold text-lg">{tier.name}</span>
-                                            </div>
 
-                                            <div className="hidden md:block col-span-3 text-zinc-400 font-medium">
-                                                {Object.entries(tier.specs)[0][1]}
-                                            </div>
+                                                <div className="hidden md:block col-span-3 text-zinc-400 font-medium">
+                                                    {Object.entries(tier.specs)[0][1]}
+                                                </div>
 
-                                            <div className="col-span-4 md:col-span-3 flex md:block flex-col items-center">
-                                                <span className="text-zinc-400 text-sm font-medium">
-                                                    {Object.entries(tier.specs)[1][1]}
-                                                </span>
-                                            </div>
+                                                <div className="col-span-4 md:col-span-3 flex md:block flex-col items-center">
+                                                    <span className="text-zinc-400 text-sm font-medium">
+                                                        {Object.entries(tier.specs)[1][1]}
+                                                    </span>
+                                                </div>
 
-                                            <div className="col-span-4 md:col-span-3 text-right">
-                                                <div className="text-2xl font-black text-white">${tier.price} <span className="text-sm font-normal text-zinc-500">/m</span></div>
-                                            </div>
-                                        </button>
+                                                <div className="col-span-4 md:col-span-3 text-right">
+                                                    <span className="text-2xl font-black text-white">${tier.price} <span className="text-sm font-normal text-zinc-500">/m</span></span>
+                                                </div>
+                                            </button>
+                                        </Card>
                                     );
                                 })}
                             </div>
@@ -355,73 +360,79 @@ export default function ServicesPage() {
                 ))}
             </main>
 
-            {/* Floating Checkout Bar */}
             {selectedCount > 0 && (
                 <div className="fixed bottom-0 left-0 right-0 z-50 p-6 animate-in slide-in-from-bottom-full duration-500">
-                    <div className="max-w-4xl mx-auto bg-white/5 backdrop-blur-2xl border border-white/10 rounded-3xl p-4 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-6">
-                        <div className="flex items-center gap-6 px-4">
-                            <div className="bg-primary/20 p-3 rounded-2xl relative">
-                                <Zap className="w-6 h-6 text-primary" />
-                                <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white/20">
-                                    {selectedCount}
-                                </span>
+                    <Card className="max-w-4xl mx-auto bg-white/5 backdrop-blur-2xl border-white/10 rounded-3xl shadow-2xl p-0">
+                        <CardContent className="p-4 flex flex-col sm:flex-row items-center justify-between gap-6">
+                            <div className="flex items-center gap-6 px-4">
+                                <div className="bg-primary/20 p-3 rounded-2xl relative">
+                                    <Zap className="w-6 h-6 text-primary" />
+                                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white/20">
+                                        {selectedCount}
+                                    </span>
+                                </div>
+                                <div>
+                                    <div className="text-sm text-zinc-400 font-medium">Selected Services Monthly Total</div>
+                                    <div className="text-3xl font-black text-white">${totalPrice}<span className="text-sm font-normal text-zinc-500">/mo</span></div>
+                                </div>
                             </div>
-                            <div>
-                                <div className="text-sm text-zinc-400 font-medium">Selected Services Monthly Total</div>
-                                <div className="text-3xl font-black text-white">${totalPrice}<span className="text-sm font-normal text-zinc-500">/mo</span></div>
-                            </div>
-                        </div>
 
-                        <div className="flex items-center gap-4 w-full sm:w-auto px-4">
-                            <Button
-                                variant="ghost"
-                                className="text-zinc-400 hover:text-white"
-                                onClick={() => setSelectedTiers({ database: null, compute: null, n8n: null })}
-                            >
-                                Clear All
-                            </Button>
-                            <Button
-                                size="lg"
-                                className="rounded-2xl h-14 px-10 gap-2 text-lg font-bold shadow-xl shadow-primary/20 flex-1 sm:flex-none"
-                                onClick={handleCheckout}
-                            >
-                                Deploy Now <ArrowRight className="w-5 h-5" />
-                            </Button>
-                        </div>
-                    </div>
+                            <div className="flex items-center gap-4 w-full sm:w-auto px-4">
+                                <Button
+                                    variant="ghost"
+                                    className="text-zinc-400 hover:text-white"
+                                    onClick={() => setSelectedTiers({ database: null, compute: null, n8n: null })}
+                                >
+                                    Clear All
+                                </Button>
+                                <Button
+                                    size="lg"
+                                    className="rounded-2xl h-14 px-10 gap-2 text-lg font-bold shadow-xl shadow-primary/20 flex-1 sm:flex-none"
+                                    onClick={handleCheckout}
+                                >
+                                    Deploy Now <ArrowRight className="w-5 h-5" />
+                                </Button>
+                            </div>
+                        </CardContent>
+                    </Card>
                 </div>
             )}
 
-            {/* Footer / Features Summary */}
             <footer className="relative z-10 bg-white/[0.02] border-t border-white/5 py-24 px-6">
                 <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12">
-                    <div className="space-y-4">
-                        <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center">
-                            <Shield className="w-6 h-6 text-primary" />
-                        </div>
-                        <h3 className="text-xl font-bold">Secure by Design</h3>
-                        <p className="text-zinc-400 leading-relaxed">
-                            Every service includes advanced DDoS protection and isolated environments to keep your data safe.
-                        </p>
-                    </div>
-                    <div className="space-y-4">
-                        <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center">
-                            <Globe className="w-6 h-6 text-primary" />
-                        </div>
-                        <h3 className="text-xl font-bold">Global Presence</h3>
-                        <p className="text-zinc-400 leading-relaxed">
-                            Deploy your infrastructure in seconds across our multi-region edge locations globally.
-                        </p>
-                    </div>
-                    <div className="space-y-4">
-                        <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center">
-                            <Zap className="w-6 h-6 text-primary" />
-                        </div>
-                        <h3 className="text-xl font-bold">Instantly Scalable</h3>
-                        <p className="text-zinc-400 leading-relaxed">
-                            Need more power? Upgrade any service instantly with zero downtime or complex migrations.
-                        </p>
-                    </div>
+                    <Card className="bg-transparent border-0 shadow-none p-0">
+                        <CardContent className="p-0 space-y-4">
+                            <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center">
+                                <Shield className="w-6 h-6 text-primary" />
+                            </div>
+                            <h3 className="text-xl font-bold">Secure by Design</h3>
+                            <p className="text-zinc-400 leading-relaxed">
+                                Every service includes advanced DDoS protection and isolated environments to keep your data safe.
+                            </p>
+                        </CardContent>
+                    </Card>
+                    <Card className="bg-transparent border-0 shadow-none p-0">
+                        <CardContent className="p-0 space-y-4">
+                            <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center">
+                                <Globe className="w-6 h-6 text-primary" />
+                            </div>
+                            <h3 className="text-xl font-bold">Global Presence</h3>
+                            <p className="text-zinc-400 leading-relaxed">
+                                Deploy your infrastructure in seconds across our multi-region edge locations globally.
+                            </p>
+                        </CardContent>
+                    </Card>
+                    <Card className="bg-transparent border-0 shadow-none p-0">
+                        <CardContent className="p-0 space-y-4">
+                            <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center">
+                                <Zap className="w-6 h-6 text-primary" />
+                            </div>
+                            <h3 className="text-xl font-bold">Instantly Scalable</h3>
+                            <p className="text-zinc-400 leading-relaxed">
+                                Need more power? Upgrade any service instantly with zero downtime or complex migrations.
+                            </p>
+                        </CardContent>
+                    </Card>
                 </div>
                 <div className="mt-24 pt-12 border-t border-white/5 text-center text-zinc-400 text-sm">
                     © {new Date().getFullYear()} Nexode Technologies. All rights reserved.

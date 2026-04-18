@@ -26,6 +26,14 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Separator } from "@/components/ui/separator";
 import { Sidebar, Subscription } from "@/components/Sidebar";
 import { cn } from "@/lib/utils";
 import { getAccessToken } from "@/lib/auth-utils";
@@ -67,7 +75,7 @@ interface User {
 
 
 const INITIAL_TERMINAL_LOGS: { type: 'input' | 'output' | 'error', text: string }[] = [
-    { type: 'output', text: 'Nexode Secure Terminal — Secure Shell Proxy' },
+    { type: 'output', text: 'Nexode Secure Terminal - Secure Shell Proxy' },
     { type: 'output', text: 'Establishing isolated TTY session...' },
     { type: 'output', text: 'Environment: Ephemeral Compute Node (Filtered Access)' },
     { type: 'output', text: 'Type "help" to see available commands.' }
@@ -85,7 +93,7 @@ function ComputePageContent() {
     const [showLimitModal, setShowLimitModal] = useState(false);
     const [isSuperuser, setIsSuperuser] = useState(false);
     const [copiedField, setCopiedField] = useState<string | null>(null);
-    const [activeTab, setActiveTab] = useState<'overview' | 'deployments' | 'env' | 'logs' | 'terminal' | 'settings'>('overview');
+    const [activeTab, setActiveTab] = useState<string>('overview');
     const [envDraft, setEnvDraft] = useState('');
     const [isSavingEnv, setIsSavingEnv] = useState(false);
     const [initialProvider, setInitialProvider] = useState<'GITHUB' | 'GITLAB'>('GITHUB');
@@ -182,7 +190,6 @@ function ComputePageContent() {
                 fetchInstances();
             }
 
-            // Clear the search parameters after handling them to avoid infinite loop
             router.replace('/dashboard/compute');
         }
     }, [searchParams, showAlert, fetchInstances, router]);
@@ -191,7 +198,6 @@ function ComputePageContent() {
         fetchInstances();
     }, [fetchInstances]);
 
-    // Subscription slot check
     const computeSubscriptions = subscriptions.filter(s => s.service === 'compute');
     const computeUsedSlots = instances.length;
     const computeTotalSlots = computeSubscriptions.length;
@@ -205,7 +211,6 @@ function ComputePageContent() {
         }
     };
 
-    // Auto-refresh when deploying
     useEffect(() => {
         const isDeploying = instances.some(i => i.status.toLowerCase() === 'provisioning' || i.status.toLowerCase() === 'restarting');
         let interval: NodeJS.Timeout;
@@ -219,7 +224,6 @@ function ComputePageContent() {
         };
     }, [instances, fetchInstances]);
 
-    // Poll Dokploy deploy status for the selected instance
     useEffect(() => {
         if (!selectedInstance?._id || selectedInstance.status !== 'running') {
             setLiveDeployStatus(null);
@@ -239,7 +243,6 @@ function ComputePageContent() {
                 if (!cancelled) {
                     const status = result.data?.computeDeployStatus;
                     setLiveDeployStatus(status || null);
-                    // If deploy just finished, refresh instances to get latest
                     if (status === 'done' && liveDeployStatus === 'running') {
                         fetchInstances();
                     }
@@ -251,7 +254,6 @@ function ComputePageContent() {
         return () => { cancelled = true; clearInterval(interval); };
     }, [selectedInstance?._id, selectedInstance?.status]);
 
-    // Reset terminal when instance or tab changes
     useEffect(() => {
         setTerminalLogs([...INITIAL_TERMINAL_LOGS]);
     }, [selectedInstance?._id, activeTab]);
@@ -505,7 +507,6 @@ function ComputePageContent() {
                     </div>
                     <Button
                         onClick={handleCreateClick}
-                        
                         className={cn(
                             "rounded-2xl gap-2 font-bold shadow-lg transition-all",
                             "bg-blue-600 hover:bg-blue-500 shadow-blue-500/20"
@@ -516,12 +517,11 @@ function ComputePageContent() {
                 </header>
 
                 <div className="flex-1 flex overflow-hidden z-10">
-                    {/* Sidebar: Instance List */}
                     <div className="w-80 border-r border-white/5 bg-black/20 flex flex-col">
                         <div className="p-4 border-b border-white/5">
-                            <div className="flex items-center gap-3 bg-white/5 px-4 py-2 rounded-xl border border-white/10">
+                            <div className="flex items-center gap-3">
                                 <Search className="w-4 h-4 text-zinc-500" />
-                                <input type="text" placeholder="Search instances..." className="bg-transparent border-none outline-none text-xs w-full placeholder:text-zinc-400" />
+                                <Input type="text" placeholder="Search instances..." className="bg-white/5 border-white/10 text-xs h-8" />
                             </div>
                         </div>
                         <div className="flex-1 overflow-y-auto p-4 space-y-3">
@@ -541,12 +541,12 @@ function ComputePageContent() {
                                         )}
                                     >
                                         <div className="flex items-center justify-between mb-2">
-                                            <span className={cn(
-                                                "text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full border",
+                                            <Badge variant="outline" className={cn(
+                                                "text-[9px] font-black uppercase tracking-widest",
                                                 inst.type.toLowerCase() === 'frontend' ? 'text-blue-400 border-blue-400/20 bg-blue-400/10' : 'text-purple-400 border-purple-400/20 bg-purple-400/10'
                                             )}>
                                                 {inst.type}
-                                            </span>
+                                            </Badge>
                                             <div className={cn("w-1.5 h-1.5 rounded-full", inst.status === 'running' ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-amber-500 animate-pulse')} />
                                         </div>
                                         <div className="font-bold text-sm truncate group-hover:text-blue-400 transition-colors uppercase tracking-tight">{inst.name}</div>
@@ -559,21 +559,21 @@ function ComputePageContent() {
                         </div>
                     </div>
 
-                    {/* Main Workspace */}
                     <div className="flex-1 bg-[#050505] overflow-y-auto">
                         {selectedInstance ? (
                             <div className="p-12 max-w-6xl mx-auto">
-                                <div className="flex items-start justify-between mb-12">
+                                <div className="flex items-start justify-between mb-8">
                                     <div>
                                         <div className="flex items-center gap-4 mb-3">
                                             <h1 className="text-4xl font-black tracking-tighter uppercase">{selectedInstance.name}</h1>
-                                            <span className="px-3 py-1 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20 text-[10px] font-black uppercase tracking-widest">
+                                            <Badge variant="outline" className="bg-blue-500/10 text-blue-400 border-blue-500/20 text-[10px] font-black uppercase tracking-widest">
                                                 ● {selectedInstance.status}
-                                            </span>
+                                            </Badge>
                                         </div>
                                         <div className="flex items-center gap-4 text-zinc-500 text-sm font-medium">
                                             <div className="flex items-center gap-2"><Layers className="w-4 h-4" /> {selectedInstance.cpu_limit} vCPU</div>
-                                            <div className="flex items-center gap-2 border-l border-white/10 pl-4"><Server className="w-4 h-4" /> {selectedInstance.ram_limit} GB RAM</div>
+                                            <Separator orientation="vertical" className="h-4" />
+                                            <div className="flex items-center gap-2"><Server className="w-4 h-4" /> {selectedInstance.ram_limit} GB RAM</div>
                                         </div>
                                     </div>
                                     <div className="flex gap-3">
@@ -599,292 +599,290 @@ function ComputePageContent() {
                                     </div>
                                 </div>
 
-                                {/* Live Deploy Status Banner */}
                                 {liveDeployStatus === 'running' && (
-                                    <div className="mb-6 relative overflow-hidden rounded-2xl border border-blue-500/20 bg-blue-500/5 p-4">
+                                    <Card className="mb-6 border-blue-500/20 bg-blue-500/5 rounded-2xl overflow-hidden relative">
                                         <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 via-cyan-500/10 to-blue-500/10 animate-pulse" />
-                                        <div className="relative flex items-center gap-4">
-                                            <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center">
-                                                <RefreshCw className="w-5 h-5 text-blue-400 animate-spin" />
+                                        <CardContent className="p-4 relative">
+                                            <div className="flex items-center gap-4">
+                                                <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center">
+                                                    <RefreshCw className="w-5 h-5 text-blue-400 animate-spin" />
+                                                </div>
+                                                <div>
+                                                    <div className="text-sm font-bold text-blue-300 uppercase tracking-wider">Deploying New Version</div>
+                                                    <div className="text-xs text-blue-400/60 mt-0.5">A new push was detected. Building and deploying automatically...</div>
+                                                </div>
+                                                <div className="ml-auto flex items-center gap-2">
+                                                    <div className="w-2 h-2 rounded-full bg-blue-400 animate-ping" />
+                                                    <span className="text-xs font-mono text-blue-400/80">BUILDING</span>
+                                                </div>
                                             </div>
-                                            <div>
-                                                <div className="text-sm font-bold text-blue-300 uppercase tracking-wider">Deploying New Version</div>
-                                                <div className="text-xs text-blue-400/60 mt-0.5">A new push was detected. Building and deploying automatically...</div>
-                                            </div>
-                                            <div className="ml-auto flex items-center gap-2">
-                                                <div className="w-2 h-2 rounded-full bg-blue-400 animate-ping" />
-                                                <span className="text-xs font-mono text-blue-400/80">BUILDING</span>
-                                            </div>
-                                        </div>
-                                    </div>
+                                        </CardContent>
+                                    </Card>
                                 )}
 
-                                {/* Tabs Navigation */}
-                                <div className="flex gap-8 border-b border-white/5 mb-12 overflow-x-auto scrollbar-hide">
-                                    {(['overview', 'deployments', 'env', 'logs', 'terminal', 'settings'] as const).map(id => {
-                                        const tabMeta = {
-                                            overview: { label: 'Overview', icon: Globe },
-                                            deployments: { label: 'Deploy Events', icon: Activity },
-                                            env: { label: 'Environment', icon: Code },
-                                            logs: { label: 'Console Logs', icon: FileText },
-                                            terminal: { label: 'Secure Terminal', icon: Terminal },
-                                            settings: { label: 'Domains & SSL', icon: Shield }
-                                        }[id];
-                                        return (
-                                            <button
-                                                key={id}
-                                                onClick={() => setActiveTab(id)}
-                                                className={cn(
-                                                    "flex items-center gap-2 pb-4 text-[10px] font-black uppercase tracking-widest transition-all relative shrink-0",
-                                                    activeTab === id ? "text-blue-500" : "text-zinc-500 hover:text-white"
-                                                )}
-                                            >
-                                                <tabMeta.icon className="w-4 h-4" /> {tabMeta.label}
-                                                {activeTab === id && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500 shadow-[0_0_12px_rgba(59,130,246,0.5)]" />}
-                                            </button>
-                                        );
-                                    })}
+                                <Tabs value={activeTab} onValueChange={setActiveTab}>
+                                    <TabsList variant="line" className="mb-8 border-b border-white/5 w-full justify-start gap-8">
+                                        {([
+                                            { value: 'overview', label: 'Overview', icon: Globe },
+                                            { value: 'deployments', label: 'Deploy Events', icon: Activity },
+                                            { value: 'env', label: 'Environment', icon: Code },
+                                            { value: 'logs', label: 'Console Logs', icon: FileText },
+                                            { value: 'terminal', label: 'Secure Terminal', icon: Terminal },
+                                            { value: 'settings', label: 'Domains & SSL', icon: Shield }
+                                        ] as const).map(tab => (
+                                            <TabsTrigger key={tab.value} value={tab.value} className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest">
+                                                <tab.icon className="w-4 h-4" /> {tab.label}
+                                            </TabsTrigger>
+                                        ))}
+                                    </TabsList>
 
-                                </div>
-
-                                {/* Tab Content */}
-                                <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                    {activeTab === 'overview' && (
+                                    <TabsContent value="overview" className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                                         <div className="space-y-8 max-w-4xl">
-                                            {/* Primary Domain Status */}
-                                            <div className="bg-white/[0.02] border border-white/5 rounded-[40px] p-8 relative overflow-hidden">
-                                                <div className="absolute top-0 right-0 p-8">
-                                                    {selectedInstance.status === 'running' ? (
-                                                        <div className="flex items-center gap-2 bg-emerald-500/10 text-emerald-500 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border border-emerald-500/20">
-                                                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" /> Reachable
-                                                        </div>
-                                                    ) : (
-                                                        <div className="flex items-center gap-2 bg-amber-500/10 text-amber-500 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border border-amber-500/20">
-                                                            <div className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" /> {selectedInstance.status}
-                                                        </div>
-                                                    )}
-                                                </div>
+                                            <Card className="bg-white/[0.02] border-white/5 rounded-[40px] relative overflow-hidden">
+                                                <CardHeader className="pb-0">
+                                                    <div className="absolute top-0 right-0 p-8">
+                                                        {selectedInstance.status === 'running' ? (
+                                                            <Badge variant="outline" className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20 text-[10px] font-black uppercase tracking-widest">
+                                                                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)] mr-1.5" /> Reachable
+                                                            </Badge>
+                                                        ) : (
+                                                            <Badge variant="outline" className="bg-amber-500/10 text-amber-500 border-amber-500/20 text-[10px] font-black uppercase tracking-widest">
+                                                                <div className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse mr-1.5" /> {selectedInstance.status}
+                                                            </Badge>
+                                                        )}
+                                                    </div>
+                                                </CardHeader>
+                                                <CardContent className="p-8 pt-8">
+                                                    <div className="mb-8">
+                                                        <CardTitle className="text-lg font-black uppercase tracking-tight mb-2">Network Endpoint</CardTitle>
+                                                        <CardDescription className="text-zinc-500 text-xs font-bold uppercase tracking-widest">
+                                                            {selectedInstance.type.toLowerCase() === 'frontend' ? 'Public Application URL' : 'Internal VPC Gateway'}
+                                                        </CardDescription>
+                                                    </div>
 
-                                                <div className="mb-8">
-                                                    <h3 className="text-lg font-black uppercase tracking-tight mb-2">Network Endpoint</h3>
-                                                    <p className="text-zinc-500 text-xs font-bold uppercase tracking-widest">
-                                                        {selectedInstance.type.toLowerCase() === 'frontend' ? 'Public Application URL' : 'Internal VPC Gateway'}
-                                                    </p>
-                                                </div>
-
-                                                {selectedInstance.generated_domain ? (
-                                                    <div className="flex flex-col gap-4">
-                                                        <div className="p-5 rounded-3xl bg-blue-500/5 border border-blue-500/10 flex items-center justify-between group/url">
-                                                            <div className="flex items-center gap-4 flex-1 overflow-hidden">
-                                                                <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
-                                                                    <Activity className="w-5 h-5 text-blue-500" />
-                                                                </div>
-                                                                {selectedInstance.status === 'running' ? (
-                                                                    <code className="text-sm font-black truncate text-blue-100">
-                                                                        https://{selectedInstance.generated_domain}{selectedInstance.type === 'BACKEND' ? '/health' : ''}
-                                                                    </code>
-                                                                ) : (
-                                                                    <div className="flex items-center gap-3">
-                                                                        <div className="w-4 h-4 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
-                                                                        <span className="text-sm font-bold text-zinc-500">Deploying... URL will appear when ready</span>
+                                                    {selectedInstance.generated_domain ? (
+                                                        <div className="flex flex-col gap-4">
+                                                            <div className="p-5 rounded-3xl bg-blue-500/5 border border-blue-500/10 flex items-center justify-between group/url">
+                                                                <div className="flex items-center gap-4 flex-1 overflow-hidden">
+                                                                    <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
+                                                                        <Activity className="w-5 h-5 text-blue-500" />
                                                                     </div>
+                                                                    {selectedInstance.status === 'running' ? (
+                                                                        <code className="text-sm font-black truncate text-blue-100">
+                                                                            https://{selectedInstance.generated_domain}{selectedInstance.type === 'BACKEND' ? '/health' : ''}
+                                                                        </code>
+                                                                    ) : (
+                                                                        <div className="flex items-center gap-3">
+                                                                            <div className="w-4 h-4 border-2 border-blue-500/30 border-t-blue-500 rounded-full animate-spin" />
+                                                                            <span className="text-sm font-bold text-zinc-500">Deploying... URL will appear when ready</span>
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                                {selectedInstance.status === 'running' && (
+                                                                <div className="flex gap-2">
+                                                                    <Button variant="ghost" size="icon" onClick={() => handleCopy(`https://${selectedInstance.generated_domain}${selectedInstance.type === 'BACKEND' ? '/health' : ''}`, 'prod_url')} className="hover:bg-blue-500/10 text-zinc-400 hover:text-blue-500 rounded-xl">
+                                                                        {copiedField === 'prod_url' ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
+                                                                    </Button>
+                                                                    <Button variant="ghost" size="icon" onClick={() => window.open(`https://${selectedInstance.generated_domain}${selectedInstance.type === 'BACKEND' ? '/health' : ''}`, '_blank')} className="hover:bg-blue-500/10 text-zinc-400 hover:text-blue-500 rounded-xl">
+                                                                        <ExternalLink className="w-4 h-4" />
+                                                                    </Button>
+                                                                </div>
                                                                 )}
                                                             </div>
-                                                            {selectedInstance.status === 'running' && (
-                                                            <div className="flex gap-2">
-                                                                <Button variant="ghost" size="icon" onClick={() => handleCopy(`https://${selectedInstance.generated_domain}${selectedInstance.type === 'BACKEND' ? '/health' : ''}`, 'prod_url')} className="hover:bg-blue-500/10 text-zinc-400 hover:text-blue-500 rounded-xl">
-                                                                    {copiedField === 'prod_url' ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
-                                                                </Button>
-                                                                <Button variant="ghost" size="icon" onClick={() => window.open(`https://${selectedInstance.generated_domain}${selectedInstance.type === 'BACKEND' ? '/health' : ''}`, '_blank')} className="hover:bg-blue-500/10 text-zinc-400 hover:text-blue-500 rounded-xl">
+                                                            {selectedInstance.custom_domain && (
+                                                                <div className="p-4 rounded-2xl bg-black border border-white/5 flex items-center justify-between">
+                                                                    <div className="flex items-center gap-3">
+                                                                        <div className="text-[10px] text-zinc-600 font-black uppercase tracking-widest">Custom Domain</div>
+                                                                        <code className="text-xs font-black text-zinc-300">{selectedInstance.custom_domain}</code>
+                                                                    </div>
+                                                                    <Button variant="ghost" size="sm" onClick={() => handleCopy(selectedInstance.custom_domain || '', 'custom_domain')} className="text-zinc-500 hover:text-white rounded-lg px-2">
+                                                                        {copiedField === 'custom_domain' ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3" />}
+                                                                    </Button>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    ) : (
+                                                        <div className="flex items-center gap-6 p-6 rounded-[32px] bg-black border border-white/5">
+                                                            <div className="w-14 h-14 rounded-2xl bg-zinc-900 flex items-center justify-center border border-white/5">
+                                                                <Shield className="w-6 h-6 text-zinc-600" />
+                                                            </div>
+                                                            <div>
+                                                                <p className="text-xs text-white font-black uppercase tracking-widest mb-1">Internal VPC Protection Active</p>
+                                                                <p className="text-[10px] text-zinc-600">This instance is isolated. Connect via External Proxy or Private Tunnel.</p>
+                                                            </div>
+                                                        </div>
+                                                    )}
+
+                                                    {!selectedInstance.generated_domain && selectedInstance.type.toLowerCase() === 'frontend' && (
+                                                        <div className="mt-4 p-4 rounded-2xl bg-red-500/5 border border-red-500/10 flex gap-4 items-center">
+                                                            <div className="w-2 h-2 rounded-full bg-red-500" />
+                                                            <p className="text-[10px] text-red-400 font-bold uppercase tracking-widest">Deployment Pending: Domain propagation in progress</p>
+                                                        </div>
+                                                    )}
+                                                </CardContent>
+                                            </Card>
+
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                                <Card className="bg-white/[0.02] border-white/5 rounded-[40px]">
+                                                    <CardContent className="p-8">
+                                                        <h3 className="text-sm font-black uppercase tracking-widest text-zinc-500 mb-6">Source Integration</h3>
+                                                        <div className="space-y-4">
+                                                            <div className="flex items-center justify-between p-4 rounded-2xl bg-black border border-white/5 group">
+                                                                <div className="flex items-center gap-4">
+                                                                    <div className="w-10 h-10 rounded-xl bg-zinc-900 flex items-center justify-center border border-white/5 text-zinc-400 group-hover:text-blue-500 transition-colors">
+                                                                        {selectedInstance.provider.toLowerCase() === 'github' ? <Github className="w-6 h-6" /> : <Gitlab className="w-6 h-6" />}
+                                                                    </div>
+                                                                    <div>
+                                                                        <div className="text-[10px] font-black uppercase text-zinc-600 mb-0.5">Connected Repository</div>
+                                                                        <div className="text-sm font-black truncate max-w-[150px]">{selectedInstance.repository_url.split('/').pop()}</div>
+                                                                    </div>
+                                                                </div>
+                                                                <Button variant="ghost" size="icon" className="rounded-xl text-zinc-500 hover:text-white" onClick={() => window.open(selectedInstance.repository_url, '_blank')}>
                                                                     <ExternalLink className="w-4 h-4" />
                                                                 </Button>
                                                             </div>
-                                                            )}
-                                                        </div>
-                                                        {selectedInstance.custom_domain && (
                                                             <div className="p-4 rounded-2xl bg-black border border-white/5 flex items-center justify-between">
-                                                                <div className="flex items-center gap-3">
-                                                                    <div className="text-[10px] text-zinc-600 font-black uppercase tracking-widest">Custom Domain</div>
-                                                                    <code className="text-xs font-black text-zinc-300">{selectedInstance.custom_domain}</code>
-                                                                </div>
-                                                                <Button variant="ghost" size="sm" onClick={() => handleCopy(selectedInstance.custom_domain || '', 'custom_domain')} className="text-zinc-500 hover:text-white rounded-lg px-2">
-                                                                    {copiedField === 'custom_domain' ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3" />}
-                                                                </Button>
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                ) : (
-                                                    <div className="flex items-center gap-6 p-6 rounded-[32px] bg-black border border-white/5">
-                                                        <div className="w-14 h-14 rounded-2xl bg-zinc-900 flex items-center justify-center border border-white/5">
-                                                            <Shield className="w-6 h-6 text-zinc-600" />
-                                                        </div>
-                                                        <div>
-                                                            <p className="text-xs text-white font-black uppercase tracking-widest mb-1">Internal VPC Protection Active</p>
-                                                            <p className="text-[10px] text-zinc-600">This instance is isolated. Connect via External Proxy or Private Tunnel.</p>
-                                                        </div>
-                                                    </div>
-                                                )}
-
-                                                {!selectedInstance.generated_domain && selectedInstance.type.toLowerCase() === 'frontend' && (
-                                                    <div className="mt-4 p-4 rounded-2xl bg-red-500/5 border border-red-500/10 flex gap-4 items-center">
-                                                        <div className="w-2 h-2 rounded-full bg-red-500" />
-                                                        <p className="text-[10px] text-red-400 font-bold uppercase tracking-widest">Deployment Pending: Domain propagation in progress</p>
-                                                    </div>
-                                                )}
-                                            </div>
-
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                                {/* Source Information */}
-                                                <div className="bg-white/[0.02] border border-white/5 rounded-[40px] p-8">
-                                                    <h3 className="text-sm font-black uppercase tracking-widest text-zinc-500 mb-6">Source Integration</h3>
-                                                    <div className="space-y-4">
-                                                        <div className="flex items-center justify-between p-4 rounded-2xl bg-black border border-white/5 group">
-                                                            <div className="flex items-center gap-4">
-                                                                <div className="w-10 h-10 rounded-xl bg-zinc-900 flex items-center justify-center border border-white/5 text-zinc-400 group-hover:text-blue-500 transition-colors">
-                                                                    {selectedInstance.provider.toLowerCase() === 'github' ? <Github className="w-6 h-6" /> : <Gitlab className="w-6 h-6" />}
-                                                                </div>
                                                                 <div>
-                                                                    <div className="text-[10px] font-black uppercase text-zinc-600 mb-0.5">Connected Repository</div>
-                                                                    <div className="text-sm font-black truncate max-w-[150px]">{selectedInstance.repository_url.split('/').pop()}</div>
-                                                                </div>
-                                                            </div>
-                                                            <Button variant="ghost" size="icon" className="rounded-xl text-zinc-500 hover:text-white" onClick={() => window.open(selectedInstance.repository_url, '_blank')}>
-                                                                <ExternalLink className="w-4 h-4" />
-                                                            </Button>
-                                                        </div>
-                                                        <div className="p-4 rounded-2xl bg-black border border-white/5 flex items-center justify-between">
-                                                            <div>
-                                                                <div className="text-[10px] font-black text-zinc-600 uppercase mb-0.5">Branch</div>
-                                                                <div className="flex items-center gap-2 font-mono text-sm text-blue-400/80">
-                                                                    <Code className="w-3 h-3" /> {selectedInstance.branch}
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                {/* Compact Deploy Events */}
-                                                <div className="bg-white/[0.02] border border-white/5 rounded-[40px] p-8">
-                                                    <h3 className="text-sm font-black uppercase tracking-widest text-zinc-500 mb-6">Latest Events</h3>
-                                                    <div className="space-y-4">
-                                                        {selectedInstance.events && selectedInstance.events.length > 0 ? (
-                                                            selectedInstance.events.slice(-3).reverse().map((e, idx) => (
-                                                                <div key={idx} className="flex gap-4 items-start relative pb-4 last:pb-0 border-b border-white/5 last:border-0">
-                                                                    <div className={cn(
-                                                                        "w-2 h-2 rounded-full mt-1.5 shrink-0",
-                                                                        e.type === 'success' ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.3)]' :
-                                                                            e.type === 'error' ? 'bg-red-500' : 'bg-blue-500'
-                                                                    )} />
-                                                                    <div className="flex-1">
-                                                                        <p className={cn("text-xs font-black uppercase tracking-tight", e.type === 'error' ? 'text-red-400' : 'text-zinc-300')}>
-                                                                            {e.message}
-                                                                        </p>
-                                                                        <span className="text-[9px] font-bold text-zinc-600">
-                                                                            {new Date(e.timestamp).toLocaleString([], { hour: '2-digit', minute: '2-digit' })}
-                                                                        </span>
+                                                                    <div className="text-[10px] font-black text-zinc-600 uppercase mb-0.5">Branch</div>
+                                                                    <div className="flex items-center gap-2 font-mono text-sm text-blue-400/80">
+                                                                        <Code className="w-3 h-3" /> {selectedInstance.branch}
                                                                     </div>
                                                                 </div>
-                                                            ))
-                                                        ) : (
-                                                            <div className="py-6 text-center text-[10px] font-black uppercase text-zinc-700 tracking-widest">
-                                                                No recent events
                                                             </div>
-                                                        )}
-                                                    </div>
-                                                </div>
+                                                        </div>
+                                                    </CardContent>
+                                                </Card>
+
+                                                <Card className="bg-white/[0.02] border-white/5 rounded-[40px]">
+                                                    <CardContent className="p-8">
+                                                        <h3 className="text-sm font-black uppercase tracking-widest text-zinc-500 mb-6">Latest Events</h3>
+                                                        <div className="space-y-4">
+                                                            {selectedInstance.events && selectedInstance.events.length > 0 ? (
+                                                                selectedInstance.events.slice(-3).reverse().map((e, idx) => (
+                                                                    <div key={idx} className="flex gap-4 items-start relative pb-4 last:pb-0">
+                                                                        <Separator className="hidden" />
+                                                                        <div className={cn(
+                                                                            "w-2 h-2 rounded-full mt-1.5 shrink-0",
+                                                                            e.type === 'success' ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.3)]' :
+                                                                                e.type === 'error' ? 'bg-red-500' : 'bg-blue-500'
+                                                                        )} />
+                                                                        <div className="flex-1">
+                                                                            <p className={cn("text-xs font-black uppercase tracking-tight", e.type === 'error' ? 'text-red-400' : 'text-zinc-300')}>
+                                                                                {e.message}
+                                                                            </p>
+                                                                            <span className="text-[9px] font-bold text-zinc-600">
+                                                                                {new Date(e.timestamp).toLocaleString([], { hour: '2-digit', minute: '2-digit' })}
+                                                                            </span>
+                                                                        </div>
+                                                                    </div>
+                                                                ))
+                                                            ) : (
+                                                                <div className="py-6 text-center text-[10px] font-black uppercase text-zinc-700 tracking-widest">
+                                                                    No recent events
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </CardContent>
+                                                </Card>
                                             </div>
                                         </div>
-                                    )}
+                                    </TabsContent>
 
-                                    {activeTab === 'deployments' && (
-                                        <div className="bg-black border border-white/5 rounded-[40px] p-12 overflow-hidden relative min-h-[500px]">
-                                            <div className="flex items-center justify-between mb-12">
-                                                <h3 className="text-xl font-black uppercase tracking-tight">Deployment Lifecycle</h3>
-                                                <div className="flex items-center gap-2 bg-emerald-500/10 text-emerald-500 px-4 py-2 rounded-2xl text-[10px] font-black uppercase tracking-widest border border-emerald-500/20 backdrop-blur-md shadow-lg shadow-emerald-500/5">
-                                                    <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]" /> 
-                                                    Platform Sync Normal
+                                    <TabsContent value="deployments" className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                                        <Card className="bg-black border-white/5 rounded-[40px] min-h-[500px]">
+                                            <CardContent className="p-12">
+                                                <div className="flex items-center justify-between mb-12">
+                                                    <h3 className="text-xl font-black uppercase tracking-tight">Deployment Lifecycle</h3>
+                                                    <Badge variant="outline" className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20 text-[10px] font-black uppercase tracking-widest">
+                                                        <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)] mr-1.5" /> 
+                                                        Platform Sync Normal
+                                                    </Badge>
                                                 </div>
-                                            </div>
-                                            <div className="space-y-10 relative">
-                                                <div className="absolute left-[7px] top-2 bottom-2 w-px bg-white/5" />
-                                                {selectedInstance.events?.map((e, idx) => (
-                                                    <div key={idx} className="flex gap-10 relative group">
-                                                        <div className={cn(
-                                                            "w-4 h-4 rounded-full border-2 border-zinc-700 relative z-10 shrink-0 mt-2 transition-all",
-                                                            e.type === 'success' ? 'bg-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.5)]' :
-                                                                e.type === 'error' ? 'bg-red-500 shadow-[0_0_12px_rgba(239,68,68,0.3)]' : 'bg-blue-500 shadow-[0_0_12px_rgba(59,130,246,0.3)]'
-                                                        )} />
-                                                        <div className="flex-1">
-                                                            <div className="flex items-center justify-between mb-1">
-                                                                <p className={cn("text-xs font-black uppercase tracking-widest", e.type === 'error' ? 'text-red-400' : e.type === 'success' ? 'text-emerald-400' : 'text-zinc-200')}>
-                                                                    {e.message}
-                                                                </p>
-                                                                <span className="text-[10px] font-black text-zinc-600 font-mono">
-                                                                    {new Date(e.timestamp).toLocaleTimeString()}
-                                                                </span>
+                                                <div className="space-y-10 relative">
+                                                    <div className="absolute left-[7px] top-2 bottom-2 w-px bg-white/5" />
+                                                    {selectedInstance.events?.map((e, idx) => (
+                                                        <div key={idx} className="flex gap-10 relative group">
+                                                            <div className={cn(
+                                                                "w-4 h-4 rounded-full border-2 border-zinc-700 relative z-10 shrink-0 mt-2 transition-all",
+                                                                e.type === 'success' ? 'bg-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.5)]' :
+                                                                    e.type === 'error' ? 'bg-red-500 shadow-[0_0_12px_rgba(239,68,68,0.3)]' : 'bg-blue-500 shadow-[0_0_12px_rgba(59,130,246,0.3)]'
+                                                            )} />
+                                                            <div className="flex-1">
+                                                                <div className="flex items-center justify-between mb-1">
+                                                                    <p className={cn("text-xs font-black uppercase tracking-widest", e.type === 'error' ? 'text-red-400' : e.type === 'success' ? 'text-emerald-400' : 'text-zinc-200')}>
+                                                                        {e.message}
+                                                                    </p>
+                                                                    <span className="text-[10px] font-black text-zinc-600 font-mono">
+                                                                        {new Date(e.timestamp).toLocaleTimeString()}
+                                                                    </span>
+                                                                </div>
+                                                                <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider opacity-60">Status Code: 200 — Sync Initiated</div>
                                                             </div>
-                                                            <div className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider opacity-60">Status Code: 200 — Sync Initiated</div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+                                    </TabsContent>
+
+                                    <TabsContent value="env" className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                                        <Card className="bg-[#080808] border-white/5 rounded-[40px] h-[600px] flex flex-col shadow-2xl relative overflow-hidden">
+                                            <CardContent className="p-8 h-full flex flex-col">
+                                                <div className="flex items-center justify-between mb-6 shrink-0 z-10">
+                                                    <div className="flex gap-4 items-center">
+                                                        <div className="w-10 h-10 rounded-2xl bg-blue-500/5 flex items-center justify-center">
+                                                            <Code className="w-5 h-5 text-blue-500" />
+                                                        </div>
+                                                        <div>
+                                                            <h3 className="text-xl font-black uppercase tracking-tight">Environment Variables</h3>
+                                                            <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest leading-relaxed">Secure secrets mapped to your deployment runtime.</p>
                                                         </div>
                                                     </div>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    )}
+                                                    
+                                                    <Button 
+                                                        onClick={() => handleSaveEnvContent(selectedInstance._id)}
+                                                        disabled={isSavingEnv}
+                                                        className="rounded-2xl h-12 px-8 bg-blue-600 hover:bg-blue-500 text-xs font-black uppercase tracking-widest shadow-lg shadow-blue-500/20 disabled:bg-zinc-800 disabled:text-zinc-500 transition-all"
+                                                    >
+                                                        {isSavingEnv ? (
+                                                            <><RefreshCw className="w-4 h-4 mr-2 animate-spin" /> Saving</>
+                                                        ) : (
+                                                            "Save & Redeploy"
+                                                        )}
+                                                    </Button>
+                                                </div>
 
-                                    {activeTab === 'env' && (
-                                        <div className="bg-[#080808] border border-white/5 rounded-[40px] p-8 h-[600px] flex flex-col shadow-2xl relative overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                            <div className="flex items-center justify-between mb-6 shrink-0 z-10">
-                                                <div className="flex gap-4 items-center">
-                                                    <div className="w-10 h-10 rounded-2xl bg-blue-500/5 flex items-center justify-center">
-                                                        <Code className="w-5 h-5 text-blue-500" />
+                                                <div className="absolute top-[-20%] right-[-10%] w-[300px] h-[300px] bg-blue-600/5 blur-[100px] rounded-full pointer-events-none" />
+
+                                                <div className="flex-1 rounded-[32px] border border-white/5 bg-black overflow-hidden relative group transition-all focus-within:border-blue-500/20">
+                                                    <div className="absolute top-0 left-0 bottom-0 w-12 bg-white/[0.02] border-r border-white/5 flex flex-col items-center py-6 text-[10px] font-mono text-zinc-700 select-none">
+                                                        {envDraft.split('\n').map((_, i) => <div key={i} className="leading-loose">{i + 1}</div>)}
                                                     </div>
-                                                    <div>
-                                                        <h3 className="text-xl font-black uppercase tracking-tight">Environment Variables</h3>
-                                                        <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest leading-relaxed">Secure secrets mapped to your deployment runtime.</p>
+                                                    <Textarea
+                                                        value={envDraft}
+                                                        onChange={(e) => setEnvDraft(e.target.value)}
+                                                        spellCheck={false}
+                                                        placeholder={"KEY=VALUE\nPORT=8080\nNODE_ENV=production"}
+                                                        className="w-full h-full p-6 pl-16 bg-transparent border-none outline-none font-mono text-sm leading-loose text-zinc-300 placeholder:text-zinc-800 resize-none selection:bg-blue-500/30 custom-scrollbar"
+                                                    />
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+                                    </TabsContent>
+
+                                    <TabsContent value="logs" className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                                        <Card className="bg-[#080808] border-white/5 rounded-[40px] h-[600px] flex flex-col font-mono text-sm overflow-hidden shadow-2xl">
+                                            <CardHeader className="pb-0 px-8 pt-6">
+                                                <div className="flex items-center justify-between">
+                                                    <div className="flex gap-2">
+                                                        <div className="w-3 h-3 rounded-full bg-blue-500/20" />
+                                                        <div className="w-3 h-3 rounded-full bg-blue-500/20" />
+                                                        <div className="w-3 h-3 rounded-full bg-blue-500/20" />
                                                     </div>
+                                                    <span className="text-[10px] font-black uppercase text-zinc-500 tracking-widest">Application Stdout/Stderr</span>
                                                 </div>
-                                                
-                                                <Button 
-                                                    onClick={() => handleSaveEnvContent(selectedInstance._id)}
-                                                    disabled={isSavingEnv}
-                                                    className="rounded-2xl h-12 px-8 bg-blue-600 hover:bg-blue-500 text-xs font-black uppercase tracking-widest shadow-lg shadow-blue-500/20 disabled:bg-zinc-800 disabled:text-zinc-500 transition-all"
-                                                >
-                                                    {isSavingEnv ? (
-                                                        <><RefreshCw className="w-4 h-4 mr-2 animate-spin" /> Saving</>
-                                                    ) : (
-                                                        "Save & Redeploy"
-                                                    )}
-                                                </Button>
-                                            </div>
-
-                                            <div className="absolute top-[-20%] right-[-10%] w-[300px] h-[300px] bg-blue-600/5 blur-[100px] rounded-full pointer-events-none" />
-
-                                            <div className="flex-1 rounded-[32px] border border-white/5 bg-black overflow-hidden relative group transition-all focus-within:border-blue-500/20">
-                                                <div className="absolute top-0 left-0 bottom-0 w-12 bg-white/[0.02] border-r border-white/5 flex flex-col items-center py-6 text-[10px] font-mono text-zinc-700 select-none">
-                                                    {envDraft.split('\n').map((_, i) => <div key={i} className="leading-loose">{i + 1}</div>)}
-                                                </div>
-                                                <textarea
-                                                    value={envDraft}
-                                                    onChange={(e) => setEnvDraft(e.target.value)}
-                                                    spellCheck={false}
-                                                    placeholder="KEY=VALUE&#10;PORT=8080&#10;NODE_ENV=production"
-                                                    className="w-full h-full p-6 pl-16 bg-transparent border-none outline-none font-mono text-sm leading-loose text-zinc-300 placeholder:text-zinc-800 resize-none selection:bg-blue-500/30 custom-scrollbar"
-                                                />
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {activeTab === 'logs' && (
-                                        <div className="bg-[#080808] border border-white/5 rounded-[40px] p-8 h-[600px] flex flex-col font-mono text-sm overflow-hidden shadow-2xl">
-                                            <div className="flex items-center justify-between mb-6 shrink-0">
-                                                <div className="flex gap-2">
-                                                    <div className="w-3 h-3 rounded-full bg-blue-500/20" />
-                                                    <div className="w-3 h-3 rounded-full bg-blue-500/20" />
-                                                    <div className="w-3 h-3 rounded-full bg-blue-500/20" />
-                                                </div>
-                                                <span className="text-[10px] font-black uppercase text-zinc-500 tracking-widest">Application Stdout/Stderr</span>
-                                            </div>
-                                            <div className="flex-1 overflow-y-auto space-y-1 pr-4 custom-scrollbar">
+                                            </CardHeader>
+                                            <CardContent className="flex-1 overflow-y-auto space-y-1 pr-4 custom-scrollbar">
                                                 {selectedInstance.logs && selectedInstance.logs.length > 0 ? (
                                                     selectedInstance.logs.map((log, i) => (
                                                         <div key={i} className="text-zinc-400 hover:text-white transition-colors py-0.5 border-l border-white/5 pl-4 hover:bg-white/[0.02] flex gap-4">
@@ -898,29 +896,26 @@ function ComputePageContent() {
                                                         No Application Logs Found
                                                     </div>
                                                 )}
-                                            </div>
-                                        </div>
-                                    )}
+                                            </CardContent>
+                                        </Card>
+                                    </TabsContent>
 
-                                    {activeTab === 'terminal' && (
-                                        <div className="bg-black border border-white/5 rounded-[40px] h-[600px] flex flex-col overflow-hidden shadow-2xl relative group">
-                                            {/* Terminal Header */}
-                                            <div className="px-8 py-5 border-b border-white/5 bg-white/[0.02] flex items-center justify-between shrink-0">
-                                                <div className="flex items-center gap-4">
-                                                    <Terminal className="w-5 h-5 text-blue-500" />
-                                                    <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">
-                                                        Isolated TTY — {selectedInstance.name.toUpperCase()}
-                                                    </span>
-                                                </div>
-                                                <div className="flex items-center gap-4">
-                                                    <div className="flex items-center gap-2 bg-emerald-500/10 text-emerald-500 px-3 py-1 rounded-full text-[9px] font-black">
-                                                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> Egress Filter Active
+                                    <TabsContent value="terminal" className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                                        <Card className="bg-black border-white/5 rounded-[40px] h-[600px] flex flex-col overflow-hidden shadow-2xl">
+                                            <CardHeader className="px-8 pt-5 pb-0 border-b border-white/5 bg-white/[0.02]">
+                                                <div className="flex items-center justify-between">
+                                                    <div className="flex items-center gap-4">
+                                                        <Terminal className="w-5 h-5 text-blue-500" />
+                                                        <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">
+                                                            Isolated TTY — {selectedInstance.name.toUpperCase()}
+                                                        </span>
                                                     </div>
+                                                    <Badge variant="outline" className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20 text-[9px] font-black">
+                                                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse mr-1.5" /> Egress Filter Active
+                                                    </Badge>
                                                 </div>
-                                            </div>
-
-                                            {/* Terminal Body */}
-                                            <div className="flex-1 overflow-y-auto p-8 font-mono text-xs leading-relaxed space-y-3 custom-scrollbar selection:bg-blue-500/30">
+                                            </CardHeader>
+                                            <CardContent className="flex-1 overflow-y-auto p-8 font-mono text-xs leading-relaxed space-y-3 custom-scrollbar selection:bg-blue-500/30">
                                                 {terminalLogs.map((log, i) => (
                                                     <div key={i} className={cn(
                                                         "break-all whitespace-pre-wrap",
@@ -937,160 +932,161 @@ function ComputePageContent() {
                                                         <RefreshCw className="w-3 h-3 animate-spin text-blue-600" /> Connecting to runtime node...
                                                     </div>
                                                 )}
-                                            </div>
+                                            </CardContent>
+                                            <CardFooter className="p-6 bg-[#080808] border-t border-white/5">
+                                                <form onSubmit={handleExecuteCommand} className="flex items-center gap-4 w-full focus-within:bg-black transition-all">
+                                                    <span className="text-blue-600 font-black ml-2">➜</span>
+                                                    <input
+                                                        name="command"
+                                                        autoComplete="off"
+                                                        placeholder="Type 'help' to see authorized commands..."
+                                                        className="flex-1 bg-transparent border-none outline-none text-sm font-mono text-white placeholder:text-zinc-800"
+                                                        disabled={isExecuting}
+                                                    />
+                                                    <Button
+                                                        type="submit"
+                                                        disabled={isExecuting}
+                                                        className="rounded-xl h-10 px-6 bg-blue-600 hover:bg-blue-500 text-[10px] font-black uppercase tracking-widest shadow-lg shadow-blue-500/20"
+                                                    >
+                                                        Execute
+                                                    </Button>
+                                                </form>
+                                            </CardFooter>
+                                        </Card>
+                                    </TabsContent>
 
-                                            {/* Terminal Input */}
-                                            <form onSubmit={handleExecuteCommand} className="p-6 bg-[#080808] border-t border-white/5 flex items-center gap-4 shrink-0 focus-within:bg-black transition-all">
-                                                <span className="text-blue-600 font-black ml-2">➜</span>
-                                                <input
-                                                    name="command"
-                                                    autoComplete="off"
-                                                    placeholder="Type 'help' to see authorized commands..."
-                                                    className="flex-1 bg-transparent border-none outline-none text-sm font-mono text-white placeholder:text-zinc-800"
-                                                    disabled={isExecuting}
-                                                />
-                                                <Button
-                                                    type="submit"
-                                                    disabled={isExecuting}
-                                                    className="rounded-xl h-10 px-6 bg-blue-600 hover:bg-blue-500 text-[10px] font-black uppercase tracking-widest shadow-lg shadow-blue-500/20"
-                                                >
-                                                    Execute
-                                                </Button>
-                                            </form>
-                                        </div>
-                                    )}
-
-                                    {activeTab === 'settings' && (
+                                    <TabsContent value="settings" className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                                         <div className="max-w-2xl space-y-12">
-                                            <div className="bg-white/[0.02] border border-white/5 rounded-[40px] p-8">
-                                                <div className="flex items-center justify-between mb-8">
-                                                    <h3 className="text-xl font-black uppercase tracking-tight">Git Integrations</h3>
-                                                </div>
-                                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                                                    {/* GitHub */}
-                                                    <div className={cn("p-4 rounded-[28px] border transition-all flex flex-col items-center gap-3", user?.github_profile ? "bg-blue-600/5 border-blue-500/20" : "bg-white/[0.02] border-white/5")}>
-                                                        <Github className={cn("w-6 h-6", user?.github_profile ? "text-blue-500" : "text-zinc-600")} />
-                                                        <div className="text-center">
-                                                            <div className="text-[10px] font-black uppercase tracking-widest mb-1">GitHub</div>
-                                                            <div className="text-[9px] text-zinc-500 font-medium">
-                                                                {user?.github_profile ? `@${user.github_profile.username}` : "Not Connected"}
-                                                            </div>
-                                                        </div>
-                                                        <Button 
-                                                            variant="outline" 
-                                                            size="sm" 
-                                                            onClick={() => handleConnectProvider('GITHUB')}
-                                                            className="w-full rounded-xl border-white/5 bg-white/5 hover:bg-white/10 text-[9px] font-black uppercase h-8"
-                                                        >
-                                                            {user?.github_profile ? "Switch" : "Connect"}
-                                                        </Button>
+                                            <Card className="bg-white/[0.02] border-white/5 rounded-[40px]">
+                                                <CardContent className="p-8">
+                                                    <div className="flex items-center justify-between mb-8">
+                                                        <h3 className="text-xl font-black uppercase tracking-tight">Git Integrations</h3>
                                                     </div>
-
-                                                    {/* GitLab */}
-                                                    <div className={cn("p-4 rounded-[28px] border transition-all flex flex-col items-center gap-3", user?.gitlab_profile ? "bg-orange-600/5 border-orange-500/20" : "bg-white/[0.02] border-white/5")}>
-                                                        <Gitlab className={cn("w-6 h-6", user?.gitlab_profile ? "text-orange-500" : "text-zinc-600")} />
-                                                        <div className="text-center">
-                                                            <div className="text-[10px] font-black uppercase tracking-widest mb-1">GitLab</div>
-                                                            <div className="text-[9px] text-zinc-500 font-medium">
-                                                                {user?.gitlab_profile ? `@${user.gitlab_profile.username}` : "Not Connected"}
+                                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                                                        <div className={cn("p-4 rounded-[28px] border transition-all flex flex-col items-center gap-3", user?.github_profile ? "bg-blue-600/5 border-blue-500/20" : "bg-white/[0.02] border-white/5")}>
+                                                            <Github className={cn("w-6 h-6", user?.github_profile ? "text-blue-500" : "text-zinc-600")} />
+                                                            <div className="text-center">
+                                                                <div className="text-[10px] font-black uppercase tracking-widest mb-1">GitHub</div>
+                                                                <div className="text-[9px] text-zinc-500 font-medium">
+                                                                    {user?.github_profile ? `@${user.github_profile.username}` : "Not Connected"}
+                                                                </div>
                                                             </div>
+                                                            <Button 
+                                                                variant="outline" 
+                                                                size="sm" 
+                                                                onClick={() => handleConnectProvider('GITHUB')}
+                                                                className="w-full rounded-xl border-white/5 bg-white/5 hover:bg-white/10 text-[9px] font-black uppercase h-8"
+                                                            >
+                                                                {user?.github_profile ? "Switch" : "Connect"}
+                                                            </Button>
                                                         </div>
-                                                        <Button 
-                                                            variant="outline" 
-                                                            size="sm" 
-                                                            onClick={() => handleConnectProvider('GITLAB')}
-                                                            className="w-full rounded-xl border-white/5 bg-white/5 hover:bg-white/10 text-[9px] font-black uppercase h-8"
-                                                        >
-                                                            {user?.gitlab_profile ? "Switch" : "Connect"}
-                                                        </Button>
-                                                    </div>
-                                                </div>
 
-                                                <div className="flex items-center justify-between mb-8 pt-8 border-t border-white/5">
-                                                    <h3 className="text-xl font-black uppercase tracking-tight">Source Protection & CI/CD</h3>
-                                                </div>
-                                                <div className="space-y-6">
-                                                    <div className="flex items-center justify-between p-6 rounded-3xl bg-black/40 border border-white/5 group hover:border-blue-500/30 transition-all">
-                                                        <div className="flex-1">
-                                                            <div className="flex items-center gap-2 mb-1">
-                                                                <RefreshCw className="w-4 h-4 text-emerald-500" />
-                                                                <h4 className="font-bold text-sm">Auto-reploy on Push</h4>
+                                                        <div className={cn("p-4 rounded-[28px] border transition-all flex flex-col items-center gap-3", user?.gitlab_profile ? "bg-orange-600/5 border-orange-500/20" : "bg-white/[0.02] border-white/5")}>
+                                                            <Gitlab className={cn("w-6 h-6", user?.gitlab_profile ? "text-orange-500" : "text-zinc-600")} />
+                                                            <div className="text-center">
+                                                                <div className="text-[10px] font-black uppercase tracking-widest mb-1">GitLab</div>
+                                                                <div className="text-[9px] text-zinc-500 font-medium">
+                                                                    {user?.gitlab_profile ? `@${user.gitlab_profile.username}` : "Not Connected"}
+                                                                </div>
                                                             </div>
-                                                            <p className="text-[10px] text-zinc-500 font-medium leading-relaxed max-w-[300px]">Whenever you push code to <b>{selectedInstance.branch}</b> branch, Nexode will automatically rebuild and redeploy your node.</p>
-                                                        </div>
-                                                        <div 
-                                                            onClick={() => handleToggleAutoDeploy(!selectedInstance.auto_deploy_on_push)}
-                                                            className={cn(
-                                                                "w-12 h-6 rounded-full p-1 cursor-pointer transition-colors duration-300",
-                                                                selectedInstance.auto_deploy_on_push ? "bg-blue-600" : "bg-zinc-800"
-                                                            )}
-                                                        >
-                                                            <div className={cn("w-4 h-4 bg-white rounded-full transition-transform duration-300", selectedInstance.auto_deploy_on_push ? "translate-x-6" : "translate-x-0")} />
+                                                            <Button 
+                                                                variant="outline" 
+                                                                size="sm" 
+                                                                onClick={() => handleConnectProvider('GITLAB')}
+                                                                className="w-full rounded-xl border-white/5 bg-white/5 hover:bg-white/10 text-[9px] font-black uppercase h-8"
+                                                            >
+                                                                {user?.gitlab_profile ? "Switch" : "Connect"}
+                                                            </Button>
                                                         </div>
                                                     </div>
 
-                                                    <div className="p-6 rounded-3xl bg-black/40 border border-white/5 group hover:border-blue-500/30 transition-all">
-                                                        <div className="flex items-center justify-between mb-4">
-                                                            <div className="flex items-center gap-2">
-                                                                <Globe className="w-4 h-4 text-blue-500" />
-                                                                <h4 className="font-bold text-sm">Custom Domain</h4>
+                                                    <Separator className="my-8" />
+
+                                                    <div className="flex items-center justify-between mb-8">
+                                                        <h3 className="text-xl font-black uppercase tracking-tight">Source Protection & CI/CD</h3>
+                                                    </div>
+                                                    <div className="space-y-6">
+                                                        <div className="flex items-center justify-between p-6 rounded-3xl bg-black/40 border border-white/5 group hover:border-blue-500/30 transition-all">
+                                                            <div className="flex-1">
+                                                                <div className="flex items-center gap-2 mb-1">
+                                                                    <RefreshCw className="w-4 h-4 text-emerald-500" />
+                                                                    <h4 className="font-bold text-sm">Auto-reploy on Push</h4>
+                                                                </div>
+                                                                <p className="text-[10px] text-zinc-500 font-medium leading-relaxed max-w-[300px]">Whenever you push code to <b>{selectedInstance.branch}</b> branch, Nexode will automatically rebuild and redeploy your node.</p>
                                                             </div>
-                                                            <span className="text-[9px] font-black text-zinc-600 uppercase">SSL Auto-configured</span>
-                                                        </div>
-                                                        <form onSubmit={async (e) => {
-                                                            e.preventDefault();
-                                                            const formData = new FormData(e.currentTarget);
-                                                            const domain = (formData.get('custom_domain') as string)?.trim();
-                                                            if (!domain) return;
-                                                            try {
-                                                                const token = getAccessToken();
-                                                                const GQL_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api-v1/graphql';
-                                                                const res = await fetch(GQL_URL, {
-                                                                    method: 'POST',
-                                                                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                                                                    credentials: 'include',
-                                                                    body: JSON.stringify({
-                                                                        query: `mutation UpdateDomain($id: String!, $custom_domain: String!) { updateComputeCustomDomain(id: $id, custom_domain: $custom_domain) { _id custom_domain } }`,
-                                                                        variables: { id: selectedInstance._id, custom_domain: domain },
-                                                                    }),
-                                                                });
-                                                                const result = await res.json();
-                                                                if (result.data?.updateComputeCustomDomain) {
-                                                                    toast.success(`Domain updated to ${domain}`);
-                                                                    fetchInstances();
-                                                                } else if (result.errors) {
-                                                                    toast.error(result.errors[0]?.message || 'Failed to update domain');
-                                                                }
-                                                            } catch (err) {
-                                                                toast.error('Failed to update domain');
-                                                            }
-                                                        }} className="flex gap-4">
-                                                            <input
-                                                                name="custom_domain"
-                                                                className="flex-1 bg-black border border-white/10 rounded-2xl px-6 h-14 text-sm font-bold placeholder:text-zinc-700 focus:border-blue-500/50 transition-all outline-none"
-                                                                placeholder="e.g. app.myproject.com"
-                                                                defaultValue={selectedInstance.custom_domain}
+                                                            <Switch
+                                                                checked={selectedInstance.auto_deploy_on_push}
+                                                                onCheckedChange={() => handleToggleAutoDeploy(!selectedInstance.auto_deploy_on_push)}
                                                             />
-                                                            <Button type="submit" className="rounded-2xl h-14 px-8 bg-blue-600 hover:bg-blue-500 font-bold uppercase tracking-widest text-xs">Update</Button>
-                                                        </form>
-                                                        {selectedInstance.generated_domain && (
-                                                            <div className="mt-3 flex items-center gap-2 text-[10px] text-zinc-500">
-                                                                <Globe className="w-3 h-3" />
-                                                                <span>Auto-assigned: <code className="text-zinc-400">{selectedInstance.generated_domain}</code></span>
-                                                            </div>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            </div>
+                                                        </div>
 
-                                            <div className="p-8 border border-red-500/20 bg-red-500/5 rounded-[40px]">
-                                                <h3 className="text-red-400 font-black uppercase tracking-tight mb-4">Danger Zone</h3>
-                                                <p className="text-zinc-500 text-xs mb-6 px-1">Deleting this instance will immediately stop your services and remove all associated load balancers and networking rules.</p>
-                                                <Button onClick={() => handleDelete(selectedInstance._id)} className="rounded-2xl bg-transparent border border-red-500/30 text-red-500 hover:bg-red-500 hover:text-white transition-all w-full font-black uppercase tracking-widest h-14 text-xs">Terminate Instance</Button>
-                                            </div>
+                                                        <Card className="bg-black/40 border-white/5 rounded-3xl">
+                                                            <CardContent className="p-6 group hover:border-blue-500/30 transition-all">
+                                                                <div className="flex items-center justify-between mb-4">
+                                                                    <div className="flex items-center gap-2">
+                                                                        <Globe className="w-4 h-4 text-blue-500" />
+                                                                        <h4 className="font-bold text-sm">Custom Domain</h4>
+                                                                    </div>
+                                                                    <Badge variant="outline" className="text-[9px] font-black text-zinc-600 uppercase border-zinc-700">SSL Auto-configured</Badge>
+                                                                </div>
+                                                                <form onSubmit={async (e) => {
+                                                                    e.preventDefault();
+                                                                    const formData = new FormData(e.currentTarget);
+                                                                    const domain = (formData.get('custom_domain') as string)?.trim();
+                                                                    if (!domain) return;
+                                                                    try {
+                                                                        const token = getAccessToken();
+                                                                        const GQL_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api-v1/graphql';
+                                                                        const res = await fetch(GQL_URL, {
+                                                                            method: 'POST',
+                                                                            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                                                                            credentials: 'include',
+                                                                            body: JSON.stringify({
+                                                                                query: `mutation UpdateDomain($id: String!, $custom_domain: String!) { updateComputeCustomDomain(id: $id, custom_domain: $custom_domain) { _id custom_domain } }`,
+                                                                                variables: { id: selectedInstance._id, custom_domain: domain },
+                                                                            }),
+                                                                        });
+                                                                        const result = await res.json();
+                                                                        if (result.data?.updateComputeCustomDomain) {
+                                                                            toast.success(`Domain updated to ${domain}`);
+                                                                            fetchInstances();
+                                                                        } else if (result.errors) {
+                                                                            toast.error(result.errors[0]?.message || 'Failed to update domain');
+                                                                        }
+                                                                    } catch (err) {
+                                                                        toast.error('Failed to update domain');
+                                                                    }
+                                                                }} className="flex gap-4">
+                                                                    <Input
+                                                                        name="custom_domain"
+                                                                        className="flex-1 bg-black border border-white/10 rounded-2xl h-14 text-sm font-bold placeholder:text-zinc-700 focus:border-blue-500/50"
+                                                                        placeholder="e.g. app.myproject.com"
+                                                                        defaultValue={selectedInstance.custom_domain}
+                                                                    />
+                                                                    <Button type="submit" className="rounded-2xl h-14 px-8 bg-blue-600 hover:bg-blue-500 font-bold uppercase tracking-widest text-xs">Update</Button>
+                                                                </form>
+                                                                {selectedInstance.generated_domain && (
+                                                                    <div className="mt-3 flex items-center gap-2 text-[10px] text-zinc-500">
+                                                                        <Globe className="w-3 h-3" />
+                                                                        <span>Auto-assigned: <code className="text-zinc-400">{selectedInstance.generated_domain}</code></span>
+                                                                    </div>
+                                                                )}
+                                                            </CardContent>
+                                                        </Card>
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+
+                                            <Card className="border-red-500/20 bg-red-500/5 rounded-[40px]">
+                                                <CardContent className="p-8">
+                                                    <h3 className="text-red-400 font-black uppercase tracking-tight mb-4">Danger Zone</h3>
+                                                    <p className="text-zinc-500 text-xs mb-6 px-1">Deleting this instance will immediately stop your services and remove all associated load balancers and networking rules.</p>
+                                                    <Button onClick={() => handleDelete(selectedInstance._id)} className="rounded-2xl bg-transparent border border-red-500/30 text-red-500 hover:bg-red-500 hover:text-white transition-all w-full font-black uppercase tracking-widest h-14 text-xs">Terminate Instance</Button>
+                                                </CardContent>
+                                            </Card>
                                         </div>
-                                    )}
-                                </div>
+                                    </TabsContent>
+                                </Tabs>
                             </div>
                         ) : (
                             <div className="h-full flex flex-col items-center justify-center text-center p-12 opacity-80 animate-in fade-in zoom-in duration-700">
