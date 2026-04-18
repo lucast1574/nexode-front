@@ -31,6 +31,7 @@ export default function AutomationsPage() {
     const [selectedInstance, setSelectedInstance] = useState<N8nInstance | null>(null);
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [showLimitModal, setShowLimitModal] = useState(false);
+    const [isSuperuser, setIsSuperuser] = useState(false);
     const [copied, setCopied] = useState(false);
     const [dnsStatus, setDnsStatus] = useState<'checking' | 'resolved' | 'failed' | null>(null);
     const [dnsMessage, setDnsMessage] = useState<string>('');
@@ -61,7 +62,8 @@ export default function AutomationsPage() {
                     me { 
                         first_name 
                         email 
-                        avatar 
+                        avatar
+                        role { slug } 
                     }
                     mySubscriptions { 
                         id 
@@ -89,6 +91,7 @@ export default function AutomationsPage() {
             const result = await res.json();
             if (result.data) {
                 setUser(result.data.me);
+                setIsSuperuser(result.data.me?.role?.slug === 'superuser');
                 // Filter for ACTIVE subscriptions just as in Dashboard
                 const allSubs = result.data.mySubscriptions || [];
                 const activeSubs = allSubs.filter((s: Subscription) => s && s.status === 'ACTIVE');
@@ -119,7 +122,7 @@ export default function AutomationsPage() {
     const n8nSubscriptions = subscriptions.filter(s => s.service === 'n8n');
     const n8nUsedSlots = instances.length;
     const n8nTotalSlots = n8nSubscriptions.length;
-    const canCreateN8n = n8nUsedSlots < n8nTotalSlots;
+    const canCreateN8n = isSuperuser || n8nUsedSlots < n8nTotalSlots;
 
     const handleCreateClick = () => {
         if (canCreateN8n) {

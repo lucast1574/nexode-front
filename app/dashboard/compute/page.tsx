@@ -83,6 +83,7 @@ function ComputePageContent() {
     const [selectedInstance, setSelectedInstance] = useState<ComputeInstance | null>(null);
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [showLimitModal, setShowLimitModal] = useState(false);
+    const [isSuperuser, setIsSuperuser] = useState(false);
     const [copiedField, setCopiedField] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState<'overview' | 'deployments' | 'env' | 'logs' | 'terminal' | 'settings'>('overview');
     const [envDraft, setEnvDraft] = useState('');
@@ -111,6 +112,7 @@ function ComputePageContent() {
                         first_name 
                         email 
                         avatar 
+                        role { slug }
                         github_profile { username }
                         gitlab_profile { username }
                     }
@@ -135,6 +137,7 @@ function ComputePageContent() {
             const result = await res.json();
             if (result.data) {
                 setUser(result.data.me);
+                setIsSuperuser(result.data.me?.role?.slug === 'superuser');
                 setSubscriptions(result.data.mySubscriptions || []);
                 const insts = result.data.myComputeInstances || [];
                 setInstances(insts);
@@ -191,7 +194,7 @@ function ComputePageContent() {
     const computeSubscriptions = subscriptions.filter(s => s.service === 'compute');
     const computeUsedSlots = instances.length;
     const computeTotalSlots = computeSubscriptions.length;
-    const canCreateCompute = computeUsedSlots < computeTotalSlots;
+    const canCreateCompute = isSuperuser || computeUsedSlots < computeTotalSlots;
 
     const handleCreateClick = () => {
         if (canCreateCompute) {

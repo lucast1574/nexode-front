@@ -62,6 +62,7 @@ export default function DatabasesPage() {
     const [copiedField, setCopiedField] = useState<string | null>(null);
     const [revealedFields, setRevealedFields] = useState<Set<string>>(new Set());
     const [activeTab, setActiveTab] = useState<'overview' | 'credentials' | 'terminal'>('overview');
+    const [isSuperuser, setIsSuperuser] = useState(false);
 
     const [terminalLogs, setTerminalLogs] = useState<{ type: 'input' | 'output' | 'error', text: string }[]>(INITIAL_TERMINAL_LOGS);
     const [isExecuting, setIsExecuting] = useState(false);
@@ -86,6 +87,7 @@ export default function DatabasesPage() {
 
             const query = `
                 query GetDatabases {
+                    me { role { slug } }
                     mySubscriptions { id service status plan { name slug features } }
                     myDatabases {
                         _id name type status host port username password db_name connection_string public_uri internal_uri created_on
@@ -105,6 +107,7 @@ export default function DatabasesPage() {
 
             const result = await res.json();
             if (result.data) {
+                setIsSuperuser(result.data.me?.role?.slug === 'superuser');
                 setSubscriptions(result.data.mySubscriptions || []);
                 const dbs = result.data.myDatabases || [];
                 setDatabases(dbs);
@@ -136,7 +139,7 @@ export default function DatabasesPage() {
     const dbSubscriptions = subscriptions.filter(s => s.service === 'database');
     const usedSlots = databases.length;
     const totalSlots = dbSubscriptions.length;
-    const canCreate = usedSlots < totalSlots;
+    const canCreate = isSuperuser || usedSlots < totalSlots;
 
     const handleCreateClick = () => {
         if (canCreate) {
