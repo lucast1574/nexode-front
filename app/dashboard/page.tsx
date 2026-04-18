@@ -10,8 +10,7 @@ import {
     ChevronRight,
     Search,
     Zap,
-    Workflow,
-    Activity
+    Workflow
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -105,19 +104,7 @@ export default function DashboardPage() {
 
                                 <div className="flex flex-col gap-3">
                                     <div className="flex items-center gap-3">
-                                        {sub.service === 'compute' && (
-                                            <Button 
-                                                variant="outline" 
-                                                title="Check Backend Status"
-                                                className="w-11 h-11 p-0 rounded-xl bg-blue-500/5 hover:bg-blue-500/10 border-blue-500/20 text-blue-400"
-                                                onClick={(e) => {
-                                                    e.preventDefault();
-                                                    window.open('https://status.nexode.io', '_blank');
-                                                }}
-                                            >
-                                                <Activity className="w-5 h-5" />
-                                            </Button>
-                                        )}
+
                                         <Button asChild className="flex-1 rounded-xl h-11 font-bold gap-2">
                                             <Link href={
                                                 sub.service === "database" ? "/dashboard/databases" :

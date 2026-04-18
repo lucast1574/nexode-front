@@ -68,7 +68,7 @@ const SERVICES: Service[] = [
     {
         id: "database",
         title: "Database",
-        description: "Provision MySQL and PostgreSQL databases with zero setup — no manual setup, ready to query.",
+        description: "Provision PostgreSQL, MongoDB and Redis databases with zero setup — ready to query in seconds.",
         icon: Database,
         color: "bg-purple-500",
         highlights: ["14 days of metrics", "Expandable storage options", "Connect via private or public network"],

@@ -913,7 +913,7 @@ export default function DatabasesPage() {
 
                                 <div className="space-y-4">
                                     <label className="text-xs font-black uppercase tracking-widest text-zinc-500 px-1">Engine Type</label>
-                                    <div className="grid grid-cols-2 gap-4">
+                                    <div className="grid grid-cols-3 gap-4">
                                         {[
                                             {
                                                 id: 'postgres',
@@ -947,16 +947,7 @@ export default function DatabasesPage() {
                                                     </svg>
                                                 )
                                             },
-                                            {
-                                                id: 'mysql',
-                                                label: 'MySQL',
-                                                color: '#4479A1',
-                                                svg: (
-                                                    <svg viewBox="0 0 24 24" className="w-8 h-8">
-                                                        <path fill="#4479A1" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2Zm-1 14.5v-1.1c-.5-.1-.9-.2-1.2-.4-.3-.2-.5-.4-.6-.7-.1-.2-.2-.5-.2-.8h1.2c0 .2.1.4.2.5s.3.2.5.3.4.1.7.1c.3 0 .5-.1.7-.2.2-.1.3-.3.3-.5 0-.2-.1-.3-.2-.4-.1-.1-.3-.2-.6-.3l-.8-.2c-.4-.1-.7-.2-.9-.4-.2-.2-.4-.4-.5-.7-.1-.3-.1-.6-.1-1s.1-.7.3-1c.2-.3.5-.5.8-.7.3-.1.7-.2 1.1-.2v-1h.9v1.1c.4.1.8.2 1.1.4.3.2.5.4.6.7.1.2.2.5.2.8h-1.2c0-.2-.1-.4-.2-.5-.1-.1-.3-.2-.5-.3-.2 0-.4-.1-.6-.1-.3 0-.5.1-.7.2s-.3.3-.3.5c0 .2.1.3.2.4.1.1.3.2.6.3l.8.2c.4.1.7.2.9.4.2.2.4.4.5.7.1.3.1.6.1 1s-.1.7-.3 1-.5.5-.8.7-.7.2-1.1.2V16.5H11Z" />
-                                                    </svg>
-                                                )
-                                            },
+
                                         ].map((type) => (
                                             <label key={type.id} className="relative cursor-pointer group">
                                                 <input
