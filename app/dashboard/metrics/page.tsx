@@ -18,7 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/ui/breadcrumb";
-import { Spinner } from "@/components/ui/spinner";
+
 import { Empty, EmptyHeader, EmptyTitle, EmptyDescription } from "@/components/ui/empty";
 import { cn } from "@/lib/utils";
 import { getAccessToken } from "@/lib/auth-utils";
@@ -95,10 +95,10 @@ export default function MetricsPage() {
 
     if (loading) {
         return (
-            <div className="flex-1 flex items-center justify-center">
+            <div className="min-h-screen bg-background flex items-center justify-center">
                 <div className="flex flex-col items-center gap-6">
-                    <Spinner className="size-8" />
-                    <p className="text-muted-foreground text-sm animate-pulse">Loading Metrics...</p>
+                    <div className="size-8 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
+                    <p className="text-muted-foreground text-sm animate-pulse">Syncing Metrics...</p>
                 </div>
             </div>
         );
