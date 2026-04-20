@@ -25,9 +25,11 @@ export function proxy(request: NextRequest) {
         return NextResponse.redirect(loginUrl);
     }
 
-    // Landing page: redirect to dashboard if already logged in
-    if (pathname === "/" && isAuthenticated) {
-        return NextResponse.redirect(new URL("/dashboard", request.url));
+    // Root redirect logic:
+    // If authenticated, go to dashboard. If not, go to login.
+    if (pathname === "/") {
+        const target = isAuthenticated ? "/dashboard" : "/auth/login";
+        return NextResponse.redirect(new URL(target, request.url));
     }
 
     // Auth routes: redirect to dashboard if already logged in
