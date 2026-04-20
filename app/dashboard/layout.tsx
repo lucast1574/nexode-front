@@ -24,11 +24,23 @@ export interface Subscription {
     }
 }
 
+export interface DeployedInstance {
+    _id: string
+    name: string
+    type: string
+    status: string
+    service: 'database' | 'compute' | 'n8n'
+    created_on: string
+    domain?: string
+}
+
 interface DashboardContextType {
     user: DashboardUser | null
     subscriptions: Subscription[]
     loading: boolean
     refetch: () => Promise<void>
+    deployedCounts: Record<string, number>
+    deployedInstances: DeployedInstance[]
 }
 
 const DashboardContext = createContext<DashboardContextType>({
@@ -36,6 +48,8 @@ const DashboardContext = createContext<DashboardContextType>({
     subscriptions: [],
     loading: true,
     refetch: async () => {},
+    deployedCounts: {},
+    deployedInstances: [],
 })
 
 export const useDashboard = () => useContext(DashboardContext)
@@ -49,6 +63,8 @@ export default function DashboardLayout({
     const [statusMessage, setStatusMessage] = useState("Authenticating System...")
     const [subscriptions, setSubscriptions] = useState<Subscription[]>([])
     const [user, setUser] = useState<DashboardUser | null>(null)
+    const [deployedCounts, setDeployedCounts] = useState<Record<string, number>>({})
+    const [deployedInstances, setDeployedInstances] = useState<DeployedInstance[]>([])
     const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null)
     const router = useRouter()
 
@@ -130,6 +146,9 @@ export default function DashboardLayout({
                             features
                         }
                     }
+                    myDatabases { _id name type status created_on }
+                    myComputeInstances { _id name type status generated_domain created_on }
+                    n8nInstances { _id name status generated_domain created_on }
                 }
             `
 
@@ -163,6 +182,18 @@ export default function DashboardLayout({
                 }
 
                 setSubscriptions(sortedSubs)
+
+                const dbs: DeployedInstance[] = (result.data.myDatabases || []).map((d: any) => ({ ...d, service: 'database' as const }))
+                const computes: DeployedInstance[] = (result.data.myComputeInstances || []).map((c: any) => ({ ...c, service: 'compute' as const, domain: c.generated_domain }))
+                const n8ns: DeployedInstance[] = (result.data.n8nInstances || []).map((n: any) => ({ ...n, service: 'n8n' as const, domain: n.generated_domain }))
+                const allDeployed = [...dbs, ...computes, ...n8ns]
+
+                setDeployedInstances(allDeployed)
+                setDeployedCounts({
+                    database: dbs.length,
+                    compute: computes.length,
+                    n8n: n8ns.length,
+                })
                 setIsAuthorized(true)
             } else {
                 router.push("/auth/login")
@@ -196,7 +227,7 @@ export default function DashboardLayout({
     if (!isAuthorized) return null
 
     return (
-        <DashboardContext.Provider value={{ user, subscriptions, loading, refetch: fetchData }}>
+        <DashboardContext.Provider value={{ user, subscriptions, loading, refetch: fetchData, deployedCounts, deployedInstances }}>
             <SidebarProvider>
                 <AppSidebar />
                 <SidebarInset>

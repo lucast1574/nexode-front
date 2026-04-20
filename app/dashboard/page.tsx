@@ -27,7 +27,7 @@ import { cn } from "@/lib/utils"
 import { useDashboard } from "./layout"
 
 export default function DashboardPage() {
-    const { subscriptions } = useDashboard()
+    const { subscriptions, deployedInstances } = useDashboard()
 
     return (
         <>
@@ -55,102 +55,65 @@ export default function DashboardPage() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {subscriptions.map((sub) => {
-                        const isHighestTier =
-                            sub.plan.name.toLowerCase().includes("ultra") ||
-                            sub.plan.name.toLowerCase().includes("tier 4") ||
-                            (sub.service === "compute" && sub.plan.name.toLowerCase().includes("pro"))
-
-                        return (
-                            <Card key={sub.id} className={cn(
-                                "group relative transition-all duration-500 flex flex-col",
-                                sub.service === "n8n"
-                                    ? "bg-gradient-to-br from-primary/10 to-transparent border-primary/20 hover:bg-primary/15"
-                                    : sub.service === "compute"
-                                        ? "bg-gradient-to-br from-primary/10 to-transparent border-primary/20 hover:bg-primary/15"
-                                        : sub.service === "database"
-                                            ? "bg-gradient-to-br from-primary/10 to-transparent border-primary/20 hover:bg-primary/15"
-                                            : "bg-card border-border"
-                            )}>
-                                <Link
-                                    href={sub.service === "database" ? "/dashboard/databases" : sub.service === "n8n" ? "/dashboard/automations" : sub.service === "compute" ? "/dashboard/compute" : "#"}
-                                    className="flex-1"
-                                >
-                                    <CardHeader className="p-6 pb-0">
-                                        <div className="flex items-start justify-between mb-4">
-                                            <div className="p-3 bg-primary/10 text-primary">
-                                                {sub.service === "database" ? <Database className="size-6" /> :
-                                                    sub.service === "n8n" ? <Workflow className="size-6" /> :
-                                                        <Cpu className="size-6" />}
-                                            </div>
-                                            <div className="flex flex-col items-end gap-2">
-                                                <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
-                                                    {sub.status}
-                                                </Badge>
-                                            </div>
-                                        </div>
-                                        <CardTitle className="text-lg font-bold capitalize">{sub.service} {sub.service === 'n8n' ? 'Flow' : 'Cluster'}</CardTitle>
-                                        <CardDescription className="text-muted-foreground text-sm">{sub.plan.name} Instance</CardDescription>
-                                    </CardHeader>
-
-                                    <CardContent className="p-6 pt-4">
-                                        <div className="grid grid-cols-2 gap-3">
-                                            {Object.entries(sub.plan.features).slice(0, 4).map(([key, val]: [string, string]) => (
-                                                <div key={key} className="flex flex-col gap-1 bg-muted/50 p-2 border">
-                                                    <div className="text-xs text-muted-foreground font-medium">{key}</div>
-                                                    <div className="text-sm font-semibold">{val}</div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </CardContent>
-                                </Link>
-
-                                <CardFooter className="p-6 pt-0 flex flex-col gap-3">
-                                    <div className="flex items-center gap-3 w-full">
-                                        <Button render={<Link href={
-                                                    sub.service === "database" ? "/dashboard/databases" :
-                                                        sub.service === "n8n" ? "/dashboard/automations" :
-                                                            sub.service === "compute" ? "/dashboard/compute" : "#"
-                                                } />} nativeButton={false} className="flex-1 gap-2">
-                                                Open Console <ExternalLink className="size-4" />
-                                            </Button>
-                                        <Button variant="outline" size="icon" className="shrink-0">
-                                            <ChevronRight className="size-4" />
-                                        </Button>
+                    {deployedInstances.length === 0 ? (
+                        <div className="col-span-full">
+                            <Card className="border-dashed border-muted">
+                                <CardContent className="p-12 flex flex-col items-center justify-center text-center">
+                                    <div className="size-16 bg-muted rounded-full flex items-center justify-center mb-6">
+                                        <Plus className="size-8 text-muted-foreground" />
                                     </div>
-
-                                    {!isHighestTier && (
-                                        <Button variant="ghost" render={<Link href="/services" />} nativeButton={false} className="w-full gap-2 text-primary hover:bg-primary/10 hover:text-primary">
-                                            <Zap className="size-4" /> Upgrade Plan
-                                        </Button>
-                                    )}
-                                </CardFooter>
-                            </Card>
-                        )
-                    })}
-
-                    {(() => {
-                        const hasService = (id: string) => subscriptions.some(s => s.service === id)
-                        const missing = []
-                        if (!hasService('n8n')) missing.push({ id: 'n8n', title: 'n8n Automation' })
-                        if (!hasService('database')) missing.push({ id: 'database', title: 'Database Cluster' })
-                        if (!hasService('compute')) missing.push({ id: 'compute', title: 'Compute Instance' })
-
-                        return missing.map(svc => (
-                            <Card key={svc.id} className="relative group border border-dashed flex flex-col items-center justify-center text-center transition-all">
-                                <CardContent className="p-8 flex flex-col items-center">
-                                    <div className="size-12 bg-muted flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                                        <Plus className="size-6 text-muted-foreground" />
+                                    <h3 className="text-xl font-bold mb-2">No deployed clusters</h3>
+                                    <p className="text-muted-foreground max-w-sm mb-6">You have active subscriptions but no deployed instances yet. Go to a service console to deploy your first cluster.</p>
+                                    <div className="flex gap-3">
+                                        {subscriptions.some(s => s.service === 'database') && (
+                                            <Button render={<Link href="/dashboard/databases" />} nativeButton={false} variant="outline">Deploy Database</Button>
+                                        )}
+                                        {subscriptions.some(s => s.service === 'compute') && (
+                                            <Button render={<Link href="/dashboard/compute" />} nativeButton={false} variant="outline">Deploy Compute</Button>
+                                        )}
+                                        {subscriptions.some(s => s.service === 'n8n') && (
+                                            <Button render={<Link href="/dashboard/automations" />} nativeButton={false} variant="outline">Deploy n8n</Button>
+                                        )}
                                     </div>
-                                    <CardTitle className="text-lg font-bold mb-2">Add {svc.title}</CardTitle>
-                                    <CardDescription className="text-xs text-muted-foreground mb-6 max-w-[200px]">Provision this resource to expand your infrastructure.</CardDescription>
-<Button variant="outline" size="sm" render={<Link href="/services" />} nativeButton={false}>
-                                        Provision Now
-                                    </Button>
                                 </CardContent>
                             </Card>
-                        ))
-                    })()}
+                        </div>
+                    ) : (
+                        deployedInstances.map((inst) => {
+                            const href = inst.service === "database" ? "/dashboard/databases" : inst.service === "n8n" ? "/dashboard/automations" : "/dashboard/compute"
+                            return (
+                                <Link key={inst._id} href={href} className="block">
+                                    <Card className="group relative transition-all duration-500 flex flex-col bg-card border-border hover:bg-muted/50 hover:border-muted h-full">
+                                        <CardHeader className="p-6">
+                                            <div className="flex items-start justify-between mb-4">
+                                                <div className="p-3 bg-primary/10 text-primary">
+                                                    {inst.service === "database" ? <Database className="size-6" /> :
+                                                        inst.service === "n8n" ? <Workflow className="size-6" /> :
+                                                            <Cpu className="size-6" />}
+                                                </div>
+                                                <div className="flex flex-col items-end gap-2">
+                                                    <Badge variant="outline" className={cn(
+                                                        "text-xs font-medium",
+                                                        inst.status === 'running' ? "bg-primary/10 text-primary border-primary/20" :
+                                                            inst.status === 'provisioning' ? "bg-amber-500/10 text-amber-500 border-amber-500/20" :
+                                                                "bg-destructive/10 text-destructive border-destructive/20"
+                                                    )}>
+                                                        {inst.status}
+                                                    </Badge>
+                                                </div>
+                                            </div>
+                                            <CardTitle className="text-lg font-bold">{inst.name}</CardTitle>
+                                            <CardDescription className="text-muted-foreground text-sm">
+                                                <span className="capitalize">{inst.service}{inst.type ? ` · ${inst.type}` : ''}</span>
+                                                <span className="mx-2">·</span>
+                                                <span>{new Date(inst.created_on).toLocaleDateString()}</span>
+                                            </CardDescription>
+                                        </CardHeader>
+                                    </Card>
+                                </Link>
+                            )
+                        })
+                    )}
                 </div>
 
                 <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-6">
