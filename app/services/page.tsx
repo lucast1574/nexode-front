@@ -320,9 +320,10 @@ export default function ServicesPage() {
                                                     : "bg-muted border-border hover:border-border hover:bg-white/[0.05]"
                                             )}
                                         >
-                                            <button
+                                            <Button
+                                                variant="ghost"
                                                 onClick={() => handleSelectTier(service.id, tier.slug)}
-                                                className="w-full text-left grid grid-cols-12 items-center px-6 py-6"
+                                                className="w-full h-auto text-left grid grid-cols-12 items-center px-6 py-6 rounded-none hover:bg-transparent"
                                             >
                                                 <div className="col-span-4 md:col-span-3 flex items-center gap-3">
                                                     <div className={cn(
@@ -347,7 +348,7 @@ export default function ServicesPage() {
                                                 <div className="col-span-4 md:col-span-3 text-right">
                                                     <span className="text-2xl font-bold text-white">${tier.price} <span className="text-sm font-normal text-zinc-500">/m</span></span>
                                                 </div>
-                                            </button>
+                                            </Button>
                                         </Card>
                                     );
                                 })}
@@ -383,7 +384,7 @@ export default function ServicesPage() {
                                 </Button>
                                 <Button
                                     size="lg"
-                                    className="rounded-lg h-14 px-10 gap-2 text-lg font-bold shadow-xl shadow-primary/20 flex-1 sm:flex-none"
+                                    className="rounded-lg h-14 px-10 gap-2 text-lg font-bold flex-1 sm:flex-none"
                                     onClick={handleCheckout}
                                 >
                                     Deploy Now <ArrowRight className="w-5 h-5" />
