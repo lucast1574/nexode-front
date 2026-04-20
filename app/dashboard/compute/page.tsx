@@ -5,7 +5,6 @@ import { NotificationBell } from "@/components/NotificationBell";
 import { useSearchParams, useRouter } from "next/navigation";
 import {
     Cpu,
-    Rocket,
     Shield,
     Plus,
     Search,
@@ -18,7 +17,6 @@ import {
     RefreshCw,
     ExternalLink,
     Code,
-    ChevronRight,
     Server,
     Terminal,
     FileText,
@@ -32,12 +30,11 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/ui/breadcrumb";
-import { Subscription } from "@/app/dashboard/layout";
+import { Subscription, useDashboard } from "@/app/dashboard/layout";
 import { cn } from "@/lib/utils";
 import { getAccessToken } from "@/lib/auth-utils";
 import { useModal } from "@/components/ui/modal";
@@ -106,6 +103,7 @@ function ComputePageContent() {
     const [liveDeployStatus, setLiveDeployStatus] = useState<string | null>(null);
     const [restarting, setRestarting] = useState<boolean>(false);
     const [cooldown, setCooldown] = useState<number>(0);
+    const { refetch: refetchGlobal } = useDashboard();
     const { showAlert, showConfirm } = useModal();
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -169,6 +167,20 @@ function ComputePageContent() {
         }
     }, []);
 
+    const computeSubscriptions = subscriptions.filter(s => s.service === 'compute');
+    const computeUsedSlots = instances.length;
+    const computeTotalSlots = computeSubscriptions.length;
+    const canCreateCompute = isSuperuser || computeUsedSlots < computeTotalSlots;
+
+    const handleCreateClick = useCallback(() => {
+        if (canCreateCompute) {
+            setShowCreateModal(true);
+        } else {
+            setShowLimitModal(true);
+        }
+    }, [canCreateCompute]);
+
+    // useEffects that depend on handleCreateClick should come after this
     useEffect(() => {
         const githubStatus = searchParams.get('github');
         const gitlabStatus = searchParams.get('gitlab');
@@ -195,24 +207,9 @@ function ComputePageContent() {
 
             router.replace('/dashboard/compute');
         }
-    }, [searchParams, showAlert, fetchInstances, router]);
+    }, [searchParams, showAlert, fetchInstances, router, handleCreateClick]);
 
-    useEffect(() => {
-        fetchInstances();
-    }, [fetchInstances]);
 
-    const computeSubscriptions = subscriptions.filter(s => s.service === 'compute');
-    const computeUsedSlots = instances.length;
-    const computeTotalSlots = computeSubscriptions.length;
-    const canCreateCompute = isSuperuser || computeUsedSlots < computeTotalSlots;
-
-    const handleCreateClick = () => {
-        if (canCreateCompute) {
-            setShowCreateModal(true);
-        } else {
-            setShowLimitModal(true);
-        }
-    };
 
     useEffect(() => {
         const isDeploying = instances.some(i => i.status.toLowerCase() === 'provisioning' || i.status.toLowerCase() === 'restarting');
@@ -255,7 +252,7 @@ function ComputePageContent() {
         checkStatus();
         const interval = setInterval(checkStatus, 8000);
         return () => { cancelled = true; clearInterval(interval); };
-    }, [selectedInstance?._id, selectedInstance?.status]);
+    }, [selectedInstance?._id, selectedInstance?.status, liveDeployStatus, fetchInstances]);
 
     useEffect(() => {
         setTerminalLogs([...INITIAL_TERMINAL_LOGS]);
@@ -426,7 +423,8 @@ function ComputePageContent() {
                     if (result.data?.deleteComputeInstance) {
                         setInstances(prev => prev.filter(i => i._id !== id));
                         setSelectedInstance(null);
-                        fetchInstances();
+                        await fetchInstances();
+                        refetchGlobal();
                     }
                 } catch (error) { console.error(error); }
             }
@@ -1043,7 +1041,7 @@ function ComputePageContent() {
                                                                         } else if (result.errors) {
                                                                             toast.error(result.errors[0]?.message || 'Failed to update domain');
                                                                         }
-                                                                    } catch (err) {
+                                                                    } catch {
                                                                         toast.error('Failed to update domain');
                                                                     }
                                                                 }} className="flex gap-4">
@@ -1094,7 +1092,10 @@ function ComputePageContent() {
             <ProvisionNodeModal 
                 isOpen={showCreateModal}
                 onClose={() => setShowCreateModal(false)}
-                onSuccess={fetchInstances}
+                onSuccess={() => {
+                    fetchInstances();
+                    refetchGlobal();
+                }}
                 user={user}
                 subscriptions={subscriptions}
                 initialProvider={initialProvider}

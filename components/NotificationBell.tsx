@@ -192,9 +192,9 @@ export function NotificationBell() {
                             isOpen && "bg-muted"
                         )}
                     >
-                        <Bell className={cn("size-4 transition-all", unviewedCount > 0 ? "text-primary animate-pulse" : "text-muted-foreground")} />
+                        <Bell className={cn("size-4 transition-all", unviewedCount > 0 ? "text-red-500 animate-pulse" : "text-muted-foreground")} />
                         {unviewedCount > 0 && (
-                            <span className="absolute -top-1 -right-1 px-1 py-0.5 min-w-[16px] h-[16px] bg-primary text-primary-foreground text-[10px] font-bold rounded-full flex items-center justify-center">
+                            <span className="absolute -top-1 -right-1 px-1 py-0.5 min-w-[16px] h-[16px] bg-red-600 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
                                 {unviewedCount > 9 ? "9+" : unviewedCount}
                             </span>
                         )}

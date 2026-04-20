@@ -19,7 +19,7 @@ import {
     EyeOff
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
+import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
@@ -30,7 +30,7 @@ import { Field, FieldLabel, FieldGroup, FieldSet, FieldLegend } from "@/componen
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/ui/breadcrumb";
-import { Subscription } from "@/app/dashboard/layout";
+import { Subscription, useDashboard } from "@/app/dashboard/layout";
 import { cn } from "@/lib/utils";
 import { getAccessToken } from "@/lib/auth-utils";
 import { DeleteDatabaseModal } from "@/components/modals/DeleteDatabaseModal";
@@ -63,6 +63,38 @@ const INITIAL_TERMINAL_LOGS: { type: 'input' | 'output' | 'error', text: string 
     { type: 'output', text: 'Connected to isolated cluster. Type "help" to see available commands.' }
 ];
 
+const getTypeColors = (type?: string) => {
+    switch (type) {
+        case 'mongodb':
+            return {
+                text: 'text-emerald-500',
+                textLight: 'text-emerald-400',
+                bg: 'bg-emerald-500/10',
+                bgDirect: 'bg-emerald-500',
+                border: 'border-emerald-500/20',
+                hoverText: 'group-hover:text-emerald-500'
+            };
+        case 'redis':
+            return {
+                text: 'text-red-500',
+                textLight: 'text-red-400',
+                bg: 'bg-red-500/10',
+                bgDirect: 'bg-red-500',
+                border: 'border-red-500/20',
+                hoverText: 'group-hover:text-red-500'
+            };
+        default: // postgres
+            return {
+                text: 'text-blue-500',
+                textLight: 'text-blue-400',
+                bg: 'bg-blue-500/10',
+                bgDirect: 'bg-blue-500',
+                border: 'border-blue-500/20',
+                hoverText: 'group-hover:text-blue-500'
+            };
+    }
+};
+
 export default function DatabasesPage() {
     const id = useId();
     const [loading, setLoading] = useState(true);
@@ -80,6 +112,7 @@ export default function DatabasesPage() {
 
     const [terminalLogs, setTerminalLogs] = useState<{ type: 'input' | 'output' | 'error', text: string }[]>(INITIAL_TERMINAL_LOGS);
     const [isExecuting, setIsExecuting] = useState(false);
+    const { refetch: refetchGlobal } = useDashboard();
     const { showAlert } = useModal();
     const createLock = useActionLock(5000);
     const restartLock = useActionLock(5000);
@@ -261,7 +294,8 @@ export default function DatabasesPage() {
             if (result.data?.createDatabase) {
                 setShowCreateModal(false);
                 setTerminalLogs([...INITIAL_TERMINAL_LOGS]);
-                fetchDatabases();
+                await fetchDatabases();
+                refetchGlobal();
             } else if (result.errors) {
                 const mainError = result.errors[0];
                 const msg = mainError?.message || "An unexpected error occurred.";
@@ -383,7 +417,8 @@ export default function DatabasesPage() {
                 }
                 setShowDeleteModal(false);
                 setDbToDelete(null);
-                fetchDatabases();
+                await fetchDatabases();
+                refetchGlobal();
             } else {
                 showAlert({
                     title: "Deletion Failed",
@@ -472,12 +507,12 @@ export default function DatabasesPage() {
                     </Breadcrumb>
                     <div className="flex-1" />
                     <div className="mr-2"><NotificationBell /></div>
-                    <Button onClick={handleCreateClick} className="gap-2">
+                    <Button onClick={handleCreateClick} className="gap-2 bg-blue-600 hover:bg-blue-700 text-white border-none shadow-lg shadow-blue-900/20">
                         <Plus className="size-4" /> New Instance
                     </Button>
                 </header>
 
-                <div className="flex-1 flex overflow-hidden">
+                <div className="flex-1 flex overflow-hidden min-w-0">
                     <div className="w-80 border-r border-border bg-black/20 flex flex-col">
                         <div className="p-4 border-b border-border">
                             <div className="flex items-center gap-3">
@@ -504,9 +539,9 @@ export default function DatabasesPage() {
                                             setTerminalLogs([...INITIAL_TERMINAL_LOGS]);
                                         }}
                                         className={cn(
-                                            "w-full text-left p-4  border transition-all group",
+                                            "w-full text-left p-4 border transition-all group",
                                             selectedDb?._id === db._id
-                                                ? "bg-primary/10 border-primary/20"
+                                                ? `${getTypeColors(db.type).bg} ${getTypeColors(db.type).border}`
                                                 : "bg-card border-border hover:bg-muted"
                                         )}
                                     >
@@ -519,11 +554,11 @@ export default function DatabasesPage() {
                                             </div>
                                             <div className={cn(
                                                 "w-2 h-2 rounded-full",
-                                                db.status === 'running' ? 'bg-emerald-500 ' :
+                                                db.status === 'running' ? getTypeColors(db.type).bgDirect :
                                                     db.status === 'provisioning' ? 'bg-amber-500 animate-pulse' : 'bg-red-500'
                                             )} />
                                         </div>
-                                        <div className="font-bold text-sm truncate group-hover:text-primary transition-colors">{db.name}</div>
+                                        <div className={cn("font-bold text-sm truncate transition-colors", getTypeColors(db.type).hoverText)}>{db.name}</div>
                                         <div className="text-xs text-muted-foreground mt-1">
                                             Created {new Date(db.created_on).toLocaleDateString()}
                                         </div>
@@ -533,7 +568,7 @@ export default function DatabasesPage() {
                         </div>
                     </div>
 
-<div className="flex-1 flex flex-col bg-background">
+                    <div className="flex-1 flex flex-col bg-background min-w-0">
                         {selectedDb ? (
                             <>
                                 <div className="p-8 border-b border-border shrink-0">
@@ -543,7 +578,7 @@ export default function DatabasesPage() {
                                                 <h1 className="text-3xl font-bold tracking-tight">{selectedDb.name}</h1>
                                                 <Badge variant="outline" className={cn(
                                                     "text-xs font-medium",
-                                                    selectedDb.status === 'running' ? "bg-primary/10 text-primary border-emerald-500/20" :
+                                                    selectedDb.status === 'running' ? `${getTypeColors(selectedDb.type).bg} ${getTypeColors(selectedDb.type).text} ${getTypeColors(selectedDb.type).border}` :
                                                         "bg-amber-500/10 text-amber-500 border-amber-500/20"
                                                 )}>
                                                     ● {selectedDb.status}
@@ -592,31 +627,20 @@ export default function DatabasesPage() {
                                                         <div className="text-muted-foreground text-xs mb-4">Core Technology</div>
                                                         <div className="flex items-center gap-3">
                                                             <div className={cn(
-                                                                "w-10 h-10  flex items-center justify-center border",
-                                                                selectedDb.type === 'mongodb' ? 'bg-primary/10 border-emerald-500/20' :
-                                                                    selectedDb.type === 'postgres' ? 'bg-primary/10 border-primary/20' :
-                                                                        selectedDb.type === 'redis' ? 'bg-destructive/10 border-destructive/20' :
-                                                                            selectedDb.type === 'mysql' ? 'bg-blue-600/10 border-blue-600/20' :
-                                                                                'bg-primary/10 border-primary/20'
+                                                                "w-10 h-10 flex items-center justify-center border",
+                                                                getTypeColors(selectedDb.type).bg,
+                                                                getTypeColors(selectedDb.type).border
                                                             )}>
-                                                                <Database className={cn(
-                                                                    "size-5",
-                                                                    selectedDb.type === 'mongodb' ? 'text-primary' :
-                                                                        selectedDb.type === 'postgres' ? 'text-primary' :
-                                                                            selectedDb.type === 'redis' ? 'text-destructive' :
-                                                                                selectedDb.type === 'mysql' ? 'text-primary' : 'text-primary'
-                                                                )} />
+                                                                <Database className={cn("size-5", getTypeColors(selectedDb.type).text)} />
                                                             </div>
                                                             <div>
                                                                 <div className="font-bold leading-tight">{selectedDb.type === 'postgres' ? 'PostgreSQL' :
                                                                     selectedDb.type === 'mongodb' ? 'MongoDB' :
-                                                                        selectedDb.type === 'redis' ? 'Redis' :
-                                                                            selectedDb.type === 'mysql' ? 'MySQL' : selectedDb.type} Enterprise</div>
+                                                                        selectedDb.type === 'redis' ? 'Redis' : selectedDb.type} Enterprise</div>
                                                                 <div className="text-xs text-muted-foreground font-medium">
                                                                     {selectedDb.type === 'postgres' ? 'v16.2 Stable' :
                                                                         selectedDb.type === 'mongodb' ? 'v6.0 Latest' :
-                                                                            selectedDb.type === 'redis' ? 'v7.2 stable' :
-                                                                                selectedDb.type === 'mysql' ? 'v8.0 Stable' : 'Latest'}
+                                                                            selectedDb.type === 'redis' ? 'v7.2 stable' : 'Latest'}
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -626,8 +650,8 @@ export default function DatabasesPage() {
                                                     <CardContent className="p-6">
                                                         <div className="text-muted-foreground text-xs mb-4">Availability Zone</div>
                                                         <div className="flex items-center gap-3">
-                                                            <div className="w-10 h-10 bg-primary/10 flex items-center justify-center border border-primary/20">
-                                                                <Shield className="size-5 text-primary" />
+                                                            <div className={cn("w-10 h-10 flex items-center justify-center border", getTypeColors(selectedDb.type).bg, getTypeColors(selectedDb.type).border)}>
+                                                                <Shield className={cn("size-5", getTypeColors(selectedDb.type).text)} />
                                                             </div>
                                                             <div>
                                                                 <div className="font-bold">US-East (Virginia)</div>
@@ -640,11 +664,11 @@ export default function DatabasesPage() {
                                                     <CardContent className="p-6">
                                                         <div className="text-muted-foreground text-xs mb-4">Instance Health</div>
                                                         <div className="flex items-center gap-3">
-                                                            <div className="w-10 h-10 bg-primary/10 flex items-center justify-center border border-emerald-500/20">
-                                                                <Activity className="size-5 text-primary" />
+                                                            <div className={cn("w-10 h-10 flex items-center justify-center border", getTypeColors(selectedDb.type).bg, getTypeColors(selectedDb.type).border)}>
+                                                                <Activity className={cn("size-5", getTypeColors(selectedDb.type).text)} />
                                                             </div>
                                                             <div>
-                                                                <div className="font-bold text-primary">Optimal</div>
+                                                                <div className={cn("font-bold", getTypeColors(selectedDb.type).text)}>Optimal</div>
                                                                 <div className="text-xs text-muted-foreground">Monitored</div>
                                                             </div>
                                                         </div>
@@ -656,10 +680,10 @@ export default function DatabasesPage() {
                                                 <CardContent className="p-8">
                                                     <h3 className="text-lg font-bold mb-6">Connection Endpoints</h3>
                                                     <div className="flex flex-col gap-4">
-                                                        <div className="p-4 bg-background border border-border flex items-center justify-between">
+                                                        <div className="p-4 bg-background border border-border flex items-center justify-between min-w-0">
                                                             <div className="flex-1 overflow-hidden">
                                                                 <div className="text-xs text-muted-foreground mb-1">Public Connection URI</div>
-                                                                <code className="text-sm text-primary truncate block">{selectedDb.public_uri || selectedDb.connection_string || 'provisioning...'}</code>
+                                                                <code className={cn("text-sm truncate block w-full", getTypeColors(selectedDb.type).textLight)}>{selectedDb.public_uri || selectedDb.connection_string || 'provisioning...'}</code>
                                                             </div>
                                                             <Button
                                                                 variant="ghost"
@@ -667,14 +691,14 @@ export default function DatabasesPage() {
                                                                 className="shrink-0"
                                                                 onClick={() => handleCopy(selectedDb.public_uri || selectedDb.connection_string || '', 'uri')}
                                                             >
-                                                                {copiedField === 'uri' ? <Check className="size-4 text-primary" /> : <Copy className="size-4" />}
+                                                                {copiedField === 'uri' ? <Check className={cn("size-4", getTypeColors(selectedDb.type).text)} /> : <Copy className="size-4" />}
                                                             </Button>
                                                         </div>
 
-                                                        <div className="p-4 bg-background border border-border flex items-center justify-between">
+                                                        <div className="p-4 bg-background border border-border flex items-center justify-between min-w-0">
                                                             <div className="flex-1 overflow-hidden">
                                                                 <div className="text-xs text-muted-foreground mb-1">Internal Connection URI</div>
-                                                                <code className="text-sm text-primary truncate block">{selectedDb.internal_uri || 'provisioning...'}</code>
+                                                                <code className={cn("text-sm truncate block w-full", getTypeColors(selectedDb.type).textLight)}>{selectedDb.internal_uri || 'provisioning...'}</code>
                                                             </div>
                                                             <Button
                                                                 variant="ghost"
@@ -682,7 +706,7 @@ export default function DatabasesPage() {
                                                                 className="shrink-0"
                                                                 onClick={() => handleCopy(selectedDb.internal_uri || '', 'internal_uri')}
                                                             >
-                                                                {copiedField === 'internal_uri' ? <Check className="size-4 text-primary" /> : <Copy className="size-4" />}
+                                                                {copiedField === 'internal_uri' ? <Check className={cn("size-4", getTypeColors(selectedDb.type).text)} /> : <Copy className="size-4" />}
                                                             </Button>
                                                         </div>
 
@@ -730,8 +754,8 @@ export default function DatabasesPage() {
                                                                         <div className="flex items-center justify-between mb-1">
                                                                             <p className={cn(
                                                                                 "text-sm font-bold",
-                                                                                event.type === 'error' ? 'text-destructive' :
-                                                                                    event.type === 'success' ? 'text-primary' : 'text-foreground'
+                                                                                event.type === 'success' ? getTypeColors(selectedDb.type).text :
+                                                                                    event.type === 'primary' ? getTypeColors(selectedDb.type).text : 'text-foreground'
                                                                             )}>
                                                                                 {event.message}
                                                                             </p>
@@ -769,8 +793,7 @@ export default function DatabasesPage() {
                                                     {
                                                         label: selectedDb.type === 'mongodb' ? 'Public Connection URI (Compass/Shell)' :
                                                             selectedDb.type === 'postgres' ? 'Standard URI (DataGrip/DBeaver/psql)' :
-                                                                selectedDb.type === 'redis' ? 'Public Redis URL (RedisInsight/cli)' :
-                                                                    selectedDb.type === 'mysql' ? 'Standard URI (Workbench/HeidiSQL/mysql)' : 'Public Connection URI',
+                                                                selectedDb.type === 'redis' ? 'Public Redis URL (RedisInsight/cli)' : 'Public Connection URI',
                                                         value: selectedDb.public_uri,
                                                         field: 'public', secret: true
                                                     },
@@ -784,11 +807,6 @@ export default function DatabasesPage() {
                                                         label: 'JDBC Connection String (DataGrip)',
                                                         value: `jdbc:redis://${selectedDb.host || 'backend.nexode.app'}:${selectedDb.port || 6379}/0`,
                                                         field: 'jdbc_redis', secret: true
-                                                    }] : []),
-                                                    ...(selectedDb.type === 'mysql' ? [{
-                                                        label: 'JDBC Connection String (DataGrip)',
-                                                        value: `jdbc:mysql://${selectedDb.host || 'backend.nexode.app'}:${selectedDb.port || 3306}/${selectedDb.db_name}`,
-                                                        field: 'jdbc_mysql', secret: true
                                                     }] : [])
                                                 ].map((item: { label: string, value: string | undefined, field: string, secret?: boolean }) => (
                                                     <Card key={item.field} className="bg-card border-border hover:border-primary/20 transition-all group">
@@ -896,7 +914,7 @@ export default function DatabasesPage() {
                                 <Database className="size-16 text-muted-foreground mb-6" />
                                 <h1 className="text-2xl font-bold mb-2">No active databases found</h1>
                                 <p className="text-muted-foreground max-w-xs mx-auto mb-6">Create one to get started.</p>
-                                <Button onClick={handleCreateClick} className="gap-2">
+                                <Button onClick={handleCreateClick} className="gap-2 bg-blue-600 hover:bg-blue-700 text-white border-none shadow-lg shadow-blue-900/20">
                                     <Plus className="size-4" /> Provision Database
                                 </Button>
                             </div>
@@ -967,7 +985,7 @@ export default function DatabasesPage() {
 
                             <Button
                                 type="submit"
-                                className="w-full h-12"
+                                className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white border-none shadow-lg shadow-blue-900/20"
                             >
                                 Provision Now
                             </Button>

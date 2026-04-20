@@ -2,16 +2,15 @@
 
 import React, { useEffect, useState, useCallback } from "react";
 import { NotificationBell } from "@/components/NotificationBell";
-import { Workflow, Zap, Activity, Trash2, RefreshCw, ExternalLink, Search, Plus, Globe, Settings, Shield, Copy, Check, Terminal, Key } from "lucide-react";
+import { Workflow, Activity, Trash2, RefreshCw, ExternalLink, Search, Plus, Settings, Shield, Copy, Check } from "lucide-react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Label } from "@/components/ui/label";
-import { Subscription } from "@/app/dashboard/layout";
+import { Subscription, useDashboard } from "@/app/dashboard/layout";
 import { cn } from "@/lib/utils";
 import { getAccessToken } from "@/lib/auth-utils";
 import { useModal } from "@/components/ui/modal";
@@ -36,7 +35,7 @@ export default function AutomationsPage() {
 
     const [loading, setLoading] = useState(true);
     const [instances, setInstances] = useState<N8nInstance[]>([]);
-    const [user, setUser] = useState<{ first_name: string, email: string, avatar?: string } | null>(null);
+    const [, setUser] = useState<{ first_name: string, email: string, avatar?: string } | null>(null);
     const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
     const [selectedInstance, setSelectedInstance] = useState<N8nInstance | null>(null);
     const [showCreateModal, setShowCreateModal] = useState(false);
@@ -47,6 +46,7 @@ export default function AutomationsPage() {
     const [dnsMessage, setDnsMessage] = useState<string>('');
     const [restarting, setRestarting] = useState<boolean>(false);
     const [cooldown, setCooldown] = useState<number>(0);
+    const { refetch: refetchGlobal } = useDashboard();
 
     
     const { showConfirm } = useModal();
@@ -172,7 +172,7 @@ export default function AutomationsPage() {
                     setDnsStatus('failed');
                     setDnsMessage('Domain could not be resolved. DNS propagation may still be in progress.');
                 }
-            } catch (err: unknown) {
+            } catch {
                 setDnsStatus('failed');
                 setDnsMessage('DNS verification temporarily unavailable.');
             }
@@ -195,7 +195,8 @@ export default function AutomationsPage() {
                 headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
                 body: JSON.stringify({ query: mutation, variables: { id } }),
             });
-            fetchInstances();
+            await fetchInstances();
+            refetchGlobal();
         } catch (error) { console.error(error); }
     };
 
@@ -228,17 +229,18 @@ export default function AutomationsPage() {
                     if (result.data?.deleteN8n) {
                         setInstances(prev => prev.filter(i => i._id !== id));
                         setSelectedInstance(null);
-                        fetchInstances();
+                        await fetchInstances();
+                        refetchGlobal();
                     }
                 } catch (error) { console.error(error); }
             }
         });
     };
 
-    const n8nSub = subscriptions.find(s => s.service === 'n8n');
-    let subLimit = 1;
-    if (n8nSub?.plan?.slug === 'n8n-ultra') subLimit = 3;
-    else if (n8nSub?.plan?.slug === 'n8n-pro') subLimit = 2;
+    // const n8nSub = subscriptions.find(s => s.service === 'n8n');
+    // let subLimit = 1;
+    // if (n8nSub?.plan?.slug === 'n8n-ultra') subLimit = 3;
+    // else if (n8nSub?.plan?.slug === 'n8n-pro') subLimit = 2;
 
     if (loading) {
         return (
@@ -265,7 +267,7 @@ export default function AutomationsPage() {
                     </Breadcrumb>
                     <div className="flex-1" />
                     <div className="mr-2"><NotificationBell /></div>
-                    <Button onClick={handleCreateClick} className="gap-2">
+                    <Button onClick={handleCreateClick} className="gap-2 bg-red-600 hover:bg-red-700 text-white border-none shadow-lg shadow-red-900/20">
                         <Plus className="size-4" /> Provision n8n
                     </Button>
                 </header>
@@ -593,7 +595,7 @@ export default function AutomationsPage() {
                                 <Workflow className="size-16 text-muted-foreground mb-6" />
                                 <h1 className="text-2xl font-bold mb-2">No active clusters found</h1>
                                 <p className="text-muted-foreground max-w-xs mx-auto mb-6">Create one to get started.</p>
-                                <Button onClick={handleCreateClick} className="gap-2">
+                                <Button onClick={handleCreateClick} className="gap-2 bg-red-600 hover:bg-red-700 text-white border-none shadow-lg shadow-red-900/20">
                                     <Plus className="size-4" /> Provision n8n
                                 </Button>
                             </div>
@@ -604,7 +606,10 @@ export default function AutomationsPage() {
                 <ProvisionN8nModal 
                     isOpen={showCreateModal}
                     onClose={() => setShowCreateModal(false)}
-                    onSuccess={fetchInstances}
+                    onSuccess={() => {
+                        fetchInstances();
+                        refetchGlobal();
+                    }}
                     subscriptions={subscriptions}
                 />
                 <SubscriptionLimitModal
