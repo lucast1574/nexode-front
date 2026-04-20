@@ -73,8 +73,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" render={<Link href="/" />}>
-              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+            <SidebarMenuButton size="lg" render={<Link href="/" />} className="focus-visible:ring-0 focus:ring-0">
+              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-black text-white">
                 <span className="text-sm font-semibold">N</span>
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
