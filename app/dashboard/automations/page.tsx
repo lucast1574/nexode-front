@@ -240,7 +240,7 @@ export default function AutomationsPage() {
         return (
             <div className="min-h-screen bg-background flex items-center justify-center">
                 <div className="flex flex-col items-center gap-6">
-                    <div className="size-16 border-4 border-destructive/20 border-t-red-500  animate-spin" />
+                    <div className="size-8 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
                     <p className="text-muted-foreground font-bold tracking-widest uppercase text-xs animate-pulse">Syncing Automations...</p>
                 </div>
             </div>
@@ -377,7 +377,7 @@ export default function AutomationsPage() {
                                                                 <code className="text-lg font-black text-foreground">{getN8nUrl(selectedInstance.generated_domain || '')}</code>
                                                             ) : (
                                                                 <div className="flex items-center gap-3">
-                                                                    <div className="size-4 border-2 border-red-500/30 border-t-red-500  animate-spin" />
+                                                                    <div className="size-4 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
                                                                     <span className="text-sm font-bold text-muted-foreground">Deploying... URL will appear when ready</span>
                                                                 </div>
                                                             )}

@@ -445,7 +445,7 @@ export default function DatabasesPage() {
         return (
             <div className="min-h-screen bg-background flex items-center justify-center">
                 <div className="flex flex-col items-center gap-6">
-                    <div className="w-16 h-16 border-4 border-primary/20 border-t-primary animate-spin" />
+                    <div className="size-8 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
                     <p className="text-muted-foreground font-bold tracking-widest uppercase text-xs animate-pulse">Syncing Database Clusters...</p>
                 </div>
             </div>
@@ -478,7 +478,7 @@ export default function DatabasesPage() {
                                 <Input
                                     type="text"
                                     placeholder="Search clusters..."
-                                    className="bg-white/5 border-border text-xs h-8"
+                                    className="bg-muted border-border text-xs h-8"
                                 />
                             </div>
                         </div>
@@ -714,7 +714,7 @@ export default function DatabasesPage() {
                                                             <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Real-time Logs</span>
                                                         </div>
                                                         <div className="space-y-6 relative ml-2">
-                                                            <div className="absolute left-[7px] top-2 bottom-2 w-0.5 bg-white/5" />
+                                                            <div className="absolute left-[7px] top-2 bottom-2 w-0.5 bg-muted" />
                                                             {selectedDb.events.map((event, idx) => (
                                                                 <div key={idx} className="flex gap-6 relative">
                                                                     <div className={cn(
@@ -843,7 +843,7 @@ export default function DatabasesPage() {
                                                 {terminalLogs.map((log, i) => (
                                                     <div key={i} className={cn(
                                                         "break-all whitespace-pre-wrap",
-                                                        log.type === 'input' ? "text-white flex gap-2" :
+                                                        log.type === 'input' ? "text-foreground flex gap-2" :
                                                             log.type === 'error' ? "text-destructive" : "text-primary/80"
                                                     )}>
                                                         {log.type === 'input' && <span className="text-primary shrink-0">➜</span>}
@@ -868,7 +868,7 @@ export default function DatabasesPage() {
                                                                 selectedDb.type === 'postgres' || selectedDb.type === 'mysql' ? "Enter SQL query (e.g. SELECT version())" :
                                                                     "Enter Redis command (e.g. INFO)"
                                                         }
-                                                        className="flex-1 bg-transparent border-none outline-none text-sm font-mono text-white placeholder:text-muted-foreground"
+                                                        className="flex-1 bg-transparent border-none outline-none text-sm font-mono text-foreground placeholder:text-muted-foreground"
                                                     />
                                                     <Button
                                                         type="submit"
@@ -901,7 +901,7 @@ export default function DatabasesPage() {
 
             {showCreateModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-muted/80 backdrop-blur-md animate-in fade-in duration-300">
-                    <div className="w-full max-w-md bg-[#0A0A0A] border border-border  p-8 shadow-2xl relative">
+                    <div className="w-full max-w-md bg-card border border-border  p-8 shadow-2xl relative">
                         <h2 className="text-2xl font-black mb-6">Provision New Database</h2>
                         <form onSubmit={handleCreateDb} className="space-y-6">
                             <div className="space-y-2">
@@ -911,7 +911,7 @@ export default function DatabasesPage() {
                                     required
                                     type="text"
                                     placeholder="e.g. Production Cluster"
-                                    className="bg-white/5 border-border  h-12 text-sm focus:border-primary"
+                                    className="bg-muted border-border  h-12 text-sm focus:border-primary"
                                 />
                             </div>
 
@@ -971,11 +971,11 @@ export default function DatabasesPage() {
                                                         {type.svg}
                                                     </div>
                                                 </div>
-                                                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground peer-checked:text-white transition-colors">{type.label}</span>
+                                                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground peer-checked:text-foreground transition-colors">{type.label}</span>
 
                                                 <div className="absolute top-2 right-2 opacity-0 peer-checked:opacity-100 transition-opacity">
                                                     <div className="size-4 rounded-full bg-primary flex items-center justify-center">
-                                                        <Check className="w-2.5 h-2.5 text-white" />
+                                                        <Check className="w-2.5 h-2.5 text-foreground" />
                                                     </div>
                                                 </div>
                                             </div>

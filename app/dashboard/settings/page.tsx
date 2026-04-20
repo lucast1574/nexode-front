@@ -226,7 +226,7 @@ export default function SettingsPage() {
         return (
             <div className="flex-1 flex items-center justify-center">
                 <div className="flex flex-col items-center gap-6">
-                    <div className="size-16 border-4 border-primary/20 border-t-primary animate-spin" />
+                    <div className="size-8 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
                     <p className="text-muted-foreground font-bold tracking-widest uppercase text-xs animate-pulse">Loading Settings...</p>
                 </div>
             </div>
@@ -292,7 +292,7 @@ export default function SettingsPage() {
                                     />
                                     {isTogglingNotifications && (
                                         <div className="absolute -bottom-1 -right-1 size-5 bg-background border border-border flex items-center justify-center">
-                                            <div className="size-3 border-2 border-primary/20 border-t-primary animate-spin" />
+                                            <div className="size-4 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
                                         </div>
                                     )}
                                 </div>

@@ -93,7 +93,7 @@ export default function MetricsPage() {
         return (
             <div className="flex-1 flex items-center justify-center">
                 <div className="flex flex-col items-center gap-6">
-                    <div className="w-16 h-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
+                    <div className="size-8 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
                     <p className="text-muted-foreground font-bold tracking-widest uppercase text-xs animate-pulse">Loading Metrics...</p>
                 </div>
             </div>

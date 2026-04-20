@@ -51,7 +51,7 @@ export function UserNav() {
             <button
                 id="btn-user-menu"
                 onClick={() => setIsOpen(!isOpen)}
-                className="flex items-center justify-center w-10 h-10 rounded-full border border-white/10 overflow-hidden hover:border-primary/50 transition-all focus:outline-none bg-zinc-900 group"
+                className="flex items-center justify-center w-10 h-10 rounded-full border border-border overflow-hidden hover:border-primary/50 transition-all focus:outline-none bg-card group"
             >
                 {hasAvatar ? (
                     <div className="relative w-full h-full">
@@ -63,19 +63,19 @@ export function UserNav() {
                         />
                     </div>
                 ) : (
-                    <span className="text-sm font-bold text-zinc-400 group-hover:text-primary transition-colors">
+                    <span className="text-sm font-bold text-muted-foreground group-hover:text-primary transition-colors">
                         {initials || <UserIcon className="w-5 h-5" />}
                     </span>
                 )}
             </button>
 
             {isOpen && (
-                <div className="absolute right-0 mt-3 w-56 rounded-2xl bg-zinc-900 border border-white/10 shadow-2xl z-[100] overflow-hidden py-2 animate-in fade-in zoom-in duration-200">
+                <div className="absolute right-0 mt-3 w-56 rounded-xl bg-card border border-border shadow-2xl z-[100] overflow-hidden py-2 animate-in fade-in zoom-in duration-200">
                     <div className="px-4 py-3 border-b border-white/5">
-                        <p className="text-sm font-bold text-white truncate">
+                        <p className="text-sm font-bold text-foreground">
                             {user.first_name} {user.last_name}
                         </p>
-                        <p className="text-xs text-zinc-500 truncate mt-0.5">
+                        <p className="text-xs text-muted-foreground truncate mt-0.5">
                             {user.email}
                         </p>
                     </div>
@@ -84,7 +84,7 @@ export function UserNav() {
                         <Link
                             href="/dashboard/settings"
                             onClick={() => setIsOpen(false)}
-                            className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm text-zinc-400 hover:text-white hover:bg-white/5 transition-all"
+                            className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm text-muted-foreground hover:text-white hover:bg-muted transition-all"
                         >
                             <UserIcon className="w-4 h-4" />
                             <span>Settings</span>
@@ -92,7 +92,7 @@ export function UserNav() {
                         <Link
                             href="/dashboard/settings"
                             onClick={() => setIsOpen(false)}
-                            className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm text-zinc-400 hover:text-white hover:bg-white/5 transition-all"
+                            className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm text-muted-foreground hover:text-white hover:bg-muted transition-all"
                         >
                             <Settings className="w-4 h-4" />
                             <span>Settings</span>
@@ -102,7 +102,7 @@ export function UserNav() {
                     <div className="p-1 border-t border-white/5 mt-1">
                         <button
                             onClick={handleLogout}
-                            className="flex w-full items-center gap-3 px-3 py-2 rounded-xl text-sm text-red-500 hover:bg-red-500/10 transition-all"
+                            className="flex w-full items-center gap-3 px-3 py-2 rounded-xl text-sm text-destructive hover:bg-destructive/10 transition-all"
                         >
                             <LogOut className="w-4 h-4" />
                             <span>Log out</span>

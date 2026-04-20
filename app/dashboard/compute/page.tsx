@@ -486,9 +486,9 @@ function ComputePageContent() {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-black flex items-center justify-center">
+            <div className="min-h-screen bg-background flex items-center justify-center">
                 <div className="flex flex-col items-center gap-6">
-                    <div className="w-16 h-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
+                    <div className="size-8 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
                     <p className="text-muted-foreground font-bold tracking-widest uppercase text-xs animate-pulse">Syncing Compute Engine...</p>
                 </div>
             </div>
@@ -545,7 +545,7 @@ function ComputePageContent() {
                                             )}>
                                                 {inst.type}
                                             </Badge>
-                                            <div className={cn("w-1.5 h-1.5 rounded-full", inst.status === 'running' ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 'bg-amber-500 animate-pulse')} />
+                                            <div className={cn("w-1.5 h-1.5 rounded-full", inst.status === 'running' ? 'bg-emerald-500 shadow-[0_0_8px_hsl(var(--primary)/0.5)]' : 'bg-amber-500 animate-pulse')} />
                                         </div>
                                         <div className="font-bold text-sm truncate group-hover:text-primary transition-colors uppercase tracking-tight">{inst.name}</div>
                                         <div className="text-[10px] text-muted-foreground mt-1 flex items-center gap-2">
@@ -641,7 +641,7 @@ function ComputePageContent() {
                                                     <div className="absolute top-0 right-0 p-8">
                                                         {selectedInstance.status === 'running' ? (
                                                             <Badge variant="outline" className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20 text-[10px] font-black uppercase tracking-widest">
-                                                                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)] mr-1.5" /> Reachable
+                                                                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_hsl(var(--primary)/0.5)] mr-1.5" /> Reachable
                                                             </Badge>
                                                         ) : (
                                                             <Badge variant="outline" className="bg-amber-500/10 text-amber-500 border-amber-500/20 text-[10px] font-black uppercase tracking-widest">
@@ -671,7 +671,7 @@ function ComputePageContent() {
                                                                         </code>
                                                                     ) : (
                                                                         <div className="flex items-center gap-3">
-                                                                            <div className="w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+                                                                            <div className="size-4 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
                                                                             <span className="text-sm font-bold text-muted-foreground">Deploying... URL will appear when ready</span>
                                                                         </div>
                                                                     )}
@@ -688,7 +688,7 @@ function ComputePageContent() {
                                                                 )}
                                                             </div>
                                                             {selectedInstance.custom_domain && (
-                                                                <div className="p-4 rounded-lg bg-black border border-border flex items-center justify-between">
+                                                                <div className="p-4 rounded-lg bg-card border border-border flex items-center justify-between">
                                                                     <div className="flex items-center gap-3">
                                                                         <div className="text-[10px] text-muted-foreground font-black uppercase tracking-widest">Custom Domain</div>
                                                                         <code className="text-xs font-black text-foreground">{selectedInstance.custom_domain}</code>
@@ -700,12 +700,12 @@ function ComputePageContent() {
                                                             )}
                                                         </div>
                                                     ) : (
-                                                        <div className="flex items-center gap-6 p-6 rounded-[32px] bg-black border border-border">
+                                                        <div className="flex items-center gap-6 p-6 rounded-xl bg-card border border-border">
                                                             <div className="w-14 h-14 rounded-lg bg-zinc-900 flex items-center justify-center border border-border">
                                                                 <Shield className="w-6 h-6 text-muted-foreground" />
                                                             </div>
                                                             <div>
-                                                                <p className="text-xs text-white font-black uppercase tracking-widest mb-1">Internal VPC Protection Active</p>
+                                                                <p className="text-xs text-foreground font-black uppercase tracking-widest mb-1">Internal VPC Protection Active</p>
                                                                 <p className="text-[10px] text-muted-foreground">This instance is isolated. Connect via External Proxy or Private Tunnel.</p>
                                                             </div>
                                                         </div>
@@ -725,7 +725,7 @@ function ComputePageContent() {
                                                     <CardContent className="p-8">
                                                         <h3 className="text-sm font-black uppercase tracking-widest text-muted-foreground mb-6">Source Integration</h3>
                                                         <div className="space-y-4">
-                                                            <div className="flex items-center justify-between p-4 rounded-lg bg-black border border-border group">
+                                                            <div className="flex items-center justify-between p-4 rounded-lg bg-card border border-border group">
                                                                 <div className="flex items-center gap-4">
                                                                     <div className="w-10 h-10 rounded-xl bg-zinc-900 flex items-center justify-center border border-border text-zinc-400 group-hover:text-primary transition-colors">
                                                                         {selectedInstance.provider.toLowerCase() === 'github' ? <Github className="w-6 h-6" /> : <Gitlab className="w-6 h-6" />}
@@ -739,7 +739,7 @@ function ComputePageContent() {
                                                                     <ExternalLink className="w-4 h-4" />
                                                                 </Button>
                                                             </div>
-                                                            <div className="p-4 rounded-lg bg-black border border-border flex items-center justify-between">
+                                                            <div className="p-4 rounded-lg bg-card border border-border flex items-center justify-between">
                                                                 <div>
                                                                     <div className="text-[10px] font-black text-muted-foreground uppercase mb-0.5">Branch</div>
                                                                     <div className="flex items-center gap-2 font-mono text-sm text-primary/80">
@@ -787,7 +787,7 @@ function ComputePageContent() {
                                     </TabsContent>
 
                                     <TabsContent value="deployments" className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                        <Card className="bg-black border-border rounded-xl min-h-[500px]">
+                                        <Card className="bg-card border-border rounded-xl min-h-[500px]">
                                             <CardContent className="p-12">
                                                 <div className="flex items-center justify-between mb-12">
                                                     <h3 className="text-xl font-black uppercase tracking-tight">Deployment Lifecycle</h3>
@@ -852,7 +852,7 @@ function ComputePageContent() {
 
                                                 <div className="absolute top-[-20%] right-[-10%] w-[300px] h-[300px] bg-primary/5 blur-[100px] rounded-full pointer-events-none" />
 
-                                                <div className="flex-1 rounded-[32px] border border-border bg-black overflow-hidden relative group transition-all focus-within:border-primary/20">
+                                                <div className="flex-1 rounded-xl border border-border bg-card overflow-hidden relative group transition-all focus-within:border-primary/20">
                                                     <div className="absolute top-0 left-0 bottom-0 w-12 bg-muted border-r border-border flex flex-col items-center py-6 text-[10px] font-mono text-muted-foreground select-none">
                                                         {envDraft.split('\n').map((_, i) => <div key={i} className="leading-loose">{i + 1}</div>)}
                                                     </div>
@@ -883,7 +883,7 @@ function ComputePageContent() {
                                             <CardContent className="flex-1 overflow-y-auto space-y-1 pr-4 custom-scrollbar">
                                                 {selectedInstance.logs && selectedInstance.logs.length > 0 ? (
                                                     selectedInstance.logs.map((log, i) => (
-                                                        <div key={i} className="text-zinc-400 hover:text-white transition-colors py-0.5 border-l border-border pl-4 hover:bg-muted flex gap-4">
+                                                        <div key={i} className="text-zinc-400 hover:text-foreground transition-colors py-0.5 border-l border-border pl-4 hover:bg-muted flex gap-4">
                                                             <span className="text-primary/50 shrink-0 select-none">[{i + 1}]</span>
                                                             <span className="break-all">{log}</span>
                                                         </div>
@@ -899,7 +899,7 @@ function ComputePageContent() {
                                     </TabsContent>
 
                                     <TabsContent value="terminal" className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                        <Card className="bg-black border-border rounded-xl h-[600px] flex flex-col overflow-hidden shadow-2xl">
+                                        <Card className="bg-card border-border rounded-xl h-[600px] flex flex-col overflow-hidden shadow-2xl">
                                             <CardHeader className="px-8 pt-5 pb-0 border-b border-border bg-muted">
                                                 <div className="flex items-center justify-between">
                                                     <div className="flex items-center gap-4">
@@ -932,13 +932,13 @@ function ComputePageContent() {
                                                 )}
                                             </CardContent>
                                             <CardFooter className="p-6 bg-background border-t border-border">
-                                                <form onSubmit={handleExecuteCommand} className="flex items-center gap-4 w-full focus-within:bg-black transition-all">
+                                                <form onSubmit={handleExecuteCommand} className="flex items-center gap-4 w-full focus-within:bg-card transition-all">
                                                     <span className="text-primary font-black ml-2">➜</span>
                                                     <input
                                                         name="command"
                                                         autoComplete="off"
                                                         placeholder="Type 'help' to see authorized commands..."
-                                                        className="flex-1 bg-transparent border-none outline-none text-sm font-mono text-white placeholder:text-muted-foreground"
+                                                        className="flex-1 bg-transparent border-none outline-none text-sm font-mono text-foreground placeholder:text-muted-foreground"
                                                         disabled={isExecuting}
                                                     />
                                                     <Button
@@ -961,7 +961,7 @@ function ComputePageContent() {
                                                         <h3 className="text-xl font-black uppercase tracking-tight">Git Integrations</h3>
                                                     </div>
                                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                                                        <div className={cn("p-4 rounded-[28px] border transition-all flex flex-col items-center gap-3", user?.github_profile ? "bg-primary/5 border-primary/20" : "bg-muted border-border")}>
+                                                        <div className={cn("p-4 rounded-xl border transition-all flex flex-col items-center gap-3", user?.github_profile ? "bg-primary/5 border-primary/20" : "bg-muted border-border")}>
                                                             <Github className={cn("w-6 h-6", user?.github_profile ? "text-primary" : "text-muted-foreground")} />
                                                             <div className="text-center">
                                                                 <div className="text-[10px] font-black uppercase tracking-widest mb-1">GitHub</div>
@@ -974,7 +974,7 @@ function ComputePageContent() {
                                                             </Button>
                                                         </div>
 
-                                                        <div className={cn("p-4 rounded-[28px] border transition-all flex flex-col items-center gap-3", user?.gitlab_profile ? "bg-orange-600/5 border-orange-500/20" : "bg-muted border-border")}>
+                                                        <div className={cn("p-4 rounded-xl border transition-all flex flex-col items-center gap-3", user?.gitlab_profile ? "bg-orange-600/5 border-orange-500/20" : "bg-muted border-border")}>
                                                             <Gitlab className={cn("w-6 h-6", user?.gitlab_profile ? "text-orange-500" : "text-muted-foreground")} />
                                                             <div className="text-center">
                                                                 <div className="text-[10px] font-black uppercase tracking-widest mb-1">GitLab</div>
@@ -1047,7 +1047,7 @@ function ComputePageContent() {
                                                                 }} className="flex gap-4">
                                                                     <Input
                                                                         name="custom_domain"
-                                                                        className="flex-1 bg-black border border-muted rounded-lg h-14 text-sm font-bold placeholder:text-muted-foreground focus:border-primary/50"
+                                                                        className="flex-1 bg-card border border-muted rounded-lg h-14 text-sm font-bold placeholder:text-muted-foreground focus:border-primary/50"
                                                                         placeholder="e.g. app.myproject.com"
                                                                         defaultValue={selectedInstance.custom_domain}
                                                                     />

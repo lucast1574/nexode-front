@@ -145,18 +145,18 @@ export default function CheckoutPage() {
             </header>
 
             <main className="relative z-10 pb-40 px-6 max-w-4xl mx-auto">
-                <div className="bg-white/[0.02] border border-white/5 rounded-3xl p-8 mb-12 shadow-xl shadow-black">
+                <div className="bg-white/[0.02] border border-white/5 rounded-xl p-8 mb-12 shadow-xl shadow-black">
                     <h2 className="text-2xl font-black mb-8 flex items-center gap-3">
                         <Database className="w-6 h-6 text-primary" /> Tus Suscripciones Activas
                     </h2>
                     
                     {loading ? (
                         <div className="animate-pulse space-y-4">
-                            <div className="h-24 bg-white/5 rounded-2xl w-full"></div>
-                            <div className="h-24 bg-white/5 rounded-2xl w-full"></div>
+                            <div className="h-24 bg-white/5 rounded-lg w-full"></div>
+                            <div className="h-24 bg-white/5 rounded-lg w-full"></div>
                         </div>
                     ) : subscriptions.length === 0 ? (
-                        <div className="text-center py-16 border-2 border-dashed border-white/10 rounded-2xl">
+                        <div className="text-center py-16 border-2 border-dashed border-white/10 rounded-lg">
                             <div className="mx-auto w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mb-4">
                                 <Shield className="w-8 h-8 text-zinc-500" />
                             </div>
@@ -183,7 +183,7 @@ export default function CheckoutPage() {
                                 const price = isAnnual ? sub.plan.price_annual : sub.plan.price_monthly;
 
                                 return (
-                                    <div key={sub.id || index} className="flex flex-col sm:flex-row sm:items-center justify-between p-6 bg-white/[0.03] border border-white/10 rounded-2xl hover:bg-white/[0.05] transition-all group">
+                                    <div key={sub.id || index} className="flex flex-col sm:flex-row sm:items-center justify-between p-6 bg-white/[0.03] border border-white/10 rounded-lg hover:bg-white/[0.05] transition-all group">
                                         <div className="flex items-center gap-4 mb-4 sm:mb-0">
                                             <div className={cn("p-4 rounded-xl", color)}>
                                                 <Icon className="w-6 h-6" />
@@ -206,7 +206,7 @@ export default function CheckoutPage() {
                     )}
                 </div>
 
-                <div className="text-center mt-12 bg-primary/10 border border-primary/20 rounded-3xl p-10">
+                <div className="text-center mt-12 bg-primary/10 border border-primary/20 rounded-xl p-10">
                     <h3 className="text-2xl font-black mb-4">Need more capacity?</h3>
                     <p className="text-zinc-400 mb-8 max-w-xl mx-auto">
                         Increase your database, compute, or n8n workflow limits by adding additional subscriptions to your account.

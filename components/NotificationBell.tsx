@@ -200,20 +200,20 @@ export function NotificationBell() {
                     isOpen && "bg-muted"
                 )}
             >
-                <Bell className={cn("w-6 h-6 transition-all", unviewedCount > 0 ? "text-primary animate-pulse" : "text-zinc-400")} />
+                <Bell className={cn("w-6 h-6 transition-all", unviewedCount > 0 ? "text-primary animate-pulse" : "text-muted-foreground")} />
                 {unviewedCount > 0 && (
-                    <span className="absolute top-2.5 right-2.5 px-1.5 py-0.5 min-w-[18px] h-[18px] bg-primary text-white text-[10px] font-black rounded-full flex items-center justify-center">
+                    <span className="absolute top-2.5 right-2.5 px-1.5 py-0.5 min-w-[18px] h-[18px] bg-primary text-foreground text-[10px] font-black rounded-full flex items-center justify-center">
                         {unviewedCount > 9 ? "9+" : unviewedCount}
                     </span>
                 )}
             </Button>
 
             {isOpen && (
-                <div className="absolute right-0 mt-4 w-[400px] bg-zinc-900 border border-zinc-800 rounded-3xl shadow-2xl z-50 overflow-hidden animate-in fade-in zoom-in duration-200">
-                    <div className="p-6 border-b border-zinc-800 flex items-center justify-between bg-zinc-800">
+                <div className="absolute right-0 mt-4 w-[400px] bg-card border border-border rounded-xl shadow-2xl z-50 overflow-hidden animate-in fade-in zoom-in duration-200">
+                    <div className="p-6 border-b border-border flex items-center justify-between bg-muted">
                         <div>
                             <h3 className="text-lg font-black tracking-tight">Protocol Alerts</h3>
-                            <p className="text-xs text-zinc-500 font-medium">System events and status updates</p>
+                            <p className="text-xs text-muted-foreground font-medium">System events and status updates</p>
                         </div>
                         {unviewedCount > 0 && (
                             <Button
@@ -229,12 +229,12 @@ export function NotificationBell() {
 
                     <div className="max-h-[450px] overflow-y-auto custom-scrollbar">
                         {notifications.length === 0 ? (
-                            <div className="p-12 text-center bg-zinc-900">
-                                <div className="w-16 h-16 bg-zinc-800 rounded-full flex items-center justify-center mx-auto mb-4 border border-zinc-700">
-                                    <Bell className="w-8 h-8 text-zinc-600" />
+                            <div className="p-12 text-center bg-card">
+                                <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4 border border-border">
+                                    <Bell className="w-8 h-8 text-muted-foreground" />
                                 </div>
-                                <h4 className="text-zinc-400 font-bold mb-1">Silence is Golden</h4>
-                                <p className="text-xs text-zinc-600">No active alerts at the moment.</p>
+                                <h4 className="text-muted-foreground font-bold mb-1">Silence is Golden</h4>
+                                <p className="text-xs text-muted-foreground">No active alerts at the moment.</p>
                             </div>
                         ) : (
                             notifications.map((n) => (
@@ -242,32 +242,32 @@ export function NotificationBell() {
                                     key={n._id}
                                     onClick={() => handleNotificationClick(n)}
                                     className={cn(
-                                        "p-5 border-b border-zinc-800 cursor-pointer transition-all hover:bg-zinc-800 group relative bg-zinc-900",
-                                        !n.viewed && "bg-zinc-800 border-l-2 border-l-primary"
+                                        "p-5 border-b border-border cursor-pointer transition-all hover:bg-muted group relative bg-card",
+                                        !n.viewed && "bg-muted border-l-2 border-l-primary"
                                     )}
                                 >
                                     <div className="flex gap-4">
                                         <div className={cn(
-                                            "w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border border-zinc-700 transition-colors group-hover:border-zinc-600",
-                                            !n.viewed ? "bg-zinc-700" : "bg-zinc-800"
+                                            "w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border border-border transition-colors group-hover:border-primary/30",
+                                            !n.viewed ? "bg-zinc-700" : "bg-muted"
                                         )}>
                                             {getTypeIcon(n.type)}
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-center justify-between mb-1">
-                                                <h4 className={cn("text-sm font-bold truncate", !n.viewed ? "text-white" : "text-zinc-400")}>
+                                                <h4 className={cn("text-sm font-bold truncate", !n.viewed ? "text-foreground" : "text-muted-foreground")}>
                                                     {n.title}
                                                 </h4>
-                                                <span className="text-[10px] text-zinc-600 font-medium whitespace-nowrap ml-2">
+                                                <span className="text-[10px] text-muted-foreground font-medium whitespace-nowrap ml-2">
                                                     {formatDistanceToNow(new Date(n.created_at), { addSuffix: true })}
                                                 </span>
                                             </div>
-                                            <p className={cn("text-xs line-clamp-2 leading-relaxed", !n.viewed ? "text-zinc-300" : "text-zinc-500")}>
+                                            <p className={cn("text-xs line-clamp-2 leading-relaxed", !n.viewed ? "text-foreground" : "text-muted-foreground")}>
                                                 {n.message}
                                             </p>
                                         </div>
                                         <div className="flex items-center self-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <ExternalLink className="w-4 h-4 text-zinc-500 hover:text-primary" />
+                                            <ExternalLink className="w-4 h-4 text-muted-foreground hover:text-primary" />
                                         </div>
                                     </div>
                                     {!n.viewed && (
@@ -279,8 +279,8 @@ export function NotificationBell() {
                     </div>
 
                     {notifications.length > 0 && (
-                        <div className="p-4 bg-zinc-800 text-center border-t border-zinc-700">
-                            <p className="text-[10px] text-zinc-500 uppercase font-black tracking-widest">
+                        <div className="p-4 bg-muted text-center border-t border-border">
+                            <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">
                                 Alerts auto-expire after 7 days
                             </p>
                         </div>

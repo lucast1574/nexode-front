@@ -265,13 +265,13 @@ export default function ServicesPage() {
             <PublicNav />
 
             <header className="relative z-10 pt-20 pb-12 px-6 text-center max-w-5xl mx-auto">
-                <Badge variant="outline" className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border-white/10 text-primary text-xs font-bold tracking-wider uppercase mb-6">
+                <Badge variant="outline" className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-muted border-border text-primary text-xs font-bold tracking-wider uppercase mb-6">
                     <Zap className="w-3 h-3 fill-current" /> Scalable Infrastructure
                 </Badge>
                 <h1 className="text-5xl md:text-7xl font-black tracking-tight mb-6">
                     Launch Your <span className="text-primary italic">Infrastructure</span>
                 </h1>
-                <p className="text-xl text-zinc-400 max-w-2xl mx-auto leading-relaxed">
+                <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
                     Select high-performance building blocks for your hosting environment. Mix and match services to scale your system in real-time.
                 </p>
             </header>
@@ -282,12 +282,12 @@ export default function ServicesPage() {
                         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                             <div className="space-y-4 max-w-2xl">
                                 <div className="flex items-center gap-4">
-                                    <div className={cn("p-3 rounded-2xl shadow-lg", service.color)}>
+                                    <div className={cn("p-3 rounded-lg shadow-lg", service.color)}>
                                         <service.icon className="w-8 h-8 text-white" />
                                     </div>
                                     <h2 className="text-4xl font-bold">{service.title}</h2>
                                 </div>
-                                <p className="text-zinc-400 text-lg">{service.description}</p>
+                                <p className="text-muted-foreground text-lg">{service.description}</p>
                             </div>
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2">
@@ -317,10 +317,10 @@ export default function ServicesPage() {
                                         <Card
                                             key={tier.slug}
                                             className={cn(
-                                                "cursor-pointer rounded-2xl p-0 transition-all duration-300",
+                                                "cursor-pointer rounded-lg p-0 transition-all duration-300",
                                                 isSelected
                                                     ? "bg-white/10 border-primary ring-1 ring-primary/50 shadow-[0_0_20px_rgba(var(--primary),0.1)]"
-                                                    : "bg-white/[0.03] border-white/5 hover:border-white/10 hover:bg-white/[0.05]"
+                                                    : "bg-muted border-border hover:border-border hover:bg-white/[0.05]"
                                             )}
                                         >
                                             <button
@@ -337,12 +337,12 @@ export default function ServicesPage() {
                                                     <span className="font-bold text-lg">{tier.name}</span>
                                                 </div>
 
-                                                <div className="hidden md:block col-span-3 text-zinc-400 font-medium">
+                                                <div className="hidden md:block col-span-3 text-muted-foreground font-medium">
                                                     {Object.entries(tier.specs)[0][1]}
                                                 </div>
 
                                                 <div className="col-span-4 md:col-span-3 flex md:block flex-col items-center">
-                                                    <span className="text-zinc-400 text-sm font-medium">
+                                                    <span className="text-muted-foreground text-sm font-medium">
                                                         {Object.entries(tier.specs)[1][1]}
                                                     </span>
                                                 </div>
@@ -362,17 +362,17 @@ export default function ServicesPage() {
 
             {selectedCount > 0 && (
                 <div className="fixed bottom-0 left-0 right-0 z-50 p-6 animate-in slide-in-from-bottom-full duration-500">
-                    <Card className="max-w-4xl mx-auto bg-white/5 backdrop-blur-2xl border-white/10 rounded-3xl shadow-2xl p-0">
+                    <Card className="max-w-4xl mx-auto bg-muted backdrop-blur-2xl border-border rounded-xl shadow-2xl p-0">
                         <CardContent className="p-4 flex flex-col sm:flex-row items-center justify-between gap-6">
                             <div className="flex items-center gap-6 px-4">
-                                <div className="bg-primary/20 p-3 rounded-2xl relative">
+                                <div className="bg-primary/20 p-3 rounded-lg relative">
                                     <Zap className="w-6 h-6 text-primary" />
                                     <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white/20">
                                         {selectedCount}
                                     </span>
                                 </div>
                                 <div>
-                                    <div className="text-sm text-zinc-400 font-medium">Selected Services Monthly Total</div>
+                                    <div className="text-sm text-muted-foreground font-medium">Selected Services Monthly Total</div>
                                     <div className="text-3xl font-black text-white">${totalPrice}<span className="text-sm font-normal text-zinc-500">/mo</span></div>
                                 </div>
                             </div>
@@ -386,7 +386,7 @@ export default function ServicesPage() {
                                 </Button>
                                 <Button
                                     size="lg"
-                                    className="rounded-2xl h-14 px-10 gap-2 text-lg font-bold shadow-xl shadow-primary/20 flex-1 sm:flex-none"
+                                    className="rounded-lg h-14 px-10 gap-2 text-lg font-bold shadow-xl shadow-primary/20 flex-1 sm:flex-none"
                                     onClick={handleCheckout}
                                 >
                                     Deploy Now <ArrowRight className="w-5 h-5" />
@@ -397,43 +397,43 @@ export default function ServicesPage() {
                 </div>
             )}
 
-            <footer className="relative z-10 bg-white/[0.02] border-t border-white/5 py-24 px-6">
+            <footer className="relative z-10 bg-muted border-t border-border py-24 px-6">
                 <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12">
                     <Card className="bg-transparent border-0 shadow-none p-0">
                         <CardContent className="p-0 space-y-4">
-                            <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center">
+                            <div className="w-12 h-12 rounded-lg bg-muted flex items-center justify-center">
                                 <Shield className="w-6 h-6 text-primary" />
                             </div>
                             <h3 className="text-xl font-bold">Secure by Design</h3>
-                            <p className="text-zinc-400 leading-relaxed">
+                            <p className="text-muted-foreground leading-relaxed">
                                 Every service includes advanced DDoS protection and isolated environments to keep your data safe.
                             </p>
                         </CardContent>
                     </Card>
                     <Card className="bg-transparent border-0 shadow-none p-0">
                         <CardContent className="p-0 space-y-4">
-                            <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center">
+                            <div className="w-12 h-12 rounded-lg bg-muted flex items-center justify-center">
                                 <Globe className="w-6 h-6 text-primary" />
                             </div>
                             <h3 className="text-xl font-bold">Global Presence</h3>
-                            <p className="text-zinc-400 leading-relaxed">
+                            <p className="text-muted-foreground leading-relaxed">
                                 Deploy your infrastructure in seconds across our multi-region edge locations globally.
                             </p>
                         </CardContent>
                     </Card>
                     <Card className="bg-transparent border-0 shadow-none p-0">
                         <CardContent className="p-0 space-y-4">
-                            <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center">
+                            <div className="w-12 h-12 rounded-lg bg-muted flex items-center justify-center">
                                 <Zap className="w-6 h-6 text-primary" />
                             </div>
                             <h3 className="text-xl font-bold">Instantly Scalable</h3>
-                            <p className="text-zinc-400 leading-relaxed">
+                            <p className="text-muted-foreground leading-relaxed">
                                 Need more power? Upgrade any service instantly with zero downtime or complex migrations.
                             </p>
                         </CardContent>
                     </Card>
                 </div>
-                <div className="mt-24 pt-12 border-t border-white/5 text-center text-zinc-400 text-sm">
+                <div className="mt-24 pt-12 border-t border-border text-center text-muted-foreground text-sm">
                     © {new Date().getFullYear()} Nexode Technologies. All rights reserved.
                 </div>
             </footer>
