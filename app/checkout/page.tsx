@@ -129,7 +129,7 @@ export default function CheckoutPage() {
 
             <PublicNav />
 
-            <header className="relative z-10 pt-20 pb-16 px-6 text-center max-w-4xl mx-auto">
+            <header className="relative z-10 pt-20 pb-16 px-6 text-center max-w-7xl mx-auto">
                 <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-6">
                     Manage Your <span className="text-primary italic underline decoration-primary/30 decoration-8 underline-offset-8">Infrastructure</span>
                 </h1>
@@ -144,7 +144,7 @@ export default function CheckoutPage() {
                 </div>
             </header>
 
-            <main className="relative z-10 pb-40 px-6 max-w-4xl mx-auto">
+            <main className="relative z-10 pb-40 px-6 max-w-7xl mx-auto">
                 <div className="bg-white/[0.02] border border-white/5 rounded-xl p-8 mb-12 shadow-xl shadow-black">
                     <h2 className="text-2xl font-bold mb-8 flex items-center gap-3">
                         <Database className="w-6 h-6 text-primary" /> Tus Suscripciones Activas

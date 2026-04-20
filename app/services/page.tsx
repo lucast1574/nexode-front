@@ -264,10 +264,7 @@ export default function ServicesPage() {
 
             <PublicNav />
 
-            <header className="relative z-10 pt-20 pb-12 px-6 text-center max-w-5xl mx-auto">
-                <Badge variant="outline" className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-muted border-border text-primary text-xs font-medium mb-6">
-                    <Zap className="w-3 h-3 fill-current" /> Scalable Infrastructure
-                </Badge>
+            <header className="relative z-10 pt-20 pb-12 px-6 text-center max-w-7xl mx-auto">
                 <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-6">
                     Launch Your <span className="text-primary italic">Infrastructure</span>
                 </h1>
@@ -276,7 +273,7 @@ export default function ServicesPage() {
                 </p>
             </header>
 
-            <main className="relative z-10 pb-32 px-6 max-w-6xl mx-auto space-y-24">
+            <main className="relative z-10 pb-32 px-6 max-w-7xl mx-auto space-y-24">
                 {SERVICES.map((service) => (
                     <section key={service.id} id={service.id} className="space-y-10 scroll-mt-24">
                         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
@@ -362,7 +359,7 @@ export default function ServicesPage() {
 
             {selectedCount > 0 && (
                 <div className="fixed bottom-0 left-0 right-0 z-50 p-6 animate-in slide-in-from-bottom-full duration-500">
-                    <Card className="max-w-4xl mx-auto bg-muted backdrop-blur-2xl border-border rounded-xl shadow-2xl p-0">
+                    <Card className="max-w-7xl mx-auto bg-muted backdrop-blur-2xl border-border rounded-xl shadow-2xl p-0">
                         <CardContent className="p-4 flex flex-col sm:flex-row items-center justify-between gap-6">
                             <div className="flex items-center gap-6 px-4">
                                 <div className="bg-primary/20 p-3 rounded-lg relative">
@@ -397,46 +394,7 @@ export default function ServicesPage() {
                 </div>
             )}
 
-            <footer className="relative z-10 bg-muted border-t border-border py-24 px-6">
-                <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12">
-                    <Card className="bg-transparent border-0 shadow-none p-0">
-                        <CardContent className="p-0 space-y-4">
-                            <div className="w-12 h-12 rounded-lg bg-muted flex items-center justify-center">
-                                <Shield className="w-6 h-6 text-primary" />
-                            </div>
-                            <h3 className="text-xl font-bold">Secure by Design</h3>
-                            <p className="text-muted-foreground leading-relaxed">
-                                Every service includes advanced DDoS protection and isolated environments to keep your data safe.
-                            </p>
-                        </CardContent>
-                    </Card>
-                    <Card className="bg-transparent border-0 shadow-none p-0">
-                        <CardContent className="p-0 space-y-4">
-                            <div className="w-12 h-12 rounded-lg bg-muted flex items-center justify-center">
-                                <Globe className="w-6 h-6 text-primary" />
-                            </div>
-                            <h3 className="text-xl font-bold">Global Presence</h3>
-                            <p className="text-muted-foreground leading-relaxed">
-                                Deploy your infrastructure in seconds across our multi-region edge locations globally.
-                            </p>
-                        </CardContent>
-                    </Card>
-                    <Card className="bg-transparent border-0 shadow-none p-0">
-                        <CardContent className="p-0 space-y-4">
-                            <div className="w-12 h-12 rounded-lg bg-muted flex items-center justify-center">
-                                <Zap className="w-6 h-6 text-primary" />
-                            </div>
-                            <h3 className="text-xl font-bold">Instantly Scalable</h3>
-                            <p className="text-muted-foreground leading-relaxed">
-                                Need more power? Upgrade any service instantly with zero downtime or complex migrations.
-                            </p>
-                        </CardContent>
-                    </Card>
-                </div>
-                <div className="mt-24 pt-12 border-t border-border text-center text-muted-foreground text-sm">
-                    © {new Date().getFullYear()} Nexode Technologies. All rights reserved.
-                </div>
-            </footer>
+
         </div>
     );
 }

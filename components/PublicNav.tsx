@@ -2,6 +2,7 @@
 
 import React from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -23,9 +24,16 @@ export function PublicNav({ showUserNav = true }: PublicNavProps) {
     return (
         <nav className="relative z-50 border-b border-white/5 bg-black/50 backdrop-blur-xl">
             <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-                <Button render={<Link href="/" />} nativeButton={false} variant="ghost" className="text-2xl font-bold italic tracking-tighter text-primary p-0 h-auto hover:bg-transparent">
-                    NEXODE
-                </Button>
+                <Link href="/" className="flex items-center gap-2">
+                    <Image
+                        src="/logo/logo_white.svg"
+                        alt="Nexode"
+                        width={90}
+                        height={24}
+                        className="h-6 w-auto"
+                        priority
+                    />
+                </Link>
                 <div className="flex items-center gap-1">
                     {links.map((link) => {
                         const isActive = pathname === link.href
