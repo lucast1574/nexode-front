@@ -511,15 +511,12 @@ export default function DatabasesPage() {
                                         )}
                                     >
                                         <div className="flex items-center justify-between mb-2">
-                                            <Badge variant="outline" className={cn(
-                                                "text-xs font-medium",
-                                                db.type === 'postgres' ? 'text-primary border-primary/20 bg-primary/10' :
-                                                    db.type === 'mongodb' ? 'text-primary border-emerald-400/20 bg-emerald-400/10' :
-                                                        db.type === 'mysql' ? 'text-primary border-primary/20 bg-primary/10' :
-                                                            'text-destructive border-red-400/20 bg-red-400/10'
-                                            )}>
-                                                {db.type}
-                                            </Badge>
+                                            <div>
+                                                {db.type === 'postgres' ? <Image src="/db/postgres.svg" alt="PostgreSQL" width={20} height={20} className="size-5 object-contain" /> :
+                                                    db.type === 'mongodb' ? <Image src="/db/mongo.svg" alt="MongoDB" width={20} height={20} className="size-5 object-contain" /> :
+                                                        db.type === 'redis' ? <Image src="/db/redis.svg" alt="Redis" width={20} height={20} className="size-5 object-contain" /> :
+                                                            <Database className="size-5 text-muted-foreground" />}
+                                            </div>
                                             <div className={cn(
                                                 "w-2 h-2 rounded-full",
                                                 db.status === 'running' ? 'bg-emerald-500 ' :
@@ -752,8 +749,8 @@ export default function DatabasesPage() {
                                         </div>
                                     </TabsContent>
 
-                                    <TabsContent value="credentials" className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                        <div className="space-y-6">
+                                    <TabsContent value="credentials" className="animate-in fade-in slide-in-from-bottom-4 duration-500 flex-1 overflow-y-auto p-8">
+                                        <div className="space-y-8">
                                             <Card className="border-destructive/20 bg-destructive/10">
                                                 <CardContent className="p-4">
                                                     <div className="flex gap-3 text-destructive">
@@ -826,70 +823,72 @@ export default function DatabasesPage() {
                                         </div>
                                     </TabsContent>
 
-                                    <TabsContent value="terminal" className="animate-in fade-in zoom-in-95 duration-500">
-                                        <Card className="bg-background border-border h-full flex flex-col overflow-hidden">
-                                            <CardHeader className="px-6 py-4 border-b border-border bg-muted/40 flex items-center justify-between">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="flex gap-1.5">
-                                                        <div className="w-2.5 h-2.5 rounded-full bg-red-500/20 border border-red-500/40" />
-                                                        <div className="w-2.5 h-2.5 rounded-full bg-amber-500/20 border border-amber-500/40" />
-                                                        <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/20 border border-emerald-500/40" />
+                                    <TabsContent value="terminal" className="animate-in fade-in slide-in-from-bottom-4 duration-500 flex-1 overflow-y-auto p-8">
+                                        <div className="space-y-8">
+                                            <Card className="bg-card border-border">
+                                                <CardHeader className="px-6 py-4 border-b border-border bg-muted/40 flex items-center justify-between">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="flex gap-1.5">
+                                                            <div className="w-2.5 h-2.5 rounded-full bg-red-500/20 border border-red-500/40" />
+                                                            <div className="w-2.5 h-2.5 rounded-full bg-amber-500/20 border border-amber-500/40" />
+                                                            <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/20 border border-emerald-500/40" />
+                                                        </div>
+                                                        <span className="text-xs font-medium text-muted-foreground ml-2">
+                                                            {selectedDb.type === 'mongodb' ? 'Mongosh' :
+                                                                selectedDb.type === 'postgres' ? 'PSQL' :
+                                                                    selectedDb.type === 'redis' ? 'Redis-CLI' : 'MySQL'} Proxy — {selectedDb.name}
+                                                        </span>
                                                     </div>
-                                                    <span className="text-xs font-medium text-muted-foreground ml-2">
-                                                        {selectedDb.type === 'mongodb' ? 'Mongosh' :
-                                                            selectedDb.type === 'postgres' ? 'PSQL' :
-                                                                selectedDb.type === 'redis' ? 'Redis-CLI' : 'MySQL'} Proxy — {selectedDb.name}
-                                                    </span>
-                                                </div>
-                                                <Badge variant="outline" className="text-xs font-bold text-primary">
-                                                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse mr-1.5" /> Connected
-                                                </Badge>
-                                            </CardHeader>
+                                                    <Badge variant="outline" className="text-xs font-bold text-primary">
+                                                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse mr-1.5" /> Connected
+                                                    </Badge>
+                                                </CardHeader>
 
-                                            <CardContent className="flex-1 overflow-y-auto p-6 font-mono text-xs leading-relaxed space-y-2 selection:bg-primary/30 scrollbar-hide">
-                                                {terminalLogs.map((log, i) => (
-                                                    <div key={i} className={cn(
-                                                        "break-all whitespace-pre-wrap",
-                                                        log.type === 'input' ? "text-foreground flex gap-2" :
-                                                            log.type === 'error' ? "text-destructive" : "text-primary/80"
-                                                    )}>
-                                                        {log.type === 'input' && <span className="text-primary shrink-0">➜</span>}
-                                                        {log.text}
-                                                    </div>
-                                                ))}
-                                                {isExecuting && (
-                                                    <div className="text-muted-foreground animate-pulse flex items-center gap-2">
-                                                        <RefreshCw className="w-3 h-3 animate-spin" /> Processing request...
-                                                    </div>
-                                                )}
-                                            </CardContent>
+                                                <CardContent className="p-6 font-mono text-xs leading-relaxed space-y-2 selection:bg-primary/30">
+                                                    {terminalLogs.map((log, i) => (
+                                                        <div key={i} className={cn(
+                                                            "break-all whitespace-pre-wrap",
+                                                            log.type === 'input' ? "text-foreground flex gap-2" :
+                                                                log.type === 'error' ? "text-destructive" : "text-primary/80"
+                                                        )}>
+                                                            {log.type === 'input' && <span className="text-primary shrink-0">➜</span>}
+                                                            {log.text}
+                                                        </div>
+                                                    ))}
+                                                    {isExecuting && (
+                                                        <div className="text-muted-foreground animate-pulse flex items-center gap-2">
+                                                            <RefreshCw className="w-3 h-3 animate-spin" /> Processing request...
+                                                        </div>
+                                                    )}
+                                                </CardContent>
 
-                                            <CardFooter className="p-4 bg-background border-t border-border">
-                                                <form onSubmit={handleExecuteCommand} className="flex items-center gap-3 w-full">
-                                                    <span className="text-primary font-bold ml-2">➜</span>
-                                                    <input
-                                                        name="command"
-                                                        autoComplete="off"
-                                                        placeholder={
-                                                            selectedDb.type === 'mongodb' ? "Enter command (e.g. db.stats())" :
-                                                                selectedDb.type === 'postgres' || selectedDb.type === 'mysql' ? "Enter SQL query (e.g. SELECT version())" :
-                                                                    "Enter Redis command (e.g. INFO)"
-                                                        }
-                                                        className="flex-1 bg-transparent border-none outline-none text-sm font-mono text-foreground placeholder:text-muted-foreground"
-                                                    />
-                                                    <Button
-                                                        type="submit"
-                                                        disabled={isExecuting}
-                                                        size="sm"
-                                                        variant="outline"
-                                                        className="gap-2"
-                                                    >
-                                                        Run Cmd
-                                                    </Button>
-                                                </form>
-                                            </CardFooter>
-                                        </Card>
-</TabsContent>
+                                                <CardFooter className="p-4 bg-background border-t border-border">
+                                                    <form onSubmit={handleExecuteCommand} className="flex items-center gap-3 w-full">
+                                                        <span className="text-primary font-bold ml-2">➜</span>
+                                                        <input
+                                                            name="command"
+                                                            autoComplete="off"
+                                                            placeholder={
+                                                                selectedDb.type === 'mongodb' ? "Enter command (e.g. db.stats())" :
+                                                                    selectedDb.type === 'postgres' || selectedDb.type === 'mysql' ? "Enter SQL query (e.g. SELECT version())" :
+                                                                        "Enter Redis command (e.g. INFO)"
+                                                            }
+                                                            className="flex-1 bg-transparent border-none outline-none text-sm font-mono text-foreground placeholder:text-muted-foreground"
+                                                        />
+                                                        <Button
+                                                            type="submit"
+                                                            disabled={isExecuting}
+                                                            size="sm"
+                                                            variant="outline"
+                                                            className="gap-2"
+                                                        >
+                                                            Run Cmd
+                                                        </Button>
+                                                    </form>
+                                                </CardFooter>
+                                            </Card>
+                                        </div>
+                                    </TabsContent>
                                 </Tabs>
                             </>
                         ) : (
@@ -927,21 +926,21 @@ export default function DatabasesPage() {
                                             id: 'postgres',
                                             label: 'PostgreSQL',
                                             svg: (
-                                                <Image src="/db/postgres.svg" alt="PostgreSQL" width={24} height={24} className="shrink-0 brightness-0 invert" />
+                                                <Image src="/db/postgres.svg" alt="PostgreSQL" width={24} height={24} className="shrink-0" />
                                             )
                                         },
                                         {
                                             id: 'mongodb',
                                             label: 'MongoDB',
                                             svg: (
-                                                <Image src="/db/mongo.svg" alt="MongoDB" width={24} height={24} className="shrink-0 brightness-0 invert" />
+                                                <Image src="/db/mongo.svg" alt="MongoDB" width={24} height={24} className="shrink-0" />
                                             )
                                         },
                                         {
                                             id: 'redis',
                                             label: 'Redis',
                                             svg: (
-                                                <Image src="/db/redis.svg" alt="Redis" width={24} height={24} className="shrink-0 brightness-0 invert" />
+                                                <Image src="/db/redis.svg" alt="Redis" width={24} height={24} className="shrink-0" />
                                             )
                                         },
                                     ].map((type) => {

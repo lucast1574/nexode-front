@@ -12,6 +12,7 @@ import {
     Zap,
     Workflow
 } from "lucide-react"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -86,11 +87,21 @@ export default function DashboardPage() {
                                     <Card className="group relative transition-all duration-500 flex flex-col bg-card border-border hover:bg-muted/50 hover:border-muted h-full">
                                         <CardHeader className="p-6">
                                             <div className="flex items-start justify-between mb-4">
-                                                <div className="p-3 bg-primary/10 text-primary">
-                                                    {inst.service === "database" ? <Database className="size-6" /> :
-                                                        inst.service === "n8n" ? <Workflow className="size-6" /> :
-                                                            <Cpu className="size-6" />}
-                                                </div>
+                                                {inst.service === "compute" ? (
+                                                    <Cpu className="size-8 text-primary" />
+                                                ) : inst.service === "n8n" ? (
+                                                    <Image src="/db/n8n.svg" alt="n8n" width={32} height={32} className="size-8 object-contain" />
+                                                ) : inst.service === "database" ? (
+                                                    (() => {
+                                                        const dbType = inst.type?.toLowerCase() || ''
+                                                        if (dbType.includes('postgres')) return <Image src="/db/postgres.svg" alt="PostgreSQL" width={32} height={32} className="size-8 object-contain" />
+                                                        if (dbType.includes('mongo')) return <Image src="/db/mongo.svg" alt="MongoDB" width={32} height={32} className="size-8 object-contain" />
+                                                        if (dbType.includes('redis')) return <Image src="/db/redis.svg" alt="Redis" width={32} height={32} className="size-8 object-contain" />
+                                                        return <Database className="size-8 text-primary" />
+                                                    })()
+                                                ) : (
+                                                    <Database className="size-8 text-primary" />
+                                                )}
                                                 <div className="flex flex-col items-end gap-2">
                                                     <Badge variant="outline" className={cn(
                                                         "text-xs font-medium",
