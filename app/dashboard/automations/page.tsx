@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useCallback } from "react";
+import { NotificationBell } from "@/components/NotificationBell";
 import { Workflow, Zap, Activity, Trash2, RefreshCw, ExternalLink, Search, Plus, Globe, Settings, Shield, Copy, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
@@ -260,6 +261,7 @@ export default function AutomationsPage() {
                         </BreadcrumbList>
                     </Breadcrumb>
                     <div className="flex-1" />
+                    <div className="mr-2"><NotificationBell /></div>
                     <Button onClick={handleCreateClick} className="gap-2">
                         <Plus className="size-4" /> Provision n8n
                     </Button>

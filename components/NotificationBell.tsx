@@ -185,7 +185,7 @@ export function NotificationBell() {
             <PopoverTrigger 
                 render={
                     <Button
-                        variant="outline"
+                        variant="ghost"
                         size="icon"
                         className={cn(
                             "rounded-full relative size-9 transition-all",

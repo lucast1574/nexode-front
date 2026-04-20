@@ -1,6 +1,7 @@
 "use client"
 
 import React from "react"
+import { NotificationBell } from "@/components/NotificationBell"
 import Link from "next/link"
 import {
     Database,
@@ -23,7 +24,6 @@ import {
 } from "@/components/ui/breadcrumb"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { cn } from "@/lib/utils"
-import { NotificationBell } from "@/components/NotificationBell"
 import { useDashboard } from "./layout"
 
 export default function DashboardPage() {
@@ -42,12 +42,10 @@ export default function DashboardPage() {
                     </BreadcrumbList>
                 </Breadcrumb>
                 <div className="flex-1" />
-                <div className="flex items-center gap-4">
-                    <NotificationBell />
-                    <Button render={<Link href="/services" />} nativeButton={false} className="gap-2">
-                        <Plus className="size-4" /> New Service
-                    </Button>
-                </div>
+                <div className="mr-2"><NotificationBell /></div>
+                <Button render={<Link href="/services" />} nativeButton={false} className="gap-2">
+                    <Plus className="size-4" /> New Service
+                </Button>
             </header>
 
             <div className="flex-1 overflow-y-auto p-6">

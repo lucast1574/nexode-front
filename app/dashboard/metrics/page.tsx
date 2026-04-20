@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { NotificationBell } from "@/components/NotificationBell";
 import Link from "next/link"
 import {
     Activity,
@@ -125,6 +126,7 @@ export default function MetricsPage() {
                     </BreadcrumbList>
                 </Breadcrumb>
                 <div className="flex-1" />
+                <div className="mr-2"><NotificationBell /></div>
                 <Button render={<Link href="/services" />} nativeButton={false} className="gap-2">
                     <Plus className="size-4" /> New Service
                 </Button>

@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { NotificationBell } from "@/components/NotificationBell"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
@@ -21,6 +22,8 @@ export default function HelpPage() {
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
+        <div className="flex-1" />
+        <div className="mr-2"><NotificationBell /></div>
       </header>
       <div className="flex-1 overflow-y-auto p-6">
         <div className="flex flex-col gap-2 mb-8">
