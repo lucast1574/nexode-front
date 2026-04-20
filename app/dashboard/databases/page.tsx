@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useEffect, useState, useCallback, useRef } from "react";
+import React, { useEffect, useState, useCallback, useRef, useId } from "react";
+import Image from "next/image";
 import {
     Database,
     Plus,
@@ -22,6 +23,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Field, FieldLabel, FieldGroup, FieldSet, FieldLegend } from "@/components/ui/field";
 import { Separator } from "@/components/ui/separator";
@@ -61,6 +63,7 @@ const INITIAL_TERMINAL_LOGS: { type: 'input' | 'output' | 'error', text: string 
 ];
 
 export default function DatabasesPage() {
+    const id = useId();
     const [loading, setLoading] = useState(true);
     const [databases, setDatabases] = useState<DatabaseInstance[]>([]);
     const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
@@ -915,72 +918,50 @@ export default function DatabasesPage() {
                             </Field>
 
                             <FieldSet>
-                                <FieldLegend>Engine Type</FieldLegend>
-                                <div className="grid grid-cols-3 gap-4">
+                                <FieldLegend variant="label">Engine Type</FieldLegend>
+                                <RadioGroup name="type" defaultValue="postgres" className="w-full gap-2">
                                     {[
                                         {
                                             id: 'postgres',
                                             label: 'PostgreSQL',
-                                            color: '#336791',
                                             svg: (
-                                                <svg viewBox="0 0 24 24" className="w-8 h-8">
-                                                    <path fill="#336791" d="M19.07 13.13c-.15-.55-.38-1.09-.69-1.58.11-.11.23-.22.34-.33.15-.15.28-.31.39-.47.16-.27.27-.55.33-.85.1-.49.1-1 .02-1.49-.07-.49-.24-.96-.48-1.39-.24-.44-.57-.82-.97-1.12-.39-.3-.84-.52-1.32-.64-.48-.12-.98-.15-1.48-.09-.5.06-.98.21-1.43.43-.45.22-.85.52-1.18.89-.04.04-.08.09-.11.13-.19.22-.36.46-.5.71-.14.25-.26.51-.34.78-.08.27-.13.55-.15.82-.02.27-.01.55.03.82.04.27.12.53.22.78.1.25.23.49.39.71.16.22.34.42.55.6.14.12.29.23.45.33.12.08.25.15.38.2.14.07.28.11.43.14-.3.44-.56.91-.77 1.41-.33.78-.5 1.62-.51 2.47a5.13 5.13 0 0 0 .15 1.2c.11.39.27.76.49 1.11.22.34.5.64.83.89.33.25.71.44 1.12.56.41.12.83.17 1.25.14.36-.02.71-.08 1.05-.18a4.93 4.93 0 0 0 1.34-.69c.17-.12.33-.25.48-.39s.29-.3.42-.46c.13-.16.24-.32.34-.5s.17-.35.24-.54c.14-.38.21-.77.21-1.16a5.15 5.15 0 0 0-.11-1.07Z" />
-                                                </svg>
+                                                <Image src="/db/postgres.svg" alt="PostgreSQL" width={24} height={24} className="shrink-0 brightness-0 invert" />
                                             )
                                         },
                                         {
                                             id: 'mongodb',
                                             label: 'MongoDB',
-                                            color: '#47A248',
                                             svg: (
-                                                <svg viewBox="0 0 24 24" className="w-8 h-8">
-                                                    <path fill="#47A248" d="M17.18 10.15c-.46-3.14-1.89-6.3-3.08-8.2-.3-.5-.5-.9-.6-.94-.04 0-.25.46-.53.97-1.16 2.1-2.4 5.23-2.6 8.2-.18 2.6.28 4.67 1.43 6.32 1.43 2.03 2.94 2.8 3.51 2.8.5 0 .58-.46.74-.82.64-1.39.92-2.94 1-4.9.04-1.25-.13-2.58-.87-3.43Z" />
-                                                    <path fill="#3F3E3E" d="M12.91 17.51c-1.18 0-2.31-.48-3.14-1.32-.84-.84-1.32-1.97-1.32-3.14 0-1.18.48-2.31 1.32-3.14.84-.84 1.97-1.32 3.14-1.32v8.92Z" opacity=".1" />
-                                                </svg>
+                                                <Image src="/db/mongo.svg" alt="MongoDB" width={24} height={24} className="shrink-0 brightness-0 invert" />
                                             )
                                         },
                                         {
                                             id: 'redis',
                                             label: 'Redis',
-                                            color: '#DC382D',
                                             svg: (
-                                                <svg viewBox="0 0 24 24" className="w-8 h-8">
-                                                    <path fill="#DC382D" d="M22.5 12c0 5.8-4.7 10.5-10.5 10.5S1.5 17.8 1.5 12 6.2 1.5 12 1.5 22.5 6.2 22.5 12Z" opacity=".1" />
-                                                    <path fill="#DC382D" d="M19 10h-2V8h2v2Zm-3 0h-2V8h2v2Zm-3 0h-2V8h2v2Zm-3 0H8V8h2v2Zm-3 0H5V8h2v2Zm14 3h-2v-2h2v2Zm-3 0h-2v-2h2v2Zm-3 0h-2v-2h2v2Zm-3 0H8v-2h2v2Zm-3 0H5v-2h2v2Zm14 3h-2v-2h2v2Zm-3 0h-2v-2h2v2Zm-3 0h-2v-2h2v2Zm-3 0H8v-2h2v2Zm-3 0H5v-2h2v2Z" />
-                                                </svg>
+                                                <Image src="/db/redis.svg" alt="Redis" width={24} height={24} className="shrink-0 brightness-0 invert" />
                                             )
                                         },
-
-                                    ].map((type) => (
-                                        <label key={type.id} className="relative cursor-pointer group">
-                                            <input
-                                                type="radio"
-                                                name="type"
-                                                value={type.id}
-                                                defaultChecked={type.id === 'postgres'}
-                                                className="peer hidden"
-                                            />
-                                            <div className="h-28 p-4 border border-border bg-card peer-checked:bg-primary/5 peer-checked:border-primary/40 peer-checked:ring-1 peer-checked:ring-primary/20 transition-all flex flex-col items-center justify-center gap-3 hover:bg-muted hover:border-border">
-                                                <div className="relative">
-                                                    <div
-                                                        className="absolute inset-0 blur-lg opacity-20 group-hover:opacity-40 transition-opacity"
-                                                        style={{ backgroundColor: type.color }}
-                                                    />
-                                                    <div className="relative transform group-hover:scale-110 transition-transform duration-300">
-                                                        {type.svg}
-                                                    </div>
-                                                </div>
-                                                <span className="text-xs font-medium text-muted-foreground peer-checked:text-foreground transition-colors">{type.label}</span>
-
-                                                <div className="absolute top-2 right-2 opacity-0 peer-checked:opacity-100 transition-opacity">
-                                                    <div className="size-4 rounded-full bg-primary flex items-center justify-center">
-                                                        <Check className="w-2.5 h-2.5 text-foreground" />
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </label>
-                                    ))}
-                                </div>
+                                    ].map((type) => {
+                                        const itemId = `${id}-${type.id}`;
+                                        return (
+                                            <label
+                                                key={type.id}
+                                                htmlFor={itemId}
+                                                className="border-input has-[[data-checked]]:border-primary/50 relative flex w-full cursor-pointer items-center gap-3 rounded-md border p-4 outline-none transition-all hover:bg-muted"
+                                            >
+                                                {type.svg}
+                                                <RadioGroupItem
+                                                    value={type.id}
+                                                    id={itemId}
+                                                    aria-label={`engine-${type.id}`}
+                                                    className="size-5 [&_svg]:size-3"
+                                                />
+                                                <span className="grow text-sm font-medium">{type.label}</span>
+                                            </label>
+                                        );
+                                    })}
+                                </RadioGroup>
                             </FieldSet>
 
                             <Button
