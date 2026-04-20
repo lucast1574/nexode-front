@@ -111,3 +111,21 @@ export const VERIFY_EMAIL_MUTATION = gql`
     }
   }
 `;
+
+export const FORGOT_PASSWORD_MUTATION = gql`
+  mutation ForgotPassword($email: String!) {
+    forgotPassword(email: $email) {
+      success
+      message
+    }
+  }
+`;
+
+export const RESET_PASSWORD_MUTATION = gql`
+  mutation ResetPassword($token: String!, $password: String!) {
+    resetPassword(token: $token, password: $password) {
+      success
+      message
+    }
+  }
+`;
