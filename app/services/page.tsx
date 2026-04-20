@@ -331,13 +331,13 @@ export default function ServicesPage() {
                                                 "cursor-pointer rounded-lg p-0 transition-all duration-300",
                                                 isSelected
                                                     ? "bg-white/10 border-primary ring-1 ring-primary/50 shadow-[0_0_20px_rgba(var(--primary),0.1)]"
-                                                    : "bg-muted border-border hover:border-border hover:bg-white/[0.05]"
+                                                    : "bg-muted border-border hover:border-white/20 hover:bg-white/10 hover:shadow-lg"
                                             )}
                                         >
-                                            <Button
-                                                variant="ghost"
+                                            <div
+                                                role="button"
                                                 onClick={() => handleSelectTier(service.id, tier.slug)}
-                                                className="w-full h-auto text-left grid grid-cols-12 items-center px-6 py-6 rounded-none hover:bg-transparent"
+                                                className="w-full h-auto text-left grid grid-cols-12 items-center px-6 py-6"
                                             >
                                                 <div className="col-span-4 md:col-span-3 flex items-center gap-3">
                                                     <div className={cn(
@@ -362,7 +362,7 @@ export default function ServicesPage() {
                                                 <div className="col-span-4 md:col-span-3 text-right">
                                                     <span className="text-2xl font-bold text-white">${tier.price} <span className="text-sm font-normal text-zinc-500">/m</span></span>
                                                 </div>
-                                            </Button>
+                                            </div>
                                         </Card>
                                     );
                                 })}
@@ -393,12 +393,13 @@ export default function ServicesPage() {
                                 <Button
                                     variant="ghost"
                                     onClick={() => setSelectedTiers({ database: null, compute: null, n8n: null })}
+                                    className="cursor-pointer hover:text-primary hover:bg-primary/10"
                                 >
                                     Clear All
                                 </Button>
                                 <Button
                                     size="lg"
-                                    className="rounded-lg h-14 px-10 gap-2 text-lg font-bold flex-1 sm:flex-none"
+                                    className="rounded-lg h-14 px-10 gap-2 text-lg font-bold flex-1 sm:flex-none cursor-pointer hover:opacity-90"
                                     onClick={handleCheckout}
                                 >
                                     Deploy Now <ArrowRight className="w-5 h-5" />

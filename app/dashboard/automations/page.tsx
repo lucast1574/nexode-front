@@ -2,12 +2,15 @@
 
 import React, { useEffect, useState, useCallback } from "react";
 import { NotificationBell } from "@/components/NotificationBell";
-import { Workflow, Zap, Activity, Trash2, RefreshCw, ExternalLink, Search, Plus, Globe, Settings, Shield, Copy, Check } from "lucide-react";
+import { Workflow, Zap, Activity, Trash2, RefreshCw, ExternalLink, Search, Plus, Globe, Settings, Shield, Copy, Check, Terminal, Key } from "lucide-react";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Label } from "@/components/ui/label";
 import { Subscription } from "@/app/dashboard/layout";
 import { cn } from "@/lib/utils";
 import { getAccessToken } from "@/lib/auth-utils";
@@ -268,11 +271,11 @@ export default function AutomationsPage() {
                 </header>
 
                 <div className="flex-1 flex overflow-hidden z-10">
-                    <div className="w-80 border-r border-border bg-black/20 flex flex-col shrink-0">
+                    <div className="w-80 border-r border-border bg-black/20 flex flex-col">
                         <div className="p-4 border-b border-border">
                             <div className="flex items-center gap-3">
                                 <Search className="size-4 text-muted-foreground" />
-                                <Input type="text" placeholder="Filter clusters..." className="bg-muted border-border text-xs h-8" />
+                                <Input type="text" placeholder="Search clusters..." className="bg-muted border-border text-xs h-8" />
                             </div>
                         </div>
                         <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3">
@@ -287,165 +290,292 @@ export default function AutomationsPage() {
                                         key={inst._id}
                                         onClick={() => setSelectedInstance(inst)}
                                         className={cn(
-                                            "w-full text-left p-6  border transition-all duration-300 relative group overflow-hidden",
-                                            selectedInstance?._id === inst._id ? "bg-destructive/5 border-destructive/20" : "bg-muted-foreground/5 border-border hover:bg-muted"
+                                            "w-full text-left p-4 border transition-all group",
+                                            selectedInstance?._id === inst._id
+                                                ? "bg-primary/10 border-primary/20"
+                                                : "bg-card border-border hover:bg-muted"
                                         )}
                                     >
-                                        <div className="flex items-center justify-between mb-4">
-                                            <div className="flex items-center gap-2">
-                                                <div className={cn("w-1.5 h-1.5  ", inst.status === 'running' ? 'bg-emerald-500' : 'bg-red-500' )} />
-                                                <Badge variant="outline" className="text-muted-foreground">{inst.status}</Badge>
-                                            </div>
+                                        <div className="flex items-center justify-between mb-2">
+                                            <Image src="/db/n8n.svg" alt="n8n" width={20} height={20} className="size-5 object-contain" />
+                                            <div className={cn(
+                                                "w-2 h-2 rounded-full",
+                                                inst.status === 'running' ? 'bg-emerald-500 ' :
+                                                    inst.status === 'provisioning' ? 'bg-amber-500 animate-pulse' : 'bg-red-500'
+                                            )} />
                                         </div>
-                                        <div className="font-bold text-sm group-hover:text-destructive transition-colors mb-2">{inst.name}</div>
-                                        <div className="text-xs text-muted-foreground truncate">{inst.generated_domain || 'Internal Host'}</div>
+                                        <div className="font-bold text-sm truncate group-hover:text-primary transition-colors">{inst.name}</div>
+                                        <div className="text-xs text-muted-foreground mt-1">
+                                            Created {new Date(inst.created_on).toLocaleDateString()}
+                                        </div>
                                     </button>
                                 ))
                             )}
                         </div>
                     </div>
 
-                    <div className="flex-1 bg-background overflow-y-auto">
+                    <div className="flex-1 flex flex-col bg-background">
                         {selectedInstance ? (
-                            <div className="p-12 max-w-6xl mx-auto space-y-12 animate-in fade-in slide-in-from-bottom-6 duration-700">
-                                <div className="flex items-start justify-between">
-                                    <div className="flex flex-col gap-6">
-                                        <div className="flex items-center gap-6">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-12 h-12 bg-destructive/10 border border-destructive/20 flex items-center justify-center">
-                                                    <Workflow className="size-6 text-destructive" />
-                                                </div>
-                                                <h1 className="text-4xl font-bold tracking-tight">{selectedInstance.name}</h1>
+                            <>
+                                <div className="p-8 border-b border-border shrink-0">
+                                    <div className="flex items-start justify-between">
+                                        <div>
+                                            <div className="flex items-center gap-3 mb-2">
+                                                <h1 className="text-3xl font-bold tracking-tight">{selectedInstance.name}</h1>
+                                                <Badge variant="outline" className={cn(
+                                                    "text-xs font-medium",
+                                                    selectedInstance.status === 'running' ? "bg-primary/10 text-primary border-emerald-500/20" :
+                                                        "bg-amber-500/10 text-amber-500 border-amber-500/20"
+                                                )}>
+                                                    ● {selectedInstance.status}
+                                                </Badge>
                                             </div>
+                                            <p className="text-muted-foreground text-sm font-medium">Instance ID: {selectedInstance._id}</p>
                                         </div>
-                                    </div>
-                                    <div className="flex gap-4">
-                                        <Button 
-                                            onClick={() => window.open(getN8nUrl(selectedInstance.generated_domain || ''), '_blank')}
-                                            variant="outline"
-                                            disabled={selectedInstance.status.toLowerCase() !== 'running'}
-                                            className="h-14 px-8 gap-3 disabled:opacity-30 disabled:cursor-not-allowed"
-                                        >
-                                            <ExternalLink className="size-4" /> {selectedInstance.status.toLowerCase() === 'running' ? 'Open' : 'Deploying...'}
-                                        </Button>
-                                        <Button 
-                                            variant="outline" 
-                                            title="Redeploy this n8n instance"
-                                            onClick={() => handleRestart(selectedInstance._id)} 
-                                            disabled={cooldown > 0 || restarting}
-                                            className="h-14 px-6 gap-2"
-                                        >
-                                            <RefreshCw className={cn("size-5", restarting ? "animate-spin text-destructive" : "text-muted-foreground")} />
-                                            {cooldown > 0 
-                                                ? <span className="text-xs text-muted-foreground">{cooldown}s</span>
-                                                : <span className="text-xs text-muted-foreground">Redeploy</span>
-                                            }
-                                        </Button>
-                                        <Button onClick={() => handleDelete(selectedInstance._id)} variant="destructive" size="icon" className="h-14 w-14 p-0">
-                                            <Trash2 className="size-5" />
-                                        </Button>
+                                        <div className="flex gap-3">
+                                            <Button
+                                                variant="outline"
+                                                onClick={() => window.open(getN8nUrl(selectedInstance.generated_domain || ''), '_blank')}
+                                                disabled={selectedInstance.status.toLowerCase() !== 'running'}
+                                                className="h-10 gap-2 disabled:opacity-30 disabled:cursor-not-allowed"
+                                            >
+                                                <ExternalLink className="size-4" /> {selectedInstance.status.toLowerCase() === 'running' ? 'Open' : 'Deploying...'}
+                                            </Button>
+                                            <Button
+                                                variant="outline"
+                                                onClick={() => handleRestart(selectedInstance._id)}
+                                                disabled={cooldown > 0 || restarting}
+                                                className="h-10 gap-2"
+                                            >
+                                                <RefreshCw className={cn("size-4", restarting && "animate-spin")} /> Restart
+                                            </Button>
+                                            <Button
+                                                variant="destructive"
+                                                size="icon"
+                                                onClick={() => handleDelete(selectedInstance._id)}
+                                                className="h-10 w-10"
+                                            >
+                                                <Trash2 className="size-4" />
+                                            </Button>
+                                        </div>
                                     </div>
                                 </div>
 
-                                        <div className="flex items-center gap-6 px-4 py-2 bg-muted border border-border w-fit">
-                                            <div className="flex items-center gap-2 text-primary text-xs font-medium">
-                                                <Activity className="w-3 h-3" /> API Ready
-                                            </div>
-                                            <Separator orientation="vertical" className="h-4" />
-                                            <div className="flex items-center gap-2 text-muted-foreground text-xs font-medium">
-                                                <Globe className="w-3 h-3" /> NVMe Optimized
-                                            </div>
-                                        </div>
+                                <Tabs defaultValue="overview" className="flex-1 flex flex-col">
+                                    <TabsList variant="line" className="mt-8 gap-8 px-8">
+                                        <TabsTrigger value="overview" className="flex items-center gap-2">
+                                            <Activity className="size-4" /> Overview
+                                        </TabsTrigger>
+                                        <TabsTrigger value="events" className="flex items-center gap-2">
+                                            <Settings className="size-4" /> Events
+                                        </TabsTrigger>
+                                    </TabsList>
 
-                                        <Card className="bg-card border-border overflow-hidden">
-                                            <CardContent className="p-10 space-y-8 relative">
-                                                <div className="absolute top-0 right-0 p-10">
-                                                    <Shield className="w-12 h-12 text-white/5 rotate-12" />
-                                                </div>
-                                                
-                                                <div>
-                                                    <h3 className="text-xs font-medium text-muted-foreground mb-2">Internal Webhook Endpoint</h3>
-                                                    <p className="text-sm font-bold text-foreground">Natively proxied through Nexode Cloud Armor.</p>
-                                                </div>
-
-                                                <div className="p-8 bg-background border border-border flex items-center justify-between group">
-                                                    <div className="flex items-center gap-6">
-                                                        <div className="size-14 bg-destructive/5 border border-destructive/10 flex items-center justify-center group-hover:bg-destructive/10 transition-colors">
-                                                            <Zap className="w-7 h-7 text-destructive" />
+                                    <TabsContent value="overview" className="animate-in fade-in slide-in-from-bottom-4 duration-500 flex-1 overflow-y-auto p-8">
+                                        <div className="space-y-8">
+                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                                <Card className="bg-card border-border">
+                                                    <CardContent className="p-6">
+                                                        <div className="text-muted-foreground text-xs mb-4">Core Technology</div>
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="w-10 h-10 flex items-center justify-center border bg-primary/10 border-primary/20">
+                                                                <Workflow className="size-5 text-primary" />
+                                                            </div>
+                                                            <div>
+                                                                <div className="font-bold leading-tight">n8n Enterprise</div>
+                                                                <div className="text-xs text-muted-foreground font-medium">Latest Stable</div>
+                                                            </div>
                                                         </div>
-                                                        <div>
-                                                            <div className="text-xs text-muted-foreground mb-1">Production URL</div>
-                                                            {selectedInstance.status.toLowerCase() === 'running' ? (
-                                                                <code className="text-lg font-semibold text-foreground">{getN8nUrl(selectedInstance.generated_domain || '')}</code>
-                                                            ) : (
-                                                                <div className="flex items-center gap-3">
-                                                                    <div className="size-4 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
-                                                                    <span className="text-sm font-bold text-muted-foreground">Deploying... URL will appear when ready</span>
+                                                    </CardContent>
+                                                </Card>
+                                                <Card className="bg-card border-border">
+                                                    <CardContent className="p-6">
+                                                        <div className="text-muted-foreground text-xs mb-4">Availability Zone</div>
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="w-10 h-10 bg-primary/10 flex items-center justify-center border border-primary/20">
+                                                                <Shield className="size-5 text-primary" />
+                                                            </div>
+                                                            <div>
+                                                                <div className="font-bold">US-East (Virginia)</div>
+                                                                <div className="text-xs text-muted-foreground">Multi-AZ Enabled</div>
+                                                            </div>
+                                                        </div>
+                                                    </CardContent>
+                                                </Card>
+                                                <Card className="bg-card border-border">
+                                                    <CardContent className="p-6">
+                                                        <div className="text-muted-foreground text-xs mb-4">Instance Health</div>
+                                                        <div className="flex items-center gap-3">
+                                                            <div className="w-10 h-10 bg-primary/10 flex items-center justify-center border border-emerald-500/20">
+                                                                <Activity className="size-5 text-primary" />
+                                                            </div>
+                                                            <div>
+                                                                <div className="font-bold text-primary">{selectedInstance.status === 'running' ? 'Optimal' : 'Provisioning'}</div>
+                                                                <div className="text-xs text-muted-foreground">Monitored</div>
+                                                            </div>
+                                                        </div>
+                                                    </CardContent>
+                                                </Card>
+                                            </div>
+
+                                            <Card className="bg-card border-border">
+                                                <CardContent className="p-8">
+                                                    <h3 className="text-lg font-bold mb-6">Webhook Endpoint</h3>
+                                                    <div className="flex flex-col gap-4">
+                                                        <div className="p-4 bg-background border border-border flex items-center justify-between">
+                                                            <div className="flex-1 overflow-hidden">
+                                                                <div className="text-xs text-muted-foreground mb-1">Production URL</div>
+                                                                {selectedInstance.status.toLowerCase() === 'running' ? (
+                                                                    <code className="text-sm text-primary truncate block">{getN8nUrl(selectedInstance.generated_domain || '')}</code>
+                                                                ) : (
+                                                                    <span className="text-sm text-muted-foreground">provisioning...</span>
+                                                                )}
+                                                            </div>
+                                                            {selectedInstance.status.toLowerCase() === 'running' && (
+                                                                <div className="flex gap-2">
+                                                                    <Button
+                                                                        variant="ghost"
+                                                                        size="icon"
+                                                                        className="shrink-0"
+                                                                        onClick={() => {
+                                                                            navigator.clipboard.writeText(getN8nUrl(selectedInstance.generated_domain || ''));
+                                                                            setCopied(true);
+                                                                            setTimeout(() => setCopied(false), 2000);
+                                                                        }}
+                                                                    >
+                                                                        {copied ? <Check className="size-4 text-primary" /> : <Copy className="size-4" />}
+                                                                    </Button>
+                                                                    <Button
+                                                                        variant="ghost"
+                                                                        size="icon"
+                                                                        className="shrink-0"
+                                                                        onClick={() => window.open(getN8nUrl(selectedInstance.generated_domain || ''), '_blank')}
+                                                                    >
+                                                                        <ExternalLink className="size-4" />
+                                                                    </Button>
                                                                 </div>
                                                             )}
                                                         </div>
-                                                    </div>
-                                                    {selectedInstance.status.toLowerCase() === 'running' && (
-                                                    <div className="flex items-center gap-2">
-                                                        <Button 
-                                                            variant="ghost"
-                                                            onClick={() => {
-                                                                navigator.clipboard.writeText(getN8nUrl(selectedInstance.generated_domain || ''));
-                                                                setCopied(true);
-                                                                setTimeout(() => setCopied(false), 2000);
-                                                            }} 
-                                                            className="size-14 p-0 shrink-0"
-                                                        >
-                                                            {copied ? <Check className="size-5 text-primary" /> : <Copy className="size-5" />}
-                                                        </Button>
-                                                        <Button 
-                                                            variant="ghost"
-                                                            onClick={() => window.open(getN8nUrl(selectedInstance.generated_domain || ''), '_blank')}
-                                                            className="size-14 p-0 shrink-0"
-                                                        >
-                                                            <ExternalLink className="size-5" />
-                                                        </Button>
-                                                    </div>
-                                                    )}
-                                                </div>
-                                            </CardContent>
-                                        </Card>
 
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                                        {selectedInstance.webhook_url && (
+                                                            <div className="p-4 bg-background border border-border flex items-center justify-between">
+                                                                <div className="flex-1 overflow-hidden">
+                                                                    <div className="text-xs text-muted-foreground mb-1">Webhook URL</div>
+                                                                    <code className="text-sm text-primary truncate block">{selectedInstance.webhook_url}</code>
+                                                                </div>
+                                                                <Button
+                                                                    variant="ghost"
+                                                                    size="icon"
+                                                                    className="shrink-0"
+                                                                    onClick={() => {
+                                                                        navigator.clipboard.writeText(selectedInstance.webhook_url || '');
+                                                                        setCopied(true);
+                                                                        setTimeout(() => setCopied(false), 2000);
+                                                                    }}
+                                                                >
+                                                                    {copied ? <Check className="size-4 text-primary" /> : <Copy className="size-4" />}
+                                                                </Button>
+                                                            </div>
+                                                        )}
+
+                                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                                            <Card className="bg-background border-border">
+                                                                <CardContent className="p-4">
+                                                                    <div className="text-xs text-muted-foreground mb-1">Status</div>
+                                                                    <code className="text-sm">{selectedInstance.status}</code>
+                                                                </CardContent>
+                                                            </Card>
+                                                            <Card className="bg-background border-border">
+                                                                <CardContent className="p-4">
+                                                                    <div className="text-xs text-muted-foreground mb-1">Domain</div>
+                                                                    <code className="text-sm">{selectedInstance.generated_domain || 'Internal'}</code>
+                                                                </CardContent>
+                                                            </Card>
+                                                            <Card className="bg-background border-border">
+                                                                <CardContent className="p-4">
+                                                                    <div className="text-xs text-muted-foreground mb-1">Created</div>
+                                                                    <code className="text-sm">{new Date(selectedInstance.created_on).toLocaleDateString()}</code>
+                                                                </CardContent>
+                                                            </Card>
+                                                        </div>
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+
+                                            {selectedInstance.events && selectedInstance.events.length > 0 && (
+                                                <Card className="bg-card border-border">
+                                                    <CardContent className="p-8">
+                                                        <div className="flex items-center justify-between mb-8">
+                                                            <h3 className="text-lg font-bold">Deployment Timeline</h3>
+                                                            <span className="text-xs text-muted-foreground">Real-time Logs</span>
+                                                        </div>
+                                                        <div className="space-y-6 relative ml-2">
+                                                            <div className="absolute left-[7px] top-2 bottom-2 w-0.5 bg-muted" />
+                                                            {selectedInstance.events.map((event, idx) => (
+                                                                <div key={idx} className="flex gap-6 relative">
+                                                                    <div className={cn(
+                                                                        "size-4 rounded-full border-2 border-zinc-700 relative z-10 shrink-0 mt-1",
+                                                                        event.type === 'success' ? 'bg-emerald-500 ' :
+                                                                            event.type === 'error' ? 'bg-red-500 ' : 'bg-primary'
+                                                                    )} />
+                                                                    <div className="flex-1">
+                                                                        <div className="flex items-center justify-between mb-1">
+                                                                            <p className={cn(
+                                                                                "text-sm font-bold",
+                                                                                event.type === 'error' ? 'text-destructive' :
+                                                                                    event.type === 'success' ? 'text-primary' : 'text-foreground'
+                                                                            )}>
+                                                                                {event.message}
+                                                                            </p>
+                                                                            <span className="text-xs font-medium text-muted-foreground">
+                                                                                {new Date(event.timestamp).toLocaleTimeString()}
+                                                                            </span>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </CardContent>
+                                                </Card>
+                                            )}
+                                        </div>
+                                    </TabsContent>
+
+                                    <TabsContent value="events" className="animate-in fade-in slide-in-from-bottom-4 duration-500 flex-1 overflow-y-auto p-8">
+                                        <div className="space-y-8">
                                             <Card className="bg-card border-border">
-                                                <CardContent className="p-10">
+                                                <CardContent className="p-8">
                                                     <div className="flex items-center gap-3 mb-8">
                                                         <Settings className="size-5 text-muted-foreground" />
-                                                        <h3 className="text-xs font-medium text-muted-foreground">Service Events</h3>
+                                                        <h3 className="text-lg font-bold">Service Events</h3>
                                                     </div>
                                                     <div className="space-y-6">
                                                         {dnsStatus && (
                                                             <div className="flex gap-6 pb-6 border-b border-border last:border-0 last:pb-0">
                                                                 <div className={cn(
-                                                                    "w-1.5 h-1.5  mt-1.5",
-                                                                    dnsStatus === 'resolved' ? 'bg-emerald-500 ' : 
-                                                                    dnsStatus === 'failed' ? 'bg-red-500 ' : 
-                                                                    'bg-yellow-500 animate-pulse'
+                                                                    "size-4 rounded-full relative z-10 shrink-0 mt-1",
+                                                                    dnsStatus === 'resolved' ? 'bg-emerald-500 ' :
+                                                                        dnsStatus === 'failed' ? 'bg-red-500 ' : 'bg-yellow-500 animate-pulse'
                                                                 )} />
                                                                 <div className="flex-1 min-w-0">
-                                                                    <div className="text-xs font-bold text-foreground break-words mb-1">
+                                                                    <div className="text-sm font-bold text-foreground break-words mb-1">
                                                                         DNS Verification: {dnsStatus === 'checking' ? 'Resolving Wildcard...' : dnsStatus === 'resolved' ? 'Propagation Successful' : 'Wildcard Resolution Failed'}
                                                                     </div>
-                                                                    <div className="text-xs font-bold text-muted-foreground uppercase italic">
+                                                                    <div className="text-xs font-medium text-muted-foreground">
                                                                         {dnsMessage || 'Checking DNS records...'}
                                                                     </div>
                                                                 </div>
                                                             </div>
                                                         )}
-                                                        {selectedInstance.events?.slice(-4).reverse().map((e, idx) => (
+                                                        {selectedInstance.events?.slice(-10).reverse().map((e, idx) => (
                                                             <div key={idx} className="flex gap-6 pb-6 border-b border-border last:border-0 last:pb-0">
                                                                 <div className={cn(
-                                                                    "w-1.5 h-1.5  mt-1.5",
-                                                                    e.type === 'error' ? 'bg-red-500 ' : 'bg-red-400'
+                                                                    "size-4 rounded-full relative z-10 shrink-0 mt-1",
+                                                                    e.type === 'error' ? 'bg-red-500 ' : 'bg-primary'
                                                                 )} />
                                                                 <div className="flex-1 min-w-0">
-                                                                    <div className="text-xs font-bold text-foreground break-words mb-1">{e.message}</div>
-                                                                    <div className="text-xs font-bold text-muted-foreground uppercase italic">
+                                                                    <div className="text-sm font-bold text-foreground break-words mb-1">{e.message}</div>
+                                                                    <div className="text-xs font-medium text-muted-foreground">
                                                                         {new Date(e.timestamp).toLocaleString()}
                                                                     </div>
                                                                 </div>
@@ -454,30 +584,10 @@ export default function AutomationsPage() {
                                                     </div>
                                                 </CardContent>
                                             </Card>
-
-                                            <Card className="bg-card border-border relative overflow-hidden group">
-                                                <CardContent className="p-10 flex flex-col items-center justify-center text-center">
-                                                    <div className="absolute inset-0 bg-destructive/[0.01] group-hover:bg-destructive/[0.02] transition-colors" />
-                                                    <Workflow className="size-16 text-muted-foreground mb-6 group-hover:text-destructive/40 transition-colors relative z-10" />
-                                                    <h3 className="text-lg font-semibold uppercase italic tracking-tighter mb-4 text-muted-foreground relative z-10">Node Configuration</h3>
-                                                    <p className="text-xs font-bold text-muted-foreground max-w-xs leading-relaxed relative z-10">
-                                                        This instance is running an isolated n8n core with dedicated persistent storage and encryption keys.
-                                                    </p>
-                                                    <Separator className="my-8 relative z-10" />
-                                                    <div className="w-full flex justify-around relative z-10">
-                                                        <div className="text-center">
-                                                            <div className="text-xs font-bold text-muted-foreground uppercase mb-1">Status</div>
-                                                            <div className="text-xs font-medium text-foreground tracking-tighter">{selectedInstance.status.toUpperCase()}</div>
-                                                        </div>
-                                                        <div className="text-center">
-                                                            <div className="text-xs font-bold text-muted-foreground uppercase mb-1">Region</div>
-                                                            <div className="text-xs font-medium text-foreground tracking-tighter">Local Server</div>
-                                                        </div>
-                                                    </div>
-                                                </CardContent>
-                                            </Card>
                                         </div>
-                            </div>
+                                    </TabsContent>
+                                </Tabs>
+                            </>
                         ) : (
                             <div className="h-full flex flex-col items-center justify-center text-center p-8">
                                 <Workflow className="size-16 text-muted-foreground mb-6" />
