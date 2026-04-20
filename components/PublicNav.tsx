@@ -23,7 +23,7 @@ export function PublicNav({ showUserNav = true }: PublicNavProps) {
     return (
         <nav className="relative z-50 border-b border-white/5 bg-black/50 backdrop-blur-xl">
             <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-                <Button render={<Link href="/" />} nativeButton={false} variant="ghost" className="text-2xl font-black italic tracking-tighter text-primary p-0 h-auto hover:bg-transparent">
+                <Button render={<Link href="/" />} nativeButton={false} variant="ghost" className="text-2xl font-bold italic tracking-tighter text-primary p-0 h-auto hover:bg-transparent">
                     NEXODE
                 </Button>
                 <div className="flex items-center gap-1">

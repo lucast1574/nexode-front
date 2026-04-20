@@ -37,7 +37,7 @@ export function SubscriptionLimitModal({
                             <DialogTitle>
                                 {hasNoSubscription ? "Subscription Required" : "Instance Limit Reached"}
                             </DialogTitle>
-                            <DialogDescription className="mt-1">
+                            <DialogDescription>
                                 {hasNoSubscription
                                     ? `You need an active ${serviceName} subscription to create an instance.`
                                     : `You're using ${usedSlots} of ${totalSlots} available ${serviceName.toLowerCase()} instance${totalSlots !== 1 ? 's' : ''}.`
@@ -66,29 +66,29 @@ export function SubscriptionLimitModal({
                     <p className="text-xs font-medium text-muted-foreground mb-3">How it works</p>
                     <div className="space-y-2">
                         <div className="flex items-start gap-3">
-                            <div className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/20 text-[10px] font-bold text-primary">1</div>
+                            <div className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/20 text-xs font-bold text-primary">1</div>
                             <p className="text-xs text-muted-foreground">Choose a plan that fits your needs</p>
                         </div>
                         <div className="flex items-start gap-3">
-                            <div className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/20 text-[10px] font-bold text-primary">2</div>
+                            <div className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/20 text-xs font-bold text-primary">2</div>
                             <p className="text-xs text-muted-foreground">Each subscription unlocks one instance slot</p>
                         </div>
                         <div className="flex items-start gap-3">
-                            <div className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/20 text-[10px] font-bold text-primary">3</div>
+                            <div className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/20 text-xs font-bold text-primary">3</div>
                             <p className="text-xs text-muted-foreground">Want more instances? Add more subscriptions</p>
                         </div>
                     </div>
                 </div>
 
-                <DialogFooter className="flex-row gap-2 sm:justify-end">
+                <DialogFooter>
                     <DialogClose render={<Button variant="outline" />}>
                         Cancel
                     </DialogClose>
                     <Button render={<Link href={`/services#${serviceId}`} />} nativeButton={false} className="gap-2">
-                            <Plus className="w-4 h-4" />
-                            {hasNoSubscription ? "View Plans" : "Add Subscription"}
-                            <ArrowRight className="w-4 h-4" />
-                        </Button>
+                        <Plus className="w-4 h-4" />
+                        {hasNoSubscription ? "View Plans" : "Add Subscription"}
+                        <ArrowRight className="w-4 h-4" />
+                    </Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>

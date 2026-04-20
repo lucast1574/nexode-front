@@ -22,6 +22,8 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Field, FieldLabel, FieldGroup, FieldSet, FieldLegend } from "@/components/ui/field";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/ui/breadcrumb";
@@ -446,7 +448,7 @@ export default function DatabasesPage() {
             <div className="min-h-screen bg-background flex items-center justify-center">
                 <div className="flex flex-col items-center gap-6">
                     <div className="size-8 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
-                    <p className="text-muted-foreground font-bold tracking-widest uppercase text-xs animate-pulse">Syncing Database Clusters...</p>
+                    <p className="text-muted-foreground text-sm animate-pulse">Syncing Database Clusters...</p>
                 </div>
             </div>
         );
@@ -505,7 +507,7 @@ export default function DatabasesPage() {
                                     >
                                         <div className="flex items-center justify-between mb-2">
                                             <Badge variant="outline" className={cn(
-                                                "text-[9px] font-black uppercase tracking-widest",
+                                                "text-xs font-medium",
                                                 db.type === 'postgres' ? 'text-primary border-primary/20 bg-primary/10' :
                                                     db.type === 'mongodb' ? 'text-primary border-emerald-400/20 bg-emerald-400/10' :
                                                         db.type === 'mysql' ? 'text-primary border-primary/20 bg-primary/10' :
@@ -520,7 +522,7 @@ export default function DatabasesPage() {
                                             )} />
                                         </div>
                                         <div className="font-bold text-sm truncate group-hover:text-primary transition-colors">{db.name}</div>
-                                        <div className="text-[10px] text-muted-foreground mt-1 uppercase tracking-tighter">
+                                        <div className="text-xs text-muted-foreground mt-1">
                                             Created {new Date(db.created_on).toLocaleDateString()}
                                         </div>
                                     </button>
@@ -536,9 +538,9 @@ export default function DatabasesPage() {
                                     <div className="flex items-start justify-between">
                                         <div>
                                             <div className="flex items-center gap-3 mb-2">
-                                                <h1 className="text-3xl font-black tracking-tight">{selectedDb.name}</h1>
+                                                <h1 className="text-3xl font-bold tracking-tight">{selectedDb.name}</h1>
                                                 <Badge variant="outline" className={cn(
-                                                    "text-[10px] font-black uppercase tracking-widest",
+                                                    "text-xs font-medium",
                                                     selectedDb.status === 'running' ? "bg-primary/10 text-primary border-emerald-500/20" :
                                                         "bg-amber-500/10 text-amber-500 border-amber-500/20"
                                                 )}>
@@ -583,9 +585,9 @@ export default function DatabasesPage() {
                                     <TabsContent value="overview" className="animate-in fade-in slide-in-from-bottom-4 duration-500 flex-1 overflow-y-auto p-8">
                                         <div className="space-y-8">
                                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                                <Card className="bg-card border-border ">
+                                                <Card className="bg-card border-border">
                                                     <CardContent className="p-6">
-                                                        <div className="text-muted-foreground text-[10px] font-black uppercase tracking-widest mb-4">Core Technology</div>
+                                                        <div className="text-muted-foreground text-xs mb-4">Core Technology</div>
                                                         <div className="flex items-center gap-3">
                                                             <div className={cn(
                                                                 "w-10 h-10  flex items-center justify-center border",
@@ -608,7 +610,7 @@ export default function DatabasesPage() {
                                                                     selectedDb.type === 'mongodb' ? 'MongoDB' :
                                                                         selectedDb.type === 'redis' ? 'Redis' :
                                                                             selectedDb.type === 'mysql' ? 'MySQL' : selectedDb.type} Enterprise</div>
-                                                                <div className="text-[10px] text-muted-foreground font-medium">
+                                                                <div className="text-xs text-muted-foreground font-medium">
                                                                     {selectedDb.type === 'postgres' ? 'v16.2 Stable' :
                                                                         selectedDb.type === 'mongodb' ? 'v6.0 Latest' :
                                                                             selectedDb.type === 'redis' ? 'v7.2 stable' :
@@ -618,11 +620,11 @@ export default function DatabasesPage() {
                                                         </div>
                                                     </CardContent>
                                                 </Card>
-                                                <Card className="bg-card border-border ">
+                                                <Card className="bg-card border-border">
                                                     <CardContent className="p-6">
-                                                        <div className="text-muted-foreground text-[10px] font-black uppercase tracking-widest mb-4">Availability Zone</div>
+                                                        <div className="text-muted-foreground text-xs mb-4">Availability Zone</div>
                                                         <div className="flex items-center gap-3">
-                                                            <div className="w-10 h-10  bg-primary/10 flex items-center justify-center border border-primary/20">
+                                                            <div className="w-10 h-10 bg-primary/10 flex items-center justify-center border border-primary/20">
                                                                 <Shield className="size-5 text-primary" />
                                                             </div>
                                                             <div>
@@ -632,11 +634,11 @@ export default function DatabasesPage() {
                                                         </div>
                                                     </CardContent>
                                                 </Card>
-                                                <Card className="bg-card border-border ">
+                                                <Card className="bg-card border-border">
                                                     <CardContent className="p-6">
-                                                        <div className="text-muted-foreground text-[10px] font-black uppercase tracking-widest mb-4">Instance Health</div>
+                                                        <div className="text-muted-foreground text-xs mb-4">Instance Health</div>
                                                         <div className="flex items-center gap-3">
-                                                            <div className="w-10 h-10  bg-primary/10 flex items-center justify-center border border-emerald-500/20">
+                                                            <div className="w-10 h-10 bg-primary/10 flex items-center justify-center border border-emerald-500/20">
                                                                 <Activity className="size-5 text-primary" />
                                                             </div>
                                                             <div>
@@ -648,13 +650,13 @@ export default function DatabasesPage() {
                                                 </Card>
                                             </div>
 
-                                            <Card className="bg-card border-border ">
+                                            <Card className="bg-card border-border">
                                                 <CardContent className="p-8">
                                                     <h3 className="text-lg font-bold mb-6">Connection Endpoints</h3>
                                                     <div className="flex flex-col gap-4">
-                                                        <div className="p-4  bg-background border border-border flex items-center justify-between">
+                                                        <div className="p-4 bg-background border border-border flex items-center justify-between">
                                                             <div className="flex-1 overflow-hidden">
-                                                                <div className="text-[10px] text-muted-foreground font-bold uppercase mb-1">Public Connection URI</div>
+                                                                <div className="text-xs text-muted-foreground mb-1">Public Connection URI</div>
                                                                 <code className="text-sm text-primary truncate block">{selectedDb.public_uri || selectedDb.connection_string || 'provisioning...'}</code>
                                                             </div>
                                                             <Button
@@ -667,9 +669,9 @@ export default function DatabasesPage() {
                                                             </Button>
                                                         </div>
 
-                                                        <div className="p-4  bg-background border border-border flex items-center justify-between">
+                                                        <div className="p-4 bg-background border border-border flex items-center justify-between">
                                                             <div className="flex-1 overflow-hidden">
-                                                                <div className="text-[10px] text-muted-foreground font-bold uppercase mb-1">Internal Connection URI</div>
+                                                                <div className="text-xs text-muted-foreground mb-1">Internal Connection URI</div>
                                                                 <code className="text-sm text-primary truncate block">{selectedDb.internal_uri || 'provisioning...'}</code>
                                                             </div>
                                                             <Button
@@ -683,21 +685,21 @@ export default function DatabasesPage() {
                                                         </div>
 
                                                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                                            <Card className="bg-background border-border ">
+                                                            <Card className="bg-background border-border">
                                                                 <CardContent className="p-4">
-                                                                    <div className="text-[10px] text-muted-foreground font-bold uppercase mb-1">Host</div>
+                                                                    <div className="text-xs text-muted-foreground mb-1">Host</div>
                                                                     <code className="text-sm">{selectedDb.host || 'backend.nexode.app'}</code>
                                                                 </CardContent>
                                                             </Card>
-                                                            <Card className="bg-background border-border ">
+                                                            <Card className="bg-background border-border">
                                                                 <CardContent className="p-4">
-                                                                    <div className="text-[10px] text-muted-foreground font-bold uppercase mb-1">Port</div>
+                                                                    <div className="text-xs text-muted-foreground mb-1">Port</div>
                                                                     <code className="text-sm">{selectedDb.port || '...'}</code>
                                                                 </CardContent>
                                                             </Card>
-                                                            <Card className="bg-background border-border ">
+                                                            <Card className="bg-background border-border">
                                                                 <CardContent className="p-4">
-                                                                    <div className="text-[10px] text-muted-foreground font-bold uppercase mb-1">Database Name</div>
+                                                                    <div className="text-xs text-muted-foreground mb-1">Database Name</div>
                                                                     <code className="text-sm">{selectedDb.db_name || '...'}</code>
                                                                 </CardContent>
                                                             </Card>
@@ -707,11 +709,11 @@ export default function DatabasesPage() {
                                             </Card>
 
                                             {selectedDb.events && selectedDb.events.length > 0 && (
-                                                <Card className="bg-card border-border ">
+                                                <Card className="bg-card border-border">
                                                     <CardContent className="p-8">
                                                         <div className="flex items-center justify-between mb-8">
                                                             <h3 className="text-lg font-bold">Deployment Timeline</h3>
-                                                            <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Real-time Logs</span>
+                                                            <span className="text-xs text-muted-foreground">Real-time Logs</span>
                                                         </div>
                                                         <div className="space-y-6 relative ml-2">
                                                             <div className="absolute left-[7px] top-2 bottom-2 w-0.5 bg-muted" />
@@ -731,7 +733,7 @@ export default function DatabasesPage() {
                                                                             )}>
                                                                                 {event.message}
                                                                             </p>
-                                                                            <span className="text-[10px] font-medium text-muted-foreground">
+                                                                            <span className="text-xs font-medium text-muted-foreground">
                                                                                 {new Date(event.timestamp).toLocaleTimeString()}
                                                                             </span>
                                                                         </div>
@@ -747,7 +749,7 @@ export default function DatabasesPage() {
 
                                     <TabsContent value="credentials" className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                                         <div className="space-y-6">
-                                            <Card className="border-destructive/20 bg-destructive/10 ">
+                                            <Card className="border-destructive/20 bg-destructive/10">
                                                 <CardContent className="p-4">
                                                     <div className="flex gap-3 text-destructive">
                                                         <Shield className="size-5 shrink-0" />
@@ -787,10 +789,10 @@ export default function DatabasesPage() {
                                                         field: 'jdbc_mysql', secret: true
                                                     }] : [])
                                                 ].map((item: { label: string, value: string | undefined, field: string, secret?: boolean }) => (
-                                                    <Card key={item.field} className="bg-card border-border hover:border-primary/20 transition-all  group">
+                                                    <Card key={item.field} className="bg-card border-border hover:border-primary/20 transition-all group">
                                                         <CardContent className="p-6">
                                                             <div className="flex items-center justify-between mb-4">
-                                                                <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground">{item.label}</Label>
+                                                                <Label className="text-sm font-medium text-muted-foreground">{item.label}</Label>
 <Button
                                                                     variant="ghost"
                                                                     size="sm"
@@ -800,7 +802,7 @@ export default function DatabasesPage() {
                                                                     {copiedField === item.field ? <><Check className="w-3 h-3 mr-2" /> Copied</> : <><Copy className="w-3 h-3 mr-2" /> Copy Item</>}
                                                                 </Button>
                                                             </div>
-                                                            <div className="bg-muted/50 p-4  border border-border font-mono text-sm break-all flex items-center justify-between gap-3">
+                                                            <div className="bg-muted/50 p-4 border border-border font-mono text-sm break-all flex items-center justify-between gap-3">
                                                                 <span className="flex-1 overflow-hidden">{maskValue(item.value, item.field, !!item.secret)}</span>
                                                                 {item.secret && (
                                                                     <button
@@ -820,7 +822,7 @@ export default function DatabasesPage() {
                                     </TabsContent>
 
                                     <TabsContent value="terminal" className="animate-in fade-in zoom-in-95 duration-500">
-                                        <Card className="bg-background border-border  h-full flex flex-col overflow-hidden">
+                                        <Card className="bg-background border-border h-full flex flex-col overflow-hidden">
                                             <CardHeader className="px-6 py-4 border-b border-border bg-muted/40 flex items-center justify-between">
                                                 <div className="flex items-center gap-3">
                                                     <div className="flex gap-1.5">
@@ -828,13 +830,13 @@ export default function DatabasesPage() {
                                                         <div className="w-2.5 h-2.5 rounded-full bg-amber-500/20 border border-amber-500/40" />
                                                         <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/20 border border-emerald-500/40" />
                                                     </div>
-                                                    <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-2">
+                                                    <span className="text-xs font-medium text-muted-foreground ml-2">
                                                         {selectedDb.type === 'mongodb' ? 'Mongosh' :
                                                             selectedDb.type === 'postgres' ? 'PSQL' :
                                                                 selectedDb.type === 'redis' ? 'Redis-CLI' : 'MySQL'} Proxy — {selectedDb.name}
                                                     </span>
                                                 </div>
-                                                <Badge variant="outline" className="text-[10px] font-bold text-primary uppercase tracking-tighter">
+                                                <Badge variant="outline" className="text-xs font-bold text-primary">
                                                     <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse mr-1.5" /> Connected
                                                 </Badge>
                                             </CardHeader>
@@ -888,7 +890,7 @@ export default function DatabasesPage() {
                         ) : (
                             <div className="h-full flex flex-col items-center justify-center text-center p-8">
                                 <Database className="size-16 text-muted-foreground mb-6" />
-                                <h1 className="text-2xl font-black mb-2">No active databases found</h1>
+                                <h1 className="text-2xl font-bold mb-2">No active databases found</h1>
                                 <p className="text-muted-foreground max-w-xs mx-auto mb-6">Create one to get started.</p>
                                 <Button onClick={handleCreateClick} className="gap-2">
                                     <Plus className="size-4" /> Provision Database
@@ -899,24 +901,21 @@ export default function DatabasesPage() {
                 </div>
 
 
-            {showCreateModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-muted/80 backdrop-blur-md animate-in fade-in duration-300">
-                    <div className="w-full max-w-md bg-card border border-border  p-8 shadow-2xl relative">
-                        <h2 className="text-2xl font-black mb-6">Provision New Database</h2>
-                        <form onSubmit={handleCreateDb} className="space-y-6">
-                            <div className="space-y-2">
-                                <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground px-1">Instance Name</Label>
-                                <Input
-                                    name="name"
-                                    required
-                                    type="text"
-                                    placeholder="e.g. Production Cluster"
-                                    className="bg-muted border-border  h-12 text-sm focus:border-primary"
-                                />
-                            </div>
+            <Dialog open={showCreateModal} onOpenChange={setShowCreateModal}>
+                <DialogContent className="sm:max-w-lg">
+                    <DialogHeader>
+                        <DialogTitle>Provision New Database</DialogTitle>
+                        <DialogDescription>Create a new database instance to get started.</DialogDescription>
+                    </DialogHeader>
+                    <form onSubmit={handleCreateDb}>
+                        <FieldGroup>
+                            <Field>
+                                <FieldLabel htmlFor="db-name">Instance Name</FieldLabel>
+                                <Input id="db-name" name="name" required placeholder="e.g. Production Cluster" />
+                            </Field>
 
-                            <div className="flex flex-col gap-4">
-                                <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground px-1">Engine Type</Label>
+                            <FieldSet>
+                                <FieldLegend>Engine Type</FieldLegend>
                                 <div className="grid grid-cols-3 gap-4">
                                     {[
                                         {
@@ -961,7 +960,7 @@ export default function DatabasesPage() {
                                                 defaultChecked={type.id === 'postgres'}
                                                 className="peer hidden"
                                             />
-                                            <div className="h-28 p-4  border border-border bg-card peer-checked:bg-primary/5 peer-checked:border-primary/40 peer-checked:ring-1 peer-checked:ring-primary/20 transition-all flex flex-col items-center justify-center gap-3 hover:bg-muted hover:border-border">
+                                            <div className="h-28 p-4 border border-border bg-card peer-checked:bg-primary/5 peer-checked:border-primary/40 peer-checked:ring-1 peer-checked:ring-primary/20 transition-all flex flex-col items-center justify-center gap-3 hover:bg-muted hover:border-border">
                                                 <div className="relative">
                                                     <div
                                                         className="absolute inset-0 blur-lg opacity-20 group-hover:opacity-40 transition-opacity"
@@ -971,7 +970,7 @@ export default function DatabasesPage() {
                                                         {type.svg}
                                                     </div>
                                                 </div>
-                                                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground peer-checked:text-foreground transition-colors">{type.label}</span>
+                                                <span className="text-xs font-medium text-muted-foreground peer-checked:text-foreground transition-colors">{type.label}</span>
 
                                                 <div className="absolute top-2 right-2 opacity-0 peer-checked:opacity-100 transition-opacity">
                                                     <div className="size-4 rounded-full bg-primary flex items-center justify-center">
@@ -982,28 +981,18 @@ export default function DatabasesPage() {
                                         </label>
                                     ))}
                                 </div>
-                            </div>
+                            </FieldSet>
 
-                            <div className="pt-4 flex gap-4">
-                                <Button
-                                    type="button"
-                                    variant="ghost"
-                                    className="flex-1 h-12 font-bold"
-                                    onClick={() => setShowCreateModal(false)}
-                                >
-                                    Cancel
-                                </Button>
-                                <Button
-                                    type="submit"
-                                    className="flex-1 h-12 font-bold shadow-lg shadow-primary/20"
-                                >
-                                    Provision Now
-                                </Button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
+                            <Button
+                                type="submit"
+                                className="w-full h-12"
+                            >
+                                Provision Now
+                            </Button>
+                        </FieldGroup>
+                    </form>
+                </DialogContent>
+            </Dialog>
             <DeleteDatabaseModal
                 isOpen={showDeleteModal}
                 onClose={() => {

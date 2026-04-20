@@ -13,11 +13,11 @@ export default function Home() {
 
             <main className="relative z-10 flex flex-col items-center text-center px-4 max-w-4xl mx-auto space-y-12">
                 <div className="space-y-6">
-                    <Badge variant="outline" className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border-primary/20 text-primary text-xs font-bold tracking-wider uppercase animate-fade-in">
+                    <Badge variant="outline" className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border-primary/20 text-primary text-xs font-medium animate-fade-in">
                         Next Generation Platform
                     </Badge>
 
-                    <h1 className="text-5xl md:text-7xl font-black tracking-tight leading-[1.1]">
+                    <h1 className="text-5xl md:text-7xl font-bold tracking-tight leading-[1.1]">
                         Scale Your{" "}
                         <span className="text-primary italic">Infrastructure</span>{" "}
                         with Precision

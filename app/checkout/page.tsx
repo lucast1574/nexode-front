@@ -130,7 +130,7 @@ export default function CheckoutPage() {
             <PublicNav />
 
             <header className="relative z-10 pt-20 pb-16 px-6 text-center max-w-4xl mx-auto">
-                <h1 className="text-4xl md:text-6xl font-black tracking-tight mb-6">
+                <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-6">
                     Manage Your <span className="text-primary italic underline decoration-primary/30 decoration-8 underline-offset-8">Infrastructure</span>
                 </h1>
                 <p className="text-lg text-zinc-400 leading-relaxed max-w-2xl mx-auto">
@@ -146,7 +146,7 @@ export default function CheckoutPage() {
 
             <main className="relative z-10 pb-40 px-6 max-w-4xl mx-auto">
                 <div className="bg-white/[0.02] border border-white/5 rounded-xl p-8 mb-12 shadow-xl shadow-black">
-                    <h2 className="text-2xl font-black mb-8 flex items-center gap-3">
+                    <h2 className="text-2xl font-bold mb-8 flex items-center gap-3">
                         <Database className="w-6 h-6 text-primary" /> Tus Suscripciones Activas
                     </h2>
                     
@@ -189,12 +189,12 @@ export default function CheckoutPage() {
                                                 <Icon className="w-6 h-6" />
                                             </div>
                                             <div>
-                                                <div className="text-sm font-bold text-zinc-400 uppercase tracking-widest">{sub.service} Cluster</div>
-                                                <div className="text-xl font-black">{sub.plan.name || "Custom Plan"}</div>
+                                                <div className="text-sm text-muted-foreground">{sub.service} Cluster</div>
+                                                <div className="text-xl font-semibold">{sub.plan.name || "Custom Plan"}</div>
                                             </div>
                                         </div>
                                         <div className="flex flex-col sm:items-end gap-2">
-                                            <div className="text-2xl font-black">${price} <span className="text-sm font-normal text-zinc-500">/{isAnnual ? 'yr' : 'mo'}</span></div>
+                                            <div className="text-2xl font-bold">${price} <span className="text-sm font-normal text-zinc-500">/{isAnnual ? 'yr' : 'mo'}</span></div>
                                             <Button onClick={handleManageBilling} variant="outline" size="sm" className="rounded-xl border-white/20 group-hover:bg-white/10 gap-2">
                                                 <Settings className="w-4 h-4" /> Manage Plan
                                             </Button>
@@ -207,7 +207,7 @@ export default function CheckoutPage() {
                 </div>
 
                 <div className="text-center mt-12 bg-primary/10 border border-primary/20 rounded-xl p-10">
-                    <h3 className="text-2xl font-black mb-4">Need more capacity?</h3>
+                    <h3 className="text-2xl font-bold mb-4">Need more capacity?</h3>
                     <p className="text-zinc-400 mb-8 max-w-xl mx-auto">
                         Increase your database, compute, or n8n workflow limits by adding additional subscriptions to your account.
                     </p>

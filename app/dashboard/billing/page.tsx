@@ -100,7 +100,7 @@ export default function BillingPage() {
             <div className="flex-1 flex items-center justify-center">
                 <div className="flex flex-col items-center gap-6">
                     <div className="size-8 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
-                    <p className="text-muted-foreground font-bold tracking-widest uppercase text-xs animate-pulse">Synchronizing Billing...</p>
+                    <p className="text-muted-foreground text-sm animate-pulse">Synchronizing Billing...</p>
                 </div>
             </div>
         );
@@ -192,9 +192,9 @@ export default function BillingPage() {
                         <CardContent className="p-6">
                             <div className="flex items-center gap-3 text-muted-foreground mb-4">
                                 <DollarSign className="size-4" />
-                                <span className="text-xs font-bold uppercase tracking-widest">Monthly Cost</span>
+                                <span className="text-xs font-medium">Monthly Cost</span>
                             </div>
-                            <div className="text-4xl font-black tracking-tighter mb-1">${totalMonthly.toFixed(2)}</div>
+                            <div className="text-4xl font-bold tracking-tight mb-1">${totalMonthly.toFixed(2)}</div>
                             <div className="text-xs text-primary font-bold flex items-center gap-1">
                                 <TrendingUp className="w-3 h-3" /> Stable
                             </div>
@@ -204,20 +204,20 @@ export default function BillingPage() {
                         <CardContent className="p-6">
                             <div className="flex items-center gap-3 text-muted-foreground mb-4">
                                 <Zap className="size-4" />
-                                <span className="text-xs font-bold uppercase tracking-widest">Active Plans</span>
+                                <span className="text-xs font-medium">Active Plans</span>
                             </div>
-                            <div className="text-4xl font-black tracking-tighter mb-1">{subscriptions.length}</div>
-                            <div className="text-xs text-muted-foreground font-bold uppercase tracking-widest">Subscriptions</div>
+                            <div className="text-4xl font-bold tracking-tight mb-1">{subscriptions.length}</div>
+                            <div className="text-xs text-muted-foreground">Subscriptions</div>
                         </CardContent>
                     </Card>
                     <Card className="bg-card border-border">
                         <CardContent className="p-6">
                             <div className="flex items-center gap-3 text-muted-foreground mb-4">
                                 <Clock className="size-4" />
-                                <span className="text-xs font-bold uppercase tracking-widest">Next Invoice</span>
+                                <span className="text-xs font-medium">Next Invoice</span>
                             </div>
-                            <div className="text-4xl font-black tracking-tighter mb-1">{nextInvoiceStr}</div>
-                            <div className="text-xs text-muted-foreground font-bold uppercase tracking-widest">Auto-charge</div>
+                            <div className="text-4xl font-bold tracking-tight mb-1">{nextInvoiceStr}</div>
+                            <div className="text-xs text-muted-foreground">Auto-charge</div>
                         </CardContent>
                     </Card>
 
@@ -238,7 +238,7 @@ export default function BillingPage() {
 
                 <Card className="bg-card border-border">
                     <CardContent className="p-8">
-                        <h3 className="text-xl font-black mb-6">Subscriptions</h3>
+                        <h3 className="text-xl font-semibold mb-6">Subscriptions</h3>
                         <div className="flex flex-col gap-4">
                             {subscriptions.map((sub) => (
                                 <div key={sub.id} className="flex items-center justify-between p-6 bg-muted-foreground/5 border border-border hover:bg-muted transition-all">
@@ -257,11 +257,11 @@ export default function BillingPage() {
                                         </div>
                                     </div>
                                     <div className="text-right">
-                                        <div className="font-black text-lg">
+                                        <div className="font-bold text-lg">
                                             ${sub.billing_cycle === 'monthly' ? sub.plan.price_monthly : sub.plan.price_annual}
                                             <span className="text-sm font-normal text-muted-foreground">/{sub.billing_cycle === 'monthly' ? 'mo' : 'yr'}</span>
                                         </div>
-                                        <div className="text-[10px] uppercase font-bold text-muted-foreground tracking-tighter">
+                                        <div className="text-xs uppercase font-bold text-muted-foreground tracking-tighter">
                                             next: {getNextBillingDate(sub.created_on, sub.billing_cycle).toLocaleString('en-US', { month: 'short', day: 'numeric' }).toLowerCase()}
                                         </div>
                                     </div>

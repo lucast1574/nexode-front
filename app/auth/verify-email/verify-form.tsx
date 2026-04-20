@@ -150,7 +150,7 @@ export function VerifyForm({
                         placeholder="ABCXYZ"
                         required
                         maxLength={6}
-                        className="text-center text-2xl tracking-[0.5em] font-bold uppercase"
+                        className="text-center text-2xl font-bold"
                         value={code}
                         onChange={(e) => setCode(e.target.value.replace(/\s/g, '').toUpperCase())}
                     />

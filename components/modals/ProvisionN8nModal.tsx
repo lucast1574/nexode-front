@@ -4,6 +4,9 @@ import React, { useState } from "react";
 import { Globe, Zap, Rocket, ChevronRight, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Field, FieldLabel, FieldGroup } from "@/components/ui/field";
+import { Spinner } from "@/components/ui/spinner";
 import { getAccessToken } from "@/lib/auth-utils";
 import { useModal } from "@/components/ui/modal";
 import { Subscription } from "@/app/dashboard/layout";
@@ -99,91 +102,73 @@ export function ProvisionN8nModal({
         <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
             <DialogContent className="sm:max-w-lg" showCloseButton>
                 <DialogHeader>
-                    <div className="flex items-center gap-3">
-                        <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-red-500/10">
-                            <Zap className="w-5 h-5 text-red-500 fill-current" />
-                        </div>
-                        <div>
-                            <DialogTitle>Provision n8n</DialogTitle>
-                            <DialogDescription>Deploy a new n8n automation instance.</DialogDescription>
-                        </div>
-                    </div>
+                    <DialogTitle>Provision n8n</DialogTitle>
+                    <DialogDescription>Deploy a new n8n automation instance.</DialogDescription>
                 </DialogHeader>
 
-                <form onSubmit={handleCreateInstance} className="space-y-4">
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium text-muted-foreground">Instance Name</label>
-                        <input
-                            name="name"
-                            required
-                            placeholder="e.g. Production Automations"
-                            className="w-full bg-transparent border border-input rounded-lg h-12 px-4 text-sm font-medium outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/10 transition-all"
-                        />
-                    </div>
-
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium text-muted-foreground">Custom Domain (Optional)</label>
-                        <div className="relative">
-                            <Globe className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                            <input
-                                name="custom_domain"
-                                value={customDomain}
-                                onChange={(e) => setCustomDomain(e.target.value)}
-                                placeholder="n8n.your-domain.com"
-                                className="w-full bg-transparent border border-input rounded-lg h-12 pl-11 pr-4 text-sm font-medium outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/10 transition-all"
+                <form onSubmit={handleCreateInstance}>
+                    <FieldGroup>
+                        <Field>
+                            <FieldLabel htmlFor="n8n-name">Instance Name</FieldLabel>
+                            <Input
+                                id="n8n-name"
+                                name="name"
+                                required
+                                placeholder="e.g. Production Automations"
                             />
-                        </div>
-                    </div>
+                        </Field>
 
-                    {customDomain.length > 0 && (
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium text-muted-foreground">Gateway User</label>
-                                <input
-                                    name="username"
-                                    required
-                                    placeholder="admin"
-                                    className="w-full bg-transparent border border-input rounded-lg h-12 px-4 text-sm font-medium outline-none focus:border-primary/50 transition-all"
+                        <Field>
+                            <FieldLabel htmlFor="n8n-custom-domain">Custom Domain (Optional)</FieldLabel>
+                            <div className="relative">
+                                <Globe className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                                <Input
+                                    id="n8n-custom-domain"
+                                    name="custom_domain"
+                                    value={customDomain}
+                                    onChange={(e) => setCustomDomain(e.target.value)}
+                                    placeholder="n8n.your-domain.com"
+                                    className="pl-11"
                                 />
                             </div>
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium text-muted-foreground">Gateway Password</label>
-                                <input
-                                    name="password"
-                                    type="password"
-                                    required
-                                    placeholder="••••••••"
-                                    className="w-full bg-transparent border border-input rounded-lg h-12 px-4 text-sm font-medium outline-none focus:border-primary/50 transition-all"
-                                />
-                            </div>
-                        </div>
-                    )}
+                        </Field>
 
-                    <div className="rounded-xl border bg-muted/50 p-4 space-y-3">
-                        <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Environment Specs</h4>
-                        <div className="grid grid-cols-2 gap-2">
-                            <div className="flex items-center gap-2">
-                                <Check className="w-4 h-4 text-emerald-500" />
-                                <span className="text-xs text-muted-foreground">Isolated Execution</span>
+                        {customDomain.length > 0 && (
+                            <div className="grid grid-cols-2 gap-4">
+                                <Field>
+                                    <FieldLabel htmlFor="n8n-username">Gateway User</FieldLabel>
+                                    <Input
+                                        id="n8n-username"
+                                        name="username"
+                                        required
+                                        placeholder="admin"
+                                    />
+                                </Field>
+                                <Field>
+                                    <FieldLabel htmlFor="n8n-password">Gateway Password</FieldLabel>
+                                    <Input
+                                        id="n8n-password"
+                                        name="password"
+                                        type="password"
+                                        required
+                                        placeholder="••••••••"
+                                    />
+                                </Field>
                             </div>
-                            <div className="flex items-center gap-2">
-                                <Check className="w-4 h-4 text-emerald-500" />
-                                <span className="text-xs text-muted-foreground">SSD Persistence</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <Button
-                        type="submit"
-                        disabled={isDeploying}
-                        className="w-full h-12 gap-2"
-                    >
-                        {isDeploying ? (
-                            <><Rocket className="w-4 h-4 animate-bounce" /> Provisioning...</>
-                        ) : (
-                            <><Rocket className="w-4 h-4" /> Launch Designer <ChevronRight className="w-4 h-4" /></>
                         )}
-                    </Button>
+
+                        <Button
+                            type="submit"
+                            disabled={isDeploying}
+                            className="w-full h-12 gap-2"
+                        >
+                            {isDeploying ? (
+                                <><Spinner data-icon="inline-start" /> Provisioning...</>
+                            ) : (
+                                <><Rocket className="size-4" /> Launch Designer <ChevronRight className="size-4" /></>
+                            )}
+                        </Button>
+                    </FieldGroup>
                 </form>
             </DialogContent>
         </Dialog>

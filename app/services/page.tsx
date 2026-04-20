@@ -265,10 +265,10 @@ export default function ServicesPage() {
             <PublicNav />
 
             <header className="relative z-10 pt-20 pb-12 px-6 text-center max-w-5xl mx-auto">
-                <Badge variant="outline" className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-muted border-border text-primary text-xs font-bold tracking-wider uppercase mb-6">
+                <Badge variant="outline" className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-muted border-border text-primary text-xs font-medium mb-6">
                     <Zap className="w-3 h-3 fill-current" /> Scalable Infrastructure
                 </Badge>
-                <h1 className="text-5xl md:text-7xl font-black tracking-tight mb-6">
+                <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-6">
                     Launch Your <span className="text-primary italic">Infrastructure</span>
                 </h1>
                 <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
@@ -303,7 +303,7 @@ export default function ServicesPage() {
                         </div>
 
                         <div className="grid gap-4">
-                            <div className="grid grid-cols-12 px-6 text-xs font-bold uppercase tracking-widest text-zinc-500 mb-2">
+                            <div className="grid grid-cols-12 px-6 text-xs font-medium text-muted-foreground mb-2">
                                 <div className="col-span-4 md:col-span-3">Type</div>
                                 <div className="hidden md:block col-span-3">Performance</div>
                                 <div className="col-span-4 md:col-span-3 text-center md:text-left">Details</div>
@@ -348,7 +348,7 @@ export default function ServicesPage() {
                                                 </div>
 
                                                 <div className="col-span-4 md:col-span-3 text-right">
-                                                    <span className="text-2xl font-black text-white">${tier.price} <span className="text-sm font-normal text-zinc-500">/m</span></span>
+                                                    <span className="text-2xl font-bold text-white">${tier.price} <span className="text-sm font-normal text-zinc-500">/m</span></span>
                                                 </div>
                                             </button>
                                         </Card>
@@ -367,13 +367,13 @@ export default function ServicesPage() {
                             <div className="flex items-center gap-6 px-4">
                                 <div className="bg-primary/20 p-3 rounded-lg relative">
                                     <Zap className="w-6 h-6 text-primary" />
-                                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white/20">
+                                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-white text-xs font-bold rounded-full flex items-center justify-center border-2 border-white/20">
                                         {selectedCount}
                                     </span>
                                 </div>
                                 <div>
                                     <div className="text-sm text-muted-foreground font-medium">Selected Services Monthly Total</div>
-                                    <div className="text-3xl font-black text-white">${totalPrice}<span className="text-sm font-normal text-zinc-500">/mo</span></div>
+                                    <div className="text-3xl font-bold text-white">${totalPrice}<span className="text-sm font-normal text-zinc-500">/mo</span></div>
                                 </div>
                             </div>
 

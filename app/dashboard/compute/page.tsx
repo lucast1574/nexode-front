@@ -489,7 +489,7 @@ function ComputePageContent() {
             <div className="min-h-screen bg-background flex items-center justify-center">
                 <div className="flex flex-col items-center gap-6">
                     <div className="size-8 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
-                    <p className="text-muted-foreground font-bold tracking-widest uppercase text-xs animate-pulse">Syncing Compute Engine...</p>
+                    <p className="text-muted-foreground text-sm animate-pulse">Syncing Compute Engine...</p>
                 </div>
             </div>
         );
@@ -540,15 +540,15 @@ function ComputePageContent() {
                                     >
                                         <div className="flex items-center justify-between mb-2">
                                             <Badge variant="outline" className={cn(
-                                                "text-[9px] font-black uppercase tracking-widest",
+                                                "text-xs font-medium",
                                                 inst.type.toLowerCase() === 'frontend' ? 'text-primary border-primary/20 bg-primary/10' : 'text-purple-400 border-purple-400/20 bg-purple-400/10'
                                             )}>
                                                 {inst.type}
                                             </Badge>
                                             <div className={cn("w-1.5 h-1.5 rounded-full", inst.status === 'running' ? 'bg-emerald-500 shadow-[0_0_8px_hsl(var(--primary)/0.5)]' : 'bg-amber-500 animate-pulse')} />
                                         </div>
-                                        <div className="font-bold text-sm truncate group-hover:text-primary transition-colors uppercase tracking-tight">{inst.name}</div>
-                                        <div className="text-[10px] text-muted-foreground mt-1 flex items-center gap-2">
+                                        <div className="font-bold text-sm truncate group-hover:text-primary transition-colors">{inst.name}</div>
+                                        <div className="text-xs text-muted-foreground mt-1 flex items-center gap-2">
                                             <Globe className="w-3 h-3" /> {inst.generated_domain || 'Internal VPC'}
                                         </div>
                                     </button>
@@ -563,8 +563,8 @@ function ComputePageContent() {
                                 <div className="flex items-start justify-between mb-8">
                                     <div>
                                         <div className="flex items-center gap-4 mb-3">
-                                            <h1 className="text-4xl font-black tracking-tighter uppercase">{selectedInstance.name}</h1>
-                                            <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 text-[10px] font-black uppercase tracking-widest">
+                                            <h1 className="text-4xl font-bold tracking-tight">{selectedInstance.name}</h1>
+                                            <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
                                                 ● {selectedInstance.status}
                                             </Badge>
                                         </div>
@@ -606,7 +606,7 @@ function ComputePageContent() {
                                                     <RefreshCw className="w-5 h-5 text-primary animate-spin" />
                                                 </div>
                                                 <div>
-                                                    <div className="text-sm font-bold text-primary uppercase tracking-wider">Deploying New Version</div>
+                                                    <div className="text-sm font-semibold text-primary">Deploying New Version</div>
                                                     <div className="text-xs text-primary/60 mt-0.5">A new push was detected. Building and deploying automatically...</div>
                                                 </div>
                                                 <div className="ml-auto flex items-center gap-2">
@@ -628,7 +628,7 @@ function ComputePageContent() {
                                             { value: 'terminal', label: 'Secure Terminal', icon: Terminal },
                                             { value: 'settings', label: 'Domains & SSL', icon: Shield }
                                         ] as const).map(tab => (
-                                            <TabsTrigger key={tab.value} value={tab.value} className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest">
+                                            <TabsTrigger className="flex items-center gap-2">
                                                 <tab.icon className="w-4 h-4" /> {tab.label}
                                             </TabsTrigger>
                                         ))}
@@ -640,11 +640,11 @@ function ComputePageContent() {
                                                 <CardHeader className="pb-0">
                                                     <div className="absolute top-0 right-0 p-8">
                                                         {selectedInstance.status === 'running' ? (
-                                                            <Badge variant="outline" className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20 text-[10px] font-black uppercase tracking-widest">
+                                                            <Badge variant="outline" className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20">
                                                                 <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_hsl(var(--primary)/0.5)] mr-1.5" /> Reachable
                                                             </Badge>
                                                         ) : (
-                                                            <Badge variant="outline" className="bg-amber-500/10 text-amber-500 border-amber-500/20 text-[10px] font-black uppercase tracking-widest">
+                                                            <Badge variant="outline" className="bg-amber-500/10 text-amber-500 border-amber-500/20">
                                                                 <div className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse mr-1.5" /> {selectedInstance.status}
                                                             </Badge>
                                                         )}
@@ -652,8 +652,8 @@ function ComputePageContent() {
                                                 </CardHeader>
                                                 <CardContent className="p-8 pt-8">
                                                     <div className="mb-8">
-                                                        <CardTitle className="text-lg font-black uppercase tracking-tight mb-2">Network Endpoint</CardTitle>
-                                                        <CardDescription className="text-muted-foreground text-xs font-bold uppercase tracking-widest">
+                                                        <CardTitle className="text-lg font-semibold mb-2">Network Endpoint</CardTitle>
+                                                        <CardDescription className="text-muted-foreground text-sm">
                                                             {selectedInstance.type.toLowerCase() === 'frontend' ? 'Public Application URL' : 'Internal VPC Gateway'}
                                                         </CardDescription>
                                                     </div>
@@ -666,7 +666,7 @@ function ComputePageContent() {
                                                                         <Activity className="w-5 h-5 text-primary" />
                                                                     </div>
                                                                     {selectedInstance.status === 'running' ? (
-                                                                        <code className="text-sm font-black truncate text-primary">
+                                                                        <code className="text-sm font-semibold truncate text-primary">
                                                                             https://{selectedInstance.generated_domain}{selectedInstance.type === 'BACKEND' ? '/health' : ''}
                                                                         </code>
                                                                     ) : (
@@ -690,8 +690,8 @@ function ComputePageContent() {
                                                             {selectedInstance.custom_domain && (
                                                                 <div className="p-4 rounded-lg bg-card border border-border flex items-center justify-between">
                                                                     <div className="flex items-center gap-3">
-                                                                        <div className="text-[10px] text-muted-foreground font-black uppercase tracking-widest">Custom Domain</div>
-                                                                        <code className="text-xs font-black text-foreground">{selectedInstance.custom_domain}</code>
+                                                                        <div className="text-xs text-muted-foreground">Custom Domain</div>
+                                                                        <code className="text-xs font-medium text-foreground">{selectedInstance.custom_domain}</code>
                                                                     </div>
                                                                     <Button variant="ghost" size="sm" onClick={() => handleCopy(selectedInstance.custom_domain || '', 'custom_domain')} className="gap-2">
                                                                         {copiedField === 'custom_domain' ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3" />}
@@ -705,8 +705,8 @@ function ComputePageContent() {
                                                                 <Shield className="w-6 h-6 text-muted-foreground" />
                                                             </div>
                                                             <div>
-                                                                <p className="text-xs text-foreground font-black uppercase tracking-widest mb-1">Internal VPC Protection Active</p>
-                                                                <p className="text-[10px] text-muted-foreground">This instance is isolated. Connect via External Proxy or Private Tunnel.</p>
+                                                                <p className="text-xs text-foreground mb-1">Internal VPC Protection Active</p>
+                                                                <p className="text-xs text-muted-foreground">This instance is isolated. Connect via External Proxy or Private Tunnel.</p>
                                                             </div>
                                                         </div>
                                                     )}
@@ -714,7 +714,7 @@ function ComputePageContent() {
                                                     {!selectedInstance.generated_domain && selectedInstance.type.toLowerCase() === 'frontend' && (
                                                         <div className="mt-4 p-4 rounded-lg bg-red-500/5 border border-red-500/10 flex gap-4 items-center">
                                                             <div className="w-2 h-2 rounded-full bg-red-500" />
-                                                            <p className="text-[10px] text-red-400 font-bold uppercase tracking-widest">Deployment Pending: Domain propagation in progress</p>
+                                                            <p className="text-xs text-red-400">Deployment Pending: Domain propagation in progress</p>
                                                         </div>
                                                     )}
                                                 </CardContent>
@@ -723,7 +723,7 @@ function ComputePageContent() {
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                                 <Card className="bg-muted border-border rounded-xl">
                                                     <CardContent className="p-8">
-                                                        <h3 className="text-sm font-black uppercase tracking-widest text-muted-foreground mb-6">Source Integration</h3>
+                                                        <h3 className="text-sm font-medium text-muted-foreground mb-6">Source Integration</h3>
                                                         <div className="space-y-4">
                                                             <div className="flex items-center justify-between p-4 rounded-lg bg-card border border-border group">
                                                                 <div className="flex items-center gap-4">
@@ -731,8 +731,8 @@ function ComputePageContent() {
                                                                         {selectedInstance.provider.toLowerCase() === 'github' ? <Github className="w-6 h-6" /> : <Gitlab className="w-6 h-6" />}
                                                                     </div>
                                                                     <div>
-                                                                        <div className="text-[10px] font-black uppercase text-muted-foreground mb-0.5">Connected Repository</div>
-                                                                        <div className="text-sm font-black truncate max-w-[150px]">{selectedInstance.repository_url.split('/').pop()}</div>
+                                                                        <div className="text-xs font-medium text-muted-foreground mb-0.5">Connected Repository</div>
+                                                                        <div className="text-sm font-semibold truncate max-w-[150px]">{selectedInstance.repository_url.split('/').pop()}</div>
                                                                     </div>
                                                                 </div>
                                                                 <Button variant="ghost" size="icon" className="shrink-0" onClick={() => window.open(selectedInstance.repository_url, '_blank')}>
@@ -741,7 +741,7 @@ function ComputePageContent() {
                                                             </div>
                                                             <div className="p-4 rounded-lg bg-card border border-border flex items-center justify-between">
                                                                 <div>
-                                                                    <div className="text-[10px] font-black text-muted-foreground uppercase mb-0.5">Branch</div>
+                                                                    <div className="text-xs font-bold text-muted-foreground uppercase mb-0.5">Branch</div>
                                                                     <div className="flex items-center gap-2 font-mono text-sm text-primary/80">
                                                                         <Code className="w-3 h-3" /> {selectedInstance.branch}
                                                                     </div>
@@ -753,7 +753,7 @@ function ComputePageContent() {
 
                                                 <Card className="bg-muted border-border rounded-xl">
                                                     <CardContent className="p-8">
-                                                        <h3 className="text-sm font-black uppercase tracking-widest text-muted-foreground mb-6">Latest Events</h3>
+                                                        <h3 className="text-sm font-medium text-muted-foreground mb-6">Latest Events</h3>
                                                         <div className="space-y-4">
                                                             {selectedInstance.events && selectedInstance.events.length > 0 ? (
                                                                 selectedInstance.events.slice(-3).reverse().map((e, idx) => (
@@ -765,17 +765,17 @@ function ComputePageContent() {
                                                                                 e.type === 'error' ? 'bg-red-500' : 'bg-primary'
                                                                         )} />
                                                                         <div className="flex-1">
-                                                                            <p className={cn("text-xs font-black uppercase tracking-tight", e.type === 'error' ? 'text-red-400' : 'text-foreground')}>
+                                                                            <p className={cn("text-xs font-medium ", e.type === 'error' ? 'text-red-400' : 'text-foreground')}>
                                                                                 {e.message}
                                                                             </p>
-                                                                            <span className="text-[9px] font-bold text-muted-foreground">
+                                                                            <span className="text-xs text-muted-foreground">
                                                                                 {new Date(e.timestamp).toLocaleString([], { hour: '2-digit', minute: '2-digit' })}
                                                                             </span>
                                                                         </div>
                                                                     </div>
                                                                 ))
                                                             ) : (
-                                                                <div className="py-6 text-center text-[10px] font-black uppercase text-muted-foreground tracking-widest">
+                                                                <div className="py-6 text-center text-xs text-muted-foreground">
                                                                     No recent events
                                                                 </div>
                                                             )}
@@ -790,8 +790,8 @@ function ComputePageContent() {
                                         <Card className="bg-card border-border rounded-xl min-h-[500px]">
                                             <CardContent className="p-12">
                                                 <div className="flex items-center justify-between mb-12">
-                                                    <h3 className="text-xl font-black uppercase tracking-tight">Deployment Lifecycle</h3>
-                                                    <Badge variant="outline" className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20 text-[10px] font-black uppercase tracking-widest">
+                                                    <h3 className="text-xl font-semibold">Deployment Lifecycle</h3>
+                                                    <Badge variant="outline" className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20">
                                                         <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)] mr-1.5" /> 
                                                         Platform Sync Normal
                                                     </Badge>
@@ -807,14 +807,14 @@ function ComputePageContent() {
                                                             )} />
                                                             <div className="flex-1">
                                                                 <div className="flex items-center justify-between mb-1">
-                                                                    <p className={cn("text-xs font-black uppercase tracking-widest", e.type === 'error' ? 'text-red-400' : e.type === 'success' ? 'text-emerald-400' : 'text-zinc-200')}>
+                                                                    <p className={cn("text-xs font-medium ", e.type === 'error' ? 'text-red-400' : e.type === 'success' ? 'text-emerald-400' : 'text-zinc-200')}>
                                                                         {e.message}
                                                                     </p>
-                                                                    <span className="text-[10px] font-black text-muted-foreground font-mono">
+                                                                    <span className="text-xs font-bold text-muted-foreground font-mono">
                                                                         {new Date(e.timestamp).toLocaleTimeString()}
                                                                     </span>
                                                                 </div>
-                                                                <div className="text-[10px] text-muted-foreground font-bold uppercase tracking-wider opacity-60">Status Code: 200 — Sync Initiated</div>
+                                                                <div className="text-xs text-muted-foreground font-mediumr opacity-60">Status Code: 200 — Sync Initiated</div>
                                                             </div>
                                                         </div>
                                                     ))}
@@ -832,15 +832,15 @@ function ComputePageContent() {
                                                             <Code className="w-5 h-5 text-primary" />
                                                         </div>
                                                         <div>
-                                                            <h3 className="text-xl font-black uppercase tracking-tight">Environment Variables</h3>
-                                                            <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest leading-relaxed">Secure secrets mapped to your deployment runtime.</p>
+                                                            <h3 className="text-xl font-semibold">Environment Variables</h3>
+                                                            <p className="text-xs text-muted-foreground font-medium leading-relaxed">Secure secrets mapped to your deployment runtime.</p>
                                                         </div>
                                                     </div>
                                                     
                                                     <Button 
                                                         onClick={() => handleSaveEnvContent(selectedInstance._id)}
                                                         disabled={isSavingEnv}
-                                                        className="rounded-lg h-12 px-8 font-black uppercase tracking-widest shadow-lg shadow-primary/20 disabled:opacity-50 transition-all"
+                                                        className="rounded-lg h-12 px-8 shadow-lg shadow-primary/20 disabled:opacity-50 transition-all"
                                                     >
                                                         {isSavingEnv ? (
                                                             <><RefreshCw className="w-4 h-4 mr-2 animate-spin" /> Saving</>
@@ -853,7 +853,7 @@ function ComputePageContent() {
                                                 <div className="absolute top-[-20%] right-[-10%] w-[300px] h-[300px] bg-primary/5 blur-[100px] rounded-full pointer-events-none" />
 
                                                 <div className="flex-1 rounded-xl border border-border bg-card overflow-hidden relative group transition-all focus-within:border-primary/20">
-                                                    <div className="absolute top-0 left-0 bottom-0 w-12 bg-muted border-r border-border flex flex-col items-center py-6 text-[10px] font-mono text-muted-foreground select-none">
+                                                    <div className="absolute top-0 left-0 bottom-0 w-12 bg-muted border-r border-border flex flex-col items-center py-6 text-xs font-mono text-muted-foreground select-none">
                                                         {envDraft.split('\n').map((_, i) => <div key={i} className="leading-loose">{i + 1}</div>)}
                                                     </div>
                                                     <Textarea
@@ -877,7 +877,7 @@ function ComputePageContent() {
                                                         <div className="w-3 h-3 rounded-full bg-primary/20" />
                                                         <div className="w-3 h-3 rounded-full bg-primary/20" />
                                                     </div>
-                                                    <span className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Application Stdout/Stderr</span>
+                                                    <span className="text-xs font-medium text-muted-foreground">Application Stdout/Stderr</span>
                                                 </div>
                                             </CardHeader>
                                             <CardContent className="flex-1 overflow-y-auto space-y-1 pr-4 custom-scrollbar">
@@ -889,7 +889,7 @@ function ComputePageContent() {
                                                         </div>
                                                     ))
                                                 ) : (
-                                                    <div className="h-full flex flex-col items-center justify-center text-muted-foreground uppercase font-black tracking-widest text-xs">
+                                                    <div className="h-full flex flex-col items-center justify-center text-muted-foreground text-xs">
                                                         <FileText className="w-12 h-12 mb-4 opacity-10" />
                                                         No Application Logs Found
                                                     </div>
@@ -904,11 +904,11 @@ function ComputePageContent() {
                                                 <div className="flex items-center justify-between">
                                                     <div className="flex items-center gap-4">
                                                         <Terminal className="w-5 h-5 text-primary" />
-                                                        <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                                                        <span className="text-xs text-muted-foreground">
                                                             Isolated TTY — {selectedInstance.name.toUpperCase()}
                                                         </span>
                                                     </div>
-                                                    <Badge variant="outline" className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20 text-[9px] font-black">
+                                                    <Badge variant="outline" className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20 text-xs font-bold">
                                                         <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse mr-1.5" /> Egress Filter Active
                                                     </Badge>
                                                 </div>
@@ -917,7 +917,7 @@ function ComputePageContent() {
                                                 {terminalLogs.map((log, i) => (
                                                     <div key={i} className={cn(
                                                         "break-all whitespace-pre-wrap",
-                                                        log.type === 'input' ? "text-foreground flex gap-3 font-black" :
+                                                        log.type === 'input' ? "text-foreground flex gap-3 font-bold" :
                                                             log.type === 'error' ? "text-red-400 bg-red-500/5 p-2 rounded-lg border border-red-500/10" :
                                                                 "text-primary/90"
                                                     )}>
@@ -933,7 +933,7 @@ function ComputePageContent() {
                                             </CardContent>
                                             <CardFooter className="p-6 bg-background border-t border-border">
                                                 <form onSubmit={handleExecuteCommand} className="flex items-center gap-4 w-full focus-within:bg-card transition-all">
-                                                    <span className="text-primary font-black ml-2">➜</span>
+                                                    <span className="text-primary font-bold ml-2">➜</span>
                                                     <input
                                                         name="command"
                                                         autoComplete="off"
@@ -944,7 +944,7 @@ function ComputePageContent() {
                                                     <Button
                                                         type="submit"
                                                         disabled={isExecuting}
-                                                        className="rounded-xl h-10 px-6 font-black uppercase tracking-widest shadow-lg shadow-primary/20"
+                                                        className="rounded-xl h-10 px-6 shadow-lg shadow-primary/20"
                                                     >
                                                         Execute
                                                     </Button>
@@ -958,14 +958,14 @@ function ComputePageContent() {
                                             <Card className="bg-muted border-border rounded-xl">
                                                 <CardContent className="p-8">
                                                     <div className="flex items-center justify-between mb-8">
-                                                        <h3 className="text-xl font-black uppercase tracking-tight">Git Integrations</h3>
+                                                        <h3 className="text-xl font-semibold">Git Integrations</h3>
                                                     </div>
                                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
                                                         <div className={cn("p-4 rounded-xl border transition-all flex flex-col items-center gap-3", user?.github_profile ? "bg-primary/5 border-primary/20" : "bg-muted border-border")}>
                                                             <Github className={cn("w-6 h-6", user?.github_profile ? "text-primary" : "text-muted-foreground")} />
                                                             <div className="text-center">
-                                                                <div className="text-[10px] font-black uppercase tracking-widest mb-1">GitHub</div>
-                                                                <div className="text-[9px] text-muted-foreground font-medium">
+                                                                <div className="text-xs font-medium mb-1">GitHub</div>
+                                                                <div className="text-xs text-muted-foreground font-medium">
                                                                     {user?.github_profile ? `@${user.github_profile.username}` : "Not Connected"}
                                                                 </div>
                                                             </div>
@@ -977,8 +977,8 @@ function ComputePageContent() {
                                                         <div className={cn("p-4 rounded-xl border transition-all flex flex-col items-center gap-3", user?.gitlab_profile ? "bg-orange-600/5 border-orange-500/20" : "bg-muted border-border")}>
                                                             <Gitlab className={cn("w-6 h-6", user?.gitlab_profile ? "text-orange-500" : "text-muted-foreground")} />
                                                             <div className="text-center">
-                                                                <div className="text-[10px] font-black uppercase tracking-widest mb-1">GitLab</div>
-                                                                <div className="text-[9px] text-muted-foreground font-medium">
+                                                                <div className="text-xs font-medium mb-1">GitLab</div>
+                                                                <div className="text-xs text-muted-foreground font-medium">
                                                                     {user?.gitlab_profile ? `@${user.gitlab_profile.username}` : "Not Connected"}
                                                                 </div>
                                                             </div>
@@ -991,7 +991,7 @@ function ComputePageContent() {
                                                     <Separator className="my-8" />
 
                                                     <div className="flex items-center justify-between mb-8">
-                                                        <h3 className="text-xl font-black uppercase tracking-tight">Source Protection & CI/CD</h3>
+                                                        <h3 className="text-xl font-semibold">Source Protection & CI/CD</h3>
                                                     </div>
                                                     <div className="space-y-6">
                                                         <div className="flex items-center justify-between p-6 rounded-xl bg-muted/50 border border-border group hover:border-primary/30 transition-all">
@@ -1000,7 +1000,7 @@ function ComputePageContent() {
                                                                     <RefreshCw className="w-4 h-4 text-emerald-500" />
                                                                     <h4 className="font-bold text-sm">Auto-reploy on Push</h4>
                                                                 </div>
-                                                                <p className="text-[10px] text-muted-foreground font-medium leading-relaxed max-w-[300px]">Whenever you push code to <b>{selectedInstance.branch}</b> branch, Nexode will automatically rebuild and redeploy your node.</p>
+                                                                <p className="text-xs text-muted-foreground font-medium leading-relaxed max-w-[300px]">Whenever you push code to <b>{selectedInstance.branch}</b> branch, Nexode will automatically rebuild and redeploy your node.</p>
                                                             </div>
                                                             <Switch
                                                                 checked={selectedInstance.auto_deploy_on_push}
@@ -1015,7 +1015,7 @@ function ComputePageContent() {
                                                                         <Globe className="w-4 h-4 text-primary" />
                                                                         <h4 className="font-bold text-sm">Custom Domain</h4>
                                                                     </div>
-                                                                    <Badge variant="outline" className="text-[9px] font-black text-muted-foreground uppercase border-zinc-700">SSL Auto-configured</Badge>
+                                                                    <Badge variant="outline" className="text-muted-foreground">SSL Auto-configured</Badge>
                                                                 </div>
                                                                 <form onSubmit={async (e) => {
                                                                     e.preventDefault();
@@ -1051,10 +1051,10 @@ function ComputePageContent() {
                                                                         placeholder="e.g. app.myproject.com"
                                                                         defaultValue={selectedInstance.custom_domain}
                                                                     />
-                                                                    <Button type="submit" className="rounded-lg h-14 px-8 font-bold uppercase tracking-widest text-xs">Update</Button>
+                                                                    <Button type="submit" className="rounded-lg h-14 px-8">Update</Button>
                                                                 </form>
                                                                 {selectedInstance.generated_domain && (
-                                                                    <div className="mt-3 flex items-center gap-2 text-[10px] text-muted-foreground">
+                                                                    <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
                                                                         <Globe className="w-3 h-3" />
                                                                         <span>Auto-assigned: <code className="text-zinc-400">{selectedInstance.generated_domain}</code></span>
                                                                     </div>
@@ -1067,9 +1067,9 @@ function ComputePageContent() {
 
                                             <Card className="border-red-500/20 bg-red-500/5 rounded-xl">
                                                 <CardContent className="p-8">
-                                                    <h3 className="text-red-400 font-black uppercase tracking-tight mb-4">Danger Zone</h3>
+                                                    <h3 className="text-red-400 font-semibold mb-4">Danger Zone</h3>
                                                     <p className="text-muted-foreground text-xs mb-6 px-1">Deleting this instance will immediately stop your services and remove all associated load balancers and networking rules.</p>
-                                                    <Button onClick={() => handleDelete(selectedInstance._id)} variant="destructive" className="rounded-lg w-full font-black uppercase tracking-widest h-14 text-xs">Terminate Instance</Button>
+                                                    <Button onClick={() => handleDelete(selectedInstance._id)} variant="destructive" className="rounded-lg w-full h-14">Terminate Instance</Button>
                                                 </CardContent>
                                             </Card>
                                         </div>
@@ -1079,7 +1079,7 @@ function ComputePageContent() {
                         ) : (
                             <div className="h-full flex flex-col items-center justify-center text-center p-8">
                                 <Cpu className="size-16 text-muted-foreground mb-6" />
-                                <h1 className="text-2xl font-black mb-2">No active instances found</h1>
+                                <h1 className="text-2xl font-bold mb-2">No active instances found</h1>
                                 <p className="text-muted-foreground max-w-xs mx-auto mb-6">Create one to get started.</p>
                                 <Button onClick={handleCreateClick} className="gap-2">
                                     <Plus className="size-4" /> Deploy Instance

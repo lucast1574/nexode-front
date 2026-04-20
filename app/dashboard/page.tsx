@@ -86,7 +86,7 @@ export default function DashboardPage() {
                                                         <Cpu className="size-6" />}
                                             </div>
                                             <div className="flex flex-col items-end gap-2">
-                                                <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 text-[10px] font-bold uppercase tracking-widest px-2 py-0.5">
+                                                <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
                                                     {sub.status}
                                                 </Badge>
                                             </div>
@@ -99,7 +99,7 @@ export default function DashboardPage() {
                                         <div className="grid grid-cols-2 gap-3">
                                             {Object.entries(sub.plan.features).slice(0, 4).map(([key, val]: [string, string]) => (
                                                 <div key={key} className="flex flex-col gap-1 bg-muted/50 p-2 border">
-                                                    <div className="text-[9px] text-muted-foreground font-bold uppercase tracking-wider">{key}</div>
+                                                    <div className="text-xs text-muted-foreground font-medium">{key}</div>
                                                     <div className="text-sm font-semibold">{val}</div>
                                                 </div>
                                             ))}

@@ -1,21 +1,24 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import Link from "next/link"
 import {
     Activity,
-    TrendingUp,
     Database,
     Workflow,
     Cpu,
-    BarChart3,
     Gauge,
     Clock,
+    Plus,
 } from "lucide-react";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/ui/breadcrumb";
+import { Spinner } from "@/components/ui/spinner";
+import { Empty, EmptyHeader, EmptyTitle, EmptyDescription } from "@/components/ui/empty";
 import { cn } from "@/lib/utils";
 import { getAccessToken } from "@/lib/auth-utils";
 
@@ -93,8 +96,8 @@ export default function MetricsPage() {
         return (
             <div className="flex-1 flex items-center justify-center">
                 <div className="flex flex-col items-center gap-6">
-                    <div className="size-8 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
-                    <p className="text-muted-foreground font-bold tracking-widest uppercase text-xs animate-pulse">Loading Metrics...</p>
+                    <Spinner className="size-8" />
+                    <p className="text-muted-foreground text-sm animate-pulse">Loading Metrics...</p>
                 </div>
             </div>
         );
@@ -111,80 +114,97 @@ export default function MetricsPage() {
 
     return (
         <>
-<header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
-                    <SidebarTrigger className="-ml-1" />
-                    <Separator orientation="vertical" className="mr-2 data-vertical:h-4 data-vertical:self-auto" />
-                    <Breadcrumb>
-                        <BreadcrumbList>
-                            <BreadcrumbItem>
-                                <BreadcrumbPage>Metrics</BreadcrumbPage>
-                            </BreadcrumbItem>
-                        </BreadcrumbList>
-                    </Breadcrumb>
-                    <div className="flex-1" />
-                    <div className="text-xs text-muted-foreground font-bold uppercase tracking-widest">
-                        Last 30 days
-                    </div>
-                </header>
+            <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
+                <SidebarTrigger className="-ml-1" />
+                <Separator orientation="vertical" className="mr-2 data-vertical:h-4 data-vertical:self-auto" />
+                <Breadcrumb>
+                    <BreadcrumbList>
+                        <BreadcrumbItem>
+                            <BreadcrumbPage>Metrics</BreadcrumbPage>
+                        </BreadcrumbItem>
+                    </BreadcrumbList>
+                </Breadcrumb>
+                <div className="flex-1" />
+                <Button render={<Link href="/services" />} nativeButton={false} className="gap-2">
+                    <Plus className="size-4" /> New Service
+                </Button>
+            </header>
 
             <div className="flex-1 overflow-y-auto p-6">
+                <div className="flex flex-col gap-2 mb-8">
+                    <h1 className="text-2xl font-bold tracking-tight">Metrics Overview</h1>
+                    <p className="text-muted-foreground">Track resource usage and performance across your infrastructure.</p>
+                </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-                    <Card className="bg-card border-border">
-                        <CardContent className="p-6">
-                            <div className="flex items-center gap-3 text-primary mb-4">
-                                <Cpu className="size-5" />
-                                <span className="text-xs font-bold uppercase tracking-widest">Compute</span>
+                    <Card className="bg-gradient-to-br from-primary/10 to-transparent border-primary/20">
+                        <CardHeader className="p-6 pb-0">
+                            <div className="flex items-start justify-between mb-4">
+                                <div className="p-3 bg-primary/10 text-primary">
+                                    <Cpu className="size-6" />
+                                </div>
                             </div>
-                            <div className="text-4xl font-black tracking-tighter mb-1">{computeTotal}</div>
-                            <div className="text-xs text-muted-foreground font-bold uppercase tracking-widest">Deployments</div>
+                            <CardTitle className="text-lg font-bold capitalize">Compute</CardTitle>
+                            <CardDescription className="text-muted-foreground text-sm">Deployments</CardDescription>
+                        </CardHeader>
+                        <CardContent className="p-6 pt-4">
+                            <div className="text-4xl font-bold tracking-tight">{computeTotal}</div>
                         </CardContent>
                     </Card>
-                    <Card className="bg-card border-border">
-                        <CardContent className="p-6">
-                            <div className="flex items-center gap-3 text-primary mb-4">
-                                <Database className="size-5" />
-                                <span className="text-xs font-bold uppercase tracking-widest">Database</span>
+                    <Card className="bg-gradient-to-br from-primary/10 to-transparent border-primary/20">
+                        <CardHeader className="p-6 pb-0">
+                            <div className="flex items-start justify-between mb-4">
+                                <div className="p-3 bg-primary/10 text-primary">
+                                    <Database className="size-6" />
+                                </div>
                             </div>
-                            <div className="text-4xl font-black tracking-tighter mb-1">{databaseTotal}</div>
-                            <div className="text-xs text-muted-foreground font-bold uppercase tracking-widest">Operations</div>
+                            <CardTitle className="text-lg font-bold capitalize">Database</CardTitle>
+                            <CardDescription className="text-muted-foreground text-sm">Operations</CardDescription>
+                        </CardHeader>
+                        <CardContent className="p-6 pt-4">
+                            <div className="text-4xl font-bold tracking-tight">{databaseTotal}</div>
                         </CardContent>
                     </Card>
-                    <Card className="bg-card border-border">
-                        <CardContent className="p-6">
-                            <div className="flex items-center gap-3 text-destructive mb-4">
-                                <Workflow className="size-5" />
-                                <span className="text-xs font-bold uppercase tracking-widest">n8n Flows</span>
+                    <Card className="bg-gradient-to-br from-destructive/10 to-transparent border-destructive/20">
+                        <CardHeader className="p-6 pb-0">
+                            <div className="flex items-start justify-between mb-4">
+                                <div className="p-3 bg-destructive/10 text-destructive">
+                                    <Workflow className="size-6" />
+                                </div>
                             </div>
-                            <div className="text-4xl font-black tracking-tighter mb-1">{n8nTotal}</div>
-                            <div className="text-xs text-muted-foreground font-bold uppercase tracking-widest">Executions</div>
+                            <CardTitle className="text-lg font-bold capitalize">n8n Flows</CardTitle>
+                            <CardDescription className="text-muted-foreground text-sm">Executions</CardDescription>
+                        </CardHeader>
+                        <CardContent className="p-6 pt-4">
+                            <div className="text-4xl font-bold tracking-tight">{n8nTotal}</div>
                         </CardContent>
                     </Card>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <div className="lg:col-span-2 space-y-8">
-                        <Card className="bg-card border-border ">
+                    <div className="lg:col-span-2 flex flex-col gap-8">
+                        <Card>
                             <CardContent className="p-8">
                                 <div className="flex items-center justify-between mb-8">
-                                    <div>
-                                        <h3 className="text-xl font-black">Resource Utilization</h3>
+                                    <div className="flex flex-col gap-1">
+                                        <h3 className="text-xl font-semibold">Resource Utilization</h3>
                                         <p className="text-sm text-muted-foreground">Monthly usage across your active clusters.</p>
                                     </div>
                                     <div className="flex gap-2">
-                                        <Badge variant="outline" className="bg-white/5 border-border text-[10px] font-bold uppercase text-muted-foreground">
-                                            <div className="w-2 h-2 rounded-full bg-purple-500 mr-2" /> Database
+                                        <Badge variant="outline" className="text-xs font-medium text-muted-foreground">
+                                            <div className="size-2 rounded-full bg-muted-foreground" /> Database
                                         </Badge>
-                                        <Badge variant="outline" className="bg-white/5 border-border text-[10px] font-bold uppercase text-muted-foreground">
-                                            <div className="w-2 h-2 rounded-full bg-blue-500 mr-2" /> Compute
+                                        <Badge variant="outline" className="text-xs font-medium text-muted-foreground">
+                                            <div className="size-2 rounded-full bg-primary" /> Compute
                                         </Badge>
-                                        <Badge variant="outline" className="bg-white/5 border-border text-[10px] font-bold uppercase text-muted-foreground">
-                                            <div className="w-2 h-2 rounded-full bg-red-500 mr-2" /> n8n
+                                        <Badge variant="outline" className="text-xs font-medium text-muted-foreground">
+                                            <div className="size-2 rounded-full bg-destructive" /> n8n
                                         </Badge>
                                     </div>
                                 </div>
 
                                 <div className="h-64 flex items-end justify-between gap-2 px-4 mb-8">
-                                    {Array(12).fill(0).map((_, i) => {
+                                    {Array.from({ length: 12 }).map((_, i) => {
                                         const currentMonth = new Date().getMonth();
                                         const isCurrentOrPast = i <= currentMonth;
                                         const val = isCurrentOrPast && grandTotal > 0
@@ -196,16 +216,16 @@ export default function MetricsPage() {
                                                 <div
                                                     className={cn(
                                                         "w-full rounded-t-lg transition-all duration-500 relative",
-                                                        isCurrentOrPast ? "bg-primary/20 group-hover:bg-primary/40" : "bg-white/5"
+                                                        isCurrentOrPast ? "bg-primary/20 group-hover:bg-primary/40" : "bg-muted"
                                                     )}
                                                     style={{ height: `${val}%` }}
                                                 >
                                                     {i === currentMonth && (
-                                                        <div className="absolute top-0 left-0 right-0 h-1 bg-primary rounded-full shadow-[0_0_8px_rgba(255,59,48,0.5)]" />
+                                                        <div className="absolute top-0 left-0 right-0 h-1 bg-primary rounded-full ring-2 ring-primary/50" />
                                                     )}
                                                 </div>
                                                 <div className={cn(
-                                                    "absolute -bottom-6 left-0 right-0 text-center text-[8px] font-bold uppercase",
+                                                    "absolute -bottom-6 left-0 right-0 text-center text-xs font-medium",
                                                     i === currentMonth ? "text-primary" : "text-muted-foreground"
                                                 )}>
                                                     {['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][i]}
@@ -216,24 +236,30 @@ export default function MetricsPage() {
                                 </div>
 
                                 <div className="grid grid-cols-3 gap-4 mt-10">
-                                    <Card className="bg-white/5 border-border ">
-                                        <CardContent className="p-4">
-                                            <div className="text-[10px] font-black uppercase text-muted-foreground tracking-widest mb-1">Total Operations</div>
+                                    <Card className="bg-muted/50">
+                                        <CardHeader className="p-4 pb-0">
+                                            <CardDescription className="text-sm text-muted-foreground">Total Operations</CardDescription>
+                                        </CardHeader>
+                                        <CardContent className="p-4 pt-2">
                                             <div className="text-lg font-bold">{grandTotal}</div>
                                         </CardContent>
                                     </Card>
-                                    <Card className="bg-white/5 border-border ">
-                                        <CardContent className="p-4">
-                                            <div className="text-[10px] font-black uppercase text-muted-foreground tracking-widest mb-1">Most Active</div>
+                                    <Card className="bg-muted/50">
+                                        <CardHeader className="p-4 pb-0">
+                                            <CardDescription className="text-sm text-muted-foreground">Most Active</CardDescription>
+                                        </CardHeader>
+                                        <CardContent className="p-4 pt-2">
                                             <div className="text-lg font-bold capitalize">
                                                 {n8nTotal >= computeTotal && n8nTotal >= databaseTotal ? 'n8n' :
                                                     computeTotal >= databaseTotal ? 'Compute' : 'Database'}
                                             </div>
                                         </CardContent>
                                     </Card>
-                                    <Card className="bg-white/5 border-border ">
-                                        <CardContent className="p-4">
-                                            <div className="text-[10px] font-black uppercase text-muted-foreground tracking-widest mb-1">Period</div>
+                                    <Card className="bg-muted/50">
+                                        <CardHeader className="p-4 pb-0">
+                                            <CardDescription className="text-sm text-muted-foreground">Period</CardDescription>
+                                        </CardHeader>
+                                        <CardContent className="p-4 pt-2">
                                             <div className="text-lg font-bold">30 Days</div>
                                         </CardContent>
                                     </Card>
@@ -242,39 +268,39 @@ export default function MetricsPage() {
                         </Card>
                     </div>
 
-                    <div className="space-y-8">
-                        <Card className="bg-background border-border relative overflow-hidden group">
+                    <div className="flex flex-col gap-8">
+                        <Card className="relative overflow-hidden group">
                             <CardContent className="p-8">
                                 <div className="relative z-10">
-                                    <div className="flex items-center gap-2 text-primary font-black uppercase text-[10px] tracking-widest mb-6">
-                                        <Gauge className="w-4 h-4" /> Service Distribution
+                                    <div className="flex items-center gap-2 text-primary text-xs font-medium mb-6">
+                                        <Gauge className="size-4" /> Service Distribution
                                     </div>
-                                    <div className="space-y-8">
-                                        <div className="space-y-4">
-                                            <div className="flex justify-between text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                                    <div className="flex flex-col gap-8">
+                                        <div className="flex flex-col gap-4">
+                                            <div className="flex justify-between text-xs font-medium text-muted-foreground">
                                                 <span>Compute</span>
-                                                <span className="text-white">{computeTotal}</span>
+                                                <span className="text-foreground">{computeTotal}</span>
                                             </div>
-                                            <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
-                                                <div className="h-full bg-blue-500 rounded-full transition-all duration-700" style={{ width: `${computePct}%` }} />
+                                            <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
+                                                <div className="h-full bg-primary rounded-full transition-all duration-700" style={{ width: `${computePct}%` }} />
                                             </div>
                                         </div>
-                                        <div className="space-y-4">
-                                            <div className="flex justify-between text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                                        <div className="flex flex-col gap-4">
+                                            <div className="flex justify-between text-xs font-medium text-muted-foreground">
                                                 <span>Database</span>
-                                                <span className="text-white">{databaseTotal}</span>
+                                                <span className="text-foreground">{databaseTotal}</span>
                                             </div>
-                                            <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
-                                                <div className="h-full bg-purple-500 rounded-full transition-all duration-700" style={{ width: `${databasePct}%` }} />
+                                            <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
+                                                <div className="h-full bg-muted-foreground rounded-full transition-all duration-700" style={{ width: `${databasePct}%` }} />
                                             </div>
                                         </div>
-                                        <div className="space-y-4">
-                                            <div className="flex justify-between text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                                        <div className="flex flex-col gap-4">
+                                            <div className="flex justify-between text-xs font-medium text-muted-foreground">
                                                 <span>n8n Flows</span>
-                                                <span className="text-white">{n8nTotal}</span>
+                                                <span className="text-foreground">{n8nTotal}</span>
                                             </div>
-                                            <div className="h-2 w-full bg-white/5 rounded-full overflow-hidden">
-                                                <div className="h-full bg-red-500 rounded-full transition-all duration-700" style={{ width: `${n8nPct}%` }} />
+                                            <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
+                                                <div className="h-full bg-destructive rounded-full transition-all duration-700" style={{ width: `${n8nPct}%` }} />
                                             </div>
                                         </div>
                                     </div>
@@ -283,15 +309,20 @@ export default function MetricsPage() {
                             </CardContent>
                         </Card>
 
-                        <Card className="bg-card border-border ">
+                        <Card>
                             <CardContent className="p-8">
                                 <div className="flex items-center gap-2 mb-6">
-                                    <Clock className="w-4 h-4 text-muted-foreground" />
-                                    <h3 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">Recent Activity</h3>
+                                    <Clock className="size-4 text-muted-foreground" />
+                                    <h3 className="text-sm font-medium text-muted-foreground">Recent Activity</h3>
                                 </div>
-                                <div className="space-y-6">
+                                <div className="flex flex-col gap-6">
                                     {usageHistory.length === 0 ? (
-                                        <div className="text-xs text-muted-foreground italic py-8 text-center">No recent activity detected.</div>
+                                        <Empty className="border-none py-8">
+                                            <EmptyHeader>
+                                                <EmptyTitle>No recent activity</EmptyTitle>
+                                                <EmptyDescription>Your usage activity will appear here.</EmptyDescription>
+                                            </EmptyHeader>
+                                        </Empty>
                                     ) : (
                                         usageHistory.map((action) => {
                                             let Icon = Activity;
@@ -305,12 +336,12 @@ export default function MetricsPage() {
 
                                             return (
                                                 <div key={action.id} className="flex gap-4 group">
-                                                    <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center shrink-0 border border-border group-hover:border-primary/50 transition-colors">
-                                                        <Icon className="w-4 h-4 text-muted-foreground group-hover:text-primary" />
+                                                    <div className="size-10 rounded-xl bg-muted flex items-center justify-center shrink-0 border border-border group-hover:border-primary/50 transition-colors">
+                                                        <Icon className="size-4 text-muted-foreground group-hover:text-primary" />
                                                     </div>
                                                     <div className="flex-1 min-w-0">
                                                         <div className="text-sm font-bold capitalize">{action.service} {action.feature}</div>
-                                                        <div className="text-[10px] text-muted-foreground truncate">{dateStr} • {action.description}</div>
+                                                        <div className="text-xs text-muted-foreground truncate">{dateStr} • {action.description}</div>
                                                     </div>
                                                 </div>
                                             );

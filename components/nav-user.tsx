@@ -21,6 +21,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar"
 import { ChevronsUpDownIcon, BadgeCheckIcon, CreditCardIcon, LogOutIcon, SettingsIcon } from "lucide-react"
+import Link from "next/link"
 import { clearAuthSession } from "@/lib/auth-utils"
 
 export function NavUser({
@@ -77,15 +78,15 @@ export function NavUser({
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem render={<a href="/dashboard/settings" />}>
+              <DropdownMenuItem render={<Link href="/dashboard/settings" />}>
                 <BadgeCheckIcon />
                 Account
               </DropdownMenuItem>
-              <DropdownMenuItem render={<a href="/dashboard/billing" />}>
+              <DropdownMenuItem render={<Link href="/dashboard/billing" />}>
                 <CreditCardIcon />
                 Billing
               </DropdownMenuItem>
-              <DropdownMenuItem render={<a href="/dashboard/settings" />}>
+              <DropdownMenuItem render={<Link href="/dashboard/settings" />}>
                 <SettingsIcon />
                 Settings
               </DropdownMenuItem>

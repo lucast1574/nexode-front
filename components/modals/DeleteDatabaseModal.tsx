@@ -23,14 +23,14 @@ export function DeleteDatabaseModal({ isOpen, onClose, onConfirm, dbName }: Dele
                         </div>
                         <div>
                             <DialogTitle>Delete Instance?</DialogTitle>
-                            <DialogDescription className="mt-1">
-                                You are about to delete <span className="font-semibold text-foreground">&quot;{dbName}&quot;</span>.
+                            <DialogDescription>
+                                You are about to delete <strong>&quot;{dbName}&quot;</strong>.
                                 This action is permanent and cannot be reversed.
                             </DialogDescription>
                         </div>
                     </div>
                 </DialogHeader>
-                <DialogFooter className="flex-row gap-2 sm:justify-end">
+                <DialogFooter>
                     <DialogClose render={<Button variant="outline" />}>
                         Cancel
                     </DialogClose>

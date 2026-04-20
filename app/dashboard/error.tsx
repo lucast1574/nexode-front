@@ -20,7 +20,7 @@ export default function DashboardError({
             <div className="size-20 bg-destructive/10 border border-destructive/20 flex items-center justify-center mb-8">
                 <AlertTriangle className="size-10 text-destructive" />
             </div>
-            <h2 className="text-3xl font-black tracking-tight mb-4 text-foreground">
+            <h2 className="text-3xl font-bold tracking-tight mb-4 text-foreground">
                 Something went wrong
             </h2>
             <p className="text-muted-foreground max-w-md mb-8 leading-relaxed">
@@ -42,7 +42,7 @@ export default function DashboardError({
                 </Button>
             </div>
             {error.digest && (
-                <p className="text-[10px] text-muted-foreground mt-8 font-mono">
+                <p className="text-xs text-muted-foreground mt-8 font-mono">
                     Error ID: {error.digest}
                 </p>
             )}

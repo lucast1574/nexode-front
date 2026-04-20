@@ -241,7 +241,7 @@ export default function AutomationsPage() {
             <div className="min-h-screen bg-background flex items-center justify-center">
                 <div className="flex flex-col items-center gap-6">
                     <div className="size-8 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
-                    <p className="text-muted-foreground font-bold tracking-widest uppercase text-xs animate-pulse">Syncing Automations...</p>
+                    <p className="text-muted-foreground text-sm animate-pulse">Syncing Automations...</p>
                 </div>
             </div>
         );
@@ -292,11 +292,11 @@ export default function AutomationsPage() {
                                         <div className="flex items-center justify-between mb-4">
                                             <div className="flex items-center gap-2">
                                                 <div className={cn("w-1.5 h-1.5  ", inst.status === 'running' ? 'bg-emerald-500' : 'bg-red-500' )} />
-                                                <Badge variant="outline" className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">{inst.status}</Badge>
+                                                <Badge variant="outline" className="text-muted-foreground">{inst.status}</Badge>
                                             </div>
                                         </div>
-                                        <div className="font-black text-sm uppercase tracking-tight group-hover:text-destructive transition-colors mb-2">{inst.name}</div>
-                                        <div className="text-[10px] text-muted-foreground font-bold truncate tracking-widest uppercase">{inst.generated_domain || 'Internal Host'}</div>
+                                        <div className="font-bold text-sm group-hover:text-destructive transition-colors mb-2">{inst.name}</div>
+                                        <div className="text-xs text-muted-foreground truncate">{inst.generated_domain || 'Internal Host'}</div>
                                     </button>
                                 ))
                             )}
@@ -310,10 +310,10 @@ export default function AutomationsPage() {
                                     <div className="flex flex-col gap-6">
                                         <div className="flex items-center gap-6">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-12 h-12  bg-destructive/10 border border-destructive/20 flex items-center justify-center">
+                                                <div className="w-12 h-12 bg-destructive/10 border border-destructive/20 flex items-center justify-center">
                                                     <Workflow className="size-6 text-destructive" />
                                                 </div>
-                                                <h1 className="text-4xl font-black uppercase tracking-tighter italic">{selectedInstance.name}</h1>
+                                                <h1 className="text-4xl font-bold tracking-tight">{selectedInstance.name}</h1>
                                             </div>
                                         </div>
                                     </div>
@@ -335,8 +335,8 @@ export default function AutomationsPage() {
                                         >
                                             <RefreshCw className={cn("size-5", restarting ? "animate-spin text-destructive" : "text-muted-foreground")} />
                                             {cooldown > 0 
-                                                ? <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{cooldown}s</span>
-                                                : <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest">Redeploy</span>
+                                                ? <span className="text-xs text-muted-foreground">{cooldown}s</span>
+                                                : <span className="text-xs text-muted-foreground">Redeploy</span>
                                             }
                                         </Button>
                                         <Button onClick={() => handleDelete(selectedInstance._id)} variant="destructive" size="icon" className="h-14 w-14 p-0">
@@ -345,36 +345,36 @@ export default function AutomationsPage() {
                                     </div>
                                 </div>
 
-                                        <div className="flex items-center gap-6 px-4 py-2 bg-muted  border border-border w-fit">
-                                            <div className="flex items-center gap-2 text-primary font-bold text-[10px] uppercase tracking-widest">
+                                        <div className="flex items-center gap-6 px-4 py-2 bg-muted border border-border w-fit">
+                                            <div className="flex items-center gap-2 text-primary text-xs font-medium">
                                                 <Activity className="w-3 h-3" /> API Ready
                                             </div>
                                             <Separator orientation="vertical" className="h-4" />
-                                            <div className="flex items-center gap-2 text-muted-foreground font-bold text-[10px] uppercase tracking-widest">
+                                            <div className="flex items-center gap-2 text-muted-foreground text-xs font-medium">
                                                 <Globe className="w-3 h-3" /> NVMe Optimized
                                             </div>
                                         </div>
 
-                                        <Card className="bg-card border-border  overflow-hidden">
+                                        <Card className="bg-card border-border overflow-hidden">
                                             <CardContent className="p-10 space-y-8 relative">
                                                 <div className="absolute top-0 right-0 p-10">
                                                     <Shield className="w-12 h-12 text-white/5 rotate-12" />
                                                 </div>
                                                 
                                                 <div>
-                                                    <h3 className="text-xs font-black uppercase tracking-[0.3em] text-muted-foreground mb-2">Internal Webhook Endpoint</h3>
+                                                    <h3 className="text-xs font-medium text-muted-foreground mb-2">Internal Webhook Endpoint</h3>
                                                     <p className="text-sm font-bold text-foreground">Natively proxied through Nexode Cloud Armor.</p>
                                                 </div>
 
-                                                <div className="p-8  bg-background border border-border flex items-center justify-between group">
+                                                <div className="p-8 bg-background border border-border flex items-center justify-between group">
                                                     <div className="flex items-center gap-6">
-                                                        <div className="size-14  bg-destructive/5 border border-destructive/10 flex items-center justify-center group-hover:bg-destructive/10 transition-colors">
+                                                        <div className="size-14 bg-destructive/5 border border-destructive/10 flex items-center justify-center group-hover:bg-destructive/10 transition-colors">
                                                             <Zap className="w-7 h-7 text-destructive" />
                                                         </div>
                                                         <div>
-                                                            <div className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1">Production URL</div>
+                                                            <div className="text-xs text-muted-foreground mb-1">Production URL</div>
                                                             {selectedInstance.status.toLowerCase() === 'running' ? (
-                                                                <code className="text-lg font-black text-foreground">{getN8nUrl(selectedInstance.generated_domain || '')}</code>
+                                                                <code className="text-lg font-semibold text-foreground">{getN8nUrl(selectedInstance.generated_domain || '')}</code>
                                                             ) : (
                                                                 <div className="flex items-center gap-3">
                                                                     <div className="size-4 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
@@ -410,11 +410,11 @@ export default function AutomationsPage() {
                                         </Card>
 
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                            <Card className="bg-card border-border ">
+                                            <Card className="bg-card border-border">
                                                 <CardContent className="p-10">
                                                     <div className="flex items-center gap-3 mb-8">
                                                         <Settings className="size-5 text-muted-foreground" />
-                                                        <h3 className="text-xs font-black uppercase tracking-[0.3em] text-muted-foreground">Service Events</h3>
+                                                        <h3 className="text-xs font-medium text-muted-foreground">Service Events</h3>
                                                     </div>
                                                     <div className="space-y-6">
                                                         {dnsStatus && (
@@ -426,10 +426,10 @@ export default function AutomationsPage() {
                                                                     'bg-yellow-500 animate-pulse'
                                                                 )} />
                                                                 <div className="flex-1 min-w-0">
-                                                                    <div className="text-[11px] font-black uppercase tracking-tighter text-foreground break-words mb-1">
+                                                                    <div className="text-xs font-bold text-foreground break-words mb-1">
                                                                         DNS Verification: {dnsStatus === 'checking' ? 'Resolving Wildcard...' : dnsStatus === 'resolved' ? 'Propagation Successful' : 'Wildcard Resolution Failed'}
                                                                     </div>
-                                                                    <div className="text-[9px] font-bold text-muted-foreground uppercase italic">
+                                                                    <div className="text-xs font-bold text-muted-foreground uppercase italic">
                                                                         {dnsMessage || 'Checking DNS records...'}
                                                                     </div>
                                                                 </div>
@@ -442,8 +442,8 @@ export default function AutomationsPage() {
                                                                     e.type === 'error' ? 'bg-red-500 ' : 'bg-red-400'
                                                                 )} />
                                                                 <div className="flex-1 min-w-0">
-                                                                    <div className="text-[11px] font-black uppercase tracking-tighter text-foreground break-words mb-1">{e.message}</div>
-                                                                    <div className="text-[9px] font-bold text-muted-foreground uppercase italic">
+                                                                    <div className="text-xs font-bold text-foreground break-words mb-1">{e.message}</div>
+                                                                    <div className="text-xs font-bold text-muted-foreground uppercase italic">
                                                                         {new Date(e.timestamp).toLocaleString()}
                                                                     </div>
                                                                 </div>
@@ -453,23 +453,23 @@ export default function AutomationsPage() {
                                                 </CardContent>
                                             </Card>
 
-                                            <Card className="bg-card border-border  relative overflow-hidden group">
+                                            <Card className="bg-card border-border relative overflow-hidden group">
                                                 <CardContent className="p-10 flex flex-col items-center justify-center text-center">
                                                     <div className="absolute inset-0 bg-destructive/[0.01] group-hover:bg-destructive/[0.02] transition-colors" />
                                                     <Workflow className="size-16 text-muted-foreground mb-6 group-hover:text-destructive/40 transition-colors relative z-10" />
-                                                    <h3 className="text-lg font-black uppercase italic tracking-tighter mb-4 text-muted-foreground relative z-10">Node Configuration</h3>
-                                                    <p className="text-xs font-bold text-muted-foreground max-w-xs leading-relaxed uppercase tracking-widest relative z-10">
+                                                    <h3 className="text-lg font-semibold uppercase italic tracking-tighter mb-4 text-muted-foreground relative z-10">Node Configuration</h3>
+                                                    <p className="text-xs font-bold text-muted-foreground max-w-xs leading-relaxed relative z-10">
                                                         This instance is running an isolated n8n core with dedicated persistent storage and encryption keys.
                                                     </p>
                                                     <Separator className="my-8 relative z-10" />
                                                     <div className="w-full flex justify-around relative z-10">
                                                         <div className="text-center">
-                                                            <div className="text-[9px] font-black text-muted-foreground uppercase mb-1">Status</div>
-                                                            <div className="text-xs font-black text-foreground tracking-tighter">{selectedInstance.status.toUpperCase()}</div>
+                                                            <div className="text-xs font-bold text-muted-foreground uppercase mb-1">Status</div>
+                                                            <div className="text-xs font-medium text-foreground tracking-tighter">{selectedInstance.status.toUpperCase()}</div>
                                                         </div>
                                                         <div className="text-center">
-                                                            <div className="text-[9px] font-black text-muted-foreground uppercase mb-1">Region</div>
-                                                            <div className="text-xs font-black text-foreground tracking-tighter">Local Server</div>
+                                                            <div className="text-xs font-bold text-muted-foreground uppercase mb-1">Region</div>
+                                                            <div className="text-xs font-medium text-foreground tracking-tighter">Local Server</div>
                                                         </div>
                                                     </div>
                                                 </CardContent>
@@ -479,7 +479,7 @@ export default function AutomationsPage() {
                         ) : (
                             <div className="h-full flex flex-col items-center justify-center text-center p-8">
                                 <Workflow className="size-16 text-muted-foreground mb-6" />
-                                <h1 className="text-2xl font-black mb-2">No active clusters found</h1>
+                                <h1 className="text-2xl font-bold mb-2">No active clusters found</h1>
                                 <p className="text-muted-foreground max-w-xs mx-auto mb-6">Create one to get started.</p>
                                 <Button onClick={handleCreateClick} className="gap-2">
                                     <Plus className="size-4" /> Provision n8n

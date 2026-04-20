@@ -202,7 +202,7 @@ export function NotificationBell() {
             >
                 <Bell className={cn("w-6 h-6 transition-all", unviewedCount > 0 ? "text-primary animate-pulse" : "text-muted-foreground")} />
                 {unviewedCount > 0 && (
-                    <span className="absolute top-2.5 right-2.5 px-1.5 py-0.5 min-w-[18px] h-[18px] bg-primary text-foreground text-[10px] font-black rounded-full flex items-center justify-center">
+                    <span className="absolute top-2.5 right-2.5 px-1.5 py-0.5 min-w-[18px] h-[18px] bg-primary text-foreground text-xs font-bold rounded-full flex items-center justify-center">
                         {unviewedCount > 9 ? "9+" : unviewedCount}
                     </span>
                 )}
@@ -212,7 +212,7 @@ export function NotificationBell() {
                 <div className="absolute right-0 mt-4 w-[400px] bg-card border border-border rounded-xl shadow-2xl z-50 overflow-hidden animate-in fade-in zoom-in duration-200">
                     <div className="p-6 border-b border-border flex items-center justify-between bg-muted">
                         <div>
-                            <h3 className="text-lg font-black tracking-tight">Protocol Alerts</h3>
+                            <h3 className="text-lg font-semibold tracking-tight">Protocol Alerts</h3>
                             <p className="text-xs text-muted-foreground font-medium">System events and status updates</p>
                         </div>
                         {unviewedCount > 0 && (
@@ -258,7 +258,7 @@ export function NotificationBell() {
                                                 <h4 className={cn("text-sm font-bold truncate", !n.viewed ? "text-foreground" : "text-muted-foreground")}>
                                                     {n.title}
                                                 </h4>
-                                                <span className="text-[10px] text-muted-foreground font-medium whitespace-nowrap ml-2">
+                                                <span className="text-xs text-muted-foreground font-medium whitespace-nowrap ml-2">
                                                     {formatDistanceToNow(new Date(n.created_at), { addSuffix: true })}
                                                 </span>
                                             </div>
@@ -280,7 +280,7 @@ export function NotificationBell() {
 
                     {notifications.length > 0 && (
                         <div className="p-4 bg-muted text-center border-t border-border">
-                            <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">
+                            <p className="text-xs text-muted-foreground font-medium">
                                 Alerts auto-expire after 7 days
                             </p>
                         </div>
