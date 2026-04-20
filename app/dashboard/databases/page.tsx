@@ -23,6 +23,8 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { SidebarTrigger } from "@/components/ui/sidebar";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/ui/breadcrumb";
 import { Subscription } from "@/app/dashboard/layout";
 import { cn } from "@/lib/utils";
 import { getAccessToken } from "@/lib/auth-utils";
@@ -441,10 +443,10 @@ export default function DatabasesPage() {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-black flex items-center justify-center">
+            <div className="min-h-screen bg-background flex items-center justify-center">
                 <div className="flex flex-col items-center gap-6">
-                    <div className="w-16 h-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
-                    <p className="text-zinc-500 font-bold tracking-widest uppercase text-xs animate-pulse">Syncing Database Clusters...</p>
+                    <div className="w-16 h-16 border-4 border-primary/20 border-t-primary animate-spin" />
+                    <p className="text-muted-foreground font-bold tracking-widest uppercase text-xs animate-pulse">Syncing Database Clusters...</p>
                 </div>
             </div>
         );
@@ -452,42 +454,41 @@ export default function DatabasesPage() {
 
     return (
         <>
-                <header className="h-28 border-b border-white/5 px-8 flex items-center justify-between bg-black/50 backdrop-blur-xl shrink-0">
-                    <div className="flex items-center gap-6">
-                        <div className="flex items-center gap-4">
-                            <Database className="w-6 h-6 text-purple-500" />
-                            <h2 className="text-xl font-black tracking-tight">Cloud Databases</h2>
-                        </div>
-                    </div>
-                    <div className="flex items-center gap-4">
-                        <Button
-                            onClick={handleCreateClick}
-                            className="rounded-full h-12 px-6 gap-2 font-bold shadow-lg transition-all bg-purple-600 hover:bg-purple-500 shadow-purple-500/20 text-white"
-                        >
-                            <Plus className="w-4 h-4" /> New Instance
-                        </Button>
-                    </div>
+                <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
+                    <SidebarTrigger className="-ml-1" />
+                    <Separator orientation="vertical" className="mr-2 data-vertical:h-4 data-vertical:self-auto" />
+                    <Breadcrumb>
+                        <BreadcrumbList>
+                            <BreadcrumbItem>
+                                <BreadcrumbPage>Databases</BreadcrumbPage>
+                            </BreadcrumbItem>
+                        </BreadcrumbList>
+                    </Breadcrumb>
+                    <div className="flex-1" />
+                    <Button onClick={handleCreateClick} className="gap-2">
+                        <Plus className="size-4" /> New Instance
+                    </Button>
                 </header>
 
                 <div className="flex-1 flex overflow-hidden">
-                    <div className="w-80 border-r border-white/5 bg-black/20 flex flex-col">
-                        <div className="p-4 border-b border-white/5">
+                    <div className="w-80 border-r border-border bg-black/20 flex flex-col">
+                        <div className="p-4 border-b border-border">
                             <div className="flex items-center gap-3">
-                                <Search className="w-4 h-4 text-zinc-500" />
+                                <Search className="size-4 text-muted-foreground" />
                                 <Input
                                     type="text"
                                     placeholder="Search clusters..."
-                                    className="bg-white/5 border-white/10 text-xs h-8"
+                                    className="bg-white/5 border-border text-xs h-8"
                                 />
                             </div>
                         </div>
-                        <div className="flex-1 overflow-y-auto p-4 space-y-3">
+                        <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3">
                             {databases.length === 0 ? (
                                 <div className="text-center py-12 px-4">
                                     <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-4">
                                         <Database className="w-6 h-6 text-white" />
                                     </div>
-                                    <p className="text-xs text-zinc-500">No active databases found. Create one to get started.</p>
+                                    <p className="text-xs text-muted-foreground">No active databases found. Create one to get started.</p>
                                 </div>
                             ) : (
                                 databases.map((db) => (
@@ -498,30 +499,30 @@ export default function DatabasesPage() {
                                             setTerminalLogs([...INITIAL_TERMINAL_LOGS]);
                                         }}
                                         className={cn(
-                                            "w-full text-left p-4 rounded-2xl border transition-all group",
+                                            "w-full text-left p-4  border transition-all group",
                                             selectedDb?._id === db._id
                                                 ? "bg-primary/10 border-primary/20"
-                                                : "bg-white/[0.02] border-white/5 hover:bg-white/[0.05]"
+                                                : "bg-card border-border hover:bg-muted"
                                         )}
                                     >
                                         <div className="flex items-center justify-between mb-2">
                                             <Badge variant="outline" className={cn(
                                                 "text-[9px] font-black uppercase tracking-widest",
-                                                db.type === 'postgres' ? 'text-blue-400 border-blue-400/20 bg-blue-400/10' :
-                                                    db.type === 'mongodb' ? 'text-emerald-400 border-emerald-400/20 bg-emerald-400/10' :
-                                                        db.type === 'mysql' ? 'text-blue-500 border-blue-500/20 bg-blue-500/10' :
-                                                            'text-red-400 border-red-400/20 bg-red-400/10'
+                                                db.type === 'postgres' ? 'text-primary border-primary/20 bg-blue-400/10' :
+                                                    db.type === 'mongodb' ? 'text-primary border-emerald-400/20 bg-emerald-400/10' :
+                                                        db.type === 'mysql' ? 'text-primary border-primary/20 bg-primary/10' :
+                                                            'text-destructive border-red-400/20 bg-red-400/10'
                                             )}>
                                                 {db.type}
                                             </Badge>
                                             <div className={cn(
                                                 "w-2 h-2 rounded-full",
-                                                db.status === 'running' ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' :
+                                                db.status === 'running' ? 'bg-emerald-500 ' :
                                                     db.status === 'provisioning' ? 'bg-amber-500 animate-pulse' : 'bg-red-500'
                                             )} />
                                         </div>
                                         <div className="font-bold text-sm truncate group-hover:text-primary transition-colors">{db.name}</div>
-                                        <div className="text-[10px] text-zinc-500 mt-1 uppercase tracking-tighter">
+                                        <div className="text-[10px] text-muted-foreground mt-1 uppercase tracking-tighter">
                                             Created {new Date(db.created_on).toLocaleDateString()}
                                         </div>
                                     </button>
@@ -530,38 +531,38 @@ export default function DatabasesPage() {
                         </div>
                     </div>
 
-                    <div className="flex-1 flex flex-col bg-[#050505]">
+                    <div className="flex-1 flex flex-col bg-background">
                         {selectedDb ? (
                             <>
-                                <div className="p-8 border-b border-white/5 shrink-0">
+                                <div className="p-8 border-b border-border shrink-0">
                                     <div className="flex items-start justify-between">
                                         <div>
                                             <div className="flex items-center gap-3 mb-2">
                                                 <h1 className="text-3xl font-black tracking-tight">{selectedDb.name}</h1>
                                                 <Badge variant="outline" className={cn(
                                                     "text-[10px] font-black uppercase tracking-widest",
-                                                    selectedDb.status === 'running' ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20" :
+                                                    selectedDb.status === 'running' ? "bg-primary/10 text-primary border-emerald-500/20" :
                                                         "bg-amber-500/10 text-amber-500 border-amber-500/20"
                                                 )}>
                                                     ● {selectedDb.status}
                                                 </Badge>
                                             </div>
-                                            <p className="text-zinc-500 text-sm font-medium">Instance ID: {selectedDb._id}</p>
+                                            <p className="text-muted-foreground text-sm font-medium">Instance ID: {selectedDb._id}</p>
                                         </div>
                                         <div className="flex gap-3">
                                             <Button
                                                 variant="outline"
                                                 onClick={() => handleRestartDb(selectedDb._id)}
-                                                className="rounded-xl border-white/10 bg-white/5 hover:bg-white/10 h-10"
+                                                className=" border-border bg-white/5 hover:bg-white/10 h-10"
                                             >
-                                                <RefreshCw className="w-4 h-4 mr-2" /> Restart
+                                                <RefreshCw className="size-4 mr-2" /> Restart
                                             </Button>
                                             <Button
                                                 variant="outline"
                                                 onClick={() => handleDeleteDb(selectedDb)}
-                                                className="rounded-xl border-red-500/20 bg-red-500/5 text-red-400 hover:bg-red-500/10 h-10"
+                                                className=" border-destructive/20 bg-red-500/5 text-destructive hover:bg-destructive/10 h-10"
                                             >
-                                                <Trash2 className="w-4 h-4" />
+                                                <Trash2 className="size-4" />
                                             </Button>
                                         </div>
                                     </div>
@@ -569,13 +570,13 @@ export default function DatabasesPage() {
                                     <Tabs value={activeTab} onValueChange={setActiveTab}>
                                         <TabsList variant="line" className="mt-8 gap-8">
                                             <TabsTrigger value="overview" className="flex items-center gap-2">
-                                                <Activity className="w-4 h-4" /> Overview
+                                                <Activity className="size-4" /> Overview
                                             </TabsTrigger>
                                             <TabsTrigger value="credentials" className="flex items-center gap-2">
-                                                <Key className="w-4 h-4" /> Credentials
+                                                <Key className="size-4" /> Credentials
                                             </TabsTrigger>
                                             <TabsTrigger value="terminal" className="flex items-center gap-2">
-                                                <Terminal className="w-4 h-4" /> Terminal
+                                                <Terminal className="size-4" /> Terminal
                                             </TabsTrigger>
                                         </TabsList>
                                     </Tabs>
@@ -585,24 +586,24 @@ export default function DatabasesPage() {
                                     <TabsContent value="overview" className="animate-in fade-in slide-in-from-bottom-4 duration-500" >
                                         <div className="space-y-8">
                                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                                <Card className="bg-white/[0.03] border-white/5 rounded-3xl">
+                                                <Card className="bg-card border-border ">
                                                     <CardContent className="p-6">
-                                                        <div className="text-zinc-500 text-[10px] font-black uppercase tracking-widest mb-4">Core Technology</div>
+                                                        <div className="text-muted-foreground text-[10px] font-black uppercase tracking-widest mb-4">Core Technology</div>
                                                         <div className="flex items-center gap-3">
                                                             <div className={cn(
-                                                                "w-10 h-10 rounded-xl flex items-center justify-center border",
-                                                                selectedDb.type === 'mongodb' ? 'bg-emerald-500/10 border-emerald-500/20' :
-                                                                    selectedDb.type === 'postgres' ? 'bg-blue-500/10 border-blue-500/20' :
-                                                                        selectedDb.type === 'redis' ? 'bg-red-500/10 border-red-500/20' :
+                                                                "w-10 h-10  flex items-center justify-center border",
+                                                                selectedDb.type === 'mongodb' ? 'bg-primary/10 border-emerald-500/20' :
+                                                                    selectedDb.type === 'postgres' ? 'bg-primary/10 border-primary/20' :
+                                                                        selectedDb.type === 'redis' ? 'bg-destructive/10 border-destructive/20' :
                                                                             selectedDb.type === 'mysql' ? 'bg-blue-600/10 border-blue-600/20' :
                                                                                 'bg-primary/10 border-primary/20'
                                                             )}>
                                                                 <Database className={cn(
-                                                                    "w-5 h-5",
-                                                                    selectedDb.type === 'mongodb' ? 'text-emerald-400' :
-                                                                        selectedDb.type === 'postgres' ? 'text-blue-400' :
-                                                                            selectedDb.type === 'redis' ? 'text-red-500' :
-                                                                                selectedDb.type === 'mysql' ? 'text-blue-500' : 'text-primary'
+                                                                    "size-5",
+                                                                    selectedDb.type === 'mongodb' ? 'text-primary' :
+                                                                        selectedDb.type === 'postgres' ? 'text-primary' :
+                                                                            selectedDb.type === 'redis' ? 'text-destructive' :
+                                                                                selectedDb.type === 'mysql' ? 'text-primary' : 'text-primary'
                                                                 )} />
                                                             </div>
                                                             <div>
@@ -610,7 +611,7 @@ export default function DatabasesPage() {
                                                                     selectedDb.type === 'mongodb' ? 'MongoDB' :
                                                                         selectedDb.type === 'redis' ? 'Redis' :
                                                                             selectedDb.type === 'mysql' ? 'MySQL' : selectedDb.type} Enterprise</div>
-                                                                <div className="text-[10px] text-zinc-500 font-medium">
+                                                                <div className="text-[10px] text-muted-foreground font-medium">
                                                                     {selectedDb.type === 'postgres' ? 'v16.2 Stable' :
                                                                         selectedDb.type === 'mongodb' ? 'v6.0 Latest' :
                                                                             selectedDb.type === 'redis' ? 'v7.2 stable' :
@@ -620,43 +621,43 @@ export default function DatabasesPage() {
                                                         </div>
                                                     </CardContent>
                                                 </Card>
-                                                <Card className="bg-white/[0.03] border-white/5 rounded-3xl">
+                                                <Card className="bg-card border-border ">
                                                     <CardContent className="p-6">
-                                                        <div className="text-zinc-500 text-[10px] font-black uppercase tracking-widest mb-4">Availability Zone</div>
+                                                        <div className="text-muted-foreground text-[10px] font-black uppercase tracking-widest mb-4">Availability Zone</div>
                                                         <div className="flex items-center gap-3">
-                                                            <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center border border-blue-500/20">
-                                                                <Shield className="w-5 h-5 text-blue-400" />
+                                                            <div className="w-10 h-10  bg-primary/10 flex items-center justify-center border border-primary/20">
+                                                                <Shield className="size-5 text-primary" />
                                                             </div>
                                                             <div>
                                                                 <div className="font-bold">US-East (Virginia)</div>
-                                                                <div className="text-xs text-zinc-500">Multi-AZ Enabled</div>
+                                                                <div className="text-xs text-muted-foreground">Multi-AZ Enabled</div>
                                                             </div>
                                                         </div>
                                                     </CardContent>
                                                 </Card>
-                                                <Card className="bg-white/[0.03] border-white/5 rounded-3xl">
+                                                <Card className="bg-card border-border ">
                                                     <CardContent className="p-6">
-                                                        <div className="text-zinc-500 text-[10px] font-black uppercase tracking-widest mb-4">Instance Health</div>
+                                                        <div className="text-muted-foreground text-[10px] font-black uppercase tracking-widest mb-4">Instance Health</div>
                                                         <div className="flex items-center gap-3">
-                                                            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
-                                                                <Activity className="w-5 h-5 text-emerald-400" />
+                                                            <div className="w-10 h-10  bg-primary/10 flex items-center justify-center border border-emerald-500/20">
+                                                                <Activity className="size-5 text-primary" />
                                                             </div>
                                                             <div>
-                                                                <div className="font-bold text-emerald-400">Optimal</div>
-                                                                <div className="text-xs text-zinc-500">Monitored</div>
+                                                                <div className="font-bold text-primary">Optimal</div>
+                                                                <div className="text-xs text-muted-foreground">Monitored</div>
                                                             </div>
                                                         </div>
                                                     </CardContent>
                                                 </Card>
                                             </div>
 
-                                            <Card className="bg-white/[0.02] border-white/5 rounded-[32px]">
+                                            <Card className="bg-card border-border ">
                                                 <CardContent className="p-8">
                                                     <h3 className="text-lg font-bold mb-6">Connection Endpoints</h3>
-                                                    <div className="space-y-4">
-                                                        <div className="p-4 rounded-2xl bg-black border border-white/10 flex items-center justify-between">
+                                                    <div className="flex flex-col gap-4">
+                                                        <div className="p-4  bg-background border border-border flex items-center justify-between">
                                                             <div className="flex-1 overflow-hidden">
-                                                                <div className="text-[10px] text-zinc-500 font-bold uppercase mb-1">Public Connection URI</div>
+                                                                <div className="text-[10px] text-muted-foreground font-bold uppercase mb-1">Public Connection URI</div>
                                                                 <code className="text-sm text-primary truncate block">{selectedDb.public_uri || selectedDb.connection_string || 'provisioning...'}</code>
                                                             </div>
                                                             <Button
@@ -665,14 +666,14 @@ export default function DatabasesPage() {
                                                                 className="shrink-0"
                                                                 onClick={() => handleCopy(selectedDb.public_uri || selectedDb.connection_string || '', 'uri')}
                                                             >
-                                                                {copiedField === 'uri' ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
+                                                                {copiedField === 'uri' ? <Check className="size-4 text-primary" /> : <Copy className="size-4" />}
                                                             </Button>
                                                         </div>
 
-                                                        <div className="p-4 rounded-2xl bg-black border border-white/10 flex items-center justify-between">
+                                                        <div className="p-4  bg-background border border-border flex items-center justify-between">
                                                             <div className="flex-1 overflow-hidden">
-                                                                <div className="text-[10px] text-zinc-500 font-bold uppercase mb-1">Internal Connection URI</div>
-                                                                <code className="text-sm text-emerald-400 truncate block">{selectedDb.internal_uri || 'provisioning...'}</code>
+                                                                <div className="text-[10px] text-muted-foreground font-bold uppercase mb-1">Internal Connection URI</div>
+                                                                <code className="text-sm text-primary truncate block">{selectedDb.internal_uri || 'provisioning...'}</code>
                                                             </div>
                                                             <Button
                                                                 variant="ghost"
@@ -680,26 +681,26 @@ export default function DatabasesPage() {
                                                                 className="shrink-0"
                                                                 onClick={() => handleCopy(selectedDb.internal_uri || '', 'internal_uri')}
                                                             >
-                                                                {copiedField === 'internal_uri' ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
+                                                                {copiedField === 'internal_uri' ? <Check className="size-4 text-primary" /> : <Copy className="size-4" />}
                                                             </Button>
                                                         </div>
 
                                                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                                            <Card className="bg-black border-white/10 rounded-2xl">
+                                                            <Card className="bg-background border-border ">
                                                                 <CardContent className="p-4">
-                                                                    <div className="text-[10px] text-zinc-500 font-bold uppercase mb-1">Host</div>
+                                                                    <div className="text-[10px] text-muted-foreground font-bold uppercase mb-1">Host</div>
                                                                     <code className="text-sm">{selectedDb.host || 'backend.nexode.app'}</code>
                                                                 </CardContent>
                                                             </Card>
-                                                            <Card className="bg-black border-white/10 rounded-2xl">
+                                                            <Card className="bg-background border-border ">
                                                                 <CardContent className="p-4">
-                                                                    <div className="text-[10px] text-zinc-500 font-bold uppercase mb-1">Port</div>
+                                                                    <div className="text-[10px] text-muted-foreground font-bold uppercase mb-1">Port</div>
                                                                     <code className="text-sm">{selectedDb.port || '...'}</code>
                                                                 </CardContent>
                                                             </Card>
-                                                            <Card className="bg-black border-white/10 rounded-2xl">
+                                                            <Card className="bg-background border-border ">
                                                                 <CardContent className="p-4">
-                                                                    <div className="text-[10px] text-zinc-500 font-bold uppercase mb-1">Database Name</div>
+                                                                    <div className="text-[10px] text-muted-foreground font-bold uppercase mb-1">Database Name</div>
                                                                     <code className="text-sm">{selectedDb.db_name || '...'}</code>
                                                                 </CardContent>
                                                             </Card>
@@ -709,31 +710,31 @@ export default function DatabasesPage() {
                                             </Card>
 
                                             {selectedDb.events && selectedDb.events.length > 0 && (
-                                                <Card className="bg-white/[0.02] border-white/5 rounded-[32px]">
+                                                <Card className="bg-card border-border ">
                                                     <CardContent className="p-8">
                                                         <div className="flex items-center justify-between mb-8">
                                                             <h3 className="text-lg font-bold">Deployment Timeline</h3>
-                                                            <span className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Real-time Logs</span>
+                                                            <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Real-time Logs</span>
                                                         </div>
                                                         <div className="space-y-6 relative ml-2">
                                                             <div className="absolute left-[7px] top-2 bottom-2 w-0.5 bg-white/5" />
                                                             {selectedDb.events.map((event, idx) => (
                                                                 <div key={idx} className="flex gap-6 relative">
                                                                     <div className={cn(
-                                                                        "w-4 h-4 rounded-full border-2 border-zinc-700 relative z-10 shrink-0 mt-1",
-                                                                        event.type === 'success' ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' :
-                                                                            event.type === 'error' ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]' : 'bg-primary'
+                                                                        "size-4 rounded-full border-2 border-zinc-700 relative z-10 shrink-0 mt-1",
+                                                                        event.type === 'success' ? 'bg-emerald-500 ' :
+                                                                            event.type === 'error' ? 'bg-red-500 ' : 'bg-primary'
                                                                     )} />
                                                                     <div className="flex-1">
                                                                         <div className="flex items-center justify-between mb-1">
                                                                             <p className={cn(
                                                                                 "text-sm font-bold",
-                                                                                event.type === 'error' ? 'text-red-400' :
-                                                                                    event.type === 'success' ? 'text-emerald-400' : 'text-zinc-200'
+                                                                                event.type === 'error' ? 'text-destructive' :
+                                                                                    event.type === 'success' ? 'text-primary' : 'text-foreground'
                                                                             )}>
                                                                                 {event.message}
                                                                             </p>
-                                                                            <span className="text-[10px] font-medium text-zinc-400">
+                                                                            <span className="text-[10px] font-medium text-muted-foreground">
                                                                                 {new Date(event.timestamp).toLocaleTimeString()}
                                                                             </span>
                                                                         </div>
@@ -749,10 +750,10 @@ export default function DatabasesPage() {
 
                                     <TabsContent value="credentials" className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                                         <div className="space-y-6">
-                                            <Card className="border-red-500/20 bg-red-500/10 rounded-2xl">
+                                            <Card className="border-destructive/20 bg-destructive/10 ">
                                                 <CardContent className="p-4">
-                                                    <div className="flex gap-3 text-red-400">
-                                                        <Shield className="w-5 h-5 shrink-0" />
+                                                    <div className="flex gap-3 text-destructive">
+                                                        <Shield className="size-5 shrink-0" />
                                                         <p className="text-xs leading-relaxed">Security Warning: Never share your database credentials. Use environment variables in your applications to store these safely.</p>
                                                     </div>
                                                 </CardContent>
@@ -789,10 +790,10 @@ export default function DatabasesPage() {
                                                         field: 'jdbc_mysql', secret: true
                                                     }] : [])
                                                 ].map((item: { label: string, value: string | undefined, field: string, secret?: boolean }) => (
-                                                    <Card key={item.field} className="bg-white/[0.03] border-white/5 hover:border-primary/20 transition-all rounded-[24px] group">
+                                                    <Card key={item.field} className="bg-card border-border hover:border-primary/20 transition-all  group">
                                                         <CardContent className="p-6">
                                                             <div className="flex items-center justify-between mb-4">
-                                                                <Label className="text-xs font-black uppercase tracking-widest text-zinc-500">{item.label}</Label>
+                                                                <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground">{item.label}</Label>
                                                                 <Button
                                                                     variant="ghost"
                                                                     size="sm"
@@ -802,15 +803,15 @@ export default function DatabasesPage() {
                                                                     {copiedField === item.field ? <><Check className="w-3 h-3 mr-2" /> Copied</> : <><Copy className="w-3 h-3 mr-2" /> Copy Item</>}
                                                                 </Button>
                                                             </div>
-                                                            <div className="bg-black/50 p-4 rounded-xl border border-white/5 font-mono text-sm break-all flex items-center justify-between gap-3">
+                                                            <div className="bg-black/50 p-4  border border-border font-mono text-sm break-all flex items-center justify-between gap-3">
                                                                 <span className="flex-1 overflow-hidden">{maskValue(item.value, item.field, !!item.secret)}</span>
                                                                 {item.secret && (
                                                                     <button
                                                                         onClick={() => toggleReveal(item.field)}
-                                                                        className="shrink-0 p-1.5 rounded-lg hover:bg-white/10 text-zinc-500 hover:text-white transition-colors"
+                                                                        className="shrink-0 p-1.5 rounded-lg hover:bg-white/10 text-muted-foreground hover:text-white transition-colors"
                                                                         title={revealedFields.has(item.field) ? 'Hide' : 'Reveal'}
                                                                     >
-                                                                        {revealedFields.has(item.field) ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                                                        {revealedFields.has(item.field) ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
                                                                     </button>
                                                                 )}
                                                             </div>
@@ -822,21 +823,21 @@ export default function DatabasesPage() {
                                     </TabsContent>
 
                                     <TabsContent value="terminal" className="animate-in fade-in zoom-in-95 duration-500">
-                                        <Card className="bg-[#080808] border-white/5 rounded-[32px] h-full flex flex-col overflow-hidden">
-                                            <CardHeader className="px-6 py-4 border-b border-white/5 bg-black/40 flex items-center justify-between">
+                                        <Card className="bg-background border-border  h-full flex flex-col overflow-hidden">
+                                            <CardHeader className="px-6 py-4 border-b border-border bg-black/40 flex items-center justify-between">
                                                 <div className="flex items-center gap-3">
                                                     <div className="flex gap-1.5">
                                                         <div className="w-2.5 h-2.5 rounded-full bg-red-500/20 border border-red-500/40" />
                                                         <div className="w-2.5 h-2.5 rounded-full bg-amber-500/20 border border-amber-500/40" />
                                                         <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/20 border border-emerald-500/40" />
                                                     </div>
-                                                    <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500 ml-2">
+                                                    <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground ml-2">
                                                         {selectedDb.type === 'mongodb' ? 'Mongosh' :
                                                             selectedDb.type === 'postgres' ? 'PSQL' :
                                                                 selectedDb.type === 'redis' ? 'Redis-CLI' : 'MySQL'} Proxy — {selectedDb.name}
                                                     </span>
                                                 </div>
-                                                <Badge variant="outline" className="text-[10px] font-bold text-emerald-500 uppercase tracking-tighter">
+                                                <Badge variant="outline" className="text-[10px] font-bold text-primary uppercase tracking-tighter">
                                                     <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse mr-1.5" /> Connected
                                                 </Badge>
                                             </CardHeader>
@@ -846,20 +847,20 @@ export default function DatabasesPage() {
                                                     <div key={i} className={cn(
                                                         "break-all whitespace-pre-wrap",
                                                         log.type === 'input' ? "text-white flex gap-2" :
-                                                            log.type === 'error' ? "text-red-400" : "text-emerald-400/80"
+                                                            log.type === 'error' ? "text-destructive" : "text-primary/80"
                                                     )}>
                                                         {log.type === 'input' && <span className="text-primary shrink-0">➜</span>}
                                                         {log.text}
                                                     </div>
                                                 ))}
                                                 {isExecuting && (
-                                                    <div className="text-zinc-500 animate-pulse flex items-center gap-2">
+                                                    <div className="text-muted-foreground animate-pulse flex items-center gap-2">
                                                         <RefreshCw className="w-3 h-3 animate-spin" /> Processing request...
                                                     </div>
                                                 )}
                                             </CardContent>
 
-                                            <CardFooter className="p-4 bg-black border-t border-white/5">
+                                            <CardFooter className="p-4 bg-background border-t border-border">
                                                 <form onSubmit={handleExecuteCommand} className="flex items-center gap-3 w-full">
                                                     <span className="text-primary font-bold ml-2">➜</span>
                                                     <input
@@ -870,13 +871,13 @@ export default function DatabasesPage() {
                                                                 selectedDb.type === 'postgres' || selectedDb.type === 'mysql' ? "Enter SQL query (e.g. SELECT version())" :
                                                                     "Enter Redis command (e.g. INFO)"
                                                         }
-                                                        className="flex-1 bg-transparent border-none outline-none text-sm font-mono text-white placeholder:text-zinc-700"
+                                                        className="flex-1 bg-transparent border-none outline-none text-sm font-mono text-white placeholder:text-muted-foreground"
                                                     />
                                                     <Button
                                                         type="submit"
                                                         disabled={isExecuting}
                                                         size="sm"
-                                                        className="h-8 rounded-lg px-4 bg-white/5 border border-white/10 hover:bg-white/10 text-[10px] font-black uppercase tracking-widest transition-all"
+                                                        className="h-8 rounded-lg px-4 bg-white/5 border border-border hover:bg-white/10 text-[10px] font-black uppercase tracking-widest transition-all"
                                                     >
                                                         Run Cmd
                                                     </Button>
@@ -890,7 +891,7 @@ export default function DatabasesPage() {
                             <div className="h-full flex flex-col items-center justify-center text-center p-8">
                                 <Database className="w-16 h-16 text-white mb-6" />
                                 <h1 className="text-2xl font-black mb-2">Select a Database</h1>
-                                <p className="text-zinc-500 max-w-xs mx-auto">Choose a cluster from the sidebar to view metrics, credentials and management tools.</p>
+                                <p className="text-muted-foreground max-w-xs mx-auto">Choose a cluster from the sidebar to view metrics, credentials and management tools.</p>
                             </div>
                         )}
                     </div>
@@ -899,22 +900,22 @@ export default function DatabasesPage() {
 
             {showCreateModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-300">
-                    <div className="w-full max-w-md bg-[#0A0A0A] border border-white/10 rounded-[32px] p-8 shadow-2xl relative">
+                    <div className="w-full max-w-md bg-[#0A0A0A] border border-border  p-8 shadow-2xl relative">
                         <h2 className="text-2xl font-black mb-6">Provision New Database</h2>
                         <form onSubmit={handleCreateDb} className="space-y-6">
                             <div className="space-y-2">
-                                <Label className="text-xs font-black uppercase tracking-widest text-zinc-500 px-1">Instance Name</Label>
+                                <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground px-1">Instance Name</Label>
                                 <Input
                                     name="name"
                                     required
                                     type="text"
                                     placeholder="e.g. Production Cluster"
-                                    className="bg-white/5 border-white/10 rounded-2xl h-12 text-sm focus:border-primary"
+                                    className="bg-white/5 border-border  h-12 text-sm focus:border-primary"
                                 />
                             </div>
 
-                            <div className="space-y-4">
-                                <Label className="text-xs font-black uppercase tracking-widest text-zinc-500 px-1">Engine Type</Label>
+                            <div className="flex flex-col gap-4">
+                                <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground px-1">Engine Type</Label>
                                 <div className="grid grid-cols-3 gap-4">
                                     {[
                                         {
@@ -959,7 +960,7 @@ export default function DatabasesPage() {
                                                 defaultChecked={type.id === 'postgres'}
                                                 className="peer hidden"
                                             />
-                                            <div className="h-28 p-4 rounded-[24px] border border-white/5 bg-white/[0.02] peer-checked:bg-primary/5 peer-checked:border-primary/40 peer-checked:ring-1 peer-checked:ring-primary/20 transition-all flex flex-col items-center justify-center gap-3 hover:bg-white/[0.04] hover:border-white/10">
+                                            <div className="h-28 p-4  border border-border bg-card peer-checked:bg-primary/5 peer-checked:border-primary/40 peer-checked:ring-1 peer-checked:ring-primary/20 transition-all flex flex-col items-center justify-center gap-3 hover:bg-muted hover:border-border">
                                                 <div className="relative">
                                                     <div
                                                         className="absolute inset-0 blur-lg opacity-20 group-hover:opacity-40 transition-opacity"
@@ -969,10 +970,10 @@ export default function DatabasesPage() {
                                                         {type.svg}
                                                     </div>
                                                 </div>
-                                                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 peer-checked:text-white transition-colors">{type.label}</span>
+                                                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground peer-checked:text-white transition-colors">{type.label}</span>
 
                                                 <div className="absolute top-2 right-2 opacity-0 peer-checked:opacity-100 transition-opacity">
-                                                    <div className="w-4 h-4 rounded-full bg-primary flex items-center justify-center">
+                                                    <div className="size-4 rounded-full bg-primary flex items-center justify-center">
                                                         <Check className="w-2.5 h-2.5 text-white" />
                                                     </div>
                                                 </div>
@@ -986,14 +987,14 @@ export default function DatabasesPage() {
                                 <Button
                                     type="button"
                                     variant="ghost"
-                                    className="flex-1 rounded-2xl h-12 font-bold text-zinc-500 hover:text-white"
+                                    className="flex-1  h-12 font-bold text-muted-foreground hover:text-white"
                                     onClick={() => setShowCreateModal(false)}
                                 >
                                     Cancel
                                 </Button>
                                 <Button
                                     type="submit"
-                                    className="flex-1 rounded-2xl h-12 font-bold bg-primary text-white hover:bg-primary/90 shadow-lg shadow-primary/20"
+                                    className="flex-1  h-12 font-bold bg-primary text-white hover:bg-primary/90 shadow-lg shadow-primary/20"
                                 >
                                     Provision Now
                                 </Button>

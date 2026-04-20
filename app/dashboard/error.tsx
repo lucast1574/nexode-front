@@ -16,33 +16,33 @@ export default function DashboardError({
     }, [error]);
 
     return (
-        <div className="h-full flex flex-col items-center justify-center p-12 text-center bg-[#020202]">
-            <div className="w-20 h-20 rounded-[32px] bg-red-500/10 border border-red-500/20 flex items-center justify-center mb-8">
-                <AlertTriangle className="w-10 h-10 text-red-500" />
+        <div className="h-full flex flex-col items-center justify-center p-12 text-center bg-background">
+            <div className="size-20 bg-destructive/10 border border-destructive/20 flex items-center justify-center mb-8">
+                <AlertTriangle className="size-10 text-destructive" />
             </div>
-            <h2 className="text-3xl font-black tracking-tight mb-4 text-white">
+            <h2 className="text-3xl font-black tracking-tight mb-4 text-foreground">
                 Something went wrong
             </h2>
-            <p className="text-zinc-500 max-w-md mb-8 leading-relaxed">
+            <p className="text-muted-foreground max-w-md mb-8 leading-relaxed">
                 An unexpected error occurred while loading this page. This has been logged automatically.
             </p>
             <div className="flex gap-4">
                 <Button
                     onClick={reset}
-                    className="rounded-2xl h-12 px-8 gap-2 font-bold shadow-lg shadow-primary/20"
+                    className="gap-2 font-bold shadow-lg shadow-primary/20"
                 >
-                    <RefreshCw className="w-4 h-4" /> Try Again
+                    <RefreshCw className="size-4" /> Try Again
                 </Button>
                 <Button
                     variant="outline"
                     onClick={() => (window.location.href = "/dashboard")}
-                    className="rounded-2xl h-12 px-8 font-bold border-white/10 hover:bg-white/5"
+                    className="font-bold border-border hover:bg-muted"
                 >
                     Back to Dashboard
                 </Button>
             </div>
             {error.digest && (
-                <p className="text-[10px] text-zinc-600 mt-8 font-mono">
+                <p className="text-[10px] text-muted-foreground mt-8 font-mono">
                     Error ID: {error.digest}
                 </p>
             )}

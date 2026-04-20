@@ -35,32 +35,25 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     ...(hasN8n
       ? [{
           title: "Automations",
-          url: "#",
+          url: "/dashboard/automations",
           icon: <Workflow />,
-          items: [
-            { title: "Workflows", url: "/dashboard/automations" },
-            { title: "Credentials", url: "/dashboard/automations" },
-          ],
+          items: undefined,
         }]
       : []),
     ...(hasCompute
       ? [{
           title: "Compute",
-          url: "#",
+          url: "/dashboard/compute",
           icon: <Cpu />,
-          items: [
-            { title: "Instances", url: "/dashboard/compute" },
-          ],
+          items: undefined,
         }]
       : []),
     ...(hasDatabase
       ? [{
           title: "Databases",
-          url: "#",
+          url: "/dashboard/databases",
           icon: <Database />,
-          items: [
-            { title: "Clusters", url: "/dashboard/databases" },
-          ],
+          items: undefined,
         }]
       : []),
     {

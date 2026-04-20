@@ -11,6 +11,8 @@ import { Subscription } from "@/app/dashboard/layout";
 import { cn } from "@/lib/utils";
 import { getAccessToken } from "@/lib/auth-utils";
 import { useModal } from "@/components/ui/modal";
+import { SidebarTrigger } from "@/components/ui/sidebar";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/ui/breadcrumb";
 import { ProvisionN8nModal } from "@/components/modals/ProvisionN8nModal";
 import { SubscriptionLimitModal } from "@/components/modals/SubscriptionLimitModal";
 
@@ -236,10 +238,10 @@ export default function AutomationsPage() {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-black flex items-center justify-center">
+            <div className="min-h-screen bg-background flex items-center justify-center">
                 <div className="flex flex-col items-center gap-6">
-                    <div className="w-16 h-16 border-4 border-red-500/20 border-t-red-500 rounded-full animate-spin" />
-                    <p className="text-zinc-500 font-bold tracking-widest uppercase text-xs animate-pulse">Syncing Automations...</p>
+                    <div className="size-16 border-4 border-destructive/20 border-t-red-500  animate-spin" />
+                    <p className="text-muted-foreground font-bold tracking-widest uppercase text-xs animate-pulse">Syncing Automations...</p>
                 </div>
             </div>
         );
@@ -247,39 +249,37 @@ export default function AutomationsPage() {
 
     return (
         <>
-                <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-red-600/5 blur-[120px] rounded-full pointer-events-none" />
-
-                <header className="h-28 border-b border-white/5 px-8 flex items-center justify-between bg-black/50 backdrop-blur-xl shrink-0 z-10">
-                    <div className="flex items-center gap-6">
-                        <Workflow className="w-6 h-6 text-red-500" />
-                        <h2 className="text-xl font-black tracking-tight">Automations (n8n)</h2>
-                    </div>
-                    <Button
-                        onClick={handleCreateClick}
-                        className={cn(
-                            "rounded-2xl gap-2 font-bold shadow-lg transition-all",
-                            "bg-red-600 hover:bg-red-500 shadow-red-500/20"
-                        )}
-                    >
-                        {<><Plus className="w-4 h-4" /> Provision n8n</>}
+                <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
+                    <SidebarTrigger className="-ml-1" />
+                    <Separator orientation="vertical" className="mr-2 data-vertical:h-4 data-vertical:self-auto" />
+                    <Breadcrumb>
+                        <BreadcrumbList>
+                            <BreadcrumbItem>
+                                <BreadcrumbPage>Automations</BreadcrumbPage>
+                            </BreadcrumbItem>
+                        </BreadcrumbList>
+                    </Breadcrumb>
+                    <div className="flex-1" />
+                    <Button onClick={handleCreateClick} className="gap-2">
+                        <Plus className="size-4" /> Provision n8n
                     </Button>
                 </header>
 
                 <div className="flex-1 flex overflow-hidden z-10">
-                    <div className="w-85 border-r border-white/5 bg-black/20 flex flex-col shrink-0">
-                        <div className="p-4 border-b border-white/5">
+                    <div className="w-85 border-r border-border bg-background/20 flex flex-col shrink-0">
+                        <div className="p-4 border-b border-border">
                             <div className="flex items-center gap-3">
-                                <Search className="w-4 h-4 text-zinc-600" />
-                                <Input type="text" placeholder="Filter clusters..." className="bg-white/5 border-white/10 text-xs h-8" />
+                                <Search className="size-4 text-muted-foreground" />
+                                <Input type="text" placeholder="Filter clusters..." className="bg-muted border-border text-xs h-8" />
                             </div>
                         </div>
-                        <div className="flex-1 overflow-y-auto p-4 space-y-3">
+                        <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3">
                             {instances.length === 0 ? (
                                 <div className="text-center py-16 px-4">
-                                    <div className="w-16 h-16 rounded-[24px] bg-red-600/5 border border-red-500/10 flex items-center justify-center mx-auto mb-6">
-                                        <Zap className="w-8 h-8 text-red-500/40" />
+                                    <div className="size-16  bg-destructive/5 border border-destructive/10 flex items-center justify-center mx-auto mb-6">
+                                        <Zap className="size-8 text-destructive/40" />
                                     </div>
-                                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-600">No Services Live</p>
+                                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground">No Services Live</p>
                                 </div>
                             ) : (
                                 instances.map((inst) => (
@@ -287,33 +287,33 @@ export default function AutomationsPage() {
                                         key={inst._id}
                                         onClick={() => setSelectedInstance(inst)}
                                         className={cn(
-                                            "w-full text-left p-6 rounded-[32px] border transition-all duration-300 relative group overflow-hidden",
-                                            selectedInstance?._id === inst._id ? "bg-red-600/5 border-red-500/20" : "bg-white/[0.01] border-white/5 hover:bg-white/[0.04]"
+                                            "w-full text-left p-6  border transition-all duration-300 relative group overflow-hidden",
+                                            selectedInstance?._id === inst._id ? "bg-destructive/5 border-destructive/20" : "bg-muted-foreground/5 border-border hover:bg-muted"
                                         )}
                                     >
                                         <div className="flex items-center justify-between mb-4">
                                             <div className="flex items-center gap-2">
-                                                <div className={cn("w-1.5 h-1.5 rounded-full shadow-[0_0_8px_rgba(239,68,68,0.5)]", inst.status === 'running' ? 'bg-emerald-500' : 'bg-red-500' )} />
-                                                <Badge variant="outline" className="text-[9px] font-black uppercase tracking-widest text-zinc-500">{inst.status}</Badge>
+                                                <div className={cn("w-1.5 h-1.5  ", inst.status === 'running' ? 'bg-emerald-500' : 'bg-red-500' )} />
+                                                <Badge variant="outline" className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">{inst.status}</Badge>
                                             </div>
                                         </div>
-                                        <div className="font-black text-sm uppercase tracking-tight group-hover:text-red-500 transition-colors mb-2">{inst.name}</div>
-                                        <div className="text-[10px] text-zinc-600 font-bold truncate tracking-widest uppercase">{inst.generated_domain || 'Internal Host'}</div>
+                                        <div className="font-black text-sm uppercase tracking-tight group-hover:text-destructive transition-colors mb-2">{inst.name}</div>
+                                        <div className="text-[10px] text-muted-foreground font-bold truncate tracking-widest uppercase">{inst.generated_domain || 'Internal Host'}</div>
                                     </button>
                                 ))
                             )}
                         </div>
                     </div>
 
-                    <div className="flex-1 bg-black overflow-y-auto">
+                    <div className="flex-1 bg-background overflow-y-auto">
                         {selectedInstance ? (
                             <div className="p-12 max-w-6xl mx-auto space-y-12 animate-in fade-in slide-in-from-bottom-6 duration-700">
                                 <div className="flex items-start justify-between">
                                     <div className="flex flex-col gap-6">
                                         <div className="flex items-center gap-6">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-12 h-12 rounded-2xl bg-red-600/10 border border-red-500/20 flex items-center justify-center">
-                                                    <Workflow className="w-6 h-6 text-red-500" />
+                                                <div className="w-12 h-12  bg-destructive/10 border border-destructive/20 flex items-center justify-center">
+                                                    <Workflow className="size-6 text-destructive" />
                                                 </div>
                                                 <h1 className="text-4xl font-black uppercase tracking-tighter italic">{selectedInstance.name}</h1>
                                             </div>
@@ -324,63 +324,63 @@ export default function AutomationsPage() {
                                             onClick={() => window.open(getN8nUrl(selectedInstance.generated_domain || ''), '_blank')}
                                             variant="outline"
                                             disabled={selectedInstance.status.toLowerCase() !== 'running'}
-                                            className="rounded-2xl h-14 px-8 border-white/10 bg-white/5 hover:bg-white/10 font-black uppercase tracking-widest text-[11px] text-zinc-500 gap-3 disabled:opacity-30 disabled:cursor-not-allowed"
+                                            className=" h-14 px-8 border-border bg-muted hover:bg-white/10 font-black uppercase tracking-widest text-[11px] text-muted-foreground gap-3 disabled:opacity-30 disabled:cursor-not-allowed"
                                         >
-                                            <ExternalLink className="w-4 h-4" /> {selectedInstance.status.toLowerCase() === 'running' ? 'Open' : 'Deploying...'}
+                                            <ExternalLink className="size-4" /> {selectedInstance.status.toLowerCase() === 'running' ? 'Open' : 'Deploying...'}
                                         </Button>
                                         <Button 
                                             variant="outline" 
                                             title="Redeploy this n8n instance"
                                             onClick={() => handleRestart(selectedInstance._id)} 
                                             disabled={cooldown > 0 || restarting}
-                                            className="rounded-2xl h-14 px-6 border-white/10 bg-white/5 hover:bg-white/10 gap-2"
+                                            className=" h-14 px-6 border-border bg-muted hover:bg-white/10 gap-2"
                                         >
-                                            <RefreshCw className={cn("w-5 h-5", restarting ? "animate-spin text-red-500" : "text-zinc-500")} />
+                                            <RefreshCw className={cn("size-5", restarting ? "animate-spin text-destructive" : "text-muted-foreground")} />
                                             {cooldown > 0 
-                                                ? <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">{cooldown}s</span>
-                                                : <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-widest">Redeploy</span>
+                                                ? <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{cooldown}s</span>
+                                                : <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest">Redeploy</span>
                                             }
                                         </Button>
-                                        <Button onClick={() => handleDelete(selectedInstance._id)} className="rounded-2xl h-14 w-14 p-0 bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500/20">
-                                            <Trash2 className="w-5 h-5" />
+                                        <Button onClick={() => handleDelete(selectedInstance._id)} className=" h-14 w-14 p-0 bg-destructive/10 text-destructive border border-destructive/20 hover:bg-destructive/20">
+                                            <Trash2 className="size-5" />
                                         </Button>
                                     </div>
                                 </div>
 
-                                        <div className="flex items-center gap-6 px-4 py-2 bg-white/5 rounded-2xl border border-white/10 w-fit">
-                                            <div className="flex items-center gap-2 text-emerald-400 font-bold text-[10px] uppercase tracking-widest">
+                                        <div className="flex items-center gap-6 px-4 py-2 bg-muted  border border-border w-fit">
+                                            <div className="flex items-center gap-2 text-primary font-bold text-[10px] uppercase tracking-widest">
                                                 <Activity className="w-3 h-3" /> API Ready
                                             </div>
                                             <Separator orientation="vertical" className="h-4" />
-                                            <div className="flex items-center gap-2 text-zinc-500 font-bold text-[10px] uppercase tracking-widest">
+                                            <div className="flex items-center gap-2 text-muted-foreground font-bold text-[10px] uppercase tracking-widest">
                                                 <Globe className="w-3 h-3" /> NVMe Optimized
                                             </div>
                                         </div>
 
-                                        <Card className="bg-white/[0.02] border-white/5 rounded-[48px] overflow-hidden">
+                                        <Card className="bg-card border-border  overflow-hidden">
                                             <CardContent className="p-10 space-y-8 relative">
                                                 <div className="absolute top-0 right-0 p-10">
                                                     <Shield className="w-12 h-12 text-white/5 rotate-12" />
                                                 </div>
                                                 
                                                 <div>
-                                                    <h3 className="text-xs font-black uppercase tracking-[0.3em] text-zinc-500 mb-2">Internal Webhook Endpoint</h3>
+                                                    <h3 className="text-xs font-black uppercase tracking-[0.3em] text-muted-foreground mb-2">Internal Webhook Endpoint</h3>
                                                     <p className="text-sm font-bold text-zinc-300">Natively proxied through Nexode Cloud Armor.</p>
                                                 </div>
 
-                                                <div className="p-8 rounded-[32px] bg-black border border-white/5 flex items-center justify-between group">
+                                                <div className="p-8  bg-background border border-border flex items-center justify-between group">
                                                     <div className="flex items-center gap-6">
-                                                        <div className="w-14 h-14 rounded-2xl bg-red-600/5 border border-red-500/10 flex items-center justify-center group-hover:bg-red-600/10 transition-colors">
-                                                            <Zap className="w-7 h-7 text-red-500" />
+                                                        <div className="size-14  bg-destructive/5 border border-destructive/10 flex items-center justify-center group-hover:bg-destructive/10 transition-colors">
+                                                            <Zap className="w-7 h-7 text-destructive" />
                                                         </div>
                                                         <div>
-                                                            <div className="text-[10px] font-black uppercase tracking-widest text-zinc-600 mb-1">Production URL</div>
+                                                            <div className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1">Production URL</div>
                                                             {selectedInstance.status.toLowerCase() === 'running' ? (
                                                                 <code className="text-lg font-black text-white italic">{getN8nUrl(selectedInstance.generated_domain || '')}</code>
                                                             ) : (
                                                                 <div className="flex items-center gap-3">
-                                                                    <div className="w-4 h-4 border-2 border-red-500/30 border-t-red-500 rounded-full animate-spin" />
-                                                                    <span className="text-sm font-bold text-zinc-500">Deploying... URL will appear when ready</span>
+                                                                    <div className="size-4 border-2 border-red-500/30 border-t-red-500  animate-spin" />
+                                                                    <span className="text-sm font-bold text-muted-foreground">Deploying... URL will appear when ready</span>
                                                                 </div>
                                                             )}
                                                         </div>
@@ -394,16 +394,16 @@ export default function AutomationsPage() {
                                                                 setCopied(true);
                                                                 setTimeout(() => setCopied(false), 2000);
                                                             }} 
-                                                            className="w-14 h-14 p-0 shrink-0 rounded-2xl text-zinc-600 hover:text-white hover:bg-white/5"
+                                                            className="size-14 p-0 shrink-0  text-muted-foreground hover:text-white hover:bg-muted"
                                                         >
-                                                            {copied ? <Check className="w-5 h-5 text-emerald-400" /> : <Copy className="w-5 h-5" />}
+                                                            {copied ? <Check className="size-5 text-primary" /> : <Copy className="size-5" />}
                                                         </Button>
                                                         <Button 
                                                             variant="ghost" 
                                                             onClick={() => window.open(getN8nUrl(selectedInstance.generated_domain || ''), '_blank')}
-                                                            className="w-14 h-14 p-0 shrink-0 rounded-2xl text-zinc-600 hover:text-white hover:bg-white/5"
+                                                            className="size-14 p-0 shrink-0  text-muted-foreground hover:text-white hover:bg-muted"
                                                         >
-                                                            <ExternalLink className="w-5 h-5" />
+                                                            <ExternalLink className="size-5" />
                                                         </Button>
                                                     </div>
                                                     )}
@@ -412,40 +412,40 @@ export default function AutomationsPage() {
                                         </Card>
 
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                            <Card className="bg-white/[0.02] border-white/5 rounded-[40px]">
+                                            <Card className="bg-card border-border ">
                                                 <CardContent className="p-10">
                                                     <div className="flex items-center gap-3 mb-8">
-                                                        <Settings className="w-5 h-5 text-zinc-500" />
-                                                        <h3 className="text-xs font-black uppercase tracking-[0.3em] text-zinc-500">Service Events</h3>
+                                                        <Settings className="size-5 text-muted-foreground" />
+                                                        <h3 className="text-xs font-black uppercase tracking-[0.3em] text-muted-foreground">Service Events</h3>
                                                     </div>
                                                     <div className="space-y-6">
                                                         {dnsStatus && (
-                                                            <div className="flex gap-6 pb-6 border-b border-white/5 last:border-0 last:pb-0">
+                                                            <div className="flex gap-6 pb-6 border-b border-border last:border-0 last:pb-0">
                                                                 <div className={cn(
-                                                                    "w-1.5 h-1.5 rounded-full mt-1.5",
-                                                                    dnsStatus === 'resolved' ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]' : 
-                                                                    dnsStatus === 'failed' ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]' : 
+                                                                    "w-1.5 h-1.5  mt-1.5",
+                                                                    dnsStatus === 'resolved' ? 'bg-emerald-500 ' : 
+                                                                    dnsStatus === 'failed' ? 'bg-red-500 ' : 
                                                                     'bg-yellow-500 animate-pulse'
                                                                 )} />
                                                                 <div className="flex-1 min-w-0">
                                                                     <div className="text-[11px] font-black uppercase tracking-tighter text-zinc-300 break-words mb-1">
                                                                         DNS Verification: {dnsStatus === 'checking' ? 'Resolving Wildcard...' : dnsStatus === 'resolved' ? 'Propagation Successful' : 'Wildcard Resolution Failed'}
                                                                     </div>
-                                                                    <div className="text-[9px] font-bold text-zinc-600 uppercase italic">
+                                                                    <div className="text-[9px] font-bold text-muted-foreground uppercase italic">
                                                                         {dnsMessage || 'Checking DNS records...'}
                                                                     </div>
                                                                 </div>
                                                             </div>
                                                         )}
                                                         {selectedInstance.events?.slice(-4).reverse().map((e, idx) => (
-                                                            <div key={idx} className="flex gap-6 pb-6 border-b border-white/5 last:border-0 last:pb-0">
+                                                            <div key={idx} className="flex gap-6 pb-6 border-b border-border last:border-0 last:pb-0">
                                                                 <div className={cn(
-                                                                    "w-1.5 h-1.5 rounded-full mt-1.5",
-                                                                    e.type === 'error' ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]' : 'bg-red-400'
+                                                                    "w-1.5 h-1.5  mt-1.5",
+                                                                    e.type === 'error' ? 'bg-red-500 ' : 'bg-red-400'
                                                                 )} />
                                                                 <div className="flex-1 min-w-0">
                                                                     <div className="text-[11px] font-black uppercase tracking-tighter text-zinc-300 break-words mb-1">{e.message}</div>
-                                                                    <div className="text-[9px] font-bold text-zinc-600 uppercase italic">
+                                                                    <div className="text-[9px] font-bold text-muted-foreground uppercase italic">
                                                                         {new Date(e.timestamp).toLocaleString()}
                                                                     </div>
                                                                 </div>
@@ -455,12 +455,12 @@ export default function AutomationsPage() {
                                                 </CardContent>
                                             </Card>
 
-                                            <Card className="bg-white/[0.02] border-white/5 rounded-[40px] relative overflow-hidden group">
+                                            <Card className="bg-card border-border  relative overflow-hidden group">
                                                 <CardContent className="p-10 flex flex-col items-center justify-center text-center">
-                                                    <div className="absolute inset-0 bg-red-600/[0.01] group-hover:bg-red-600/[0.02] transition-colors" />
-                                                    <Workflow className="w-16 h-16 text-zinc-800 mb-6 group-hover:text-red-900/40 transition-colors relative z-10" />
-                                                    <h3 className="text-lg font-black uppercase italic tracking-tighter mb-4 text-zinc-400 relative z-10">Node Configuration</h3>
-                                                    <p className="text-xs font-bold text-zinc-600 max-w-xs leading-relaxed uppercase tracking-widest relative z-10">
+                                                    <div className="absolute inset-0 bg-destructive/[0.01] group-hover:bg-destructive/[0.02] transition-colors" />
+                                                    <Workflow className="size-16 text-muted-foreground mb-6 group-hover:text-red-900/40 transition-colors relative z-10" />
+                                                    <h3 className="text-lg font-black uppercase italic tracking-tighter mb-4 text-muted-foreground relative z-10">Node Configuration</h3>
+                                                    <p className="text-xs font-bold text-muted-foreground max-w-xs leading-relaxed uppercase tracking-widest relative z-10">
                                                         This instance is running an isolated n8n core with dedicated persistent storage and encryption keys.
                                                     </p>
                                                     <Separator className="my-8 relative z-10" />
@@ -481,24 +481,24 @@ export default function AutomationsPage() {
                         ) : (
                             <div className="h-full flex flex-col items-center justify-center p-12 text-center">
                                 <div className="relative mb-12">
-                                    <div className="absolute inset-0 bg-red-600/10 blur-[60px] rounded-full scale-150 animate-pulse" />
-                                    <div className="w-28 h-28 rounded-[40px] bg-red-600/5 border border-red-500/10 flex items-center justify-center relative scale-110">
-                                        <Zap className="w-14 h-14 text-red-500/40" />
+                                    <div className="absolute inset-0 bg-destructive/10 blur-[60px]  scale-150 animate-pulse" />
+                                    <div className="w-28 h-28  bg-destructive/5 border border-destructive/10 flex items-center justify-center relative scale-110">
+                                        <Zap className="size-14 text-destructive/40" />
                                     </div>
                                 </div>
                                 <h2 className="text-5xl font-black tracking-tighter mb-6 uppercase">Workflow Orchestration</h2>
-                                <p className="text-zinc-500 max-w-lg mb-12 text-lg font-medium leading-relaxed">
+                                <p className="text-muted-foreground max-w-lg mb-12 text-lg font-medium leading-relaxed">
                                     Connect 400+ applications and design complex business logic in seconds. 
                                     Your secure n8n instance is waiting to be deployed.
                                 </p>
                                 <div className="flex gap-4">
                                     <Button 
                                         onClick={handleCreateClick} 
-                                        className="rounded-2xl h-16 px-10 gap-3 font-black uppercase tracking-widest text-[11px] bg-red-600 hover:bg-red-500 shadow-2xl shadow-red-500/20"
+                                        className=" h-16 px-10 gap-3 font-black uppercase tracking-widest text-[11px] bg-destructive hover:bg-destructive shadow-2xl shadow-destructive/20"
                                     >
-                                        Deploy Cluster <ArrowRight className="w-4 h-4" />
+                                        Deploy Cluster <ArrowRight className="size-4" />
                                     </Button>
-                                    <Button variant="outline" className="rounded-2xl h-16 px-8 border-white/10 hover:bg-white/5 font-black uppercase tracking-widest text-[11px] text-zinc-500">
+                                    <Button variant="outline" className=" h-16 px-8 border-border hover:bg-muted font-black uppercase tracking-widest text-[11px] text-muted-foreground">
                                         View Documentation
                                     </Button>
                                 </div>

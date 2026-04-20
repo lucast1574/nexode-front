@@ -34,6 +34,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
+import { SidebarTrigger } from "@/components/ui/sidebar";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/ui/breadcrumb";
 import { Subscription } from "@/app/dashboard/layout";
 import { cn } from "@/lib/utils";
 import { getAccessToken } from "@/lib/auth-utils";
@@ -496,23 +498,19 @@ function ComputePageContent() {
     return (
         <>
             <div className="flex-1 flex flex-col overflow-hidden relative">
-                <div className="absolute top-[-10%] right-[-10%] w-[500px] h-[500px] bg-blue-600/10 blur-[120px] rounded-full pointer-events-none" />
-
-                <header className="h-28 border-b border-white/5 px-8 flex items-center justify-between bg-black/50 backdrop-blur-xl shrink-0 z-10">
-                    <div className="flex items-center gap-6">
-                        <div className="flex items-center gap-4">
-                            <Cpu className="w-6 h-6 text-blue-500" />
-                            <h2 className="text-xl font-black tracking-tight">Cloud Compute</h2>
-                        </div>
-                    </div>
-                    <Button
-                        onClick={handleCreateClick}
-                        className={cn(
-                            "rounded-2xl gap-2 font-bold shadow-lg transition-all",
-                            "bg-blue-600 hover:bg-blue-500 shadow-blue-500/20"
-                        )}
-                    >
-                        {<><Plus className="w-4 h-4" /> Deploy Instance</>}
+                <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
+                    <SidebarTrigger className="-ml-1" />
+                    <Separator orientation="vertical" className="mr-2 data-vertical:h-4 data-vertical:self-auto" />
+                    <Breadcrumb>
+                        <BreadcrumbList>
+                            <BreadcrumbItem>
+                                <BreadcrumbPage>Compute</BreadcrumbPage>
+                            </BreadcrumbItem>
+                        </BreadcrumbList>
+                    </Breadcrumb>
+                    <div className="flex-1" />
+                    <Button onClick={handleCreateClick} className="gap-2">
+                        <Plus className="size-4" /> Deploy Instance
                     </Button>
                 </header>
 

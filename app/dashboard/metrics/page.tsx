@@ -14,6 +14,8 @@ import {
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { SidebarTrigger } from "@/components/ui/sidebar";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/ui/breadcrumb";
 import { cn } from "@/lib/utils";
 import { getAccessToken } from "@/lib/auth-utils";
 
@@ -92,7 +94,7 @@ export default function MetricsPage() {
             <div className="flex-1 flex items-center justify-center">
                 <div className="flex flex-col items-center gap-6">
                     <div className="w-16 h-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
-                    <p className="text-zinc-500 font-bold tracking-widest uppercase text-xs animate-pulse">Loading Metrics...</p>
+                    <p className="text-muted-foreground font-bold tracking-widest uppercase text-xs animate-pulse">Loading Metrics...</p>
                 </div>
             </div>
         );
@@ -109,67 +111,73 @@ export default function MetricsPage() {
 
     return (
         <>
-            <header className="h-20 border-b border-white/5 px-8 flex items-center justify-between bg-black/50 backdrop-blur-xl shrink-0">
-                <div className="flex items-center gap-3">
-                    <BarChart3 className="w-5 h-5 text-primary" />
-                    <h2 className="text-xl font-black tracking-tight">Usage Metrics</h2>
-                </div>
-                <div className="text-xs text-zinc-500 font-bold uppercase tracking-widest">
-                    Last 30 days
-                </div>
-            </header>
+<header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
+                    <SidebarTrigger className="-ml-1" />
+                    <Separator orientation="vertical" className="mr-2 data-vertical:h-4 data-vertical:self-auto" />
+                    <Breadcrumb>
+                        <BreadcrumbList>
+                            <BreadcrumbItem>
+                                <BreadcrumbPage>Metrics</BreadcrumbPage>
+                            </BreadcrumbItem>
+                        </BreadcrumbList>
+                    </Breadcrumb>
+                    <div className="flex-1" />
+                    <div className="text-xs text-muted-foreground font-bold uppercase tracking-widest">
+                        Last 30 days
+                    </div>
+                </header>
 
-            <div className="flex-1 overflow-y-auto p-8 max-w-7xl mx-auto w-full">
+            <div className="flex-1 overflow-y-auto p-6">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-                    <Card className="bg-white/[0.03] border-white/5 rounded-[32px]">
+                    <Card className="bg-card border-border">
                         <CardContent className="p-6">
-                            <div className="flex items-center gap-3 text-blue-400 mb-4">
-                                <Cpu className="w-5 h-5" />
+                            <div className="flex items-center gap-3 text-primary mb-4">
+                                <Cpu className="size-5" />
                                 <span className="text-xs font-bold uppercase tracking-widest">Compute</span>
                             </div>
                             <div className="text-4xl font-black tracking-tighter mb-1">{computeTotal}</div>
-                            <div className="text-xs text-zinc-500 font-bold uppercase tracking-widest">Deployments</div>
+                            <div className="text-xs text-muted-foreground font-bold uppercase tracking-widest">Deployments</div>
                         </CardContent>
                     </Card>
-                    <Card className="bg-white/[0.03] border-white/5 rounded-[32px]">
+                    <Card className="bg-card border-border">
                         <CardContent className="p-6">
-                            <div className="flex items-center gap-3 text-purple-400 mb-4">
-                                <Database className="w-5 h-5" />
+                            <div className="flex items-center gap-3 text-primary mb-4">
+                                <Database className="size-5" />
                                 <span className="text-xs font-bold uppercase tracking-widest">Database</span>
                             </div>
                             <div className="text-4xl font-black tracking-tighter mb-1">{databaseTotal}</div>
-                            <div className="text-xs text-zinc-500 font-bold uppercase tracking-widest">Operations</div>
+                            <div className="text-xs text-muted-foreground font-bold uppercase tracking-widest">Operations</div>
                         </CardContent>
                     </Card>
-                    <Card className="bg-white/[0.03] border-white/5 rounded-[32px]">
+                    <Card className="bg-card border-border">
                         <CardContent className="p-6">
-                            <div className="flex items-center gap-3 text-red-400 mb-4">
-                                <Workflow className="w-5 h-5" />
+                            <div className="flex items-center gap-3 text-destructive mb-4">
+                                <Workflow className="size-5" />
                                 <span className="text-xs font-bold uppercase tracking-widest">n8n Flows</span>
                             </div>
                             <div className="text-4xl font-black tracking-tighter mb-1">{n8nTotal}</div>
-                            <div className="text-xs text-zinc-500 font-bold uppercase tracking-widest">Executions</div>
+                            <div className="text-xs text-muted-foreground font-bold uppercase tracking-widest">Executions</div>
                         </CardContent>
                     </Card>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div className="lg:col-span-2 space-y-8">
-                        <Card className="bg-white/[0.03] border-white/5 rounded-[40px]">
+                        <Card className="bg-card border-border ">
                             <CardContent className="p-8">
                                 <div className="flex items-center justify-between mb-8">
                                     <div>
                                         <h3 className="text-xl font-black">Resource Utilization</h3>
-                                        <p className="text-sm text-zinc-500">Monthly usage across your active clusters.</p>
+                                        <p className="text-sm text-muted-foreground">Monthly usage across your active clusters.</p>
                                     </div>
                                     <div className="flex gap-2">
-                                        <Badge variant="outline" className="bg-white/5 border-white/10 text-[10px] font-bold uppercase text-zinc-400">
+                                        <Badge variant="outline" className="bg-white/5 border-border text-[10px] font-bold uppercase text-muted-foreground">
                                             <div className="w-2 h-2 rounded-full bg-purple-500 mr-2" /> Database
                                         </Badge>
-                                        <Badge variant="outline" className="bg-white/5 border-white/10 text-[10px] font-bold uppercase text-zinc-400">
+                                        <Badge variant="outline" className="bg-white/5 border-border text-[10px] font-bold uppercase text-muted-foreground">
                                             <div className="w-2 h-2 rounded-full bg-blue-500 mr-2" /> Compute
                                         </Badge>
-                                        <Badge variant="outline" className="bg-white/5 border-white/10 text-[10px] font-bold uppercase text-zinc-400">
+                                        <Badge variant="outline" className="bg-white/5 border-border text-[10px] font-bold uppercase text-muted-foreground">
                                             <div className="w-2 h-2 rounded-full bg-red-500 mr-2" /> n8n
                                         </Badge>
                                     </div>
@@ -198,7 +206,7 @@ export default function MetricsPage() {
                                                 </div>
                                                 <div className={cn(
                                                     "absolute -bottom-6 left-0 right-0 text-center text-[8px] font-bold uppercase",
-                                                    i === currentMonth ? "text-primary" : "text-zinc-500"
+                                                    i === currentMonth ? "text-primary" : "text-muted-foreground"
                                                 )}>
                                                     {['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][i]}
                                                 </div>
@@ -208,24 +216,24 @@ export default function MetricsPage() {
                                 </div>
 
                                 <div className="grid grid-cols-3 gap-4 mt-10">
-                                    <Card className="bg-white/5 border-white/5 rounded-2xl">
+                                    <Card className="bg-white/5 border-border ">
                                         <CardContent className="p-4">
-                                            <div className="text-[10px] font-black uppercase text-zinc-500 tracking-widest mb-1">Total Operations</div>
+                                            <div className="text-[10px] font-black uppercase text-muted-foreground tracking-widest mb-1">Total Operations</div>
                                             <div className="text-lg font-bold">{grandTotal}</div>
                                         </CardContent>
                                     </Card>
-                                    <Card className="bg-white/5 border-white/5 rounded-2xl">
+                                    <Card className="bg-white/5 border-border ">
                                         <CardContent className="p-4">
-                                            <div className="text-[10px] font-black uppercase text-zinc-500 tracking-widest mb-1">Most Active</div>
+                                            <div className="text-[10px] font-black uppercase text-muted-foreground tracking-widest mb-1">Most Active</div>
                                             <div className="text-lg font-bold capitalize">
                                                 {n8nTotal >= computeTotal && n8nTotal >= databaseTotal ? 'n8n' :
                                                     computeTotal >= databaseTotal ? 'Compute' : 'Database'}
                                             </div>
                                         </CardContent>
                                     </Card>
-                                    <Card className="bg-white/5 border-white/5 rounded-2xl">
+                                    <Card className="bg-white/5 border-border ">
                                         <CardContent className="p-4">
-                                            <div className="text-[10px] font-black uppercase text-zinc-500 tracking-widest mb-1">Period</div>
+                                            <div className="text-[10px] font-black uppercase text-muted-foreground tracking-widest mb-1">Period</div>
                                             <div className="text-lg font-bold">30 Days</div>
                                         </CardContent>
                                     </Card>
@@ -235,7 +243,7 @@ export default function MetricsPage() {
                     </div>
 
                     <div className="space-y-8">
-                        <Card className="bg-[#0A0A0A] border-white/10 relative overflow-hidden group">
+                        <Card className="bg-background border-border relative overflow-hidden group">
                             <CardContent className="p-8">
                                 <div className="relative z-10">
                                     <div className="flex items-center gap-2 text-primary font-black uppercase text-[10px] tracking-widest mb-6">
@@ -243,7 +251,7 @@ export default function MetricsPage() {
                                     </div>
                                     <div className="space-y-8">
                                         <div className="space-y-4">
-                                            <div className="flex justify-between text-xs font-bold uppercase tracking-widest text-zinc-500">
+                                            <div className="flex justify-between text-xs font-bold uppercase tracking-widest text-muted-foreground">
                                                 <span>Compute</span>
                                                 <span className="text-white">{computeTotal}</span>
                                             </div>
@@ -252,7 +260,7 @@ export default function MetricsPage() {
                                             </div>
                                         </div>
                                         <div className="space-y-4">
-                                            <div className="flex justify-between text-xs font-bold uppercase tracking-widest text-zinc-500">
+                                            <div className="flex justify-between text-xs font-bold uppercase tracking-widest text-muted-foreground">
                                                 <span>Database</span>
                                                 <span className="text-white">{databaseTotal}</span>
                                             </div>
@@ -261,7 +269,7 @@ export default function MetricsPage() {
                                             </div>
                                         </div>
                                         <div className="space-y-4">
-                                            <div className="flex justify-between text-xs font-bold uppercase tracking-widest text-zinc-500">
+                                            <div className="flex justify-between text-xs font-bold uppercase tracking-widest text-muted-foreground">
                                                 <span>n8n Flows</span>
                                                 <span className="text-white">{n8nTotal}</span>
                                             </div>
@@ -275,15 +283,15 @@ export default function MetricsPage() {
                             </CardContent>
                         </Card>
 
-                        <Card className="bg-white/[0.03] border-white/5 rounded-[40px]">
+                        <Card className="bg-card border-border ">
                             <CardContent className="p-8">
                                 <div className="flex items-center gap-2 mb-6">
-                                    <Clock className="w-4 h-4 text-zinc-500" />
-                                    <h3 className="text-sm font-bold uppercase tracking-widest text-zinc-500">Recent Activity</h3>
+                                    <Clock className="w-4 h-4 text-muted-foreground" />
+                                    <h3 className="text-sm font-bold uppercase tracking-widest text-muted-foreground">Recent Activity</h3>
                                 </div>
                                 <div className="space-y-6">
                                     {usageHistory.length === 0 ? (
-                                        <div className="text-xs text-zinc-500 italic py-8 text-center">No recent activity detected.</div>
+                                        <div className="text-xs text-muted-foreground italic py-8 text-center">No recent activity detected.</div>
                                     ) : (
                                         usageHistory.map((action) => {
                                             let Icon = Activity;
@@ -297,12 +305,12 @@ export default function MetricsPage() {
 
                                             return (
                                                 <div key={action.id} className="flex gap-4 group">
-                                                    <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center shrink-0 border border-white/10 group-hover:border-primary/50 transition-colors">
-                                                        <Icon className="w-4 h-4 text-zinc-400 group-hover:text-primary" />
+                                                    <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center shrink-0 border border-border group-hover:border-primary/50 transition-colors">
+                                                        <Icon className="w-4 h-4 text-muted-foreground group-hover:text-primary" />
                                                     </div>
                                                     <div className="flex-1 min-w-0">
                                                         <div className="text-sm font-bold capitalize">{action.service} {action.feature}</div>
-                                                        <div className="text-[10px] text-zinc-500 truncate">{dateStr} • {action.description}</div>
+                                                        <div className="text-[10px] text-muted-foreground truncate">{dateStr} • {action.description}</div>
                                                     </div>
                                                 </div>
                                             );

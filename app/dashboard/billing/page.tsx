@@ -18,6 +18,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { SidebarTrigger } from "@/components/ui/sidebar";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/ui/breadcrumb";
 import { Subscription as BaseSubscription } from "@/app/dashboard/layout";
 import { cn } from "@/lib/utils";
 import { getAccessToken } from "@/lib/auth-utils";
@@ -98,7 +100,7 @@ export default function BillingPage() {
             <div className="flex-1 flex items-center justify-center">
                 <div className="flex flex-col items-center gap-6">
                     <div className="w-16 h-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
-                    <p className="text-zinc-500 font-bold tracking-widest uppercase text-xs animate-pulse">Synchronizing Billing...</p>
+                    <p className="text-muted-foreground font-bold tracking-widest uppercase text-xs animate-pulse">Synchronizing Billing...</p>
                 </div>
             </div>
         );
@@ -168,58 +170,65 @@ export default function BillingPage() {
 
     return (
         <>
-            <header className="h-20 border-b border-white/5 px-8 flex items-center justify-between bg-black/50 backdrop-blur-xl shrink-0">
-                <h2 className="text-xl font-black tracking-tight">Billing</h2>
-                <div className="flex items-center gap-4">
-                    <Button render={<Link href="/services" />} className="rounded-2xl gap-2 font-bold shadow-lg shadow-primary/20">
-                        <Plus className="w-4 h-4" /> New Service
+<header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
+                    <SidebarTrigger className="-ml-1" />
+                    <Separator orientation="vertical" className="mr-2 data-vertical:h-4 data-vertical:self-auto" />
+                    <Breadcrumb>
+                        <BreadcrumbList>
+                            <BreadcrumbItem>
+                                <BreadcrumbPage>Billing</BreadcrumbPage>
+                            </BreadcrumbItem>
+                        </BreadcrumbList>
+                    </Breadcrumb>
+                    <div className="flex-1" />
+                    <Button render={<Link href="/services" />} className="gap-2">
+                        <Plus className="size-4" /> New Service
                     </Button>
-                </div>
-            </header>
+                </header>
 
-            <div className="flex-1 overflow-y-auto p-8 max-w-7xl mx-auto w-full">
+            <div className="flex-1 overflow-y-auto p-6">
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-10">
-                    <Card className="bg-white/[0.03] border-white/5 rounded-[32px]">
+                    <Card className="bg-card border-border">
                         <CardContent className="p-6">
-                            <div className="flex items-center gap-3 text-zinc-500 mb-4">
-                                <DollarSign className="w-4 h-4" />
+                            <div className="flex items-center gap-3 text-muted-foreground mb-4">
+                                <DollarSign className="size-4" />
                                 <span className="text-xs font-bold uppercase tracking-widest">Monthly Cost</span>
                             </div>
                             <div className="text-4xl font-black tracking-tighter mb-1">${totalMonthly.toFixed(2)}</div>
-                            <div className="text-xs text-emerald-500 font-bold flex items-center gap-1">
+                            <div className="text-xs text-primary font-bold flex items-center gap-1">
                                 <TrendingUp className="w-3 h-3" /> Stable
                             </div>
                         </CardContent>
                     </Card>
-                    <Card className="bg-white/[0.03] border-white/5 rounded-[32px]">
+                    <Card className="bg-card border-border">
                         <CardContent className="p-6">
-                            <div className="flex items-center gap-3 text-zinc-500 mb-4">
-                                <Zap className="w-4 h-4" />
+                            <div className="flex items-center gap-3 text-muted-foreground mb-4">
+                                <Zap className="size-4" />
                                 <span className="text-xs font-bold uppercase tracking-widest">Active Plans</span>
                             </div>
                             <div className="text-4xl font-black tracking-tighter mb-1">{subscriptions.length}</div>
-                            <div className="text-xs text-zinc-500 font-bold uppercase tracking-widest">Subscriptions</div>
+                            <div className="text-xs text-muted-foreground font-bold uppercase tracking-widest">Subscriptions</div>
                         </CardContent>
                     </Card>
-                    <Card className="bg-white/[0.03] border-white/5 rounded-[32px]">
+                    <Card className="bg-card border-border">
                         <CardContent className="p-6">
-                            <div className="flex items-center gap-3 text-zinc-500 mb-4">
-                                <Clock className="w-4 h-4" />
+                            <div className="flex items-center gap-3 text-muted-foreground mb-4">
+                                <Clock className="size-4" />
                                 <span className="text-xs font-bold uppercase tracking-widest">Next Invoice</span>
                             </div>
                             <div className="text-4xl font-black tracking-tighter mb-1">{nextInvoiceStr}</div>
-                            <div className="text-xs text-zinc-500 font-bold uppercase tracking-widest">Auto-charge</div>
+                            <div className="text-xs text-muted-foreground font-bold uppercase tracking-widest">Auto-charge</div>
                         </CardContent>
                     </Card>
 
                     <Card className="bg-gradient-to-br from-primary/20 to-transparent border-primary/20 flex flex-col justify-between">
                         <CardContent className="p-6">
                             <h3 className="text-sm font-bold mb-2">Payment Portal</h3>
-                            <p className="text-xs text-zinc-400 mb-4">Manage cards, invoices & billing details.</p>
+                            <p className="text-xs text-muted-foreground mb-4">Manage cards, invoices & billing details.</p>
                             <Button
                                 onClick={handleManageBilling}
                                 size="sm"
-                                className="w-full rounded-xl font-bold gap-2 bg-primary hover:bg-primary/90"
+                                className="w-full font-bold gap-2 bg-primary hover:bg-primary/90"
                             >
                                 <ExternalLink className="w-3.5 h-3.5" /> Open Stripe
                             </Button>
@@ -227,32 +236,32 @@ export default function BillingPage() {
                     </Card>
                 </div>
 
-                <Card className="bg-white/[0.03] border-white/5 rounded-[40px]">
+                <Card className="bg-card border-border">
                     <CardContent className="p-8">
                         <h3 className="text-xl font-black mb-6">Subscriptions</h3>
-                        <div className="space-y-4">
+                        <div className="flex flex-col gap-4">
                             {subscriptions.map((sub) => (
-                                <div key={sub.id} className="flex items-center justify-between p-6 rounded-3xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] transition-all">
+                                <div key={sub.id} className="flex items-center justify-between p-6 bg-muted-foreground/5 border border-border hover:bg-muted transition-all">
                                     <div className="flex items-center gap-4">
                                         <div className={cn(
-                                            "p-3 rounded-xl",
+                                            "p-3",
                                             sub.service === 'database' ? 'bg-purple-500/20 text-purple-400' :
                                                 sub.service === 'n8n' ? 'bg-red-500/20 text-red-400' : 'bg-blue-500/20 text-blue-400'
                                         )}>
-                                            {sub.service === 'database' ? <Database className="w-5 h-5" /> :
-                                                sub.service === 'n8n' ? <Workflow className="w-5 h-5" /> : <Cpu className="w-5 h-5" />}
+                                            {sub.service === 'database' ? <Database className="size-5" /> :
+                                                sub.service === 'n8n' ? <Workflow className="size-5" /> : <Cpu className="size-5" />}
                                         </div>
                                         <div>
                                             <div className="font-bold capitalize">{sub.service} Cluster</div>
-                                            <div className="text-xs text-zinc-500">{sub.plan.name} <Separator orientation="vertical" className="inline-block h-3 mx-2" /> {sub.billing_cycle}</div>
+                                            <div className="text-xs text-muted-foreground">{sub.plan.name} <Separator orientation="vertical" className="inline-block h-3 mx-2" /> {sub.billing_cycle}</div>
                                         </div>
                                     </div>
                                     <div className="text-right">
                                         <div className="font-black text-lg">
                                             ${sub.billing_cycle === 'monthly' ? sub.plan.price_monthly : sub.plan.price_annual}
-                                            <span className="text-sm font-normal text-zinc-500">/{sub.billing_cycle === 'monthly' ? 'mo' : 'yr'}</span>
+                                            <span className="text-sm font-normal text-muted-foreground">/{sub.billing_cycle === 'monthly' ? 'mo' : 'yr'}</span>
                                         </div>
-                                        <div className="text-[10px] uppercase font-bold text-zinc-400 tracking-tighter">
+                                        <div className="text-[10px] uppercase font-bold text-muted-foreground tracking-tighter">
                                             next: {getNextBillingDate(sub.created_on, sub.billing_cycle).toLocaleString('en-US', { month: 'short', day: 'numeric' }).toLowerCase()}
                                         </div>
                                     </div>

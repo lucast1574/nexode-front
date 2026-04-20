@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { getAccessToken } from "@/lib/auth-utils";
 import { useModal } from "@/components/ui/modal";
-import { Subscription } from "@/components/Sidebar";
+import { Subscription } from "@/app/dashboard/layout";
 
 interface ProvisionN8nModalProps {
     isOpen: boolean;
