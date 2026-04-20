@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { Database, Cpu, Workflow, ArrowRight, Shield, Globe, CreditCard, Settings, Plus } from "lucide-react";
+import { Database, Cpu, Workflow, ArrowRight, Shield, Globe, CreditCard, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -126,18 +126,12 @@ export default function CheckoutPage() {
             <PublicNav />
 
             <header className="relative z-10 pt-20 pb-12 px-6 text-center max-w-7xl mx-auto">
-                <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-6">
-                    Manage Your <span className="text-primary italic underline decoration-primary/30 decoration-8 underline-offset-8">Infrastructure</span>
+                <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-6">
+                    Manage Your <span className="text-primary italic">Infrastructure</span>
                 </h1>
-                <p className="text-lg text-muted-foreground leading-relaxed max-w-2xl mx-auto">
-                    Review your active subscriptions. Each plan you add increases your limits to deploy new databases, compute clusters, or n8n instances.
+                <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+                    Select high-performance building blocks for your hosting environment. Mix and match services to scale your system in real-time.
                 </p>
-                
-                <div className="mt-8">
-                    <Button render={<Link href="/services" />} nativeButton={false} size="lg" className="rounded-full px-8 text-lg font-bold gap-2">
-                            <Plus className="size-5" /> Add Service
-                        </Button>
-                </div>
             </header>
 
             <main className="relative z-10 pb-40 px-6 max-w-7xl mx-auto">
