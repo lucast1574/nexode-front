@@ -196,8 +196,8 @@ export function NotificationBell() {
                 size="icon"
                 onClick={() => setIsOpen(!isOpen)}
                 className={cn(
-                    "rounded-full relative w-12 h-12 hover:bg-zinc-800 transition-all",
-                    isOpen && "bg-zinc-800"
+                    "rounded-full relative w-12 h-12 transition-all",
+                    isOpen && "bg-muted"
                 )}
             >
                 <Bell className={cn("w-6 h-6 transition-all", unviewedCount > 0 ? "text-primary animate-pulse" : "text-zinc-400")} />
@@ -220,7 +220,7 @@ export function NotificationBell() {
                                 variant="ghost"
                                 size="sm"
                                 onClick={markAllAsViewed}
-                                className="text-xs py-1 h-auto rounded-xl hover:bg-zinc-700 text-primary font-bold gap-2"
+                                className="text-xs py-1 h-auto rounded-xl gap-2"
                             >
                                 <Check className="w-3.5 h-3.5" /> Read All
                             </Button>

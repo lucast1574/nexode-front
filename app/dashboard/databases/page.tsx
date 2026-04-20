@@ -485,9 +485,7 @@ export default function DatabasesPage() {
                         <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3">
                             {databases.length === 0 ? (
                                 <div className="text-center py-12 px-4">
-                                    <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-4">
-                                        <Database className="w-6 h-6 text-white" />
-                                    </div>
+                                    <Database className="size-6 text-muted-foreground mx-auto mb-3" />
                                     <p className="text-xs text-muted-foreground">No active databases found. Create one to get started.</p>
                                 </div>
                             ) : (
@@ -508,7 +506,7 @@ export default function DatabasesPage() {
                                         <div className="flex items-center justify-between mb-2">
                                             <Badge variant="outline" className={cn(
                                                 "text-[9px] font-black uppercase tracking-widest",
-                                                db.type === 'postgres' ? 'text-primary border-primary/20 bg-blue-400/10' :
+                                                db.type === 'postgres' ? 'text-primary border-primary/20 bg-primary/10' :
                                                     db.type === 'mongodb' ? 'text-primary border-emerald-400/20 bg-emerald-400/10' :
                                                         db.type === 'mysql' ? 'text-primary border-primary/20 bg-primary/10' :
                                                             'text-destructive border-red-400/20 bg-red-400/10'
@@ -531,7 +529,7 @@ export default function DatabasesPage() {
                         </div>
                     </div>
 
-                    <div className="flex-1 flex flex-col bg-background">
+<div className="flex-1 flex flex-col bg-background">
                         {selectedDb ? (
                             <>
                                 <div className="p-8 border-b border-border shrink-0">
@@ -553,37 +551,36 @@ export default function DatabasesPage() {
                                             <Button
                                                 variant="outline"
                                                 onClick={() => handleRestartDb(selectedDb._id)}
-                                                className=" border-border bg-white/5 hover:bg-white/10 h-10"
+                                                className="h-10 gap-2"
                                             >
-                                                <RefreshCw className="size-4 mr-2" /> Restart
+                                                <RefreshCw className="size-4" /> Restart
                                             </Button>
                                             <Button
-                                                variant="outline"
+                                                variant="destructive"
+                                                size="icon"
                                                 onClick={() => handleDeleteDb(selectedDb)}
-                                                className=" border-destructive/20 bg-red-500/5 text-destructive hover:bg-destructive/10 h-10"
+                                                className="h-10 w-10"
                                             >
                                                 <Trash2 className="size-4" />
                                             </Button>
                                         </div>
                                     </div>
-
-                                    <Tabs value={activeTab} onValueChange={setActiveTab}>
-                                        <TabsList variant="line" className="mt-8 gap-8">
-                                            <TabsTrigger value="overview" className="flex items-center gap-2">
-                                                <Activity className="size-4" /> Overview
-                                            </TabsTrigger>
-                                            <TabsTrigger value="credentials" className="flex items-center gap-2">
-                                                <Key className="size-4" /> Credentials
-                                            </TabsTrigger>
-                                            <TabsTrigger value="terminal" className="flex items-center gap-2">
-                                                <Terminal className="size-4" /> Terminal
-                                            </TabsTrigger>
-                                        </TabsList>
-                                    </Tabs>
                                 </div>
 
-                                <div className="flex-1 overflow-y-auto p-8">
-                                    <TabsContent value="overview" className="animate-in fade-in slide-in-from-bottom-4 duration-500" >
+                                <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
+                                    <TabsList variant="line" className="mt-8 gap-8 px-8">
+                                        <TabsTrigger value="overview" className="flex items-center gap-2">
+                                            <Activity className="size-4" /> Overview
+                                        </TabsTrigger>
+                                        <TabsTrigger value="credentials" className="flex items-center gap-2">
+                                            <Key className="size-4" /> Credentials
+                                        </TabsTrigger>
+                                        <TabsTrigger value="terminal" className="flex items-center gap-2">
+                                            <Terminal className="size-4" /> Terminal
+                                        </TabsTrigger>
+</TabsList>
+
+                                    <TabsContent value="overview" className="animate-in fade-in slide-in-from-bottom-4 duration-500 flex-1 overflow-y-auto p-8">
                                         <div className="space-y-8">
                                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                                 <Card className="bg-card border-border ">
@@ -794,21 +791,21 @@ export default function DatabasesPage() {
                                                         <CardContent className="p-6">
                                                             <div className="flex items-center justify-between mb-4">
                                                                 <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground">{item.label}</Label>
-                                                                <Button
+<Button
                                                                     variant="ghost"
                                                                     size="sm"
-                                                                    className="h-8 rounded-lg hover:bg-primary/10 hover:text-primary"
+                                                                    className="gap-2"
                                                                     onClick={() => handleCopy(item.value || '', item.field)}
                                                                 >
                                                                     {copiedField === item.field ? <><Check className="w-3 h-3 mr-2" /> Copied</> : <><Copy className="w-3 h-3 mr-2" /> Copy Item</>}
                                                                 </Button>
                                                             </div>
-                                                            <div className="bg-black/50 p-4  border border-border font-mono text-sm break-all flex items-center justify-between gap-3">
+                                                            <div className="bg-muted/50 p-4  border border-border font-mono text-sm break-all flex items-center justify-between gap-3">
                                                                 <span className="flex-1 overflow-hidden">{maskValue(item.value, item.field, !!item.secret)}</span>
                                                                 {item.secret && (
                                                                     <button
                                                                         onClick={() => toggleReveal(item.field)}
-                                                                        className="shrink-0 p-1.5 rounded-lg hover:bg-white/10 text-muted-foreground hover:text-white transition-colors"
+                                                                        className="shrink-0 p-1.5 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
                                                                         title={revealedFields.has(item.field) ? 'Hide' : 'Reveal'}
                                                                     >
                                                                         {revealedFields.has(item.field) ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
@@ -824,7 +821,7 @@ export default function DatabasesPage() {
 
                                     <TabsContent value="terminal" className="animate-in fade-in zoom-in-95 duration-500">
                                         <Card className="bg-background border-border  h-full flex flex-col overflow-hidden">
-                                            <CardHeader className="px-6 py-4 border-b border-border bg-black/40 flex items-center justify-between">
+                                            <CardHeader className="px-6 py-4 border-b border-border bg-muted/40 flex items-center justify-between">
                                                 <div className="flex items-center gap-3">
                                                     <div className="flex gap-1.5">
                                                         <div className="w-2.5 h-2.5 rounded-full bg-red-500/20 border border-red-500/40" />
@@ -877,21 +874,25 @@ export default function DatabasesPage() {
                                                         type="submit"
                                                         disabled={isExecuting}
                                                         size="sm"
-                                                        className="h-8 rounded-lg px-4 bg-white/5 border border-border hover:bg-white/10 text-[10px] font-black uppercase tracking-widest transition-all"
+                                                        variant="outline"
+                                                        className="gap-2"
                                                     >
                                                         Run Cmd
                                                     </Button>
                                                 </form>
                                             </CardFooter>
                                         </Card>
-                                    </TabsContent>
-                                </div>
+</TabsContent>
+                                </Tabs>
                             </>
                         ) : (
                             <div className="h-full flex flex-col items-center justify-center text-center p-8">
-                                <Database className="w-16 h-16 text-white mb-6" />
-                                <h1 className="text-2xl font-black mb-2">Select a Database</h1>
-                                <p className="text-muted-foreground max-w-xs mx-auto">Choose a cluster from the sidebar to view metrics, credentials and management tools.</p>
+                                <Database className="size-16 text-muted-foreground mb-6" />
+                                <h1 className="text-2xl font-black mb-2">No active databases found</h1>
+                                <p className="text-muted-foreground max-w-xs mx-auto mb-6">Create one to get started.</p>
+                                <Button onClick={handleCreateClick} className="gap-2">
+                                    <Plus className="size-4" /> Provision Database
+                                </Button>
                             </div>
                         )}
                     </div>
@@ -899,7 +900,7 @@ export default function DatabasesPage() {
 
 
             {showCreateModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-300">
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-muted/80 backdrop-blur-md animate-in fade-in duration-300">
                     <div className="w-full max-w-md bg-[#0A0A0A] border border-border  p-8 shadow-2xl relative">
                         <h2 className="text-2xl font-black mb-6">Provision New Database</h2>
                         <form onSubmit={handleCreateDb} className="space-y-6">
@@ -987,14 +988,14 @@ export default function DatabasesPage() {
                                 <Button
                                     type="button"
                                     variant="ghost"
-                                    className="flex-1  h-12 font-bold text-muted-foreground hover:text-white"
+                                    className="flex-1 h-12 font-bold"
                                     onClick={() => setShowCreateModal(false)}
                                 >
                                     Cancel
                                 </Button>
                                 <Button
                                     type="submit"
-                                    className="flex-1  h-12 font-bold bg-primary text-white hover:bg-primary/90 shadow-lg shadow-primary/20"
+                                    className="flex-1 h-12 font-bold shadow-lg shadow-primary/20"
                                 >
                                     Provision Now
                                 </Button>

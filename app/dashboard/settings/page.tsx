@@ -402,7 +402,7 @@ export default function SettingsPage() {
                             <CardDescription>Once you delete your account, there is no going back. Please be certain.</CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <Button variant="outline" className="border-destructive/20 text-destructive hover:bg-destructive/10 hover:border-destructive/30">
+                            <Button variant="destructive">
                                 Delete Account
                             </Button>
                         </CardContent>

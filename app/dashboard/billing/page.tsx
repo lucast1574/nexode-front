@@ -181,7 +181,7 @@ export default function BillingPage() {
                         </BreadcrumbList>
                     </Breadcrumb>
                     <div className="flex-1" />
-                    <Button render={<Link href="/services" />} className="gap-2">
+                    <Button render={<Link href="/services" />} nativeButton={false} className="gap-2">
                         <Plus className="size-4" /> New Service
                     </Button>
                 </header>
@@ -228,7 +228,7 @@ export default function BillingPage() {
                             <Button
                                 onClick={handleManageBilling}
                                 size="sm"
-                                className="w-full font-bold gap-2 bg-primary hover:bg-primary/90"
+                                className="w-full font-bold gap-2"
                             >
                                 <ExternalLink className="w-3.5 h-3.5" /> Open Stripe
                             </Button>

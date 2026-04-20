@@ -380,7 +380,6 @@ export default function ServicesPage() {
                             <div className="flex items-center gap-4 w-full sm:w-auto px-4">
                                 <Button
                                     variant="ghost"
-                                    className="text-zinc-400 hover:text-white"
                                     onClick={() => setSelectedTiers({ database: null, compute: null, n8n: null })}
                                 >
                                     Clear All

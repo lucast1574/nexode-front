@@ -84,7 +84,7 @@ export function SubscriptionLimitModal({
                     <DialogClose render={<Button variant="outline" />}>
                         Cancel
                     </DialogClose>
-                    <Button render={<Link href={`/services#${serviceId}`} />} className="gap-2">
+                    <Button render={<Link href={`/services#${serviceId}`} />} nativeButton={false} className="gap-2">
                             <Plus className="w-4 h-4" />
                             {hasNoSubscription ? "View Plans" : "Add Subscription"}
                             <ArrowRight className="w-4 h-4" />

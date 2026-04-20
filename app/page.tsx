@@ -34,6 +34,7 @@ export default function Home() {
                     <Button
                         id="btn-home-launch"
                         render={<Link href="/services" />}
+                        nativeButton={false}
                         size="lg"
                         className="rounded-full px-8 text-lg h-14 shadow-xl shadow-primary/20"
                     >
@@ -42,6 +43,7 @@ export default function Home() {
                     <Button
                         id="btn-home-signin"
                         render={<Link href="/auth/login" />}
+                        nativeButton={false}
                         variant="outline"
                         size="lg"
                         className="rounded-full px-8 text-lg h-14 bg-background/50 backdrop-blur-sm"

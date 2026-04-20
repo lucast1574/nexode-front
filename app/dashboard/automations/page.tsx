@@ -266,7 +266,7 @@ export default function AutomationsPage() {
                 </header>
 
                 <div className="flex-1 flex overflow-hidden z-10">
-                    <div className="w-85 border-r border-border bg-background/20 flex flex-col shrink-0">
+                    <div className="w-80 border-r border-border bg-black/20 flex flex-col shrink-0">
                         <div className="p-4 border-b border-border">
                             <div className="flex items-center gap-3">
                                 <Search className="size-4 text-muted-foreground" />
@@ -275,11 +275,9 @@ export default function AutomationsPage() {
                         </div>
                         <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3">
                             {instances.length === 0 ? (
-                                <div className="text-center py-16 px-4">
-                                    <div className="size-16  bg-destructive/5 border border-destructive/10 flex items-center justify-center mx-auto mb-6">
-                                        <Zap className="size-8 text-destructive/40" />
-                                    </div>
-                                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground">No Services Live</p>
+                                <div className="text-center py-12 px-4">
+                                    <Workflow className="size-6 text-muted-foreground mx-auto mb-3" />
+                                    <p className="text-xs text-muted-foreground">No active clusters found. Create one to get started.</p>
                                 </div>
                             ) : (
                                 instances.map((inst) => (
@@ -324,7 +322,7 @@ export default function AutomationsPage() {
                                             onClick={() => window.open(getN8nUrl(selectedInstance.generated_domain || ''), '_blank')}
                                             variant="outline"
                                             disabled={selectedInstance.status.toLowerCase() !== 'running'}
-                                            className=" h-14 px-8 border-border bg-muted hover:bg-white/10 font-black uppercase tracking-widest text-[11px] text-muted-foreground gap-3 disabled:opacity-30 disabled:cursor-not-allowed"
+                                            className="h-14 px-8 gap-3 disabled:opacity-30 disabled:cursor-not-allowed"
                                         >
                                             <ExternalLink className="size-4" /> {selectedInstance.status.toLowerCase() === 'running' ? 'Open' : 'Deploying...'}
                                         </Button>
@@ -333,7 +331,7 @@ export default function AutomationsPage() {
                                             title="Redeploy this n8n instance"
                                             onClick={() => handleRestart(selectedInstance._id)} 
                                             disabled={cooldown > 0 || restarting}
-                                            className=" h-14 px-6 border-border bg-muted hover:bg-white/10 gap-2"
+                                            className="h-14 px-6 gap-2"
                                         >
                                             <RefreshCw className={cn("size-5", restarting ? "animate-spin text-destructive" : "text-muted-foreground")} />
                                             {cooldown > 0 
@@ -341,7 +339,7 @@ export default function AutomationsPage() {
                                                 : <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest">Redeploy</span>
                                             }
                                         </Button>
-                                        <Button onClick={() => handleDelete(selectedInstance._id)} className=" h-14 w-14 p-0 bg-destructive/10 text-destructive border border-destructive/20 hover:bg-destructive/20">
+                                        <Button onClick={() => handleDelete(selectedInstance._id)} variant="destructive" size="icon" className="h-14 w-14 p-0">
                                             <Trash2 className="size-5" />
                                         </Button>
                                     </div>
@@ -365,7 +363,7 @@ export default function AutomationsPage() {
                                                 
                                                 <div>
                                                     <h3 className="text-xs font-black uppercase tracking-[0.3em] text-muted-foreground mb-2">Internal Webhook Endpoint</h3>
-                                                    <p className="text-sm font-bold text-zinc-300">Natively proxied through Nexode Cloud Armor.</p>
+                                                    <p className="text-sm font-bold text-foreground">Natively proxied through Nexode Cloud Armor.</p>
                                                 </div>
 
                                                 <div className="p-8  bg-background border border-border flex items-center justify-between group">
@@ -376,7 +374,7 @@ export default function AutomationsPage() {
                                                         <div>
                                                             <div className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1">Production URL</div>
                                                             {selectedInstance.status.toLowerCase() === 'running' ? (
-                                                                <code className="text-lg font-black text-white italic">{getN8nUrl(selectedInstance.generated_domain || '')}</code>
+                                                                <code className="text-lg font-black text-foreground">{getN8nUrl(selectedInstance.generated_domain || '')}</code>
                                                             ) : (
                                                                 <div className="flex items-center gap-3">
                                                                     <div className="size-4 border-2 border-red-500/30 border-t-red-500  animate-spin" />
@@ -388,20 +386,20 @@ export default function AutomationsPage() {
                                                     {selectedInstance.status.toLowerCase() === 'running' && (
                                                     <div className="flex items-center gap-2">
                                                         <Button 
-                                                            variant="ghost" 
+                                                            variant="ghost"
                                                             onClick={() => {
                                                                 navigator.clipboard.writeText(getN8nUrl(selectedInstance.generated_domain || ''));
                                                                 setCopied(true);
                                                                 setTimeout(() => setCopied(false), 2000);
                                                             }} 
-                                                            className="size-14 p-0 shrink-0  text-muted-foreground hover:text-white hover:bg-muted"
+                                                            className="size-14 p-0 shrink-0"
                                                         >
                                                             {copied ? <Check className="size-5 text-primary" /> : <Copy className="size-5" />}
                                                         </Button>
                                                         <Button 
-                                                            variant="ghost" 
+                                                            variant="ghost"
                                                             onClick={() => window.open(getN8nUrl(selectedInstance.generated_domain || ''), '_blank')}
-                                                            className="size-14 p-0 shrink-0  text-muted-foreground hover:text-white hover:bg-muted"
+                                                            className="size-14 p-0 shrink-0"
                                                         >
                                                             <ExternalLink className="size-5" />
                                                         </Button>
@@ -428,7 +426,7 @@ export default function AutomationsPage() {
                                                                     'bg-yellow-500 animate-pulse'
                                                                 )} />
                                                                 <div className="flex-1 min-w-0">
-                                                                    <div className="text-[11px] font-black uppercase tracking-tighter text-zinc-300 break-words mb-1">
+                                                                    <div className="text-[11px] font-black uppercase tracking-tighter text-foreground break-words mb-1">
                                                                         DNS Verification: {dnsStatus === 'checking' ? 'Resolving Wildcard...' : dnsStatus === 'resolved' ? 'Propagation Successful' : 'Wildcard Resolution Failed'}
                                                                     </div>
                                                                     <div className="text-[9px] font-bold text-muted-foreground uppercase italic">
@@ -444,7 +442,7 @@ export default function AutomationsPage() {
                                                                     e.type === 'error' ? 'bg-red-500 ' : 'bg-red-400'
                                                                 )} />
                                                                 <div className="flex-1 min-w-0">
-                                                                    <div className="text-[11px] font-black uppercase tracking-tighter text-zinc-300 break-words mb-1">{e.message}</div>
+                                                                    <div className="text-[11px] font-black uppercase tracking-tighter text-foreground break-words mb-1">{e.message}</div>
                                                                     <div className="text-[9px] font-bold text-muted-foreground uppercase italic">
                                                                         {new Date(e.timestamp).toLocaleString()}
                                                                     </div>
@@ -458,7 +456,7 @@ export default function AutomationsPage() {
                                             <Card className="bg-card border-border  relative overflow-hidden group">
                                                 <CardContent className="p-10 flex flex-col items-center justify-center text-center">
                                                     <div className="absolute inset-0 bg-destructive/[0.01] group-hover:bg-destructive/[0.02] transition-colors" />
-                                                    <Workflow className="size-16 text-muted-foreground mb-6 group-hover:text-red-900/40 transition-colors relative z-10" />
+                                                    <Workflow className="size-16 text-muted-foreground mb-6 group-hover:text-destructive/40 transition-colors relative z-10" />
                                                     <h3 className="text-lg font-black uppercase italic tracking-tighter mb-4 text-muted-foreground relative z-10">Node Configuration</h3>
                                                     <p className="text-xs font-bold text-muted-foreground max-w-xs leading-relaxed uppercase tracking-widest relative z-10">
                                                         This instance is running an isolated n8n core with dedicated persistent storage and encryption keys.
@@ -466,12 +464,12 @@ export default function AutomationsPage() {
                                                     <Separator className="my-8 relative z-10" />
                                                     <div className="w-full flex justify-around relative z-10">
                                                         <div className="text-center">
-                                                            <div className="text-[9px] font-black text-zinc-700 uppercase mb-1">Status</div>
-                                                            <div className="text-xs font-black text-zinc-300 tracking-tighter">{selectedInstance.status.toUpperCase()}</div>
+                                                            <div className="text-[9px] font-black text-muted-foreground uppercase mb-1">Status</div>
+                                                            <div className="text-xs font-black text-foreground tracking-tighter">{selectedInstance.status.toUpperCase()}</div>
                                                         </div>
                                                         <div className="text-center">
-                                                            <div className="text-[9px] font-black text-zinc-700 uppercase mb-1">Region</div>
-                                                            <div className="text-xs font-black text-zinc-300 tracking-tighter">Local Server</div>
+                                                            <div className="text-[9px] font-black text-muted-foreground uppercase mb-1">Region</div>
+                                                            <div className="text-xs font-black text-foreground tracking-tighter">Local Server</div>
                                                         </div>
                                                     </div>
                                                 </CardContent>
@@ -479,29 +477,13 @@ export default function AutomationsPage() {
                                         </div>
                             </div>
                         ) : (
-                            <div className="h-full flex flex-col items-center justify-center p-12 text-center">
-                                <div className="relative mb-12">
-                                    <div className="absolute inset-0 bg-destructive/10 blur-[60px]  scale-150 animate-pulse" />
-                                    <div className="w-28 h-28  bg-destructive/5 border border-destructive/10 flex items-center justify-center relative scale-110">
-                                        <Zap className="size-14 text-destructive/40" />
-                                    </div>
-                                </div>
-                                <h2 className="text-5xl font-black tracking-tighter mb-6 uppercase">Workflow Orchestration</h2>
-                                <p className="text-muted-foreground max-w-lg mb-12 text-lg font-medium leading-relaxed">
-                                    Connect 400+ applications and design complex business logic in seconds. 
-                                    Your secure n8n instance is waiting to be deployed.
-                                </p>
-                                <div className="flex gap-4">
-                                    <Button 
-                                        onClick={handleCreateClick} 
-                                        className=" h-16 px-10 gap-3 font-black uppercase tracking-widest text-[11px] bg-destructive hover:bg-destructive shadow-2xl shadow-destructive/20"
-                                    >
-                                        Deploy Cluster <ArrowRight className="size-4" />
-                                    </Button>
-                                    <Button variant="outline" className=" h-16 px-8 border-border hover:bg-muted font-black uppercase tracking-widest text-[11px] text-muted-foreground">
-                                        View Documentation
-                                    </Button>
-                                </div>
+                            <div className="h-full flex flex-col items-center justify-center text-center p-8">
+                                <Workflow className="size-16 text-muted-foreground mb-6" />
+                                <h1 className="text-2xl font-black mb-2">No active clusters found</h1>
+                                <p className="text-muted-foreground max-w-xs mx-auto mb-6">Create one to get started.</p>
+                                <Button onClick={handleCreateClick} className="gap-2">
+                                    <Plus className="size-4" /> Provision n8n
+                                </Button>
                             </div>
                         )}
                     </div>
@@ -523,24 +505,4 @@ export default function AutomationsPage() {
                 />
             </>
     );
-}
-
-function ArrowRight(props: React.SVGProps<SVGSVGElement>) {
-    return (
-        <svg
-            {...props}
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-        >
-            <path d="M5 12h14" />
-            <path d="m12 5 7 7-7 7" />
-        </svg>
-    )
 }

@@ -44,7 +44,7 @@ export default function DashboardPage() {
                 <div className="flex-1" />
                 <div className="flex items-center gap-4">
                     <NotificationBell />
-                    <Button render={<Link href="/services" />} className="gap-2">
+                    <Button render={<Link href="/services" />} nativeButton={false} className="gap-2">
                         <Plus className="size-4" /> New Service
                     </Button>
                 </div>
@@ -113,7 +113,7 @@ export default function DashboardPage() {
                                                     sub.service === "database" ? "/dashboard/databases" :
                                                         sub.service === "n8n" ? "/dashboard/automations" :
                                                             sub.service === "compute" ? "/dashboard/compute" : "#"
-                                                } />} className="flex-1 gap-2">
+                                                } />} nativeButton={false} className="flex-1 gap-2">
                                                 Open Console <ExternalLink className="size-4" />
                                             </Button>
                                         <Button variant="outline" size="icon" className="shrink-0">
@@ -122,7 +122,7 @@ export default function DashboardPage() {
                                     </div>
 
                                     {!isHighestTier && (
-                                        <Button variant="ghost" render={<Link href="/services" />} className="w-full gap-2 text-primary hover:bg-primary/10 hover:text-primary">
+                                        <Button variant="ghost" render={<Link href="/services" />} nativeButton={false} className="w-full gap-2 text-primary hover:bg-primary/10 hover:text-primary">
                                             <Zap className="size-4" /> Upgrade Plan
                                         </Button>
                                     )}
@@ -146,7 +146,7 @@ export default function DashboardPage() {
                                     </div>
                                     <CardTitle className="text-lg font-bold mb-2">Add {svc.title}</CardTitle>
                                     <CardDescription className="text-xs text-muted-foreground mb-6 max-w-[200px]">Provision this resource to expand your infrastructure.</CardDescription>
-                                    <Button variant="outline" size="sm" render={<Link href="/services" />}>
+<Button variant="outline" size="sm" render={<Link href="/services" />} nativeButton={false}>
                                         Provision Now
                                     </Button>
                                 </CardContent>
@@ -160,7 +160,7 @@ export default function DashboardPage() {
                         <CardContent className="p-6 relative z-10">
                             <h3 className="text-lg font-bold mb-2">Upgrade Performance</h3>
                             <p className="text-sm text-muted-foreground max-w-xs mb-6">Need more compute power? Upscale your instances with zero downtime.</p>
-                            <Button variant="outline" size="sm" render={<Link href="/services" />}>
+                            <Button variant="outline" size="sm" render={<Link href="/services" />} nativeButton={false}>
                                 View Tiers
                             </Button>
                         </CardContent>
