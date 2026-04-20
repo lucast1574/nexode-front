@@ -183,9 +183,9 @@ export default function DashboardLayout({
 
                 setSubscriptions(sortedSubs)
 
-                const dbs: DeployedInstance[] = (result.data.myDatabases || []).map((d: any) => ({ ...d, service: 'database' as const }))
-                const computes: DeployedInstance[] = (result.data.myComputeInstances || []).map((c: any) => ({ ...c, service: 'compute' as const, domain: c.generated_domain }))
-                const n8ns: DeployedInstance[] = (result.data.n8nInstances || []).map((n: any) => ({ ...n, service: 'n8n' as const, domain: n.generated_domain }))
+                const dbs: DeployedInstance[] = (result.data.myDatabases || []).map((d: { _id: string, name: string, type: string, status: string, created_on: string }) => ({ ...d, service: 'database' as const }))
+                const computes: DeployedInstance[] = (result.data.myComputeInstances || []).map((c: { _id: string, name: string, type: string, status: string, created_on: string, generated_domain?: string }) => ({ ...c, service: 'compute' as const, domain: c.generated_domain }))
+                const n8ns: DeployedInstance[] = (result.data.n8nInstances || []).map((n: { _id: string, name: string, status: string, created_on: string, generated_domain?: string }) => ({ ...n, service: 'n8n' as const, domain: n.generated_domain, type: 'automation' }))
                 const allDeployed = [...dbs, ...computes, ...n8ns]
 
                 setDeployedInstances(allDeployed)
@@ -208,6 +208,10 @@ export default function DashboardLayout({
 
     useEffect(() => {
         fetchData()
+        
+        // Auto-sync dashboard data every 15 seconds for real-time consistency
+        const interval = setInterval(fetchData, 15000)
+        return () => clearInterval(interval)
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 

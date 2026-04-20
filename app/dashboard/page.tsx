@@ -7,14 +7,11 @@ import {
     Database,
     Cpu,
     Plus,
-    ExternalLink,
-    ChevronRight,
-    Zap,
-    Workflow
+    Zap
 } from "lucide-react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import {
@@ -66,7 +63,9 @@ export default function DashboardPage() {
                     </BreadcrumbList>
                 </Breadcrumb>
                 <div className="flex-1" />
-                <div className="mr-2"><NotificationBell /></div>
+                <div className="mr-2">
+                    <NotificationBell badgeColor="bg-primary" iconColor="text-primary" />
+                </div>
                 <Button render={<Link href="/services" />} nativeButton={false} className="gap-2">
                     <Plus className="size-4" /> New Service
                 </Button>

@@ -506,7 +506,9 @@ export default function DatabasesPage() {
                         </BreadcrumbList>
                     </Breadcrumb>
                     <div className="flex-1" />
-                    <div className="mr-2"><NotificationBell /></div>
+                    <div className="mr-2">
+                        <NotificationBell badgeColor="bg-blue-600" iconColor="text-blue-500" />
+                    </div>
                     <Button onClick={handleCreateClick} className="gap-2 bg-blue-600 hover:bg-blue-700 text-white border-none shadow-lg shadow-blue-900/20">
                         <Plus className="size-4" /> New Instance
                     </Button>
@@ -584,7 +586,10 @@ export default function DatabasesPage() {
                                                     ● {selectedDb.status}
                                                 </Badge>
                                             </div>
-                                            <p className="text-muted-foreground text-sm font-medium">Instance ID: {selectedDb._id}</p>
+                                            <div className="text-muted-foreground text-sm font-medium flex items-center gap-1 min-w-0">
+                                                <span className="shrink-0">Instance ID:</span>
+                                                <span className="truncate">{selectedDb._id}</span>
+                                            </div>
                                         </div>
                                         <div className="flex gap-3">
                                             <Button
@@ -681,7 +686,7 @@ export default function DatabasesPage() {
                                                     <h3 className="text-lg font-bold mb-6">Connection Endpoints</h3>
                                                     <div className="flex flex-col gap-4">
                                                         <div className="p-4 bg-background border border-border flex items-center justify-between min-w-0">
-                                                            <div className="flex-1 overflow-hidden">
+                                                            <div className="flex-1 overflow-hidden min-w-0">
                                                                 <div className="text-xs text-muted-foreground mb-1">Public Connection URI</div>
                                                                 <code className={cn("text-sm truncate block w-full", getTypeColors(selectedDb.type).textLight)}>{selectedDb.public_uri || selectedDb.connection_string || 'provisioning...'}</code>
                                                             </div>
@@ -696,7 +701,7 @@ export default function DatabasesPage() {
                                                         </div>
 
                                                         <div className="p-4 bg-background border border-border flex items-center justify-between min-w-0">
-                                                            <div className="flex-1 overflow-hidden">
+                                                            <div className="flex-1 overflow-hidden min-w-0">
                                                                 <div className="text-xs text-muted-foreground mb-1">Internal Connection URI</div>
                                                                 <code className={cn("text-sm truncate block w-full", getTypeColors(selectedDb.type).textLight)}>{selectedDb.internal_uri || 'provisioning...'}</code>
                                                             </div>

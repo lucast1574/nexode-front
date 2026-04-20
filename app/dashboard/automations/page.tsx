@@ -142,16 +142,18 @@ export default function AutomationsPage() {
 
     useEffect(() => {
         const isChanging = instances.some(i => ['provisioning', 'restarting'].includes(i.status.toLowerCase()));
+        const isReading = !!selectedInstance;
+        
         let interval: NodeJS.Timeout;
-        if (isChanging) {
+        if (isChanging || isReading) {
             interval = setInterval(() => {
                 fetchInstances();
-            }, 3000);
+            }, isChanging ? 3000 : 5000);
         }
         return () => {
             if (interval) clearInterval(interval);
         };
-    }, [instances, fetchInstances]);
+    }, [instances, fetchInstances, selectedInstance]);
 
     useEffect(() => {
         if (!selectedInstance?.generated_domain) {
@@ -266,7 +268,9 @@ export default function AutomationsPage() {
                         </BreadcrumbList>
                     </Breadcrumb>
                     <div className="flex-1" />
-                    <div className="mr-2"><NotificationBell /></div>
+                    <div className="mr-2">
+                        <NotificationBell badgeColor="bg-red-600" iconColor="text-red-500" />
+                    </div>
                     <Button onClick={handleCreateClick} className="gap-2 bg-red-600 hover:bg-red-700 text-white border-none shadow-lg shadow-red-900/20">
                         <Plus className="size-4" /> Provision n8n
                     </Button>

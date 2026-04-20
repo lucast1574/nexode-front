@@ -209,21 +209,26 @@ function ComputePageContent() {
             router.replace('/dashboard/compute');
         }
     }, [searchParams, showAlert, fetchInstances, router, handleCreateClick]);
-
-
+    useEffect(() => {
+        fetchInstances();
+    }, [fetchInstances]);
 
     useEffect(() => {
-        const isDeploying = instances.some(i => i.status.toLowerCase() === 'provisioning' || i.status.toLowerCase() === 'restarting');
+        // High frequency polling (3s) during provisioning, restarting, or active redeploy
+        const isDeploying = instances.some(i => i.status.toLowerCase() === 'provisioning' || i.status.toLowerCase() === 'restarting') || liveDeployStatus === 'running';
+        // Medium frequency polling (5s) for logs or events tabs to keep them "live"
+        const needsLiveUpdates = activeTab === 'logs' || activeTab === 'deployments' || activeTab === 'overview';
+        
         let interval: NodeJS.Timeout;
-        if (isDeploying) {
+        if (isDeploying || needsLiveUpdates) {
             interval = setInterval(() => {
                 fetchInstances();
-            }, 3000);
+            }, isDeploying ? 3000 : 5000);
         }
         return () => {
             if (interval) clearInterval(interval);
         };
-    }, [instances, fetchInstances]);
+    }, [instances, fetchInstances, liveDeployStatus, activeTab]);
 
     useEffect(() => {
         if (!selectedInstance?._id || selectedInstance.status !== 'running') {
@@ -251,7 +256,7 @@ function ComputePageContent() {
             } catch { /* ignore */ }
         };
         checkStatus();
-        const interval = setInterval(checkStatus, 8000);
+        const interval = setInterval(checkStatus, 5000);
         return () => { cancelled = true; clearInterval(interval); };
     }, [selectedInstance?._id, selectedInstance?.status, liveDeployStatus, fetchInstances]);
 
@@ -513,7 +518,9 @@ function ComputePageContent() {
                         </BreadcrumbList>
                     </Breadcrumb>
                     <div className="flex-1" />
-                    <div className="mr-2"><NotificationBell /></div>
+                    <div className="mr-2">
+                        <NotificationBell badgeColor="bg-primary" iconColor="text-primary" />
+                    </div>
                     <Button onClick={handleCreateClick} className="gap-2">
                         <Plus className="size-4" /> Deploy Instance
                     </Button>
