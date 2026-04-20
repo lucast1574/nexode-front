@@ -27,6 +27,29 @@ import { SidebarTrigger } from "@/components/ui/sidebar"
 import { cn } from "@/lib/utils"
 import { useDashboard } from "./layout"
 
+const serviceColors: Record<string, { bg: string; text: string; border: string; badge: string }> = {
+    n8n: {
+        bg: "bg-red-500/10",
+        text: "text-red-500",
+        border: "border-red-500/30 hover:border-red-500/50",
+        badge: "bg-red-500/10 text-red-500 border-red-500/20",
+    },
+    database: {
+        bg: "bg-blue-500/10",
+        text: "text-blue-500",
+        border: "border-blue-500/30 hover:border-blue-500/50",
+        badge: "bg-blue-500/10 text-blue-500 border-blue-500/20",
+    },
+    compute: {
+        bg: "bg-primary/10",
+        text: "text-primary",
+        border: "border-primary/30 hover:border-primary/50",
+        badge: "bg-primary/10 text-primary border-primary/20",
+    },
+}
+
+const getServiceColor = (service: string) => serviceColors[service] ?? serviceColors.compute
+
 export default function DashboardPage() {
     const { subscriptions, deployedInstances } = useDashboard()
 
@@ -82,30 +105,36 @@ export default function DashboardPage() {
                     ) : (
                         deployedInstances.map((inst) => {
                             const href = inst.service === "database" ? "/dashboard/databases" : inst.service === "n8n" ? "/dashboard/automations" : "/dashboard/compute"
+                            const colors = getServiceColor(inst.service)
                             return (
                                 <Link key={inst._id} href={href} className="block">
-                                    <Card className="group relative transition-all duration-500 flex flex-col bg-card border-border hover:bg-muted/50 hover:border-muted h-full">
+                                    <Card className={cn(
+                                        "group relative transition-all duration-500 flex flex-col bg-card hover:bg-muted/50 h-full",
+                                        colors.border
+                                    )}>
                                         <CardHeader className="p-6">
                                             <div className="flex items-start justify-between mb-4">
-                                                {inst.service === "compute" ? (
-                                                    <Cpu className="size-8 text-primary" />
-                                                ) : inst.service === "n8n" ? (
-                                                    <Image src="/db/n8n.svg" alt="n8n" width={32} height={32} className="size-8 object-contain" />
-                                                ) : inst.service === "database" ? (
-                                                    (() => {
-                                                        const dbType = inst.type?.toLowerCase() || ''
-                                                        if (dbType.includes('postgres')) return <Image src="/db/postgres.svg" alt="PostgreSQL" width={32} height={32} className="size-8 object-contain" />
-                                                        if (dbType.includes('mongo')) return <Image src="/db/mongo.svg" alt="MongoDB" width={32} height={32} className="size-8 object-contain" />
-                                                        if (dbType.includes('redis')) return <Image src="/db/redis.svg" alt="Redis" width={32} height={32} className="size-8 object-contain" />
-                                                        return <Database className="size-8 text-primary" />
-                                                    })()
-                                                ) : (
-                                                    <Database className="size-8 text-primary" />
-                                                )}
+                                                <div className={cn("p-3 rounded-lg", colors.bg)}>
+                                                    {inst.service === "compute" ? (
+                                                        <Cpu className={cn("size-6", colors.text)} />
+                                                    ) : inst.service === "n8n" ? (
+                                                        <Image src="/db/n8n.svg" alt="n8n" width={24} height={24} className="size-6 object-contain" />
+                                                    ) : inst.service === "database" ? (
+                                                        (() => {
+                                                            const dbType = inst.type?.toLowerCase() || ''
+                                                            if (dbType.includes('postgres')) return <Image src="/db/postgres.svg" alt="PostgreSQL" width={24} height={24} className="size-6 object-contain" />
+                                                            if (dbType.includes('mongo')) return <Image src="/db/mongo.svg" alt="MongoDB" width={24} height={24} className="size-6 object-contain" />
+                                                            if (dbType.includes('redis')) return <Image src="/db/redis.svg" alt="Redis" width={24} height={24} className="size-6 object-contain" />
+                                                            return <Database className={cn("size-6", colors.text)} />
+                                                        })()
+                                                    ) : (
+                                                        <Database className={cn("size-6", colors.text)} />
+                                                    )}
+                                                </div>
                                                 <div className="flex flex-col items-end gap-2">
                                                     <Badge variant="outline" className={cn(
                                                         "text-xs font-medium",
-                                                        inst.status === 'running' ? "bg-primary/10 text-primary border-primary/20" :
+                                                        inst.status === 'running' ? colors.badge :
                                                             inst.status === 'provisioning' ? "bg-amber-500/10 text-amber-500 border-amber-500/20" :
                                                                 "bg-destructive/10 text-destructive border-destructive/20"
                                                     )}>
