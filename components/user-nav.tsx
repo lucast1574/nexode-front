@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { LogOut, Settings, User as UserIcon } from "lucide-react";
-import { clearAuthSession, getAuthUser } from "@/lib/auth-utils";
+import { getAuthUser, signOutFromServer } from "@/lib/auth-utils";
 import { User as UserType } from "@/lib/types";
 
 export function UserNav() {
@@ -35,8 +35,8 @@ export function UserNav() {
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
-    const handleLogout = () => {
-        clearAuthSession();
+    const handleLogout = async () => {
+        await signOutFromServer();
         router.push("/auth/login");
         router.refresh();
     };

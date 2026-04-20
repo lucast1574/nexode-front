@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/sidebar"
 import { ChevronsUpDownIcon, BadgeCheckIcon, CreditCardIcon, LogOutIcon, SettingsIcon } from "lucide-react"
 import Link from "next/link"
-import { clearAuthSession } from "@/lib/auth-utils"
+import { signOutFromServer } from "@/lib/auth-utils"
 
 export function NavUser({
   user,
@@ -36,6 +36,11 @@ export function NavUser({
   const { isMobile } = useSidebar()
 
   const initials = user.name ? user.name.charAt(0).toUpperCase() : "N"
+
+  const handleLogout = async () => {
+    await signOutFromServer();
+    window.location.href = "/auth/login";
+  };
 
   return (
     <SidebarMenu>
@@ -96,8 +101,7 @@ export function NavUser({
               variant="destructive"
               onClick={(event: React.MouseEvent<HTMLDivElement>) => {
                 event.preventDefault()
-                clearAuthSession()
-                window.location.href = "/auth/login"
+                handleLogout()
               }}
             >
               <LogOutIcon />

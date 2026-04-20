@@ -47,6 +47,36 @@ export const clearAuthSession = () => {
     localStorage.removeItem("user");
 };
 
+/**
+ * Sign out from the server and clear local session.
+ * This triggers the backend to clear HttpOnly cookies.
+ */
+export const signOutFromServer = async (): Promise<boolean> => {
+    try {
+        const GQL_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api-v1/graphql";
+        const mutation = `mutation SignOutUser { signOutUser { success message } }`;
+
+        console.log("[Auth] Attempting server sign-out...");
+        
+        // We use fetch with credentials include to ensure the backend receives
+        // and can subsequently clear the HttpOnly tokens.
+        await fetch(GQL_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ query: mutation }),
+            credentials: "include",
+        });
+
+        clearAuthSession();
+        return true;
+    } catch (error) {
+        console.error("[Auth] Sign out error:", error);
+        // Fallback: clear local session anyway so the user isn't stuck
+        clearAuthSession();
+        return false;
+    }
+};
+
 export const getAuthUser = (): User | null => {
     if (typeof window === "undefined") return null;
     const user = localStorage.getItem("user");

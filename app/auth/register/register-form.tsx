@@ -148,6 +148,7 @@ export function RegisterForm({
                             id="password"
                             name="password"
                             type={showPassword ? "text" : "password"}
+                            placeholder="••••••••"
                             required
                             autoComplete="new-password"
                             value={formData.password}

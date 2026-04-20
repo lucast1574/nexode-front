@@ -1,8 +1,11 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { Bell, Check, ExternalLink, Info, XCircle, CheckCircle2, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Card, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { getAccessToken } from "@/lib/auth-utils";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
@@ -23,7 +26,6 @@ export function NotificationBell() {
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const [isOpen, setIsOpen] = useState(false);
     const [unviewedCount, setUnviewedCount] = useState(0);
-    const dropdownRef = useRef<HTMLDivElement>(null);
     const router = useRouter();
 
     const markAsViewed = React.useCallback(async (id: string) => {
@@ -54,7 +56,7 @@ export function NotificationBell() {
         }
     }, []);
 
-    const knownIds = useRef<Set<string>>(new Set());
+    const knownIds = React.useRef<Set<string>>(new Set());
 
     const fetchNotifications = React.useCallback(async (isInitial = false) => {
         const token = getAccessToken();
@@ -134,17 +136,6 @@ export function NotificationBell() {
         return () => clearInterval(interval);
     }, [fetchNotifications]);
 
-    useEffect(() => {
-        function handleClickOutside(event: MouseEvent) {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-                setIsOpen(false);
-            }
-        }
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, []);
-
-
     const markAllAsViewed = async () => {
         const token = getAccessToken();
         if (!token) return;
@@ -182,38 +173,40 @@ export function NotificationBell() {
 
     const getTypeIcon = (type: string) => {
         switch (type) {
-            case "success": return <CheckCircle2 className="w-5 h-5 text-green-500" />;
-            case "error": return <XCircle className="w-5 h-5 text-red-500" />;
-            case "warning": return <AlertTriangle className="w-5 h-5 text-yellow-500" />;
-            default: return <Info className="w-5 h-5 text-blue-500" />;
+            case "success": return <CheckCircle2 className="size-5 text-green-500" />;
+            case "error": return <XCircle className="size-5 text-red-500" />;
+            case "warning": return <AlertTriangle className="size-5 text-yellow-500" />;
+            default: return <Info className="size-5 text-blue-500" />;
         }
     };
 
     return (
-        <div className="relative" ref={dropdownRef}>
-            <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setIsOpen(!isOpen)}
-                className={cn(
-                    "rounded-full relative w-12 h-12 transition-all",
-                    isOpen && "bg-muted"
-                )}
-            >
-                <Bell className={cn("w-6 h-6 transition-all", unviewedCount > 0 ? "text-primary animate-pulse" : "text-muted-foreground")} />
-                {unviewedCount > 0 && (
-                    <span className="absolute top-2.5 right-2.5 px-1.5 py-0.5 min-w-[18px] h-[18px] bg-primary text-foreground text-xs font-bold rounded-full flex items-center justify-center">
-                        {unviewedCount > 9 ? "9+" : unviewedCount}
-                    </span>
-                )}
-            </Button>
-
-            {isOpen && (
-                <div className="absolute right-0 mt-4 w-[400px] bg-card border border-border rounded-xl shadow-2xl z-50 overflow-hidden animate-in fade-in zoom-in duration-200">
-                    <div className="p-6 border-b border-border flex items-center justify-between bg-muted">
+        <Popover open={isOpen} onOpenChange={setIsOpen}>
+            <PopoverTrigger 
+                render={
+                    <Button
+                        variant="outline"
+                        size="icon"
+                        className={cn(
+                            "rounded-full relative size-9 transition-all",
+                            isOpen && "bg-muted"
+                        )}
+                    >
+                        <Bell className={cn("size-4 transition-all", unviewedCount > 0 ? "text-primary animate-pulse" : "text-muted-foreground")} />
+                        {unviewedCount > 0 && (
+                            <span className="absolute -top-1 -right-1 px-1 py-0.5 min-w-[16px] h-[16px] bg-primary text-primary-foreground text-[10px] font-bold rounded-full flex items-center justify-center">
+                                {unviewedCount > 9 ? "9+" : unviewedCount}
+                            </span>
+                        )}
+                    </Button>
+                }
+            />
+            <PopoverContent className="w-[400px] p-0" align="end" sideOffset={8}>
+                <Card className="border-0 shadow-none">
+                    <CardHeader className="p-6 border-b bg-muted flex flex-row items-center justify-between space-y-0">
                         <div>
-                            <h3 className="text-lg font-semibold tracking-tight">Protocol Alerts</h3>
-                            <p className="text-xs text-muted-foreground font-medium">System events and status updates</p>
+                            <CardTitle className="text-lg font-semibold tracking-tight">Protocol Alerts</CardTitle>
+                            <CardDescription className="text-xs font-medium">System events and status updates</CardDescription>
                         </div>
                         {unviewedCount > 0 && (
                             <Button
@@ -222,16 +215,15 @@ export function NotificationBell() {
                                 onClick={markAllAsViewed}
                                 className="text-xs py-1 h-auto rounded-xl gap-2"
                             >
-                                <Check className="w-3.5 h-3.5" /> Read All
+                                <Check className="size-3.5" /> Read All
                             </Button>
                         )}
-                    </div>
-
-                    <div className="max-h-[450px] overflow-y-auto custom-scrollbar">
+                    </CardHeader>
+                    <ScrollArea className="h-[450px]">
                         {notifications.length === 0 ? (
                             <div className="p-12 text-center bg-card">
-                                <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4 border border-border">
-                                    <Bell className="w-8 h-8 text-muted-foreground" />
+                                <div className="size-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4 border border-border">
+                                    <Bell className="size-8 text-muted-foreground" />
                                 </div>
                                 <h4 className="text-muted-foreground font-bold mb-1">Silence is Golden</h4>
                                 <p className="text-xs text-muted-foreground">No active alerts at the moment.</p>
@@ -248,7 +240,7 @@ export function NotificationBell() {
                                 >
                                     <div className="flex gap-4">
                                         <div className={cn(
-                                            "w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border border-border transition-colors group-hover:border-primary/30",
+                                            "size-10 rounded-xl flex items-center justify-center shrink-0 border border-border transition-colors group-hover:border-primary/30",
                                             !n.viewed ? "bg-zinc-700" : "bg-muted"
                                         )}>
                                             {getTypeIcon(n.type)}
@@ -267,26 +259,25 @@ export function NotificationBell() {
                                             </p>
                                         </div>
                                         <div className="flex items-center self-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <ExternalLink className="w-4 h-4 text-muted-foreground hover:text-primary" />
+                                            <ExternalLink className="size-4 text-muted-foreground hover:text-primary" />
                                         </div>
                                     </div>
                                     {!n.viewed && (
-                                        <span className="absolute top-5 right-5 w-2 h-2 bg-primary rounded-full" />
+                                        <span className="absolute top-5 right-5 size-2 bg-primary rounded-full" />
                                     )}
                                 </div>
                             ))
                         )}
-                    </div>
-
+                    </ScrollArea>
                     {notifications.length > 0 && (
-                        <div className="p-4 bg-muted text-center border-t border-border">
+                        <CardFooter className="p-4 bg-muted text-center border-t border-border flex justify-center">
                             <p className="text-xs text-muted-foreground font-medium">
                                 Alerts auto-expire after 7 days
                             </p>
-                        </div>
+                        </CardFooter>
                     )}
-                </div>
-            )}
-        </div>
+                </Card>
+            </PopoverContent>
+        </Popover>
     );
 }
