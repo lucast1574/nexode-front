@@ -628,7 +628,7 @@ function ComputePageContent() {
                                             { value: 'terminal', label: 'Secure Terminal', icon: Terminal },
                                             { value: 'settings', label: 'Domains & SSL', icon: Shield }
                                         ] as const).map(tab => (
-                                            <TabsTrigger className="flex items-center gap-2">
+                                            <TabsTrigger key={tab.value} value={tab.value} className="flex items-center gap-2">
                                                 <tab.icon className="w-4 h-4" /> {tab.label}
                                             </TabsTrigger>
                                         ))}

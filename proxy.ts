@@ -4,7 +4,7 @@ import type { NextRequest } from "next/server";
 const PROTECTED_ROUTES = ["/dashboard", "/checkout"];
 const AUTH_ROUTES = ["/auth/login", "/auth/register"];
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
     const { pathname } = request.nextUrl;
 
     // Check both the HttpOnly access_token cookie and the has_session flag
