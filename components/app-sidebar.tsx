@@ -14,7 +14,7 @@ import {
   SidebarMenuButton,
   SidebarRail,
 } from "@/components/ui/sidebar"
-import { LayoutDashboard, Workflow, Cpu, Database, BarChart3, CreditCard, Settings } from "lucide-react"
+import { LayoutDashboard, Workflow, Cpu, Database, BarChart3, BookOpen, HelpCircle } from "lucide-react"
 
 import { useDashboard } from "@/app/dashboard/layout"
 
@@ -62,18 +62,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       icon: <BarChart3 />,
       items: undefined,
     },
-    {
-      title: "Billing",
-      url: "/dashboard/billing",
-      icon: <CreditCard />,
-      items: undefined,
-    },
-    {
-      title: "Settings",
-      url: "/dashboard/settings",
-      icon: <Settings />,
-      items: undefined,
-    },
   ].filter((item) => item !== undefined)
 
   const userName = user ? `${user.first_name}${user.last_name ? " " + user.last_name : ""}` : "User"
@@ -101,6 +89,20 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavMain items={navItems} />
       </SidebarContent>
       <SidebarFooter>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton render={<a href="https://docs.nexode.app" target="_blank" rel="noopener noreferrer" />}>
+              <BookOpen />
+              <span>Documentation</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton render={<Link href="/dashboard/help" />}>
+              <HelpCircle />
+              <span>Help</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
         <NavUser
           user={{
             name: userName,
