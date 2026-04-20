@@ -137,7 +137,21 @@ export default function ServicesPage() {
         compute: null,
         n8n: null,
     });
+    const [activeHash, setActiveHash] = useState<string>("");
     const { showAlert } = useModal();
+
+    useEffect(() => {
+        const hash = window.location.hash.replace("#", "")
+        setActiveHash(hash)
+        if (hash) {
+            const element = document.getElementById(hash)
+            if (element) {
+                setTimeout(() => {
+                    element.scrollIntoView({ behavior: "smooth", block: "start" })
+                }, 100)
+            }
+        }
+    }, [])
 
     useEffect(() => {
         const fetchCurrentSubs = async () => {
@@ -274,7 +288,7 @@ export default function ServicesPage() {
             </header>
 
             <main className="relative z-10 pb-32 px-6 max-w-7xl mx-auto space-y-24">
-                {SERVICES.map((service) => (
+                {SERVICES.filter((service) => !activeHash || service.id === activeHash).map((service) => (
                     <section key={service.id} id={service.id} className="space-y-10 scroll-mt-24">
                         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                             <div className="space-y-4 max-w-2xl">
