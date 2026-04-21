@@ -14,7 +14,7 @@ import {
   SidebarMenuButton,
   SidebarRail,
 } from "@/components/ui/sidebar"
-import { LayoutDashboard, Workflow, Cpu, Database, BarChart3, BookOpen, HelpCircle, TrendingUp } from "lucide-react"
+import { LayoutDashboard, Workflow, Cpu, Database, BarChart3, BookOpen, HelpCircle, TrendingUp, Shield } from "lucide-react"
 
 import { useDashboard } from "@/app/dashboard/layout"
 
@@ -63,14 +63,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       icon: <BarChart3 />,
       items: undefined,
     },
-    ...(user?.role?.slug === "superuser" || user?.role?.slug === "admin"
-      ? [{
-          title: "Admin Panel",
-          url: "/dashboard/admin",
-          icon: <LayoutDashboard />, // Or some other icon
-          items: undefined,
-        }]
-      : []),
   ].filter((item) => item !== undefined)
 
   const userName = user ? `${user.first_name}${user.last_name ? " " + user.last_name : ""}` : "User"
@@ -117,6 +109,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               <span>Help</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
+          {isStaff && (
+            <SidebarMenuItem>
+              <SidebarMenuButton render={<Link href="/dashboard/admin" />}>
+                <Shield />
+                <span>Admin Panel</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          )}
         </SidebarMenu>
         <NavUser
           user={{
