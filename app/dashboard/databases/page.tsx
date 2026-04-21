@@ -569,7 +569,7 @@ export default function DatabasesPage() {
                                             </div>
                                             <div className={cn(
                                                 "w-2 h-2 rounded-full",
-                                                db.status === 'running' ? getTypeColors(db.type).bgDirect :
+                                                db.status === 'running' ? 'bg-emerald-500' :
                                                     db.status === 'provisioning' ? 'bg-amber-500 animate-pulse' : 'bg-red-500'
                                             )} />
                                         </div>
@@ -593,7 +593,7 @@ export default function DatabasesPage() {
                                                 <h1 className="text-3xl font-bold tracking-tight">{selectedDb.name}</h1>
                                                 <Badge variant="outline" className={cn(
                                                     "text-xs font-medium",
-                                                    selectedDb.status === 'running' ? `${getTypeColors(selectedDb.type).bg} ${getTypeColors(selectedDb.type).text} ${getTypeColors(selectedDb.type).border}` :
+                                                    selectedDb.status === 'running' ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' :
                                                         "bg-amber-500/10 text-amber-500 border-amber-500/20"
                                                 )}>
                                                     ● {selectedDb.status}
