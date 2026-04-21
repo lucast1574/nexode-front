@@ -9,7 +9,7 @@ import { Field, FieldGroup, FieldLabel, FieldDescription } from "@/components/ui
 import { Loader2, Mail } from "lucide-react"
 import { toast } from "sonner"
 import { useMutation } from "@apollo/client/react"
-import { VERIFY_EMAIL_MUTATION } from "@/lib/graphql-mutations"
+import { VERIFY_EMAIL_MUTATION } from "@/lib/graphql-operations"
 import { setAuthSession, getAuthRedirectPath } from "@/lib/auth-utils"
 import { VerifyEmailData } from "@/lib/types"
 

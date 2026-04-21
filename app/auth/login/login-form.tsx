@@ -12,7 +12,7 @@ import Turnstile from "react-turnstile"
 
 import { useMutation } from "@apollo/client/react"
 import { GoogleLogin, CredentialResponse } from "@react-oauth/google"
-import { LOGIN_MUTATION, SIGN_IN_WITH_GOOGLE } from "@/lib/graphql-mutations"
+import { LOGIN_MUTATION, SIGN_IN_WITH_GOOGLE } from "@/lib/graphql-operations"
 import { setAuthSession, getAuthRedirectPath } from "@/lib/auth-utils"
 import { LoginData, GoogleLoginData } from "@/lib/types"
 

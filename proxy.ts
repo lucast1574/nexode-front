@@ -17,6 +17,7 @@ export function proxy(request: NextRequest) {
         pathname.startsWith(route)
     );
 
+    // Allow checkout callback with session_id (Stripe redirect)
     const hasSessionId = request.nextUrl.searchParams.has("session_id");
 
     if (isProtected && !isAuthenticated && !hasSessionId) {
@@ -25,8 +26,7 @@ export function proxy(request: NextRequest) {
         return NextResponse.redirect(loginUrl);
     }
 
-    // Root redirect logic:
-    // If authenticated, go to dashboard. If not, go to login.
+    // Root redirect: authenticated → dashboard, else → login
     if (pathname === "/") {
         const target = isAuthenticated ? "/dashboard" : "/auth/login";
         return NextResponse.redirect(new URL(target, request.url));
@@ -34,7 +34,6 @@ export function proxy(request: NextRequest) {
 
     // Auth routes: redirect to dashboard if already logged in
     const isAuthRoute = AUTH_ROUTES.some((route) => pathname.startsWith(route));
-
     if (isAuthRoute && isAuthenticated) {
         return NextResponse.redirect(new URL("/dashboard", request.url));
     }
@@ -46,7 +45,6 @@ export const config = {
     matcher: [
         "/",
         "/dashboard/:path*",
-
         "/auth/:path*",
     ],
 };
