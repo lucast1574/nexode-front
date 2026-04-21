@@ -2,12 +2,14 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { Database, Cpu, Workflow, ArrowRight, Shield, Globe, CreditCard, Settings } from "lucide-react";
+import { Database, Cpu, Workflow, ArrowRight, Shield, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Separator } from "@/components/ui/separator";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/ui/breadcrumb";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
-import { PublicNav } from "@/components/PublicNav";
 import { getAccessToken } from "@/lib/auth-utils";
 import { useModal } from "@/components/ui/modal";
 
@@ -122,20 +124,27 @@ export default function CheckoutPage() {
     };
 
     return (
-        <div className="min-h-screen bg-[#050505] text-white selection:bg-primary/30">
-            <PublicNav />
-
-            <header className="relative z-10 pt-20 pb-12 px-6 text-center max-w-7xl mx-auto">
-                <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-6">
-                    Manage Your <span className="text-primary italic">Infrastructure</span>
-                </h1>
-                <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-                    Select high-performance building blocks for your hosting environment. Mix and match services to scale your system in real-time.
-                </p>
+        <>
+            <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
+                <SidebarTrigger className="-ml-1" />
+                <Separator orientation="vertical" className="mr-2 data-vertical:h-4 data-vertical:self-auto" />
+                <Breadcrumb>
+                    <BreadcrumbList>
+                        <BreadcrumbItem>
+                            <BreadcrumbPage>Checkout</BreadcrumbPage>
+                        </BreadcrumbItem>
+                    </BreadcrumbList>
+                </Breadcrumb>
             </header>
 
-            <main className="relative z-10 pb-40 px-6 max-w-7xl mx-auto">
-                <Card className="bg-muted border-border mb-12">
+            <div className="flex-1 overflow-y-auto p-6">
+                <div className="flex flex-col gap-2 mb-8">
+                    <h1 className="text-3xl font-bold tracking-tight">Manage Your Infrastructure</h1>
+                    <p className="text-muted-foreground">Review and manage your active subscriptions and billing.</p>
+                </div>
+
+            <main className="relative z-10 pb-12">
+                <Card className="border-border mb-12">
                     <CardHeader>
                         <CardTitle className="text-2xl font-bold flex items-center gap-3">
                             <Database className="size-6 text-primary" /> Active Subscriptions
@@ -154,7 +163,7 @@ export default function CheckoutPage() {
                                 </div>
                                 <h3 className="text-xl font-bold mb-2">No active subscriptions</h3>
                                 <p className="text-muted-foreground mb-6">Subscribe to a plan to start deploying infrastructure.</p>
-                                <Button render={<Link href="/services" />} nativeButton={false} variant="outline">
+                                <Button render={<Link href="/dashboard/services" />} nativeButton={false} variant="outline">
                                     Explore Services
                                 </Button>
                             </div>
@@ -203,8 +212,7 @@ export default function CheckoutPage() {
 
 
             </main>
-
-
-        </div>
+            </div>
+        </>
     );
 }

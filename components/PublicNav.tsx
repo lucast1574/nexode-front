@@ -16,8 +16,8 @@ export function PublicNav({ showUserNav = true }: PublicNavProps) {
     const pathname = usePathname()
 
     const links = [
-        { href: "/services", label: "Services" },
-        { href: "/checkout", label: "Subscriptions" },
+        { href: "/dashboard/services", label: "Services" },
+        { href: "/dashboard/checkout", label: "Subscriptions" },
         { href: "/dashboard", label: "Dashboard" },
     ]
 

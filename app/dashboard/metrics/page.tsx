@@ -127,7 +127,7 @@ export default function MetricsPage() {
                 </Breadcrumb>
                 <div className="flex-1" />
                 <div className="mr-2"><NotificationBell /></div>
-                <Button render={<Link href="/services" />} nativeButton={false} className="gap-2">
+                <Button render={<Link href="/dashboard/services" />} nativeButton={false} className="gap-2">
                     <Plus className="size-4" /> New Service
                 </Button>
             </header>

@@ -183,7 +183,7 @@ export default function DashboardLayout({
 
                 if (validSubs.length === 0 && !isStaff) {
                     setIsAuthorized(false)
-                    router.push("/services")
+                    router.push("/dashboard/services")
                     return
                 }
 

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-const PROTECTED_ROUTES = ["/dashboard", "/checkout"];
+const PROTECTED_ROUTES = ["/dashboard"];
 const AUTH_ROUTES = ["/auth/login", "/auth/register"];
 
 export function proxy(request: NextRequest) {
@@ -46,7 +46,7 @@ export const config = {
     matcher: [
         "/",
         "/dashboard/:path*",
-        "/checkout/:path*",
+
         "/auth/:path*",
     ],
 };

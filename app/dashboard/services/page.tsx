@@ -1,11 +1,14 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import { Check, Database, Cpu, Zap, ArrowRight, Workflow } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/ui/breadcrumb";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
-import { PublicNav } from "@/components/PublicNav";
 import { useModal } from "@/components/ui/modal";
 
 interface Tier {
@@ -276,38 +279,42 @@ export default function ServicesPage() {
     };
 
     return (
-        <div className="min-h-screen bg-[#050505] text-white selection:bg-primary/30">
-
-            <PublicNav />
-
-            <header className="relative z-10 pt-20 pb-12 px-6 text-center max-w-7xl mx-auto">
-                <h1 className="text-5xl md:text-7xl font-bold tracking-tight mb-6">
-                    Launch Your <span className="text-primary italic">Infrastructure</span>
-                </h1>
-                <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-                    Select high-performance building blocks for your hosting environment. Mix and match services to scale your system in real-time.
-                </p>
-
-
+        <>
+            <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
+                <SidebarTrigger className="-ml-1" />
+                <Separator orientation="vertical" className="mr-2 data-vertical:h-4 data-vertical:self-auto" />
+                <Breadcrumb>
+                    <BreadcrumbList>
+                        <BreadcrumbItem>
+                            <BreadcrumbPage>Services</BreadcrumbPage>
+                        </BreadcrumbItem>
+                    </BreadcrumbList>
+                </Breadcrumb>
             </header>
 
-            <main className="relative z-10 pb-32 px-6 max-w-7xl mx-auto space-y-24">
+            <div className="flex-1 overflow-y-auto p-6">
+                <div className="flex flex-col gap-2 mb-8">
+                    <h1 className="text-3xl font-bold tracking-tight">Launch Your Infrastructure</h1>
+                    <p className="text-muted-foreground">Select high-performance building blocks for your hosting environment. Mix and match services to scale your system in real-time.</p>
+                </div>
+
+            <main className="relative z-10 pb-12 space-y-16">
                 {SERVICES.filter((service) => !activeHash || service.id === activeHash).map((service) => (
                     <section key={service.id} id={service.id} className="space-y-10 scroll-mt-24">
                         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                             <div className="space-y-4 max-w-2xl">
                                 <div className="flex items-center gap-4">
                                     <div className={cn("p-3 rounded-lg shadow-lg", service.color)}>
-                                        <service.icon className="w-8 h-8 text-white" />
+                                        <service.icon className="w-6 h-6 text-white" />
                                     </div>
-                                    <h2 className="text-4xl font-bold">{service.title}</h2>
+                                    <h2 className="text-2xl font-bold">{service.title}</h2>
                                 </div>
                                 <p className="text-muted-foreground text-lg">{service.description}</p>
                             </div>
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2">
                                 {service.highlights.map((highlight, idx) => (
-                                    <div key={idx} className="flex items-center gap-2 text-sm text-zinc-300">
+                                    <div key={idx} className="flex items-center gap-2 text-sm text-muted-foreground">
                                         <div className="flex-shrink-0 w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center">
                                             <Check className="w-3 h-3 text-primary" />
                                         </div>
@@ -334,8 +341,8 @@ export default function ServicesPage() {
                                             className={cn(
                                                 "cursor-pointer rounded-lg p-0 transition-all duration-300",
                                                 isSelected
-                                                    ? "bg-white/10 border-primary ring-1 ring-primary/50 shadow-[0_0_20px_rgba(var(--primary),0.1)]"
-                                                    : "bg-muted border-border hover:border-white/20 hover:bg-white/10 hover:shadow-lg"
+                                                    ? "bg-primary/5 border-primary ring-1 ring-primary/50 shadow-sm"
+                                                    : "bg-card border-border hover:border-primary/30 hover:bg-muted/50 hover:shadow-sm"
                                             )}
                                         >
                                             <div
@@ -346,9 +353,9 @@ export default function ServicesPage() {
                                                 <div className="col-span-4 md:col-span-3 flex items-center gap-3">
                                                     <div className={cn(
                                                         "w-5 h-5 rounded-full border flex items-center justify-center transition-colors",
-                                                        isSelected ? "bg-primary border-primary" : "border-white/20 group-hover:border-white/40"
+                                                        isSelected ? "bg-primary border-primary" : "border-muted-foreground/30 group-hover:border-muted-foreground/60"
                                                     )}>
-                                                        {isSelected && <Check className="w-3 h-3 text-white stroke-[3]" />}
+                                                        {isSelected && <Check className="w-3 h-3 text-primary-foreground stroke-[3]" />}
                                                     </div>
                                                     <span className="font-bold text-lg">{tier.name}</span>
                                                 </div>
@@ -364,7 +371,7 @@ export default function ServicesPage() {
                                                 </div>
 
                                                 <div className="col-span-4 md:col-span-3 text-right">
-                                                    <span className="text-2xl font-bold text-white">${tier.price} <span className="text-sm font-normal text-zinc-500">/m</span></span>
+                                                    <span className="text-2xl font-bold text-foreground">${tier.price} <span className="text-sm font-normal text-muted-foreground">/m</span></span>
                                                 </div>
                                             </div>
                                         </Card>
@@ -376,23 +383,24 @@ export default function ServicesPage() {
                 ))}
             </main>
 
+            </div>
+
             {selectedCount > 0 && (
-                <div className="fixed bottom-0 left-0 right-0 z-50 p-6 animate-in slide-in-from-bottom-full duration-500">
-                    <Card className="max-w-7xl mx-auto bg-muted backdrop-blur-2xl border-border rounded-xl shadow-2xl p-0">
+                <div className="border-t bg-background p-4 animate-in slide-in-from-bottom-full duration-500">
+                    <Card className="bg-card border-border rounded-xl shadow-lg p-0">
                         <CardContent className="p-4 flex flex-col sm:flex-row items-center justify-between gap-6">
                             <div className="flex items-center gap-6 px-4">
                                 <div className="bg-primary/20 p-3 rounded-lg relative">
                                     <Zap className="w-6 h-6 text-primary" />
-                                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-white text-xs font-bold rounded-full flex items-center justify-center border-2 border-white/20">
+                                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-primary-foreground text-xs font-bold rounded-full flex items-center justify-center border-2 border-background">
                                         {selectedCount}
                                     </span>
                                 </div>
                                 <div>
                                     <div className="text-sm text-muted-foreground font-medium">Selected Services Monthly Total</div>
-                                    <div className="text-3xl font-bold text-white">${totalPrice}<span className="text-sm font-normal text-zinc-500">/mo</span></div>
+                                    <div className="text-3xl font-bold text-foreground">${totalPrice}<span className="text-sm font-normal text-muted-foreground">/mo</span></div>
                                 </div>
                             </div>
-
 
                             <div className="flex items-center gap-4 w-full sm:w-auto px-4">
                                 <Button
@@ -414,8 +422,6 @@ export default function ServicesPage() {
                     </Card>
                 </div>
             )}
-
-
-        </div>
+        </>
     );
 }

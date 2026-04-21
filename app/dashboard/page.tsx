@@ -43,7 +43,7 @@ export default function DashboardPage() {
                 <div className="mr-2">
                     <NotificationBell badgeColor="bg-primary" iconColor="text-primary" />
                 </div>
-                <Button render={<Link href="/services" />} nativeButton={false} className="gap-2">
+                <Button render={<Link href="/dashboard/services" />} nativeButton={false} className="gap-2">
                     <Plus className="size-4" /> New Service
                 </Button>
             </header>
@@ -131,7 +131,7 @@ export default function DashboardPage() {
                         <CardContent className="p-6 relative z-10">
                             <h3 className="text-lg font-bold mb-2">Upgrade Performance</h3>
                             <p className="text-sm text-muted-foreground max-w-xs mb-6">Need more compute power? Upscale your instances with zero downtime.</p>
-                            <Button variant="outline" size="sm" render={<Link href="/services" />} nativeButton={false}>
+                            <Button variant="outline" size="sm" render={<Link href="/dashboard/services" />} nativeButton={false}>
                                 View Tiers
                             </Button>
                         </CardContent>
