@@ -83,6 +83,15 @@ const getTypeColors = (type?: string) => {
                 border: 'border-red-500/20',
                 hoverText: 'group-hover:text-red-500'
             };
+        case 'mysql':
+            return {
+                text: 'text-cyan-400',
+                textLight: 'text-cyan-300',
+                bg: 'bg-cyan-400/10',
+                bgDirect: 'bg-cyan-400',
+                border: 'border-cyan-400/20',
+                hoverText: 'group-hover:text-cyan-400'
+            };
         default: // postgres
             return {
                 text: 'text-blue-500',
@@ -640,7 +649,7 @@ export default function DatabasesPage() {
                                                                 getTypeColors(selectedDb.type).bg,
                                                                 getTypeColors(selectedDb.type).border
                                                             )}>
-                                                                <Database className={cn("size-5", getTypeColors(selectedDb.type).text)} />
+                                                                {selectedDb.type === "postgres" ? <Image src="/db/postgres.svg" alt="PostgreSQL" width={20} height={20} className="size-5 object-contain" /> : selectedDb.type === "mongodb" ? <Image src="/db/mongo.svg" alt="MongoDB" width={20} height={20} className="size-5 object-contain" /> : selectedDb.type === "redis" ? <Image src="/db/redis.svg" alt="Redis" width={20} height={20} className="size-5 object-contain" /> : selectedDb.type === "mysql" ? <Image src="/db/mysql.svg" alt="MySQL" width={20} height={20} className="size-5 object-contain" /> : <Database className={cn("size-5", getTypeColors(selectedDb.type).text)} />}
                                                             </div>
                                                             <div>
                                                                 <div className="font-bold leading-tight">{selectedDb.type === 'postgres' ? 'PostgreSQL' :

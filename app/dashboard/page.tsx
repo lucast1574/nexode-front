@@ -103,6 +103,7 @@ export default function DashboardPage() {
                                                             if (dbType.includes('postgres')) return <Image src="/db/postgres.svg" alt="PostgreSQL" width={24} height={24} className="size-6 object-contain" />
                                                             if (dbType.includes('mongo')) return <Image src="/db/mongo.svg" alt="MongoDB" width={24} height={24} className="size-6 object-contain" />
                                                             if (dbType.includes('redis')) return <Image src="/db/redis.svg" alt="Redis" width={24} height={24} className="size-6 object-contain" />
+                                                            if (dbType.includes('mysql')) return <Image src="/db/mysql.svg" alt="MySQL" width={24} height={24} className="size-6 object-contain" />
                                                             return <Database className="size-6 text-primary" />
                                                         })()
                                                     ) : (
