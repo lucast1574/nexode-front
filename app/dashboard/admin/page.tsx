@@ -207,7 +207,8 @@ export default function AdminPage() {
                                         <TableHead className="text-white/30 font-black uppercase text-[10px] tracking-[0.2em] h-14">Frequency</TableHead>
                                         <TableHead className="text-white/30 font-black uppercase text-[10px] tracking-[0.2em] h-14">Contribution</TableHead>
                                         <TableHead className="text-white/30 font-black uppercase text-[10px] tracking-[0.2em] h-14">Status</TableHead>
-                                        <TableHead className="text-right text-white/30 font-black uppercase text-[10px] tracking-[0.2em] h-14 px-8">Timestamp</TableHead>
+                                        <TableHead className="text-right text-white/30 font-black uppercase text-[10px] tracking-[0.2em] h-14 px-4">Date</TableHead>
+                                        <TableHead className="text-right text-white/30 font-black uppercase text-[10px] tracking-[0.2em] h-14 px-8">Time</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
@@ -239,14 +240,17 @@ export default function AdminPage() {
                                                     {sub.status}
                                                 </Badge>
                                             </TableCell>
-                                            <TableCell className="text-right text-[11px] px-8 text-white/20 font-bold tracking-tighter">
+                                            <TableCell className="text-right text-[11px] px-4 text-white/20 font-bold tracking-tighter">
                                                 {new Date(sub.createdOn).toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' })}
+                                            </TableCell>
+                                            <TableCell className="text-right text-[11px] px-8 text-white/20 font-bold tracking-tighter">
+                                                {new Date(sub.createdOn).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', hour12: true })}
                                             </TableCell>
                                         </TableRow>
                                     ))}
                                     {adminSubscriptions.length === 0 && (
                                         <TableRow>
-                                            <TableCell colSpan={7} className="text-center py-32 text-white/10 bg-white/[0.01]">
+                                            <TableCell colSpan={8} className="text-center py-32 text-white/10 bg-white/[0.01]">
                                                 <div className="flex flex-col items-center gap-4">
                                                     <CreditCard className="h-12 w-12 opacity-10 animate-pulse" />
                                                     <p className="font-black uppercase tracking-[0.3em] text-[10px]">No Data Streams Found</p>
