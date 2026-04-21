@@ -1118,6 +1118,7 @@ function ComputePageContent() {
                 user={user}
                 subscriptions={subscriptions}
                 initialProvider={initialProvider}
+                isSuperuser={isSuperuser}
             />
             <SubscriptionLimitModal
                 isOpen={showLimitModal}

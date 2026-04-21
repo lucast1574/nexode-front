@@ -178,7 +178,10 @@ export default function DashboardLayout({
                     (s: Subscription) => s && s.status === "ACTIVE"
                 )
 
-                if (validSubs.length === 0) {
+                const userRole = result.data.me?.role?.slug;
+                const isStaff = userRole === "superuser" || userRole === "admin";
+
+                if (validSubs.length === 0 && !isStaff) {
                     setIsAuthorized(false)
                     router.push("/services")
                     return

@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState, useCallback } from "react";
 import {
-    X,
     Globe,
     Server,
     Github,
@@ -11,7 +10,6 @@ import {
     Lock,
     ChevronDown,
     Search,
-    RefreshCw,
     Rocket
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -62,6 +60,7 @@ interface ProvisionNodeModalProps {
     user: User | null;
     subscriptions: Subscription[];
     initialProvider?: string;
+    isSuperuser?: boolean;
 }
 
 export function ProvisionNodeModal({
@@ -70,7 +69,8 @@ export function ProvisionNodeModal({
     onSuccess,
     user,
     subscriptions,
-    initialProvider = 'GITHUB'
+    initialProvider = 'GITHUB',
+    isSuperuser = false
 }: ProvisionNodeModalProps) {
     const [formProvider, setFormProvider] = useState(initialProvider);
     const [customDomainInput, setCustomDomainInput] = useState('');
@@ -233,7 +233,7 @@ export function ProvisionNodeModal({
         e.preventDefault();
 
         const computeSub = subscriptions.find(s => s.service === 'compute');
-        if (!computeSub) {
+        if (!computeSub && !isSuperuser) {
             showAlert({
                 title: "Subscription Required",
                 message: "No active compute subscription found. You must subscribe to a Compute plan first.",
@@ -248,7 +248,7 @@ export function ProvisionNodeModal({
             provider: formProvider,
             repository_url: selectedRepo?.url || '',
             branch: selectedBranch || selectedRepo?.default_branch || 'main',
-            plan_slug: computeSub.plan.slug,
+            plan_slug: computeSub?.plan?.slug || 'compute-basic',
             custom_domain: customDomainInput || undefined
         };
 
@@ -297,7 +297,7 @@ export function ProvisionNodeModal({
     };
 
     return (
-        <Dialog open={isOpen} onOpenChange={(open) => { if (!open) handleClose(); }}>
+        <Dialog open={isOpen} onOpenChange={(open: boolean) => { if (!open) handleClose(); }}>
             <DialogContent className="sm:max-w-lg" showCloseButton>
                 <DialogHeader>
                     <DialogTitle>Provision Node</DialogTitle>
@@ -321,7 +321,7 @@ export function ProvisionNodeModal({
                         <div className="grid grid-cols-2 gap-4">
                             <Field>
                                 <FieldLabel htmlFor="service-type">Service Type</FieldLabel>
-                                <Select value={instanceType} onValueChange={(value) => setInstanceType(value ?? 'FRONTEND')}>
+                                <Select value={instanceType} onValueChange={(value: string) => setInstanceType(value ?? 'FRONTEND')}>
                                     <SelectTrigger id="service-type" className="w-full h-12">
                                         <SelectValue placeholder="Select type" />
                                     </SelectTrigger>
@@ -345,7 +345,7 @@ export function ProvisionNodeModal({
                             </Field>
                             <Field>
                                 <FieldLabel htmlFor="git-provider">Git Provider</FieldLabel>
-                                <Select value={formProvider} onValueChange={(value) => setFormProvider(value ?? 'GITHUB')}>
+                                <Select value={formProvider} onValueChange={(value: string) => setFormProvider(value ?? 'GITHUB')}>
                                     <SelectTrigger id="git-provider" className="w-full h-12">
                                         <SelectValue placeholder="Select provider" />
                                     </SelectTrigger>
@@ -519,7 +519,7 @@ export function ProvisionNodeModal({
                             <Field>
                                 <FieldLabel htmlFor="deployment-branch">Deployment Branch</FieldLabel>
                                 {branches.length > 0 ? (
-                                    <Select value={selectedBranch || selectedRepo?.default_branch || 'main'} onValueChange={(value) => setSelectedBranch(value ?? 'main')}>
+                                    <Select value={selectedBranch || selectedRepo?.default_branch || 'main'} onValueChange={(value: string) => setSelectedBranch(value ?? 'main')}>
                                         <SelectTrigger id="deployment-branch" className="w-full h-12">
                                             <SelectValue placeholder="Select branch" />
                                         </SelectTrigger>

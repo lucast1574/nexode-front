@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Globe, Zap, Rocket, ChevronRight, Check } from "lucide-react";
+import { Globe, Rocket, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -16,6 +16,7 @@ interface ProvisionN8nModalProps {
     onClose: () => void;
     onSuccess: () => void;
     subscriptions: Subscription[];
+    isSuperuser?: boolean;
 }
 
 export function ProvisionN8nModal({
@@ -23,6 +24,7 @@ export function ProvisionN8nModal({
     onClose,
     onSuccess,
     subscriptions,
+    isSuperuser = false,
 }: ProvisionN8nModalProps) {
     const [customDomain, setCustomDomain] = useState("");
     const [isDeploying, setIsDeploying] = useState(false);
@@ -33,7 +35,7 @@ export function ProvisionN8nModal({
         const formData = new FormData(e.currentTarget);
 
         const n8nSub = subscriptions.find(s => s.service === 'n8n');
-        if (!n8nSub) {
+        if (!n8nSub && !isSuperuser) {
             showAlert({
                 title: "Subscription Required",
                 message: "No active n8n subscription found. You must subscribe to an n8n Plan first.",
@@ -44,7 +46,7 @@ export function ProvisionN8nModal({
 
         const input = {
             name: formData.get('name') as string,
-            plan_slug: n8nSub.plan.slug,
+            plan_slug: n8nSub?.plan?.slug || 'n8n-basic',
             custom_domain: formData.get('custom_domain') as string || undefined,
             username: formData.get('username') as string || undefined,
             password: formData.get('password') as string || undefined,
@@ -99,7 +101,7 @@ export function ProvisionN8nModal({
     };
 
     return (
-        <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
+        <Dialog open={isOpen} onOpenChange={(open: boolean) => { if (!open) onClose(); }}>
             <DialogContent className="sm:max-w-lg" showCloseButton>
                 <DialogHeader>
                     <DialogTitle>Provision n8n</DialogTitle>

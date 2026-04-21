@@ -615,6 +615,7 @@ export default function AutomationsPage() {
                         refetchGlobal();
                     }}
                     subscriptions={subscriptions}
+                    isSuperuser={isSuperuser}
                 />
                 <SubscriptionLimitModal
                     isOpen={showLimitModal}

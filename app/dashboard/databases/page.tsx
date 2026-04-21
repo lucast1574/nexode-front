@@ -241,7 +241,7 @@ export default function DatabasesPage() {
 
         const dbPlan = subscriptions.find(s => s.service === 'database');
 
-        if (!dbPlan) {
+        if (!dbPlan && !isSuperuser) {
             showAlert({
                 title: "Subscription Required",
                 message: "No active database subscription found. You must be subscribed to create a database.",
@@ -250,7 +250,7 @@ export default function DatabasesPage() {
             return;
         }
 
-        const plan_slug = dbPlan.plan.slug;
+        const plan_slug = dbPlan?.plan?.slug || 'db-tier-1';
 
         if (name.length < 3) {
             showAlert({
