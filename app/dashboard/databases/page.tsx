@@ -484,7 +484,7 @@ export default function DatabasesPage() {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-background flex items-center justify-center">
+            <div className="flex-1 flex items-center justify-center">
                 <div className="flex flex-col items-center gap-6">
                     <div className="size-8 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
                     <p className="text-muted-foreground text-sm animate-pulse">Syncing Database Clusters...</p>
@@ -514,8 +514,8 @@ export default function DatabasesPage() {
                     </Button>
                 </header>
 
-                <div className="flex-1 flex overflow-hidden min-w-0">
-                    <div className="w-80 border-r border-border bg-black/20 flex flex-col">
+                <div className="flex-1 flex flex-col lg:flex-row overflow-hidden min-w-0">
+                    <div className="w-full lg:w-80 border-r border-border bg-black/20 flex flex-col">
                         <div className="p-4 border-b border-border">
                             <div className="flex items-center gap-3">
                                 <Search className="size-4 text-muted-foreground" />
@@ -573,8 +573,8 @@ export default function DatabasesPage() {
                     <div className="flex-1 flex flex-col bg-background min-w-0">
                         {selectedDb ? (
                             <>
-                                <div className="p-8 border-b border-border shrink-0">
-                                    <div className="flex items-start justify-between">
+                                <div className="p-4 lg:p-8 border-b border-border shrink-0">
+                                    <div className="flex flex-col lg:flex-row items-start justify-between gap-4">
                                         <div>
                                             <div className="flex items-center gap-3 mb-2">
                                                 <h1 className="text-3xl font-bold tracking-tight">{selectedDb.name}</h1>
@@ -591,7 +591,7 @@ export default function DatabasesPage() {
                                                 <span className="truncate">{selectedDb._id}</span>
                                             </div>
                                         </div>
-                                        <div className="flex gap-3">
+                                        <div className="flex flex-wrap gap-3">
                                             <Button
                                                 variant="outline"
                                                 onClick={() => handleRestartDb(selectedDb._id)}
@@ -612,7 +612,7 @@ export default function DatabasesPage() {
                                 </div>
 
                                 <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
-                                    <TabsList variant="line" className="mt-8 gap-8 px-8">
+                                    <TabsList variant="line" className="mt-8 gap-8 px-4 lg:px-8 overflow-x-auto">
                                         <TabsTrigger value="overview" className="flex items-center gap-2">
                                             <Activity className="size-4" /> Overview
                                         </TabsTrigger>
@@ -624,11 +624,11 @@ export default function DatabasesPage() {
                                         </TabsTrigger>
 </TabsList>
 
-                                    <TabsContent value="overview" className="animate-in fade-in slide-in-from-bottom-4 duration-500 flex-1 overflow-y-auto p-8">
+                                    <TabsContent value="overview" className="animate-in fade-in slide-in-from-bottom-4 duration-500 flex-1 overflow-y-auto p-4 lg:p-8">
                                         <div className="space-y-8">
                                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                                 <Card className="bg-card border-border">
-                                                    <CardContent className="p-6">
+                                                    <CardContent className="p-4 lg:p-6">
                                                         <div className="text-muted-foreground text-xs mb-4">Core Technology</div>
                                                         <div className="flex items-center gap-3">
                                                             <div className={cn(
@@ -652,7 +652,7 @@ export default function DatabasesPage() {
                                                     </CardContent>
                                                 </Card>
                                                 <Card className="bg-card border-border">
-                                                    <CardContent className="p-6">
+                                                    <CardContent className="p-4 lg:p-6">
                                                         <div className="text-muted-foreground text-xs mb-4">Availability Zone</div>
                                                         <div className="flex items-center gap-3">
                                                             <div className={cn("w-10 h-10 flex items-center justify-center border", getTypeColors(selectedDb.type).bg, getTypeColors(selectedDb.type).border)}>
@@ -666,7 +666,7 @@ export default function DatabasesPage() {
                                                     </CardContent>
                                                 </Card>
                                                 <Card className="bg-card border-border">
-                                                    <CardContent className="p-6">
+                                                    <CardContent className="p-4 lg:p-6">
                                                         <div className="text-muted-foreground text-xs mb-4">Instance Health</div>
                                                         <div className="flex items-center gap-3">
                                                             <div className={cn("w-10 h-10 flex items-center justify-center border", getTypeColors(selectedDb.type).bg, getTypeColors(selectedDb.type).border)}>
@@ -682,7 +682,7 @@ export default function DatabasesPage() {
                                             </div>
 
                                             <Card className="bg-card border-border">
-                                                <CardContent className="p-8">
+                                                <CardContent className="p-4 lg:p-8">
                                                     <h3 className="text-lg font-bold mb-6">Connection Endpoints</h3>
                                                     <div className="flex flex-col gap-4">
                                                         <div className="p-4 bg-background border border-border flex items-center justify-between min-w-0">
@@ -741,7 +741,7 @@ export default function DatabasesPage() {
 
                                             {selectedDb.events && selectedDb.events.length > 0 && (
                                                 <Card className="bg-card border-border">
-                                                    <CardContent className="p-8">
+                                                    <CardContent className="p-4 lg:p-8">
                                                         <div className="flex items-center justify-between mb-8">
                                                             <h3 className="text-lg font-bold">Deployment Timeline</h3>
                                                             <span className="text-xs text-muted-foreground">Real-time Logs</span>
@@ -778,7 +778,7 @@ export default function DatabasesPage() {
                                         </div>
                                     </TabsContent>
 
-                                    <TabsContent value="credentials" className="animate-in fade-in slide-in-from-bottom-4 duration-500 flex-1 overflow-y-auto p-8">
+                                    <TabsContent value="credentials" className="animate-in fade-in slide-in-from-bottom-4 duration-500 flex-1 overflow-y-auto p-4 lg:p-8">
                                         <div className="space-y-8">
                                             <Card className="border-destructive/20 bg-destructive/10">
                                                 <CardContent className="p-4">
@@ -815,7 +815,7 @@ export default function DatabasesPage() {
                                                     }] : [])
                                                 ].map((item: { label: string, value: string | undefined, field: string, secret?: boolean }) => (
                                                     <Card key={item.field} className="bg-card border-border hover:border-primary/20 transition-all group">
-                                                        <CardContent className="p-6">
+                                                        <CardContent className="p-4 lg:p-6">
                                                             <div className="flex items-center justify-between mb-4">
                                                                 <Label className="text-sm font-medium text-muted-foreground">{item.label}</Label>
 <Button
@@ -846,7 +846,7 @@ export default function DatabasesPage() {
                                         </div>
                                     </TabsContent>
 
-                                    <TabsContent value="terminal" className="animate-in fade-in slide-in-from-bottom-4 duration-500 flex-1 overflow-y-auto p-8">
+                                    <TabsContent value="terminal" className="animate-in fade-in slide-in-from-bottom-4 duration-500 flex-1 overflow-y-auto p-4 lg:p-8">
                                         <div className="space-y-8">
                                             <Card className="bg-card border-border">
                                                 <CardHeader className="px-6 py-4 border-b border-border bg-muted/40 flex items-center justify-between">
@@ -867,7 +867,7 @@ export default function DatabasesPage() {
                                                     </Badge>
                                                 </CardHeader>
 
-                                                <CardContent className="p-6 font-mono text-xs leading-relaxed space-y-2 selection:bg-primary/30">
+                                                <CardContent className="p-4 lg:p-6 font-mono text-xs leading-relaxed space-y-2 selection:bg-primary/30">
                                                     {terminalLogs.map((log, i) => (
                                                         <div key={i} className={cn(
                                                             "break-all whitespace-pre-wrap",

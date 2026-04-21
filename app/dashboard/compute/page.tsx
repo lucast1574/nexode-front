@@ -495,7 +495,7 @@ function ComputePageContent() {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-background flex items-center justify-center">
+            <div className="flex-1 flex items-center justify-center">
                 <div className="flex flex-col items-center gap-6">
                     <div className="size-8 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
                     <p className="text-muted-foreground text-sm animate-pulse">Syncing Compute Engine...</p>
@@ -526,8 +526,8 @@ function ComputePageContent() {
                     </Button>
                 </header>
 
-                <div className="flex-1 flex overflow-hidden z-10">
-                    <div className="w-80 border-r border-border bg-black/20 flex flex-col">
+                <div className="flex-1 flex flex-col lg:flex-row overflow-hidden z-10">
+                    <div className="w-full lg:w-80 border-r border-border bg-black/20 flex flex-col">
                         <div className="p-4 border-b border-border">
                             <div className="flex items-center gap-3">
                                 <Search className="w-4 h-4 text-muted-foreground" />
@@ -576,8 +576,8 @@ function ComputePageContent() {
 
                     <div className="flex-1 bg-background overflow-y-auto">
                         {selectedInstance ? (
-                            <div className="p-12 max-w-6xl mx-auto">
-                                <div className="flex items-start justify-between mb-8">
+                            <div className="p-4 lg:p-12 max-w-6xl mx-auto">
+                                <div className="flex flex-col lg:flex-row items-start justify-between mb-8 gap-4">
                                     <div>
                                         <div className="flex items-center gap-4 mb-3">
                                             <h1 className="text-4xl font-bold tracking-tight">{selectedInstance.name}</h1>
@@ -593,7 +593,7 @@ function ComputePageContent() {
                                             <div className="flex items-center gap-2"><Server className="w-4 h-4" /> {selectedInstance.ram_limit} GB RAM</div>
                                         </div>
                                     </div>
-                                    <div className="flex gap-3">
+                                    <div className="flex flex-wrap gap-3">
                                         {selectedInstance.generated_domain && (
                                             <Button 
                                                 variant="outline" 
@@ -638,7 +638,7 @@ function ComputePageContent() {
                                 )}
 
                                 <Tabs value={activeTab} onValueChange={setActiveTab}>
-                                    <TabsList variant="line" className="mb-8 border-b border-border w-full justify-start gap-8">
+                                    <TabsList variant="line" className="mb-8 border-b border-border w-full justify-start gap-8 overflow-x-auto">
                                         {([
                                             { value: 'overview', label: 'Overview', icon: Globe },
                                             { value: 'deployments', label: 'Deploy Events', icon: Activity },
@@ -657,7 +657,7 @@ function ComputePageContent() {
                                         <div className="space-y-8 max-w-4xl">
                                             <Card className="bg-muted border-border rounded-xl relative overflow-hidden">
                                                 <CardHeader className="pb-0">
-                                                    <div className="absolute top-0 right-0 p-8">
+                                                    <div className="absolute top-0 right-0 p-4 lg:p-8">
                                                         {selectedInstance.status === 'running' ? (
                                                             <Badge variant="outline" className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20">
                                                                 <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_hsl(var(--primary)/0.5)] mr-1.5" /> Reachable
@@ -669,7 +669,7 @@ function ComputePageContent() {
                                                         )}
                                                     </div>
                                                 </CardHeader>
-                                                <CardContent className="p-8 pt-8">
+                                                <CardContent className="p-4 lg:p-8">
                                                     <div className="mb-8">
                                                         <CardTitle className="text-lg font-semibold mb-2">Network Endpoint</CardTitle>
                                                         <CardDescription className="text-muted-foreground text-sm">
@@ -741,7 +741,7 @@ function ComputePageContent() {
 
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                                 <Card className="bg-muted border-border rounded-xl">
-                                                    <CardContent className="p-8">
+                                                    <CardContent className="p-4 lg:p-8">
                                                         <h3 className="text-sm font-medium text-muted-foreground mb-6">Source Integration</h3>
                                                         <div className="space-y-4">
                                                             <div className="flex items-center justify-between p-4 rounded-lg bg-card border border-border group">
@@ -771,7 +771,7 @@ function ComputePageContent() {
                                                 </Card>
 
                                                 <Card className="bg-muted border-border rounded-xl">
-                                                    <CardContent className="p-8">
+                                                    <CardContent className="p-4 lg:p-8">
                                                         <h3 className="text-sm font-medium text-muted-foreground mb-6">Latest Events</h3>
                                                         <div className="space-y-4">
                                                             {selectedInstance.events && selectedInstance.events.length > 0 ? (
@@ -807,7 +807,7 @@ function ComputePageContent() {
 
                                     <TabsContent value="deployments" className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                                         <Card className="bg-card border-border rounded-xl min-h-[500px]">
-                                            <CardContent className="p-12">
+                                            <CardContent className="p-4 lg:p-12">
                                                 <div className="flex items-center justify-between mb-12">
                                                     <h3 className="text-xl font-semibold">Deployment Lifecycle</h3>
                                                     <Badge variant="outline" className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20">
@@ -844,7 +844,7 @@ function ComputePageContent() {
 
                                     <TabsContent value="env" className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                                         <Card className="bg-background border-border rounded-xl h-[600px] flex flex-col shadow-2xl relative overflow-hidden">
-                                            <CardContent className="p-8 h-full flex flex-col">
+                                            <CardContent className="p-4 lg:p-8 h-full flex flex-col">
                                                 <div className="flex items-center justify-between mb-6 shrink-0 z-10">
                                                     <div className="flex gap-4 items-center">
                                                         <div className="w-10 h-10 rounded-lg bg-primary/5 flex items-center justify-center">
@@ -932,7 +932,7 @@ function ComputePageContent() {
                                                     </Badge>
                                                 </div>
                                             </CardHeader>
-                                            <CardContent className="flex-1 overflow-y-auto p-8 font-mono text-xs leading-relaxed space-y-3 custom-scrollbar selection:bg-primary/30">
+                                            <CardContent className="flex-1 overflow-y-auto p-4 lg:p-8 font-mono text-xs leading-relaxed space-y-3 custom-scrollbar selection:bg-primary/30">
                                                 {terminalLogs.map((log, i) => (
                                                     <div key={i} className={cn(
                                                         "break-all whitespace-pre-wrap",
@@ -975,7 +975,7 @@ function ComputePageContent() {
                                     <TabsContent value="settings" className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                                         <div className="max-w-2xl space-y-12">
                                             <Card className="bg-muted border-border rounded-xl">
-                                                <CardContent className="p-8">
+                                                <CardContent className="p-4 lg:p-8">
                                                     <div className="flex items-center justify-between mb-8">
                                                         <h3 className="text-xl font-semibold">Git Integrations</h3>
                                                     </div>
@@ -1085,7 +1085,7 @@ function ComputePageContent() {
                                             </Card>
 
                                             <Card className="border-red-500/20 bg-red-500/5 rounded-xl">
-                                                <CardContent className="p-8">
+                                                <CardContent className="p-4 lg:p-8">
                                                     <h3 className="text-red-400 font-semibold mb-4">Danger Zone</h3>
                                                     <p className="text-muted-foreground text-xs mb-6 px-1">Deleting this instance will immediately stop your services and remove all associated load balancers and networking rules.</p>
                                                     <Button onClick={() => handleDelete(selectedInstance._id)} variant="destructive" className="rounded-lg w-full h-14">Terminate Instance</Button>
