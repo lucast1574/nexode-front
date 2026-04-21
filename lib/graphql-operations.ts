@@ -629,3 +629,103 @@ export const GENERATE_MY_AFFILIATE_LINK = gql`
         }
     }
 `;
+
+// ═══════════════════════════════════════════════════════
+// AFFILIATE QUERIES & MUTATIONS
+// ═══════════════════════════════════════════════════════
+
+export const GET_AFFILIATE_STATS = gql`
+    query GetAffiliateStats {
+        myAffiliateStats {
+            is_affiliate
+            affiliate_code
+            affiliate_link
+            total_referrals
+            total_converted
+            total_commission
+            available_balance
+            pending_withdrawals
+            min_withdrawal
+            can_withdraw
+        }
+    }
+`;
+
+export const GET_MY_REFERRALS = gql`
+    query GetMyReferrals {
+        myReferrals {
+            id
+            referred_email
+            referred_name
+            status
+            first_payment
+            commission
+            created_at
+            converted_at
+        }
+    }
+`;
+
+export const GET_MY_WITHDRAWALS = gql`
+    query GetMyWithdrawals {
+        myWithdrawals {
+            id
+            amount
+            payment_method
+            payment_details
+            status
+            admin_notes
+            created_at
+            paid_at
+        }
+    }
+`;
+
+export const REQUEST_WITHDRAWAL = gql`
+    mutation RequestWithdrawal($input: RequestWithdrawalInput!) {
+        requestWithdrawal(input: $input) {
+            id
+            amount
+            payment_method
+            status
+            created_at
+        }
+    }
+`;
+
+export const GET_ADMIN_WITHDRAWALS = gql`
+    query GetAdminWithdrawals($status: String) {
+        adminWithdrawals(status: $status) {
+            id
+            user_email
+            user_name
+            amount
+            payment_method
+            payment_details
+            status
+            admin_notes
+            created_at
+            paid_at
+        }
+    }
+`;
+
+export const MARK_WITHDRAWAL_PAID = gql`
+    mutation MarkWithdrawalPaid($id: ID!, $adminNotes: String) {
+        markWithdrawalPaid(id: $id, adminNotes: $adminNotes) {
+            id
+            amount
+            status
+            paid_at
+        }
+    }
+`;
+
+export const REJECT_WITHDRAWAL = gql`
+    mutation RejectWithdrawal($id: ID!, $reason: String!) {
+        rejectWithdrawal(id: $id, reason: $reason) {
+            id
+            status
+        }
+    }
+`;
