@@ -14,6 +14,7 @@ import { Subscription, useDashboard } from "@/app/dashboard/layout";
 import { cn } from "@/lib/utils";
 import { getAccessToken } from "@/lib/auth-utils";
 import { useModal } from "@/components/ui/modal";
+import { toast } from "sonner";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/ui/breadcrumb";
 import { ProvisionN8nModal } from "@/components/modals/ProvisionN8nModal";
@@ -231,10 +232,15 @@ export default function AutomationsPage() {
                     if (result.data?.deleteN8n) {
                         setInstances(prev => prev.filter(i => i._id !== id));
                         setSelectedInstance(null);
-                        await fetchInstances();
+                        fetchInstances();
                         refetchGlobal();
+                    } else {
+                        const msg = result.errors?.[0]?.message || "Failed to delete instance";
+                        toast.error(msg);
                     }
-                } catch (error) { console.error(error); }
+                } catch (error: any) {
+                    toast.error(error.message || "Network error");
+                }
             }
         });
     };

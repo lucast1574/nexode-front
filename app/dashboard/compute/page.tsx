@@ -433,10 +433,15 @@ function ComputePageContent() {
                     if (result.data?.deleteComputeInstance) {
                         setInstances(prev => prev.filter(i => i._id !== id));
                         setSelectedInstance(null);
-                        await fetchInstances();
+                        fetchInstances();
                         refetchGlobal();
+                    } else {
+                        const msg = result.errors?.[0]?.message || "Failed to delete instance";
+                        showAlert({ title: "Delete Failed", message: msg, type: "error" });
                     }
-                } catch (error) { console.error(error); }
+                } catch (error: any) {
+                    showAlert({ title: "Delete Error", message: error.message || "Network error", type: "error" });
+                }
             }
         });
     };

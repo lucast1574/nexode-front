@@ -412,12 +412,15 @@ export default function DatabasesPage() {
 
             const result = await res.json();
             if (result.data?.deleteDatabase) {
+                // Immediately remove from local state so UI updates instantly
+                setDatabases(prev => prev.filter(d => d._id !== dbToDelete._id));
                 if (selectedDb?._id === dbToDelete._id) {
                     setSelectedDb(null);
                 }
                 setShowDeleteModal(false);
                 setDbToDelete(null);
-                await fetchDatabases();
+                // Also refetch to sync with backend (in case of any discrepancy)
+                fetchDatabases();
                 refetchGlobal();
             } else {
                 showAlert({
