@@ -6,21 +6,6 @@ import {
     InMemoryCache,
     ApolloClient,
 } from "@apollo/experimental-nextjs-app-support";
-import { getAccessToken } from "@/lib/auth-utils";
-
-// Auth link that injects Bearer token into every request
-const authLink = new ApolloLink((operation, forward) => {
-    const token = typeof window !== "undefined" ? getAccessToken() : null;
-    if (token) {
-        operation.setContext(({ headers = {} }: { headers?: Record<string, string> }) => ({
-            headers: {
-                ...headers,
-                Authorization: `Bearer ${token}`,
-            },
-        }));
-    }
-    return forward(operation);
-});
 
 function makeClient() {
     const httpLink = new HttpLink({
@@ -30,7 +15,10 @@ function makeClient() {
 
     return new ApolloClient({
         cache: new InMemoryCache(),
-        link: ApolloLink.from([authLink, httpLink]),
+        link:
+            typeof window === "undefined"
+                ? ApolloLink.from([httpLink])
+                : ApolloLink.from([httpLink]),
     });
 }
 

@@ -11,7 +11,7 @@ import { Loader2, CheckCircle2, Circle, Eye, EyeOff } from "lucide-react"
 import { toast } from "sonner"
 import Turnstile from "react-turnstile"
 import { useMutation } from "@apollo/client/react"
-import { REGISTER_MUTATION } from "@/lib/graphql-operations"
+import { REGISTER_MUTATION } from "@/lib/graphql-mutations"
 import { setAuthSession } from "@/lib/auth-utils"
 import { RegisterData } from "@/lib/types"
 
