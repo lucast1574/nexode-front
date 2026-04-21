@@ -123,6 +123,7 @@ export default function DashboardLayout({
             }
 
             if (!token) {
+                setIsAuthorized(false)
                 router.push("/auth/login")
                 return
             }
@@ -166,20 +167,23 @@ export default function DashboardLayout({
             if (result.data) {
                 setUser(result.data.me)
                 const allSubs = result.data.mySubscriptions || []
-                const paidSubs = allSubs.filter(
-                    (s: Subscription) => s && s.status === "ACTIVE" && s.service !== "nexus"
+                // We now allow all active subscriptions, including 'nexus' (the platform base plan)
+                // to ensure users can access the dashboard overview even if they don't have paid services yet.
+                const validSubs = allSubs.filter(
+                    (s: Subscription) => s && s.status === "ACTIVE"
                 )
 
-                const sortedSubs = [...paidSubs].sort((a, b) => {
+                if (validSubs.length === 0) {
+                    setIsAuthorized(false)
+                    router.push("/services")
+                    return
+                }
+
+                const sortedSubs = [...validSubs].sort((a, b) => {
                     if (a.service === "n8n") return -1
                     if (b.service === "n8n") return 1
                     return 0
                 })
-
-                if (paidSubs.length === 0) {
-                    router.push("/services")
-                    return
-                }
 
                 setSubscriptions(sortedSubs)
 
@@ -196,10 +200,12 @@ export default function DashboardLayout({
                 })
                 setIsAuthorized(true)
             } else {
+                setIsAuthorized(false)
                 router.push("/auth/login")
             }
         } catch (error) {
             console.error("Dashboard fetch error:", error)
+            setIsAuthorized(false)
             router.push("/auth/login")
         } finally {
             setLoading(false)
@@ -210,10 +216,13 @@ export default function DashboardLayout({
         fetchData()
         
         // Auto-sync dashboard data every 15 seconds for real-time consistency
-        const interval = setInterval(fetchData, 15000)
+        const interval = setInterval(() => {
+            // Only re-fetch if we are already authorized and not currently loading via another call
+            if (isAuthorized) fetchData()
+        }, 15000)
         return () => clearInterval(interval)
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
+    }, [isAuthorized])
 
     if (loading || isAuthorized === null) {
         return (
