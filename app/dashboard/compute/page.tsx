@@ -1099,7 +1099,15 @@ function ComputePageContent() {
                             <div className="h-full flex flex-col items-center justify-center text-center p-8">
                                 <Cpu className="size-16 text-muted-foreground mb-6" />
                                 <h1 className="text-2xl font-bold mb-2">No active instances found</h1>
-                                <p className="text-muted-foreground max-w-xs mx-auto mb-6">Create one to get started.</p>
+                                <p className="text-muted-foreground max-w-xs mx-auto mb-4">Deploy your backend or frontend from a Git repository.</p>
+                                <div className="bg-muted/50 border border-border rounded-lg p-4 max-w-md mb-6 text-left">
+                                    <p className="text-sm font-medium mb-2 flex items-center gap-2">📋 Requirements</p>
+                                    <ul className="text-xs text-muted-foreground space-y-1.5">
+                                        <li className="flex items-start gap-2"><span className="text-primary">•</span> A <code className="bg-background px-1.5 py-0.5 rounded font-mono">Dockerfile</code> in the root of your repository</li>
+                                        <li className="flex items-start gap-2"><span className="text-primary">•</span> A public Git repository URL (or private with token)</li>
+                                        <li className="flex items-start gap-2"><span className="text-primary">•</span> Your app listening on a port (default: 3000 or 4000)</li>
+                                    </ul>
+                                </div>
                                 <Button onClick={handleCreateClick} className="gap-2">
                                     <Plus className="size-4" /> Deploy Instance
                                 </Button>
