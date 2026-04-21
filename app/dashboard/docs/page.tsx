@@ -20,6 +20,7 @@ import {
     BreadcrumbPage,
 } from "@/components/ui/breadcrumb"
 import { cn } from "@/lib/utils"
+import Image from "next/image"
 import {
     BookOpen,
     Cpu,
@@ -250,14 +251,14 @@ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]`}</CodeBlock>
                 <h3 className="text-lg font-bold mb-4">Supported Databases</h3>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
                     {[
-                        { name: "PostgreSQL", desc: "Relational DB", color: "text-blue-500" },
-                        { name: "MongoDB", desc: "Document DB", color: "text-emerald-500" },
-                        { name: "Redis", desc: "Cache / KV Store", color: "text-red-500" },
-                        { name: "MySQL", desc: "Relational DB", color: "text-orange-500" },
+                        { name: "PostgreSQL", desc: "Relational DB", icon: "/db/postgres.svg" },
+                        { name: "MongoDB", desc: "Document DB", icon: "/db/mongo.svg" },
+                        { name: "Redis", desc: "Cache / KV Store", icon: "/db/redis.svg" },
+                        { name: "MySQL", desc: "Relational DB", icon: "/db/mysql.svg" },
                     ].map((db) => (
                         <Card key={db.name} className="text-center">
                             <CardContent className="pt-6 pb-4">
-                                <Database className={cn("size-8 mx-auto mb-2", db.color)} />
+                                <Image src={db.icon} alt={db.name} width={32} height={32} className="size-8 mx-auto mb-2 object-contain" />
                                 <p className="font-bold text-sm">{db.name}</p>
                                 <p className="text-xs text-muted-foreground">{db.desc}</p>
                             </CardContent>

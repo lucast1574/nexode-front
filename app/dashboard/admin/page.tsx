@@ -21,6 +21,8 @@ import {
     Wallet,
     CheckCircle2,
     XCircle,
+    ArrowLeft,
+    ChevronRight,
 } from "lucide-react";
 import {
     Table,
@@ -333,117 +335,207 @@ const AffiliatesTab = () => {
         fetchPolicy: "network-only",
     });
     const [generateLink, { loading: generating }] = useMutation(GENERATE_AFFILIATE_LINK_MUTATION);
+    const [selectedUserId, setSelectedUserId] = React.useState<string | null>(null);
+    const [detailLoading, setDetailLoading] = React.useState(false);
+    const [detailStats, setDetailStats] = React.useState<any>(null);
+    const [detailReferrals, setDetailReferrals] = React.useState<any[]>([]);
 
     const handleGenerate = async (userId: string) => {
         try {
             await generateLink({ variables: { userId } });
             toast.success("Affiliate link generated successfully!");
             refetch();
-        } catch (e: unknown) {
-            toast.error((e as Error).message || "Failed to generate link");
+        } catch (err: any) {
+            toast.error(err.message || "Failed to generate link");
         }
     };
 
     const handleCopy = (code: string) => {
-        const link = `${window.location.origin}/auth/register?ref=${code}`;
-        navigator.clipboard.writeText(link);
-        toast.success("Link copied to clipboard!");
+        navigator.clipboard.writeText(`https://cloud.nexode.app/auth/register?ref=${code}`);
+        toast.success("Affiliate link copied!");
     };
 
-    if (loading) {
-        return (
-            <Card>
-                <CardContent className="p-8 flex justify-center">
-                    <Loader2 className="animate-spin text-primary w-8 h-8" />
-                </CardContent>
-            </Card>
-        );
-    }
+    const loadDetail = async (userId: string) => {
+        setSelectedUserId(userId);
+        setDetailLoading(true);
+        try {
+            const token = typeof window !== 'undefined' ? document.cookie.split(';').find(c => c.trim().startsWith('access_token='))?.split('=')[1] || localStorage.getItem('access_token') : null;
+            const GQL_URL = process.env.NEXT_PUBLIC_API_URL || "https://backend.nexode.app/api-v1/graphql";
+            const [statsRes, refsRes] = await Promise.all([
+                fetch(GQL_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+                    credentials: "include",
+                    body: JSON.stringify({ query: `query { adminAffiliateStats(userId: "${userId}") { is_affiliate affiliate_code total_referrals total_converted total_commission available_balance } }` }),
+                }).then(r => r.json()),
+                fetch(GQL_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+                    credentials: "include",
+                    body: JSON.stringify({ query: `query { adminAffiliateReferrals(userId: "${userId}") { id referred_email referred_name status first_payment commission created_at converted_at } }` }),
+                }).then(r => r.json()),
+            ]);
+            if (statsRes.data?.adminAffiliateStats) setDetailStats(statsRes.data.adminAffiliateStats);
+            if (refsRes.data?.adminAffiliateReferrals) setDetailReferrals(refsRes.data.adminAffiliateReferrals);
+        } catch { } finally { setDetailLoading(false); }
+    };
 
-    if (error) {
-        return (
-            <Card>
-                <CardContent className="p-8">
-                    <p className="text-destructive font-bold">Error loading users: {error.message}</p>
-                </CardContent>
-            </Card>
-        );
-    }
+    if (loading) return <Card><CardContent className="p-8 flex justify-center"><Loader2 className="animate-spin text-primary w-8 h-8" /></CardContent></Card>;
+    if (error) return <Card><CardContent className="p-8 text-destructive">Error loading users</CardContent></Card>;
 
     const users = data?.findAllUsers || [];
+    const totalAffiliates = users.filter(u => u.is_affiliate).length;
+
+    // Detail panel for selected affiliate
+    if (selectedUserId && detailStats) {
+        const user = users.find(u => u.id === selectedUserId);
+        return (
+            <div className="space-y-6">
+                <Button variant="ghost" size="sm" className="gap-2 mb-2" onClick={() => { setSelectedUserId(null); setDetailStats(null); setDetailReferrals([]); }}>
+                    <ArrowLeft className="size-4" /> Back to affiliates list
+                </Button>
+
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-3">
+                            <Users className="size-5" />
+                            {user?.first_name} {user?.last_name || ''}
+                        </CardTitle>
+                        <CardDescription>{user?.email} · {detailStats.affiliate_code || 'Not affiliate'}</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="grid grid-cols-4 gap-4 mb-6">
+                            <div className="bg-muted/50 rounded-lg p-4 text-center">
+                                <p className="text-2xl font-bold">{detailStats.total_referrals}</p>
+                                <p className="text-xs text-muted-foreground">Total Referrals</p>
+                            </div>
+                            <div className="bg-muted/50 rounded-lg p-4 text-center">
+                                <p className="text-2xl font-bold text-emerald-500">{detailStats.total_converted}</p>
+                                <p className="text-xs text-muted-foreground">Converted (Paid)</p>
+                            </div>
+                            <div className="bg-muted/50 rounded-lg p-4 text-center">
+                                <p className="text-2xl font-bold text-primary">${detailStats.total_commission?.toFixed(2) || '0.00'}</p>
+                                <p className="text-xs text-muted-foreground">Total Commission</p>
+                            </div>
+                            <div className="bg-muted/50 rounded-lg p-4 text-center">
+                                <p className="text-2xl font-bold">${detailStats.available_balance?.toFixed(2) || '0.00'}</p>
+                                <p className="text-xs text-muted-foreground">Available Balance</p>
+                            </div>
+                        </div>
+
+                        {detailLoading ? (
+                            <div className="flex justify-center py-8"><Loader2 className="animate-spin" /></div>
+                        ) : (
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead>Referred User</TableHead>
+                                        <TableHead>Status</TableHead>
+                                        <TableHead>First Payment</TableHead>
+                                        <TableHead>Commission</TableHead>
+                                        <TableHead>Date</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {detailReferrals.map((r: any) => (
+                                        <TableRow key={r.id}>
+                                            <TableCell>
+                                                <div className="font-medium">{r.referred_name}</div>
+                                                <div className="text-xs text-muted-foreground">{r.referred_email}</div>
+                                            </TableCell>
+                                            <TableCell>
+                                                {r.status === 'converted' ? (
+                                                    <Badge className="bg-emerald-500/10 text-emerald-500">Converted</Badge>
+                                                ) : (
+                                                    <Badge variant="secondary">Registered</Badge>
+                                                )}
+                                            </TableCell>
+                                            <TableCell className="font-mono">{r.first_payment > 0 ? `$${r.first_payment.toFixed(2)}` : '—'}</TableCell>
+                                            <TableCell className="font-mono font-bold text-emerald-500">{r.commission > 0 ? `+$${r.commission.toFixed(2)}` : '—'}</TableCell>
+                                            <TableCell className="text-sm text-muted-foreground">{new Date(r.created_at).toLocaleDateString()}</TableCell>
+                                        </TableRow>
+                                    ))}
+                                    {detailReferrals.length === 0 && (
+                                        <TableRow>
+                                            <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">No referrals yet</TableCell>
+                                        </TableRow>
+                                    )}
+                                </TableBody>
+                            </Table>
+                        )}
+                    </CardContent>
+                </Card>
+            </div>
+        );
+    }
 
     return (
         <Card>
-            <CardHeader>
-                <CardTitle>Affiliates & Users</CardTitle>
-                <CardDescription>Manage user affiliate links and track referrals.</CardDescription>
+            <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                    <CardTitle>Affiliates & Users</CardTitle>
+                    <CardDescription>Manage user affiliate links and track referrals. {totalAffiliates} active affiliates.</CardDescription>
+                </div>
+                <Badge variant="secondary">{users.length} users</Badge>
             </CardHeader>
             <CardContent className="p-0">
-                <div className="overflow-x-auto">
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>User</TableHead>
-                                <TableHead>Affiliate Status</TableHead>
-                                <TableHead className="text-center">Referrals</TableHead>
-                                <TableHead className="text-right">Action</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {users.map((u: AffiliateUser) => (
-                                <TableRow key={u.id}>
-                                    <TableCell>
-                                        <div className="font-medium">{u.first_name} {u.last_name || ""}</div>
-                                        <div className="text-xs text-muted-foreground">{u.email}</div>
-                                    </TableCell>
-                                    <TableCell>
-                                        {u.is_affiliate ? (
-                                            <div className="flex flex-col gap-1 items-start">
-                                                <Badge variant="outline" className="text-emerald-600 border-emerald-200 dark:border-emerald-800 dark:text-emerald-400">
-                                                    Active Affiliate
-                                                </Badge>
-                                                <code className="text-xs text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 px-2 py-0.5 rounded font-mono">
-                                                    {u.affiliate_code}
-                                                </code>
-                                            </div>
-                                        ) : (
-                                            <Badge variant="secondary">Standard User</Badge>
-                                        )}
-                                    </TableCell>
-                                    <TableCell className="text-center">
-                                        <span className="font-semibold text-lg">{u.referral_count || 0}</span>
-                                    </TableCell>
-                                    <TableCell className="text-right">
-                                        {u.is_affiliate ? (
-                                            <Button size="sm" variant="outline" onClick={() => handleCopy(u.affiliate_code)} className="gap-2">
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>User</TableHead>
+                            <TableHead>Affiliate Status</TableHead>
+                            <TableHead className="text-center">Referrals</TableHead>
+                            <TableHead className="text-center">Converted</TableHead>
+                            <TableHead className="text-right">Action</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {users.map((u: AffiliateUser) => (
+                            <TableRow key={u.id} className={u.is_affiliate ? "cursor-pointer hover:bg-muted/50" : ""} onClick={() => u.is_affiliate && loadDetail(u.id)}>
+                                <TableCell>
+                                    <div className="font-medium">{u.first_name} {u.last_name || ''}</div>
+                                    <div className="text-xs text-muted-foreground">{u.email}</div>
+                                </TableCell>
+                                <TableCell>
+                                    {u.is_affiliate ? (
+                                        <div className="flex flex-col gap-1">
+                                            <Badge className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20 w-fit">Active Affiliate</Badge>
+                                            <code className="text-xs text-emerald-400/80 bg-emerald-500/10 px-2 py-0.5 rounded font-mono font-medium border border-emerald-500/20 w-fit">{u.affiliate_code}</code>
+                                        </div>
+                                    ) : (
+                                        <Badge variant="secondary">Standard User</Badge>
+                                    )}
+                                </TableCell>
+                                <TableCell className="text-center">
+                                    <span className="font-bold text-xl">{u.referral_count || 0}</span>
+                                </TableCell>
+                                <TableCell className="text-center">
+                                    <span className="font-bold text-xl text-emerald-500">—</span>
+                                </TableCell>
+                                <TableCell className="text-right">
+                                    {u.is_affiliate ? (
+                                        <div className="flex gap-2 justify-end">
+                                            <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); handleCopy(u.affiliate_code); }} className="gap-2">
                                                 <Copy className="size-3" /> Copy Link
                                             </Button>
-                                        ) : (
-                                            <Button size="sm" disabled={generating} onClick={() => handleGenerate(u.id)} className="gap-2">
-                                                <Link2 className="size-3" /> Make Affiliate
+                                            <Button size="sm" variant="ghost" onClick={(e) => { e.stopPropagation(); loadDetail(u.id); }} className="gap-1">
+                                                <ChevronRight className="size-4" />
                                             </Button>
-                                        )}
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                            {users.length === 0 && (
-                                <TableRow>
-                                    <TableCell colSpan={4} className="text-center py-16 text-muted-foreground">
-                                        <div className="flex flex-col items-center gap-4">
-                                            <Users className="h-10 w-10 opacity-20" />
-                                            <p className="text-sm font-medium">No users found</p>
                                         </div>
-                                    </TableCell>
-                                </TableRow>
-                            )}
-                        </TableBody>
-                    </Table>
-                </div>
+                                    ) : (
+                                        <Button size="sm" variant="default" onClick={(e) => { e.stopPropagation(); handleGenerate(u.id); }} disabled={generating} className="gap-2 bg-emerald-600 hover:bg-emerald-700">
+                                            <Link2 className="size-3" /> Make Affiliate
+                                        </Button>
+                                    )}
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
             </CardContent>
         </Card>
     );
 };
-
 
 const WithdrawalsTab = () => {
     const [withdrawals, setWithdrawals] = React.useState<any[]>([]);
