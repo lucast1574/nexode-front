@@ -496,3 +496,28 @@ export const GET_SETTINGS_DATA = gql`
         }
     }
 `;
+// ═══════════════════════════════════════════════════════
+// ADMIN QUERIES
+// ═══════════════════════════════════════════════════════
+
+export const GET_ADMIN_DATA = gql`
+    query GetAdminData {
+        adminStats {
+            totalSubscribers
+            totalRevenue
+            totalUsers
+            activeSubscriptions
+        }
+        adminSubscriptions {
+            id
+            userEmail
+            userName
+            planName
+            price
+            billingCycle
+            status
+            createdOn
+            service
+        }
+    }
+`;

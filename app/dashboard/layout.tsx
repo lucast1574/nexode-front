@@ -11,6 +11,9 @@ interface DashboardUser {
     last_name?: string
     email: string
     avatar?: string
+    role: {
+        slug: string
+    }
 }
 
 export interface Subscription {
@@ -136,6 +139,7 @@ export default function DashboardLayout({
                         last_name
                         email
                         avatar
+                        role { slug }
                     }
                     mySubscriptions {
                         id

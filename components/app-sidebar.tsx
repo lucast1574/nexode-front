@@ -62,6 +62,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       icon: <BarChart3 />,
       items: undefined,
     },
+    ...(user?.role?.slug === "super-user" || user?.role?.slug === "admin"
+      ? [{
+          title: "Admin Panel",
+          url: "/dashboard/admin",
+          icon: <LayoutDashboard />, // Or some other icon
+          items: undefined,
+        }]
+      : []),
   ].filter((item) => item !== undefined)
 
   const userName = user ? `${user.first_name}${user.last_name ? " " + user.last_name : ""}` : "User"
