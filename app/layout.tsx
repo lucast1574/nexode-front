@@ -14,7 +14,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://dash.nexode.app"),
+  metadataBase: new URL("https://cloud.nexode.app"),
   title: "Nexode - Fast Deploy Center",
   description: "Deploy high-performance servers, databases, and automation workflows in seconds.",
   icons: {
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Nexode - Fast Deploy Center",
     description: "Deploy high-performance servers, databases, and automation workflows in seconds.",
-    url: "https://dash.nexode.app",
+    url: "https://cloud.nexode.app",
     siteName: "Nexode",
     images: [
       {
