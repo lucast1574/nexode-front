@@ -106,7 +106,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton render={<a href="https://docs.nexode.app" target="_blank" rel="noopener noreferrer" />}>
+            <SidebarMenuButton render={<Link href="/dashboard/docs" />}>
               <BookOpen />
               <span>Documentation</span>
             </SidebarMenuButton>
