@@ -523,3 +523,18 @@ export const GET_ADMIN_DATA = gql`
         }
     }
 `;
+
+export const GET_ALL_USERS = gql`
+    query GetAllUsers {
+        findAllUsers {
+            id
+            first_name
+            last_name
+            email
+            is_affiliate
+            affiliate_code
+            referral_count
+            created_on
+        }
+    }
+`;

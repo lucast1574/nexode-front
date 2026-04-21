@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
@@ -23,6 +23,14 @@ export function RegisterForm({
     const [showPassword, setShowPassword] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
     const [tsToken, setTsToken] = useState("")
+    const [affiliateCode, setAffiliateCode] = useState<string | undefined>()
+    
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search)
+        const ref = params.get("ref")
+        if (ref) setAffiliateCode(ref)
+    }, [])
+
     const [formData, setFormData] = useState({
         name: "",
         email: "",
@@ -82,6 +90,7 @@ export function RegisterForm({
                         password: formData.password,
                         first_name,
                         last_name,
+                        ...(affiliateCode ? { affiliateCode } : {})
                     },
                 },
             })

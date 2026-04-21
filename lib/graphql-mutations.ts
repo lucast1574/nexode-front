@@ -129,3 +129,14 @@ export const RESET_PASSWORD_MUTATION = gql`
     }
   }
 `;
+
+export const GENERATE_AFFILIATE_LINK_MUTATION = gql`
+  mutation GenerateAffiliateLink($userId: String!) {
+    generateAffiliateLink(userId: $userId) {
+      id
+      is_affiliate
+      affiliate_code
+      referral_count
+    }
+  }
+`;
