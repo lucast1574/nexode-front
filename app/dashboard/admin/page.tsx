@@ -219,7 +219,7 @@ export default function AdminPage() {
                                         <TableRow key={sub.id} className="border-white/[0.03] hover:bg-white/[0.01] transition-all group">
                                             <TableCell className="px-8 py-6">
                                                 <div className="font-bold text-white group-hover:text-primary transition-colors">{sub.userName}</div>
-                                                {sub.userEmail !== 'N/A' && (
+                                                {sub.userEmail && (
                                                     <div className="text-xs text-white/20 font-medium">{sub.userEmail}</div>
                                                 )}
                                             </TableCell>
@@ -230,7 +230,7 @@ export default function AdminPage() {
                                                         ? 'bg-blue-500/10 text-blue-400 border-blue-500/20' 
                                                         : 'bg-orange-500/10 text-orange-400 border-orange-500/20'
                                                 )}>
-                                                    {sub.authProvider === 'GOOGLE' ? 'Google' : 'Auth'}
+                                                    {sub.authProvider === 'GOOGLE' ? 'Google' : 'Local'}
                                                 </Badge>
                                             </TableCell>
                                             <TableCell>
