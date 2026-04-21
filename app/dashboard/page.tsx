@@ -150,7 +150,7 @@ export default function DashboardPage() {
                             <div className="flex flex-col gap-4">
                                 <div className="flex items-center justify-between text-sm">
                                     <span className="text-muted-foreground">Services</span>
-                                    <span className="font-bold text-primary">{subscriptions.length} Active</span>
+                                    <span className="font-bold text-primary">{deployedInstances.length} Active</span>
                                 </div>
                                 <div className="h-1.5 w-full bg-muted overflow-hidden">
                                     <div className="h-full bg-primary" style={{ width: '100%' }} />
