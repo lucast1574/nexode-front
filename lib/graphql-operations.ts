@@ -5,7 +5,7 @@ import { gql } from "@apollo/client";
 // ═══════════════════════════════════════════════════════
 
 const AUTH_USER_FRAGMENT = gql`
-    fragment AuthUserFields on User {
+    fragment AuthUserFields on UserEntity {
         id
         email
         first_name
@@ -91,7 +91,7 @@ export const STRIPE_LOGIN_MUTATION = gql`
 // ═══════════════════════════════════════════════════════
 
 const SUBSCRIPTION_FRAGMENT = gql`
-    fragment SubscriptionFields on UserSubscription {
+    fragment SubscriptionFields on UserSubscriptionEntity {
         id
         service
         status
@@ -205,7 +205,7 @@ export const GET_BILLING_DATA = gql`
 // ═══════════════════════════════════════════════════════
 
 const DATABASE_INSTANCE_FRAGMENT = gql`
-    fragment DatabaseInstanceFields on DatabaseInstance {
+    fragment DatabaseInstanceFields on DatabaseInstanceEntity {
         _id
         name
         type
@@ -281,7 +281,7 @@ export const EXECUTE_DATABASE_COMMAND = gql`
 // ═══════════════════════════════════════════════════════
 
 const N8N_INSTANCE_FRAGMENT = gql`
-    fragment N8nInstanceFields on N8nInstance {
+    fragment N8nInstanceFields on N8nInstanceEntity {
         _id
         name
         status
@@ -348,7 +348,7 @@ export const DELETE_N8N_INSTANCE = gql`
 // ═══════════════════════════════════════════════════════
 
 const COMPUTE_INSTANCE_FRAGMENT = gql`
-    fragment ComputeInstanceFields on ComputeInstance {
+    fragment ComputeInstanceFields on ComputeInstanceEntity {
         _id
         name
         type
