@@ -76,6 +76,11 @@ export default function DashboardPage() {
                                             <Button render={<Link href="/dashboard/automations" />} nativeButton={false} variant="outline">Deploy n8n</Button>
                                         )}
                                     </div>
+                                    <div className="mt-4">
+                                        <Button render={<Link href="/dashboard/services" />} nativeButton={false} className="gap-2">
+                                            <Plus className="size-4" /> New Service
+                                        </Button>
+                                    </div>
                                 </CardContent>
                             </Card>
                         </div>
