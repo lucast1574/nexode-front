@@ -197,6 +197,7 @@ export function LoginForm({
 
                 <FieldSeparator>Or continue with</FieldSeparator>
 
+                {process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID && (
                 <Field>
                     <div className="flex justify-center w-full">
                         <GoogleLogin
@@ -207,6 +208,7 @@ export function LoginForm({
                         />
                     </div>
                 </Field>
+                )}
 
                 <FieldDescription className="text-center">
                     Don&apos;t have an account?{" "}
