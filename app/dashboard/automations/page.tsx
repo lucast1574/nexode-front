@@ -298,7 +298,7 @@ export default function AutomationsPage() {
                                         className={cn(
                                             "w-full text-left p-4 border transition-all group",
                                             selectedInstance?._id === inst._id
-                                                ? "bg-primary/10 border-primary/20"
+                                                ? "bg-red-500/10 border-red-500/20"
                                                 : "bg-card border-border hover:bg-muted"
                                         )}
                                     >
@@ -310,7 +310,7 @@ export default function AutomationsPage() {
                                                     inst.status === 'provisioning' ? 'bg-amber-500 animate-pulse' : 'bg-red-500'
                                             )} />
                                         </div>
-                                        <div className="font-bold text-sm truncate group-hover:text-primary transition-colors">{inst.name}</div>
+                                        <div className="font-bold text-sm truncate group-hover:text-red-500 transition-colors uppercase tracking-tight">{inst.name}</div>
                                         <div className="text-xs text-muted-foreground mt-1">
                                             Created {new Date(inst.created_on).toLocaleDateString()}
                                         </div>
@@ -384,11 +384,11 @@ export default function AutomationsPage() {
                                                     <CardContent className="p-6">
                                                         <div className="text-muted-foreground text-xs mb-4">Core Technology</div>
                                                         <div className="flex items-center gap-3">
-                                                            <div className="w-10 h-10 flex items-center justify-center border bg-primary/10 border-primary/20">
-                                                                <Workflow className="size-5 text-primary" />
+                                                            <div className="w-10 h-10 flex items-center justify-center border bg-red-500/10 border-red-500/20">
+                                                                <Workflow className="size-5 text-red-500" />
                                                             </div>
                                                             <div>
-                                                                <div className="font-bold leading-tight">n8n Enterprise</div>
+                                                                <div className="font-bold leading-tight text-red-500">n8n Enterprise</div>
                                                                 <div className="text-xs text-muted-foreground font-medium">Latest Stable</div>
                                                             </div>
                                                         </div>
@@ -398,8 +398,8 @@ export default function AutomationsPage() {
                                                     <CardContent className="p-6">
                                                         <div className="text-muted-foreground text-xs mb-4">Availability Zone</div>
                                                         <div className="flex items-center gap-3">
-                                                            <div className="w-10 h-10 bg-primary/10 flex items-center justify-center border border-primary/20">
-                                                                <Shield className="size-5 text-primary" />
+                                                            <div className="w-10 h-10 bg-red-500/10 flex items-center justify-center border border-red-500/20">
+                                                                <Shield className="size-5 text-red-500" />
                                                             </div>
                                                             <div>
                                                                 <div className="font-bold">US-East (Virginia)</div>
@@ -412,11 +412,11 @@ export default function AutomationsPage() {
                                                     <CardContent className="p-6">
                                                         <div className="text-muted-foreground text-xs mb-4">Instance Health</div>
                                                         <div className="flex items-center gap-3">
-                                                            <div className="w-10 h-10 bg-primary/10 flex items-center justify-center border border-emerald-500/20">
-                                                                <Activity className="size-5 text-primary" />
+                                                            <div className="w-10 h-10 bg-red-500/10 flex items-center justify-center border border-red-500/20">
+                                                                <Activity className="size-5 text-red-500" />
                                                             </div>
                                                             <div>
-                                                                <div className="font-bold text-primary">{selectedInstance.status === 'running' ? 'Optimal' : 'Provisioning'}</div>
+                                                                <div className="font-bold text-red-500">{selectedInstance.status === 'running' ? 'Optimal' : 'Provisioning'}</div>
                                                                 <div className="text-xs text-muted-foreground">Monitored</div>
                                                             </div>
                                                         </div>
@@ -430,9 +430,9 @@ export default function AutomationsPage() {
                                                     <div className="flex flex-col gap-4">
                                                         <div className="p-4 bg-background border border-border flex items-center justify-between">
                                                             <div className="flex-1 overflow-hidden">
-                                                                <div className="text-xs text-muted-foreground mb-1">Production URL</div>
+                                                                <div className="text-xs text-muted-foreground mb-1">n8n URL</div>
                                                                 {selectedInstance.status.toLowerCase() === 'running' ? (
-                                                                    <code className="text-sm text-primary truncate block">{getN8nUrl(selectedInstance.generated_domain || '')}</code>
+                                                                    <code className="text-sm text-red-500 truncate block">{getN8nUrl(selectedInstance.generated_domain || '')}</code>
                                                                 ) : (
                                                                     <span className="text-sm text-muted-foreground">provisioning...</span>
                                                                 )}
@@ -463,26 +463,6 @@ export default function AutomationsPage() {
                                                             )}
                                                         </div>
 
-                                                        {selectedInstance.webhook_url && (
-                                                            <div className="p-4 bg-background border border-border flex items-center justify-between">
-                                                                <div className="flex-1 overflow-hidden">
-                                                                    <div className="text-xs text-muted-foreground mb-1">Webhook URL</div>
-                                                                    <code className="text-sm text-primary truncate block">{selectedInstance.webhook_url}</code>
-                                                                </div>
-                                                                <Button
-                                                                    variant="ghost"
-                                                                    size="icon"
-                                                                    className="shrink-0"
-                                                                    onClick={() => {
-                                                                        navigator.clipboard.writeText(selectedInstance.webhook_url || '');
-                                                                        setCopied(true);
-                                                                        setTimeout(() => setCopied(false), 2000);
-                                                                    }}
-                                                                >
-                                                                    {copied ? <Check className="size-4 text-primary" /> : <Copy className="size-4" />}
-                                                                </Button>
-                                                            </div>
-                                                        )}
 
                                                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                                             <Card className="bg-background border-border">

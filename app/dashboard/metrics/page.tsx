@@ -126,7 +126,9 @@ export default function MetricsPage() {
                     </BreadcrumbList>
                 </Breadcrumb>
                 <div className="flex-1" />
-                <div className="mr-2"><NotificationBell /></div>
+                <div className="mr-2">
+                    <NotificationBell badgeColor="bg-primary" iconColor="text-primary" />
+                </div>
                 <Button render={<Link href="/dashboard/services" />} nativeButton={false} className="gap-2">
                     <Plus className="size-4" /> New Service
                 </Button>
@@ -153,10 +155,10 @@ export default function MetricsPage() {
                             <div className="text-4xl font-bold tracking-tight">{computeTotal}</div>
                         </CardContent>
                     </Card>
-                    <Card className="bg-gradient-to-br from-primary/10 to-transparent border-primary/20">
+                    <Card className="bg-gradient-to-br from-blue-500/10 to-transparent border-blue-500/20">
                         <CardHeader className="p-6 pb-0">
                             <div className="flex items-start justify-between mb-4">
-                                <div className="p-3 bg-primary/10 text-primary">
+                                <div className="p-3 bg-blue-500/10 text-blue-500">
                                     <Database className="size-6" />
                                 </div>
                             </div>
@@ -194,7 +196,7 @@ export default function MetricsPage() {
                                     </div>
                                     <div className="flex gap-2">
                                         <Badge variant="outline" className="text-xs font-medium text-muted-foreground">
-                                            <div className="size-2 rounded-full bg-muted-foreground" /> Database
+                                            <div className="size-2 rounded-full bg-blue-500" /> Database
                                         </Badge>
                                         <Badge variant="outline" className="text-xs font-medium text-muted-foreground">
                                             <div className="size-2 rounded-full bg-primary" /> Compute
@@ -293,7 +295,7 @@ export default function MetricsPage() {
                                                 <span className="text-foreground">{databaseTotal}</span>
                                             </div>
                                             <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
-                                                <div className="h-full bg-muted-foreground rounded-full transition-all duration-700" style={{ width: `${databasePct}%` }} />
+                                                <div className="h-full bg-blue-500 rounded-full transition-all duration-700" style={{ width: `${databasePct}%` }} />
                                             </div>
                                         </div>
                                         <div className="flex flex-col gap-4">
