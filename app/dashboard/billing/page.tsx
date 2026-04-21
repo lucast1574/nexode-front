@@ -428,7 +428,7 @@ export default function BillingPage() {
                     <div className="py-6 space-y-6">
                         <div className="space-y-3">
                             <label className="text-[10px] uppercase font-black tracking-widest text-muted-foreground ml-1">Select Architecture</label>
-                            <Select value={selectedPlanSlug} onValueChange={setSelectedPlanSlug}>
+                            <Select value={selectedPlanSlug} onValueChange={(val: string | null) => setSelectedPlanSlug(val || "")}>
                                 <SelectTrigger className="h-14 font-bold text-lg bg-muted/50 border-white/10">
                                     <SelectValue placeholder="Select a plan" />
                                 </SelectTrigger>
