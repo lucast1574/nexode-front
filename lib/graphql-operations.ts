@@ -518,6 +518,8 @@ export const GET_ADMIN_DATA = gql`
             status
             createdOn
             service
+            authProvider
+            isVerified
         }
     }
 `;

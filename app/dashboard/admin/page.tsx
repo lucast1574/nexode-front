@@ -43,6 +43,8 @@ interface AdminSubscription {
     status: string;
     createdOn: string;
     service?: string;
+    authProvider: string;
+    isVerified: boolean;
 }
 
 interface AdminData {
@@ -202,6 +204,7 @@ export default function AdminPage() {
                                 <TableHeader>
                                     <TableRow className="bg-white/[0.01] border-white/[0.03] hover:bg-transparent">
                                         <TableHead className="text-white/30 font-black uppercase text-[10px] tracking-[0.2em] h-14 px-8">Subscriber</TableHead>
+                                        <TableHead className="text-white/30 font-black uppercase text-[10px] tracking-[0.2em] h-14">Auth</TableHead>
                                         <TableHead className="text-white/30 font-black uppercase text-[10px] tracking-[0.2em] h-14">Architecture</TableHead>
                                         <TableHead className="text-white/30 font-black uppercase text-[10px] tracking-[0.2em] h-14">Infrastructure</TableHead>
                                         <TableHead className="text-white/30 font-black uppercase text-[10px] tracking-[0.2em] h-14">Frequency</TableHead>
@@ -216,7 +219,19 @@ export default function AdminPage() {
                                         <TableRow key={sub.id} className="border-white/[0.03] hover:bg-white/[0.01] transition-all group">
                                             <TableCell className="px-8 py-6">
                                                 <div className="font-bold text-white group-hover:text-primary transition-colors">{sub.userName}</div>
-                                                <div className="text-xs text-white/20 font-medium">{sub.userEmail}</div>
+                                                {sub.userEmail !== 'N/A' && (
+                                                    <div className="text-xs text-white/20 font-medium">{sub.userEmail}</div>
+                                                )}
+                                            </TableCell>
+                                            <TableCell>
+                                                <Badge variant="outline" className={cn(
+                                                    "text-[9px] font-black px-2 py-0.5 uppercase tracking-tighter",
+                                                    sub.authProvider === 'GOOGLE' 
+                                                        ? 'bg-blue-500/10 text-blue-400 border-blue-500/20' 
+                                                        : 'bg-orange-500/10 text-orange-400 border-orange-500/20'
+                                                )}>
+                                                    {sub.authProvider === 'GOOGLE' ? 'Google' : 'Auth'}
+                                                </Badge>
                                             </TableCell>
                                             <TableCell>
                                                 <Badge variant="outline" className="bg-white/[0.02] border-white/5 text-white/60 font-bold text-[10px] px-3 py-0.5">
@@ -229,16 +244,23 @@ export default function AdminPage() {
                                                 ${sub.price.toFixed(2)}
                                             </TableCell>
                                             <TableCell>
-                                                <Badge 
-                                                    className={cn(
-                                                        "text-[9px] font-black px-3 py-1 uppercase tracking-tighter",
-                                                        sub.status === 'ACTIVE' 
-                                                            ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' 
-                                                            : 'bg-white/5 text-white/30 border-white/10'
+                                                <div className="flex flex-col gap-1">
+                                                    <Badge 
+                                                        className={cn(
+                                                            "text-[9px] font-black px-3 py-0.5 uppercase tracking-tighter w-fit",
+                                                            sub.status === 'ACTIVE' 
+                                                                ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' 
+                                                                : 'bg-white/5 text-white/30 border-white/10'
+                                                        )}
+                                                    >
+                                                        {sub.status}
+                                                    </Badge>
+                                                    {sub.isVerified ? (
+                                                        <span className="text-[8px] font-bold text-emerald-400/50 uppercase ml-0.5 italic">Verified</span>
+                                                    ) : (
+                                                        <span className="text-[8px] font-bold text-rose-400/50 uppercase ml-0.5 italic">Unverified</span>
                                                     )}
-                                                >
-                                                    {sub.status}
-                                                </Badge>
+                                                </div>
                                             </TableCell>
                                             <TableCell className="text-right text-[11px] px-4 text-white/20 font-bold tracking-tighter">
                                                 {new Date(sub.createdOn).toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' })}
