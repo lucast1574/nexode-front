@@ -982,14 +982,7 @@ export default function DatabasesPage() {
                                                 <Image src="/db/redis.svg" alt="Redis" width={24} height={24} className="shrink-0" />
                                             )
                                         },
-                                        {
-                                            id: 'mysql',
-                                            label: 'MySQL',
-                                            svg: (
-                                                <Image src="/db/mysql.svg" alt="MySQL" width={24} height={24} className="shrink-0" />
-                                            )
-                                        },
-                                    ].map((type) => {
+                                        ].map((type) => {
                                         const itemId = `${id}-${type.id}`;
                                         return (
                                             <label
