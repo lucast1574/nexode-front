@@ -14,7 +14,7 @@ import {
   SidebarMenuButton,
   SidebarRail,
 } from "@/components/ui/sidebar"
-import { LayoutDashboard, Workflow, Cpu, Database, BarChart3, BookOpen, HelpCircle } from "lucide-react"
+import { LayoutDashboard, Workflow, Cpu, Database, BarChart3, BookOpen, HelpCircle, TrendingUp } from "lucide-react"
 
 import { useDashboard } from "@/app/dashboard/layout"
 
@@ -100,6 +100,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton render={<Link href="/dashboard/affiliates" />}>
+              <TrendingUp />
+              <span>Affiliates</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
             <SidebarMenuButton render={<a href="https://docs.nexode.app" target="_blank" rel="noopener noreferrer" />}>
               <BookOpen />
               <span>Documentation</span>
