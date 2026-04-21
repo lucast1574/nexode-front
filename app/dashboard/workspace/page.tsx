@@ -20,7 +20,10 @@ import {
     TableRow,
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { UsersIcon, MailIcon, StarIcon, Trash2Icon, Loader2Icon, SettingsIcon, UserCircle } from "lucide-react"
+import { Separator } from "@/components/ui/separator"
+import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/ui/breadcrumb"
+import { SidebarTrigger } from "@/components/ui/sidebar"
+import { UsersIcon, MailIcon, StarIcon, Trash2Icon, Loader2Icon, UserCircle } from "lucide-react"
 import { toast } from "sonner"
 import { getAccessToken } from "@/lib/auth-utils"
 
@@ -219,168 +222,176 @@ export default function WorkspacePage() {
     if (!user) return null
 
     return (
-        <div className="flex-1 space-y-6 p-8 bg-background min-h-screen">
-            <div className="flex flex-col gap-2">
-                <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-3">
-                    <UsersIcon className="size-8 text-primary" />
-                    Workspace
-                </h1>
-                <p className="text-muted-foreground text-sm max-w-2xl">
-                    Manage your team members and their access to your Nexode resources.
-                </p>
-            </div>
+        <>
+            <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
+                <SidebarTrigger className="-ml-1" />
+                <Separator orientation="vertical" className="mr-2 data-vertical:h-4 data-vertical:self-auto" />
+                <Breadcrumb>
+                    <BreadcrumbList>
+                        <BreadcrumbItem>
+                            <BreadcrumbPage>Workspace</BreadcrumbPage>
+                        </BreadcrumbItem>
+                    </BreadcrumbList>
+                </Breadcrumb>
+            </header>
 
-            {loading ? (
-                <div className="flex items-center justify-center py-20">
-                    <Loader2Icon className="size-8 animate-spin text-muted-foreground" />
+            <div className="flex-1 overflow-y-auto p-6">
+                <div className="flex flex-col gap-2 mb-8">
+                    <h1 className="text-3xl font-bold tracking-tight">Workspace</h1>
+                    <p className="text-muted-foreground">
+                        Manage your team members and their access to your Nexode resources.
+                    </p>
                 </div>
-            ) : !workspace ? (
-                <Card>
-                    <CardContent className="py-12 text-center text-muted-foreground">
-                        No workspace found. Subscribe to a plan to get started.
-                    </CardContent>
-                </Card>
-            ) : (
-                <div className="grid gap-6 md:grid-cols-3">
-                    {/* Invite Card */}
-                    <Card className="md:col-span-1 h-fit border-border/50 shadow-sm bg-card/50 backdrop-blur-sm">
-                        <CardHeader>
-                            <CardTitle className="text-lg flex items-center gap-2">
-                                <MailIcon className="size-5 text-primary" />
-                                Invite Member
-                            </CardTitle>
-                            <CardDescription>
-                                Send an email invitation to add a team member.
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            {!isOwner ? (
-                                <div className="bg-destructive/10 p-4 rounded-md border border-destructive/20 text-sm text-destructive font-medium text-center">
-                                    You must have an active subscription to invite members.
-                                </div>
-                            ) : (
-                                <form onSubmit={handleInvite} className="space-y-4">
-                                    <div className="space-y-2">
-                                        <Input
-                                            placeholder="colleague@example.com"
-                                            type="email"
-                                            value={emailInput}
-                                            onChange={(e) => setEmailInput(e.target.value)}
-                                            disabled={isInviteDisabled}
-                                            className="bg-background"
-                                        />
-                                        {errorMessage && (
-                                            <p className="text-destructive text-xs font-medium">{errorMessage}</p>
-                                        )}
-                                        {successMessage && (
-                                            <p className="text-emerald-500 text-xs font-medium">{successMessage}</p>
-                                        )}
-                                    </div>
 
-                                    <div className="flex items-center justify-between mt-2 mb-4 text-xs text-muted-foreground">
-                                        <span>Slots used: {usedInvites} / {allowedInvites}</span>
-                                        <div className="flex gap-1">
-                                            {Array.from({ length: allowedInvites }).map((_, i) => (
-                                                <div
-                                                    key={i}
-                                                    className={`size-2 rounded-full ${i < usedInvites ? 'bg-primary' : 'bg-muted-foreground/30'}`}
-                                                />
-                                            ))}
+                {loading ? (
+                    <div className="flex items-center justify-center py-20">
+                        <Loader2Icon className="size-8 animate-spin text-primary" />
+                    </div>
+                ) : !workspace ? (
+                    <Card>
+                        <CardContent className="py-12 text-center text-muted-foreground">
+                            No workspace found. Subscribe to a plan to get started.
+                        </CardContent>
+                    </Card>
+                ) : (
+                    <div className="grid gap-6 md:grid-cols-3">
+                        {/* Invite Card */}
+                        <Card className="md:col-span-1 h-fit">
+                            <CardHeader>
+                                <CardTitle className="text-lg flex items-center gap-2">
+                                    <MailIcon className="size-5 text-primary" />
+                                    Invite Member
+                                </CardTitle>
+                                <CardDescription>
+                                    Send an email invitation to add a team member.
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                {!isOwner ? (
+                                    <div className="bg-destructive/10 p-4 rounded-md border border-destructive/20 text-sm text-destructive font-medium text-center">
+                                        You must have an active subscription to invite members.
+                                    </div>
+                                ) : (
+                                    <form onSubmit={handleInvite} className="space-y-4">
+                                        <div className="space-y-2">
+                                            <Input
+                                                placeholder="colleague@example.com"
+                                                type="email"
+                                                value={emailInput}
+                                                onChange={(e) => setEmailInput(e.target.value)}
+                                                disabled={isInviteDisabled}
+                                            />
+                                            {errorMessage && (
+                                                <p className="text-destructive text-xs font-medium">{errorMessage}</p>
+                                            )}
+                                            {successMessage && (
+                                                <p className="text-emerald-600 text-xs font-medium">{successMessage}</p>
+                                            )}
                                         </div>
-                                    </div>
 
-                                    <Button
-                                        className="w-full"
-                                        type="submit"
-                                        disabled={isInviteDisabled || !emailInput}
-                                    >
-                                        {inviting ? <Loader2Icon className="size-4 animate-spin mr-2" /> : null}
-                                        Send Invitation
-                                    </Button>
-                                </form>
-                            )}
-                        </CardContent>
-                    </Card>
+                                        <div className="flex items-center justify-between mt-2 mb-4 text-xs text-muted-foreground">
+                                            <span>Slots used: {usedInvites} / {allowedInvites}</span>
+                                            <div className="flex gap-1">
+                                                {Array.from({ length: allowedInvites }).map((_, i) => (
+                                                    <div
+                                                        key={i}
+                                                        className={`size-2 rounded-full ${i < usedInvites ? 'bg-primary' : 'bg-muted-foreground/30'}`}
+                                                    />
+                                                ))}
+                                            </div>
+                                        </div>
 
-                    {/* Members List */}
-                    <Card className="md:col-span-2 border-border/50 shadow-sm bg-card/50 backdrop-blur-sm">
-                        <CardHeader>
-                            <CardTitle className="text-lg flex items-center gap-2">
-                                <SettingsIcon className="size-5 text-muted-foreground" />
-                                Members — {workspace.name}
-                            </CardTitle>
-                            <CardDescription>
-                                {members.length} member{members.length !== 1 ? 's' : ''} in this workspace.
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead>User</TableHead>
-                                        <TableHead>Role</TableHead>
-                                        <TableHead>Joined</TableHead>
-                                        <TableHead className="text-right">Action</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {members.map((member) => (
-                                        <TableRow key={member.user_id}>
-                                            <TableCell>
-                                                <div className="flex items-center gap-3">
-                                                    <div className="bg-muted size-8 rounded-full flex items-center justify-center border border-border/50">
-                                                        <UserCircle className="size-5 text-muted-foreground" />
-                                                    </div>
-                                                    <span className="font-medium font-mono text-xs">{member.user_id}</span>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell>
-                                                {member.role === "owner" ? (
-                                                    <Badge variant="default" className="bg-primary/20 text-primary border-primary/30 gap-1">
-                                                        <StarIcon className="size-3" />
-                                                        Owner
-                                                    </Badge>
-                                                ) : (
-                                                    <Badge variant="outline" className="text-muted-foreground">
-                                                        Member
-                                                    </Badge>
-                                                )}
-                                            </TableCell>
-                                            <TableCell className="text-muted-foreground text-sm">
-                                                {member.added_at ? new Date(member.added_at).toLocaleDateString() : '—'}
-                                            </TableCell>
-                                            <TableCell className="text-right">
-                                                {member.role !== "owner" && (
-                                                    <Button
-                                                        size="sm"
-                                                        variant="ghost"
-                                                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                                                        onClick={() => handleRemoveMember(member.user_id)}
-                                                        disabled={removingId === member.user_id}
-                                                    >
-                                                        {removingId === member.user_id ? (
-                                                            <Loader2Icon className="size-4 animate-spin" />
-                                                        ) : (
-                                                            <Trash2Icon className="size-4" />
-                                                        )}
-                                                    </Button>
-                                                )}
-                                            </TableCell>
-                                        </TableRow>
-                                    ))}
-                                    {members.length === 0 && (
+                                        <Button
+                                            className="w-full"
+                                            type="submit"
+                                            disabled={isInviteDisabled || !emailInput}
+                                        >
+                                            {inviting ? <Loader2Icon className="size-4 animate-spin mr-2" /> : null}
+                                            Send Invitation
+                                        </Button>
+                                    </form>
+                                )}
+                            </CardContent>
+                        </Card>
+
+                        {/* Members List */}
+                        <Card className="md:col-span-2">
+                            <CardHeader>
+                                <CardTitle className="text-lg flex items-center gap-2">
+                                    <UsersIcon className="size-5 text-muted-foreground" />
+                                    Members — {workspace.name}
+                                </CardTitle>
+                                <CardDescription>
+                                    {members.length} member{members.length !== 1 ? 's' : ''} in this workspace.
+                                </CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <Table>
+                                    <TableHeader>
                                         <TableRow>
-                                            <TableCell colSpan={4} className="text-center text-muted-foreground py-8">
-                                                No members yet. Invite someone to get started.
-                                            </TableCell>
+                                            <TableHead>User</TableHead>
+                                            <TableHead>Role</TableHead>
+                                            <TableHead>Joined</TableHead>
+                                            <TableHead className="text-right">Action</TableHead>
                                         </TableRow>
-                                    )}
-                                </TableBody>
-                            </Table>
-                        </CardContent>
-                    </Card>
-                </div>
-            )}
-        </div>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {members.map((member) => (
+                                            <TableRow key={member.user_id}>
+                                                <TableCell>
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="bg-muted size-8 rounded-full flex items-center justify-center border">
+                                                            <UserCircle className="size-5 text-muted-foreground" />
+                                                        </div>
+                                                        <span className="font-medium font-mono text-xs">{member.user_id}</span>
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell>
+                                                    {member.role === "owner" ? (
+                                                        <Badge variant="default" className="gap-1">
+                                                            <StarIcon className="size-3" />
+                                                            Owner
+                                                        </Badge>
+                                                    ) : (
+                                                        <Badge variant="outline">Member</Badge>
+                                                    )}
+                                                </TableCell>
+                                                <TableCell className="text-muted-foreground text-sm">
+                                                    {member.added_at ? new Date(member.added_at).toLocaleDateString() : '—'}
+                                                </TableCell>
+                                                <TableCell className="text-right">
+                                                    {member.role !== "owner" && (
+                                                        <Button
+                                                            size="sm"
+                                                            variant="ghost"
+                                                            className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                                                            onClick={() => handleRemoveMember(member.user_id)}
+                                                            disabled={removingId === member.user_id}
+                                                        >
+                                                            {removingId === member.user_id ? (
+                                                                <Loader2Icon className="size-4 animate-spin" />
+                                                            ) : (
+                                                                <Trash2Icon className="size-4" />
+                                                            )}
+                                                        </Button>
+                                                    )}
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                        {members.length === 0 && (
+                                            <TableRow>
+                                                <TableCell colSpan={4} className="text-center text-muted-foreground py-8">
+                                                    No members yet. Invite someone to get started.
+                                                </TableCell>
+                                            </TableRow>
+                                        )}
+                                    </TableBody>
+                                </Table>
+                            </CardContent>
+                        </Card>
+                    </div>
+                )}
+            </div>
+        </>
     )
 }

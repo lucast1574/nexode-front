@@ -227,12 +227,9 @@ export default function AdminPage() {
 
                     <TabsContent value="financial">
                         <Card>
-                            <CardHeader className="flex flex-row items-center justify-between">
-                                <div>
-                                    <CardTitle>Financial Ledger</CardTitle>
-                                    <CardDescription>Real-time transaction stream and subscriber status.</CardDescription>
-                                </div>
-                                <Badge variant="secondary">{adminSubscriptions.length} active</Badge>
+                            <CardHeader>
+                                <CardTitle>Financial Ledger</CardTitle>
+                                <CardDescription>Real-time transaction stream and subscriber status.</CardDescription>
                             </CardHeader>
                             <CardContent className="p-0">
                                 <div className="overflow-x-auto">

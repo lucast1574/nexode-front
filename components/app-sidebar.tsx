@@ -100,12 +100,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-          <SidebarMenuItem>
             <SidebarMenuButton render={<Link href="/dashboard/affiliates" />}>
               <TrendingUp />
               <span>Affiliates</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
+          <SidebarMenuItem>
             <SidebarMenuButton render={<a href="https://docs.nexode.app" target="_blank" rel="noopener noreferrer" />}>
               <BookOpen />
               <span>Documentation</span>
