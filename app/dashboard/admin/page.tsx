@@ -59,8 +59,8 @@ export default function AdminPage() {
         query: queryStr,
     });
 
-    // Security check: If not admin/super-user, redirect
-    if (user && user.role?.slug !== 'super-user' && user.role?.slug !== 'admin') {
+    // Security check: If not admin/superuser, redirect
+    if (user && user.role?.slug !== 'superuser' && user.role?.slug !== 'admin') {
         redirect("/dashboard");
     }
 

@@ -62,7 +62,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       icon: <BarChart3 />,
       items: undefined,
     },
-    ...(user?.role?.slug === "super-user" || user?.role?.slug === "admin"
+    ...(user?.role?.slug === "superuser" || user?.role?.slug === "admin"
       ? [{
           title: "Admin Panel",
           url: "/dashboard/admin",

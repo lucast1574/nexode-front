@@ -92,6 +92,7 @@ export default function DashboardLayout({
                                 last_name
                                 email
                                 avatar
+                                role { slug }
                                 subscription {
                                     status
                                     plan {
