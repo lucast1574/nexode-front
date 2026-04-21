@@ -321,7 +321,7 @@ export function ProvisionNodeModal({
                         <div className="grid grid-cols-2 gap-4">
                             <Field>
                                 <FieldLabel htmlFor="service-type">Service Type</FieldLabel>
-                                <Select value={instanceType} onValueChange={(value: string) => setInstanceType(value ?? 'FRONTEND')}>
+                                <Select value={instanceType} onValueChange={(value: string | null) => setInstanceType(value ?? 'FRONTEND')}>
                                     <SelectTrigger id="service-type" className="w-full h-12">
                                         <SelectValue placeholder="Select type" />
                                     </SelectTrigger>
@@ -345,7 +345,7 @@ export function ProvisionNodeModal({
                             </Field>
                             <Field>
                                 <FieldLabel htmlFor="git-provider">Git Provider</FieldLabel>
-                                <Select value={formProvider} onValueChange={(value: string) => setFormProvider(value ?? 'GITHUB')}>
+                                <Select value={formProvider} onValueChange={(value: string | null) => setFormProvider(value ?? 'GITHUB')}>
                                     <SelectTrigger id="git-provider" className="w-full h-12">
                                         <SelectValue placeholder="Select provider" />
                                     </SelectTrigger>
@@ -519,7 +519,7 @@ export function ProvisionNodeModal({
                             <Field>
                                 <FieldLabel htmlFor="deployment-branch">Deployment Branch</FieldLabel>
                                 {branches.length > 0 ? (
-                                    <Select value={selectedBranch || selectedRepo?.default_branch || 'main'} onValueChange={(value: string) => setSelectedBranch(value ?? 'main')}>
+                                    <Select value={selectedBranch || selectedRepo?.default_branch || 'main'} onValueChange={(value: string | null) => setSelectedBranch(value ?? 'main')}>
                                         <SelectTrigger id="deployment-branch" className="w-full h-12">
                                             <SelectValue placeholder="Select branch" />
                                         </SelectTrigger>
