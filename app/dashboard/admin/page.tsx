@@ -18,6 +18,9 @@ import {
     Plus,
     Copy,
     Link2,
+    Wallet,
+    CheckCircle2,
+    XCircle,
 } from "lucide-react";
 import {
     Table,
@@ -219,6 +222,7 @@ export default function AdminPage() {
                     <TabsList className="mb-6">
                         <TabsTrigger value="financial">Financial Ledger</TabsTrigger>
                         <TabsTrigger value="affiliates">Affiliates</TabsTrigger>
+                        <TabsTrigger value="withdrawals">Withdrawals</TabsTrigger>
                     </TabsList>
 
                     <TabsContent value="financial">
@@ -316,6 +320,10 @@ export default function AdminPage() {
 
                     <TabsContent value="affiliates">
                         <AffiliatesTab />
+                    </TabsContent>
+
+                    <TabsContent value="withdrawals">
+                        <WithdrawalsTab />
                     </TabsContent>
                 </Tabs>
             </div>
@@ -436,5 +444,173 @@ const AffiliatesTab = () => {
                 </div>
             </CardContent>
         </Card>
+    );
+};
+
+
+const WithdrawalsTab = () => {
+    const [withdrawals, setWithdrawals] = React.useState<any[]>([]);
+    const [loading, setLoading] = React.useState(true);
+    const [processingId, setProcessingId] = React.useState<string | null>(null);
+
+    const fetchWithdrawals = React.useCallback(async () => {
+        try {
+            const token = typeof window !== 'undefined' ? document.cookie.split(';').find(c => c.trim().startsWith('access_token='))?.split('=')[1] || localStorage.getItem('access_token') : null;
+            const GQL_URL = process.env.NEXT_PUBLIC_API_URL || "https://backend.nexode.app/api-v1/graphql";
+            const res = await fetch(GQL_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+                credentials: "include",
+                body: JSON.stringify({ query: `query { adminWithdrawals { id user_email user_name amount payment_method payment_details status admin_notes created_at paid_at } }` }),
+            });
+            const data = await res.json();
+            if (data.data?.adminWithdrawals) setWithdrawals(data.data.adminWithdrawals);
+        } catch { } finally { setLoading(false); }
+    }, []);
+
+    React.useEffect(() => { fetchWithdrawals(); }, [fetchWithdrawals]);
+
+    const handleMarkPaid = async (id: string) => {
+        setProcessingId(id);
+        try {
+            const token = typeof window !== 'undefined' ? document.cookie.split(';').find(c => c.trim().startsWith('access_token='))?.split('=')[1] || localStorage.getItem('access_token') : null;
+            const GQL_URL = process.env.NEXT_PUBLIC_API_URL || "https://backend.nexode.app/api-v1/graphql";
+            const res = await fetch(GQL_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+                credentials: "include",
+                body: JSON.stringify({ query: `mutation { markWithdrawalPaid(id: "${id}") { id status } }` }),
+            });
+            const data = await res.json();
+            if (data.errors) { toast.error(data.errors[0]?.message || "Failed"); return; }
+            toast.success("Withdrawal marked as paid! Email sent to affiliate.");
+            await fetchWithdrawals();
+        } finally { setProcessingId(null); }
+    };
+
+    const handleReject = async (id: string) => {
+        const reason = prompt("Rejection reason:");
+        if (!reason) return;
+        setProcessingId(id);
+        try {
+            const token = typeof window !== 'undefined' ? document.cookie.split(';').find(c => c.trim().startsWith('access_token='))?.split('=')[1] || localStorage.getItem('access_token') : null;
+            const GQL_URL = process.env.NEXT_PUBLIC_API_URL || "https://backend.nexode.app/api-v1/graphql";
+            const res = await fetch(GQL_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+                credentials: "include",
+                body: JSON.stringify({ query: `mutation { rejectWithdrawal(id: "${id}", reason: "${reason.replace(/"/g, '\\"')}") { id status } }` }),
+            });
+            const data = await res.json();
+            if (data.errors) { toast.error(data.errors[0]?.message || "Failed"); return; }
+            toast.success("Withdrawal rejected");
+            await fetchWithdrawals();
+        } finally { setProcessingId(null); }
+    };
+
+    if (loading) return <Card><CardContent className="p-8 flex justify-center"><Loader2 className="animate-spin text-primary w-8 h-8" /></CardContent></Card>;
+
+    const pending = withdrawals.filter(w => w.status === 'pending');
+    const completed = withdrawals.filter(w => w.status !== 'pending');
+
+    return (
+        <div className="space-y-6">
+            {pending.length > 0 && (
+                <Card className="border-amber-500/20">
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2"><Wallet className="size-5 text-amber-500" /> Pending Withdrawals</CardTitle>
+                        <CardDescription>{pending.length} withdrawal{pending.length !== 1 ? 's' : ''} awaiting payment</CardDescription>
+                    </CardHeader>
+                    <CardContent className="p-0">
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Affiliate</TableHead>
+                                    <TableHead>Amount</TableHead>
+                                    <TableHead>Method</TableHead>
+                                    <TableHead>Payment Details</TableHead>
+                                    <TableHead>Requested</TableHead>
+                                    <TableHead className="text-right">Actions</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {pending.map((w: any) => (
+                                    <TableRow key={w.id}>
+                                        <TableCell>
+                                            <div className="font-medium">{w.user_name}</div>
+                                            <div className="text-xs text-muted-foreground">{w.user_email}</div>
+                                        </TableCell>
+                                        <TableCell className="font-bold text-lg">${w.amount.toFixed(2)}</TableCell>
+                                        <TableCell><Badge variant="outline" className="uppercase">{w.payment_method}</Badge></TableCell>
+                                        <TableCell><code className="text-xs bg-muted px-2 py-1 rounded">{w.payment_details}</code></TableCell>
+                                        <TableCell className="text-sm text-muted-foreground">{new Date(w.created_at).toLocaleDateString()}</TableCell>
+                                        <TableCell className="text-right space-x-2">
+                                            <Button size="sm" onClick={() => handleMarkPaid(w.id)} disabled={processingId === w.id} className="gap-1 bg-emerald-600 hover:bg-emerald-700">
+                                                {processingId === w.id ? <Loader2 className="size-3 animate-spin" /> : <CheckCircle2 className="size-3" />} Mark Paid
+                                            </Button>
+                                            <Button size="sm" variant="destructive" onClick={() => handleReject(w.id)} disabled={processingId === w.id} className="gap-1">
+                                                <XCircle className="size-3" /> Reject
+                                            </Button>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </CardContent>
+                </Card>
+            )}
+
+            <Card>
+                <CardHeader>
+                    <CardTitle>All Withdrawals</CardTitle>
+                    <CardDescription>{withdrawals.length} total withdrawal requests</CardDescription>
+                </CardHeader>
+                <CardContent className="p-0">
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Affiliate</TableHead>
+                                <TableHead>Amount</TableHead>
+                                <TableHead>Method</TableHead>
+                                <TableHead>Details</TableHead>
+                                <TableHead>Status</TableHead>
+                                <TableHead>Date</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {withdrawals.map((w: any) => (
+                                <TableRow key={w.id}>
+                                    <TableCell>
+                                        <div className="font-medium">{w.user_name}</div>
+                                        <div className="text-xs text-muted-foreground">{w.user_email}</div>
+                                    </TableCell>
+                                    <TableCell className="font-bold">${w.amount.toFixed(2)}</TableCell>
+                                    <TableCell className="uppercase text-xs">{w.payment_method}</TableCell>
+                                    <TableCell><code className="text-xs">{w.payment_details}</code></TableCell>
+                                    <TableCell>
+                                        {w.status === "paid" && <Badge className="bg-emerald-500/10 text-emerald-500">Paid</Badge>}
+                                        {w.status === "pending" && <Badge variant="secondary">Pending</Badge>}
+                                        {w.status === "approved" && <Badge className="bg-blue-500/10 text-blue-500">Approved</Badge>}
+                                        {w.status === "rejected" && <Badge variant="destructive">Rejected</Badge>}
+                                    </TableCell>
+                                    <TableCell className="text-sm text-muted-foreground">
+                                        {new Date(w.created_at).toLocaleDateString()}
+                                        {w.paid_at && <div className="text-[10px]">Paid: {new Date(w.paid_at).toLocaleDateString()}</div>}
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                            {withdrawals.length === 0 && (
+                                <TableRow>
+                                    <TableCell colSpan={6} className="text-center py-16 text-muted-foreground">
+                                        <Wallet className="h-10 w-10 opacity-20 mx-auto mb-4" />
+                                        <p>No withdrawal requests yet</p>
+                                    </TableCell>
+                                </TableRow>
+                            )}
+                        </TableBody>
+                    </Table>
+                </CardContent>
+            </Card>
+        </div>
     );
 };

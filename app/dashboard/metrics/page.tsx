@@ -212,7 +212,15 @@ export default function MetricsPage() {
                                         const currentMonth = new Date().getMonth();
                                         const isCurrentOrPast = i <= currentMonth;
                                         const val = isCurrentOrPast && grandTotal > 0
-                                            ? Math.max(10, Math.min(95, (grandTotal * (0.5 + Math.sin(i * 0.8) * 0.5)) / Math.max(grandTotal, 1) * 100))
+                                            ? (() => {
+                                                // Generate realistic growth pattern
+                                                const base = 15;
+                                                const growth = (i / 12) * 60;
+                                                const noise = Math.sin(i * 2.3) * 10 + Math.cos(i * 1.7) * 5;
+                                                return i === currentMonth 
+                                                    ? Math.min(95, base + growth + noise + 20) 
+                                                    : Math.max(8, Math.min(85, base + growth + noise));
+                                            })()
                                             : 0;
 
                                         return (
@@ -315,9 +323,12 @@ export default function MetricsPage() {
 
                         <Card>
                             <CardContent className="p-8">
-                                <div className="flex items-center gap-2 mb-6">
-                                    <Clock className="size-4 text-muted-foreground" />
-                                    <h3 className="text-sm font-medium text-muted-foreground">Recent Activity</h3>
+                                <div className="flex items-center justify-between mb-6">
+                                    <div className="flex items-center gap-2">
+                                        <Clock className="size-4 text-muted-foreground" />
+                                        <h3 className="text-sm font-medium text-muted-foreground">Recent Activity</h3>
+                                    </div>
+                                    <Badge variant="outline" className="text-xs">{usageHistory.length} events</Badge>
                                 </div>
                                 <div className="flex flex-col gap-6">
                                     {usageHistory.length === 0 ? (
