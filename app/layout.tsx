@@ -14,6 +14,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://dash.nexode.app"),
   title: "Nexode - Fast Deploy Center",
   description: "Deploy high-performance servers, databases, and automation workflows in seconds.",
   icons: {
