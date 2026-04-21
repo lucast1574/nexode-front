@@ -298,7 +298,7 @@ export default function ServicesPage() {
                     <p className="text-muted-foreground">Select high-performance building blocks for your hosting environment. Mix and match services to scale your system in real-time.</p>
                 </div>
 
-            <main className="relative z-10 pb-12 space-y-16">
+            <main className="relative z-10 pb-28 space-y-16">
                 {SERVICES.filter((service) => !activeHash || service.id === activeHash).map((service) => (
                     <section key={service.id} id={service.id} className="space-y-10 scroll-mt-24">
                         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
@@ -382,12 +382,11 @@ export default function ServicesPage() {
                     </section>
                 ))}
             </main>
-
             </div>
 
             {selectedCount > 0 && (
-                <div className="border-t bg-background p-4 animate-in slide-in-from-bottom-full duration-500">
-                    <Card className="bg-card border-border rounded-xl shadow-lg p-0">
+                <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-4xl animate-in slide-in-from-bottom-full duration-500">
+                    <Card className="bg-card border-border rounded-2xl shadow-2xl p-0">
                         <CardContent className="p-4 flex flex-col sm:flex-row items-center justify-between gap-6">
                             <div className="flex items-center gap-6 px-4">
                                 <div className="bg-primary/20 p-3 rounded-lg relative">
