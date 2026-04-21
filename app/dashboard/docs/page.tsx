@@ -52,6 +52,8 @@ interface DocSection {
     id: string
     title: string
     icon: React.ElementType
+    iconColor?: string
+    iconBg?: string
     description: string
     category: "getting-started" | "services" | "account"
     content: React.ReactNode
@@ -134,6 +136,8 @@ const docs: DocSection[] = [
         id: "compute",
         title: "Compute Instances",
         icon: Cpu,
+        iconColor: "text-primary",
+        iconBg: "bg-primary/10",
         description: "Deploy backend and frontend applications from Git",
         category: "services",
         content: (
@@ -235,18 +239,19 @@ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]`}</CodeBlock>
         id: "databases",
         title: "Databases",
         icon: Database,
-        description: "Managed PostgreSQL, MongoDB, MySQL, and Redis",
+        iconColor: "text-blue-500",
+        iconBg: "bg-blue-500/10",
+        description: "Managed PostgreSQL, MongoDB, and Redis",
         category: "services",
         content: (
             <div>
                 <p className="text-muted-foreground mb-6">Deploy fully managed database instances in seconds. We handle provisioning, backups, and networking — you get a connection string.</p>
 
                 <h3 className="text-lg font-bold mb-4">Supported Databases</h3>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+                <div className="grid grid-cols-3 gap-4 mb-8">
                     {[
                         { name: "PostgreSQL", desc: "Relational DB", color: "text-blue-500" },
                         { name: "MongoDB", desc: "Document DB", color: "text-emerald-500" },
-                        { name: "MySQL", desc: "Relational DB", color: "text-orange-500" },
                         { name: "Redis", desc: "Cache / KV Store", color: "text-red-500" },
                     ].map((db) => (
                         <Card key={db.name} className="text-center">
@@ -266,7 +271,7 @@ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]`}</CodeBlock>
                 </Step>
                 <Step n={2}>
                     <p className="font-medium">Click "Deploy" and select your database type</p>
-                    <p className="text-sm text-muted-foreground mt-1">Choose PostgreSQL, MongoDB, MySQL, or Redis. Give it a name.</p>
+                    <p className="text-sm text-muted-foreground mt-1">Choose PostgreSQL, MongoDB, or Redis. Give it a name.</p>
                 </Step>
                 <Step n={3}>
                     <p className="font-medium">Get your credentials</p>
@@ -301,6 +306,8 @@ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]`}</CodeBlock>
         id: "n8n",
         title: "n8n Automations",
         icon: Workflow,
+        iconColor: "text-red-500",
+        iconBg: "bg-red-500/10",
         description: "Deploy private n8n instances for workflow automation",
         category: "services",
         content: (
@@ -551,8 +558,8 @@ export default function DocsPage() {
                                             >
                                                 <CardHeader className="pb-3">
                                                     <div className="flex items-start justify-between">
-                                                        <div className="p-2 bg-primary/10 rounded-lg mb-3">
-                                                            <doc.icon className="size-5 text-primary" />
+                                                        <div className={cn("p-2 rounded-lg mb-3", doc.iconBg || "bg-primary/10")}>
+                                                            <doc.icon className={cn("size-5", doc.iconColor || "text-primary")} />
                                                         </div>
                                                         <ChevronRight className="size-4 text-muted-foreground group-hover:text-primary transition-colors" />
                                                     </div>
@@ -580,8 +587,8 @@ export default function DocsPage() {
                         </Button>
 
                         <div className="flex items-center gap-3 mb-2">
-                            <div className="p-2 bg-primary/10 rounded-lg">
-                                <activeDoc.icon className="size-6 text-primary" />
+                            <div className={cn("p-2 rounded-lg", activeDoc.iconBg || "bg-primary/10")}>
+                                <activeDoc.icon className={cn("size-6", activeDoc.iconColor || "text-primary")} />
                             </div>
                             <div>
                                 <h1 className="text-2xl font-bold">{activeDoc.title}</h1>
