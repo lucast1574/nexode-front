@@ -4,8 +4,6 @@ import React, { useState, useEffect } from "react";
 import { Check, Database, Cpu, Zap, ArrowRight, Workflow } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { PublicNav } from "@/components/PublicNav";
 import { useModal } from "@/components/ui/modal";
@@ -137,7 +135,7 @@ export default function ServicesPage() {
         compute: null,
         n8n: null,
     });
-    const [hasCoupon, setHasCoupon] = useState(false);
+
     const [activeHash, setActiveHash] = useState<string>("");
     const { showAlert } = useModal();
 
@@ -246,7 +244,7 @@ export default function ServicesPage() {
                     query: query,
                     variables: { 
                         items,
-                        allowPromotionCodes: hasCoupon
+                        allowPromotionCodes: true
                     }
                 }),
             });
@@ -290,30 +288,7 @@ export default function ServicesPage() {
                     Select high-performance building blocks for your hosting environment. Mix and match services to scale your system in real-time.
                 </p>
 
-                <div className="mt-10 flex justify-center">
-                    <div 
-                        className={cn(
-                            "flex items-center gap-3 px-6 py-3 rounded-2xl cursor-pointer transition-all duration-300 border",
-                            hasCoupon 
-                                ? "bg-primary/10 border-primary shadow-[0_0_20px_rgba(var(--primary),0.1)]" 
-                                : "bg-white/5 border-white/10 hover:bg-white/10"
-                        )}
-                        onClick={() => setHasCoupon(!hasCoupon)}
-                    >
-                        <Checkbox
-                            id="has-coupon-top"
-                            checked={hasCoupon}
-                            onCheckedChange={() => {}} // Controlled by parent div click for better UX
-                            className="w-5 h-5 border-zinc-600 data-[state=checked]:bg-primary data-[state=checked]:border-primary pointer-events-none"
-                        />
-                        <Label
-                            htmlFor="has-coupon-top"
-                            className="text-base font-semibold text-white cursor-pointer select-none"
-                        >
-                            I have a coupon code
-                        </Label>
-                    </div>
-                </div>
+
             </header>
 
             <main className="relative z-10 pb-32 px-6 max-w-7xl mx-auto space-y-24">
