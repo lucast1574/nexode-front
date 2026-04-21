@@ -289,6 +289,31 @@ export default function ServicesPage() {
                 <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
                     Select high-performance building blocks for your hosting environment. Mix and match services to scale your system in real-time.
                 </p>
+
+                <div className="mt-10 flex justify-center">
+                    <div 
+                        className={cn(
+                            "flex items-center gap-3 px-6 py-3 rounded-2xl cursor-pointer transition-all duration-300 border",
+                            hasCoupon 
+                                ? "bg-primary/10 border-primary shadow-[0_0_20px_rgba(var(--primary),0.1)]" 
+                                : "bg-white/5 border-white/10 hover:bg-white/10"
+                        )}
+                        onClick={() => setHasCoupon(!hasCoupon)}
+                    >
+                        <Checkbox
+                            id="has-coupon-top"
+                            checked={hasCoupon}
+                            onCheckedChange={() => {}} // Controlled by parent div click for better UX
+                            className="w-5 h-5 border-zinc-600 data-[state=checked]:bg-primary data-[state=checked]:border-primary pointer-events-none"
+                        />
+                        <Label
+                            htmlFor="has-coupon-top"
+                            className="text-base font-semibold text-white cursor-pointer select-none"
+                        >
+                            I have a coupon code
+                        </Label>
+                    </div>
+                </div>
             </header>
 
             <main className="relative z-10 pb-32 px-6 max-w-7xl mx-auto space-y-24">
@@ -393,20 +418,6 @@ export default function ServicesPage() {
                                 </div>
                             </div>
 
-                            <div className="flex items-center gap-2 cursor-pointer group">
-                                <Checkbox
-                                    id="has-coupon"
-                                    checked={hasCoupon}
-                                    onCheckedChange={(checked: boolean | "indeterminate") => setHasCoupon(!!checked)}
-                                    className="border-zinc-500 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
-                                />
-                                <Label
-                                    htmlFor="has-coupon"
-                                    className="text-sm font-medium text-zinc-400 group-hover:text-white cursor-pointer transition-colors"
-                                >
-                                    I have a coupon
-                                </Label>
-                            </div>
 
                             <div className="flex items-center gap-4 w-full sm:w-auto px-4">
                                 <Button
