@@ -538,3 +538,94 @@ export const GET_ALL_USERS = gql`
         }
     }
 `;
+
+// ═══════════════════════════════════════════════════════
+// WORKSPACE QUERIES & MUTATIONS
+// ═══════════════════════════════════════════════════════
+
+export const GET_MY_WORKSPACES = gql`
+    query GetMyWorkspaces {
+        getMyWorkspaces {
+            id
+            _id
+            name
+            slug
+            description
+            owner_id
+            members {
+                user_id
+                role
+                added_at
+            }
+            sitemaps {
+                _id
+                url
+                title
+                added_at
+            }
+            created_on
+        }
+    }
+`;
+
+export const GET_WORKSPACE = gql`
+    query GetWorkspace($id: ID!) {
+        getWorkspace(id: $id) {
+            id
+            _id
+            name
+            slug
+            description
+            owner_id
+            members {
+                user_id
+                role
+                added_at
+            }
+            sitemaps {
+                _id
+                url
+                title
+                added_at
+            }
+            created_on
+        }
+    }
+`;
+
+export const INVITE_WORKSPACE_MEMBER = gql`
+    mutation InviteWorkspaceMember($input: InviteWorkspaceMemberInput!) {
+        inviteWorkspaceMember(input: $input) {
+            id
+            members {
+                user_id
+                role
+                added_at
+            }
+        }
+    }
+`;
+
+export const REMOVE_WORKSPACE_MEMBER = gql`
+    mutation RemoveWorkspaceMember($workspaceId: ID!, $memberUserId: ID!) {
+        removeWorkspaceMember(workspaceId: $workspaceId, memberUserId: $memberUserId) {
+            id
+            members {
+                user_id
+                role
+                added_at
+            }
+        }
+    }
+`;
+
+export const GENERATE_MY_AFFILIATE_LINK = gql`
+    mutation GenerateMyAffiliateLink {
+        generateMyAffiliateLink {
+            id
+            is_affiliate
+            affiliate_code
+            referral_count
+        }
+    }
+`;

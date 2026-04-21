@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useCallback } from "react"
 import { useDashboard } from "@/app/dashboard/layout"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -21,54 +21,96 @@ import {
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { UsersIcon, MailIcon, StarIcon, Trash2Icon, Loader2Icon, SettingsIcon, UserCircle } from "lucide-react"
+import { toast } from "sonner"
+import { getAccessToken } from "@/lib/auth-utils"
+
+const GQL_URL = process.env.NEXT_PUBLIC_API_URL || "https://backend.nexode.app/api-v1/graphql"
 
 interface WorkspaceMember {
-    id: string
-    email: string
+    user_id: string
     role: string
-    status: string // "PENDING" | "ACTIVE"
-    joinedAt?: string
+    added_at: string
+}
+
+interface Workspace {
+    id: string
+    _id: string
+    name: string
+    slug: string
+    description?: string
+    owner_id: string
+    members: WorkspaceMember[]
+}
+
+async function gqlRequest(query: string, variables?: Record<string, unknown>) {
+    const token = getAccessToken()
+    const res = await fetch(GQL_URL, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        credentials: "include",
+        body: JSON.stringify({ query, variables }),
+    })
+    return res.json()
 }
 
 export default function WorkspacePage() {
     const { user, subscriptions } = useDashboard()
-    const [loading, setLoading] = useState(false)
+    const [loading, setLoading] = useState(true)
+    const [inviting, setInviting] = useState(false)
+    const [removingId, setRemovingId] = useState<string | null>(null)
     const [emailInput, setEmailInput] = useState("")
-    const [members, setMembers] = useState<WorkspaceMember[]>([])
+    const [workspace, setWorkspace] = useState<Workspace | null>(null)
     const [errorMessage, setErrorMessage] = useState("")
     const [successMessage, setSuccessMessage] = useState("")
 
     const hasActivePlan = subscriptions.some(sub => sub.status === "ACTIVE")
     const isOwner = user?.role?.slug === "superuser" || user?.role?.slug === "admin" || hasActivePlan
 
-    const fetchMembers = React.useCallback(async () => {
-        // Mock fetch members (to be connected to actual API)
-        // Normally this would query: `query GetWorkspaceMembers { myWorkspace { members { ... } } }`
+    // Get max team members from subscription plan
+    const maxMembers = (() => {
+        const activeSub = subscriptions.find(s => s.status === "ACTIVE")
+        const features = (activeSub as any)?.plan?.features
+        if (!features) return 0
+        return typeof features === 'object' ? (features.max_team_members || features.team_members || 0) : 0
+    })()
+
+    const fetchWorkspace = useCallback(async () => {
         try {
             setLoading(true)
-            // Simulating API call
-            setTimeout(() => {
-                setMembers([
-                    {
-                        id: "1",
-                        email: user?.email || "owner@example.com",
-                        role: "owner",
-                        status: "ACTIVE",
-                        joinedAt: "2026-04-01T12:00:00Z"
+            const result = await gqlRequest(`
+                query GetMyWorkspaces {
+                    getMyWorkspaces {
+                        id
+                        _id
+                        name
+                        slug
+                        owner_id
+                        members {
+                            user_id
+                            role
+                            added_at
+                        }
                     }
-                ])
-                setLoading(false)
-            }, 800)
+                }
+            `)
+
+            if (result.data?.getMyWorkspaces?.length > 0) {
+                setWorkspace(result.data.getMyWorkspaces[0])
+            }
         } catch (error) {
-            console.error("Failed to fetch members", error)
+            console.error("Failed to fetch workspace", error)
+            toast.error("Failed to load workspace")
+        } finally {
             setLoading(false)
         }
-    }, [user])
+    }, [])
 
     useEffect(() => {
-        // eslint-disable-next-line
-        fetchMembers()
-    }, [fetchMembers])
+        fetchWorkspace()
+    }, [fetchWorkspace])
 
     const handleInvite = async (e: React.FormEvent) => {
         e.preventDefault()
@@ -80,44 +122,99 @@ export default function WorkspacePage() {
             return
         }
 
-        const pendingOrActiveMembersCount = members.filter(m => m.role !== "owner").length
-        if (pendingOrActiveMembersCount >= 3) {
-            setErrorMessage("You have reached the maximum limit of 3 invited members.")
+        if (!workspace) {
+            setErrorMessage("No workspace found.")
             return
         }
 
         try {
-            setLoading(true)
-            // Simulating GraphQL Mutation:
-            // `mutation InviteMember($email: String!) { inviteWorkspaceMember(email: $email) { success ... } }`
-            
-            setTimeout(() => {
-                setMembers(prev => [...prev, {
-                    id: Math.random().toString(),
-                    email: emailInput,
-                    role: "user",
-                    status: "PENDING",
-                    joinedAt: new Date().toISOString()
-                }])
-                setSuccessMessage(`Invitation successfully sent to ${emailInput}.`)
-                setEmailInput("")
-                setLoading(false)
-            }, 1000)
+            setInviting(true)
+            const result = await gqlRequest(`
+                mutation InviteWorkspaceMember($input: InviteWorkspaceMemberInput!) {
+                    inviteWorkspaceMember(input: $input) {
+                        id
+                        members {
+                            user_id
+                            role
+                            added_at
+                        }
+                    }
+                }
+            `, {
+                input: {
+                    workspaceId: workspace._id,
+                    email: emailInput.trim().toLowerCase(),
+                }
+            })
 
+            if (result.errors) {
+                const msg = result.errors[0]?.message || "Failed to send invitation"
+                setErrorMessage(msg)
+                return
+            }
+
+            if (result.data?.inviteWorkspaceMember) {
+                setWorkspace(prev => prev ? {
+                    ...prev,
+                    members: result.data.inviteWorkspaceMember.members
+                } : null)
+                setSuccessMessage(`Invitation sent to ${emailInput}`)
+                setEmailInput("")
+                toast.success(`Invitation sent to ${emailInput}`)
+            }
         } catch (error) {
             console.error(error)
             setErrorMessage("An error occurred while sending the invitation.")
-            setLoading(false)
+        } finally {
+            setInviting(false)
         }
     }
 
-    const handleRemoveMember = (id: string) => {
-         setMembers(prev => prev.filter(m => m.id !== id))
+    const handleRemoveMember = async (memberUserId: string) => {
+        if (!workspace) return
+
+        try {
+            setRemovingId(memberUserId)
+            const result = await gqlRequest(`
+                mutation RemoveWorkspaceMember($workspaceId: ID!, $memberUserId: ID!) {
+                    removeWorkspaceMember(workspaceId: $workspaceId, memberUserId: $memberUserId) {
+                        id
+                        members {
+                            user_id
+                            role
+                            added_at
+                        }
+                    }
+                }
+            `, {
+                workspaceId: workspace._id,
+                memberUserId,
+            })
+
+            if (result.errors) {
+                toast.error(result.errors[0]?.message || "Failed to remove member")
+                return
+            }
+
+            if (result.data?.removeWorkspaceMember) {
+                setWorkspace(prev => prev ? {
+                    ...prev,
+                    members: result.data.removeWorkspaceMember.members
+                } : null)
+                toast.success("Member removed")
+            }
+        } catch (error) {
+            toast.error("Failed to remove member")
+        } finally {
+            setRemovingId(null)
+        }
     }
 
-    const allowedInvites = 3
-    const usedInvites = members.filter(m => m.role !== "owner").length
-    const isInviteDisabled = loading || usedInvites >= allowedInvites || !isOwner
+    const members = workspace?.members || []
+    const nonOwnerMembers = members.filter(m => m.role !== "owner")
+    const usedInvites = nonOwnerMembers.length
+    const allowedInvites = maxMembers || 3
+    const isInviteDisabled = inviting || usedInvites >= allowedInvites || !isOwner || !workspace
 
     if (!user) return null
 
@@ -129,154 +226,161 @@ export default function WorkspacePage() {
                     Workspace
                 </h1>
                 <p className="text-muted-foreground text-sm max-w-2xl">
-                    Manage your team members and their access to your Nexode resources. 
-                    As a PaaS subscriber, you can invite up to 3 members to collaborate.
+                    Manage your team members and their access to your Nexode resources.
                 </p>
             </div>
 
-            <div className="grid gap-6 md:grid-cols-3">
-                
-                {/* Invite Card */}
-                <Card className="md:col-span-1 h-fit border-border/50 shadow-sm bg-card/50 backdrop-blur-sm">
-                    <CardHeader>
-                        <CardTitle className="text-lg flex items-center gap-2">
-                            <MailIcon className="size-5 text-primary" />
-                            Invite Member
-                        </CardTitle>
-                        <CardDescription>
-                            Send an email invitation. They will be added as a &apos;user&apos;.
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        {!isOwner ? (
-                            <div className="bg-destructive/10 p-4 rounded-md border border-destructive/20 text-sm text-destructive font-medium text-center">
-                                You must have an active subscription to invite members.
-                            </div>
-                        ) : (
-                            <form onSubmit={handleInvite} className="space-y-4">
-                                <div className="space-y-2">
-                                    <Input 
-                                        placeholder="colleague@example.com" 
-                                        type="email" 
-                                        value={emailInput}
-                                        onChange={(e) => setEmailInput(e.target.value)}
-                                        disabled={isInviteDisabled}
-                                        className="bg-background"
-                                    />
-                                    {errorMessage && (
-                                        <p className="text-destructive text-xs font-medium">{errorMessage}</p>
-                                    )}
-                                    {successMessage && (
-                                        <p className="text-emerald-500 text-xs font-medium">{successMessage}</p>
-                                    )}
+            {loading ? (
+                <div className="flex items-center justify-center py-20">
+                    <Loader2Icon className="size-8 animate-spin text-muted-foreground" />
+                </div>
+            ) : !workspace ? (
+                <Card>
+                    <CardContent className="py-12 text-center text-muted-foreground">
+                        No workspace found. Subscribe to a plan to get started.
+                    </CardContent>
+                </Card>
+            ) : (
+                <div className="grid gap-6 md:grid-cols-3">
+                    {/* Invite Card */}
+                    <Card className="md:col-span-1 h-fit border-border/50 shadow-sm bg-card/50 backdrop-blur-sm">
+                        <CardHeader>
+                            <CardTitle className="text-lg flex items-center gap-2">
+                                <MailIcon className="size-5 text-primary" />
+                                Invite Member
+                            </CardTitle>
+                            <CardDescription>
+                                Send an email invitation to add a team member.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            {!isOwner ? (
+                                <div className="bg-destructive/10 p-4 rounded-md border border-destructive/20 text-sm text-destructive font-medium text-center">
+                                    You must have an active subscription to invite members.
                                 </div>
-                                
-                                <div className="flex items-center justify-between mt-2 mb-4 text-xs text-muted-foreground">
-                                    <span>Invites unused: {allowedInvites - usedInvites} / {allowedInvites}</span>
-                                    <div className="flex gap-1">
-                                        {Array.from({ length: allowedInvites }).map((_, i) => (
-                                            <div 
-                                                key={i} 
-                                                className={`size-2 rounded-full ${i < usedInvites ? 'bg-primary' : 'bg-muted-foreground/30'}`} 
-                                            />
-                                        ))}
+                            ) : (
+                                <form onSubmit={handleInvite} className="space-y-4">
+                                    <div className="space-y-2">
+                                        <Input
+                                            placeholder="colleague@example.com"
+                                            type="email"
+                                            value={emailInput}
+                                            onChange={(e) => setEmailInput(e.target.value)}
+                                            disabled={isInviteDisabled}
+                                            className="bg-background"
+                                        />
+                                        {errorMessage && (
+                                            <p className="text-destructive text-xs font-medium">{errorMessage}</p>
+                                        )}
+                                        {successMessage && (
+                                            <p className="text-emerald-500 text-xs font-medium">{successMessage}</p>
+                                        )}
                                     </div>
-                                </div>
 
-                                <Button 
-                                    className="w-full" 
-                                    type="submit" 
-                                    disabled={isInviteDisabled || !emailInput}
-                                >
-                                    {loading ? <Loader2Icon className="size-4 animate-spin mr-2" /> : null}
-                                    Send Invitation
-                                </Button>
-                            </form>
-                        )}
-                    </CardContent>
-                </Card>
+                                    <div className="flex items-center justify-between mt-2 mb-4 text-xs text-muted-foreground">
+                                        <span>Slots used: {usedInvites} / {allowedInvites}</span>
+                                        <div className="flex gap-1">
+                                            {Array.from({ length: allowedInvites }).map((_, i) => (
+                                                <div
+                                                    key={i}
+                                                    className={`size-2 rounded-full ${i < usedInvites ? 'bg-primary' : 'bg-muted-foreground/30'}`}
+                                                />
+                                            ))}
+                                        </div>
+                                    </div>
 
-                {/* Members List */}
-                <Card className="md:col-span-2 border-border/50 shadow-sm bg-card/50 backdrop-blur-sm">
-                    <CardHeader>
-                        <CardTitle className="text-lg flex items-center gap-2">
-                            <SettingsIcon className="size-5 text-muted-foreground" />
-                            Current Members
-                        </CardTitle>
-                        <CardDescription>
-                            Users lose access if the workspace owner&apos;s subscription becomes inactive.
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>User</TableHead>
-                                    <TableHead>Role</TableHead>
-                                    <TableHead>Status</TableHead>
-                                    <TableHead className="text-right">Action</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {members.map((member) => (
-                                    <TableRow key={member.id}>
-                                        <TableCell>
-                                            <div className="flex items-center gap-3">
-                                                <div className="bg-muted size-8 rounded-full flex items-center justify-center border border-border/50">
-                                                    <UserCircle className="size-5 text-muted-foreground" />
-                                                </div>
-                                                <span className="font-medium">{member.email}</span>
-                                            </div>
-                                        </TableCell>
-                                        <TableCell>
-                                            {member.role === "owner" ? (
-                                                <Badge variant="default" className="bg-primary/20 text-primary border-primary/30 gap-1">
-                                                    <StarIcon className="size-3" />
-                                                    Owner
-                                                </Badge>
-                                            ) : (
-                                                <Badge variant="outline" className="text-muted-foreground">
-                                                    User
-                                                </Badge>
-                                            )}
-                                        </TableCell>
-                                        <TableCell>
-                                            {member.status === "PENDING" ? (
-                                                <Badge variant="secondary" className="bg-orange-500/10 text-orange-400 border-orange-500/20">
-                                                    Pending
-                                                </Badge>
-                                            ) : (
-                                                <Badge variant="secondary" className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20">
-                                                    Active
-                                                </Badge>
-                                            )}
-                                        </TableCell>
-                                        <TableCell className="text-right">
-                                            {member.role !== "owner" && isOwner && (
-                                                <Button 
-                                                    variant="ghost" 
-                                                    size="icon" 
-                                                    className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                                                    onClick={() => handleRemoveMember(member.id)}
-                                                >
-                                                    <Trash2Icon className="size-4" />
-                                                </Button>
-                                            )}
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
-                                {members.length === 0 && (
+                                    <Button
+                                        className="w-full"
+                                        type="submit"
+                                        disabled={isInviteDisabled || !emailInput}
+                                    >
+                                        {inviting ? <Loader2Icon className="size-4 animate-spin mr-2" /> : null}
+                                        Send Invitation
+                                    </Button>
+                                </form>
+                            )}
+                        </CardContent>
+                    </Card>
+
+                    {/* Members List */}
+                    <Card className="md:col-span-2 border-border/50 shadow-sm bg-card/50 backdrop-blur-sm">
+                        <CardHeader>
+                            <CardTitle className="text-lg flex items-center gap-2">
+                                <SettingsIcon className="size-5 text-muted-foreground" />
+                                Members — {workspace.name}
+                            </CardTitle>
+                            <CardDescription>
+                                {members.length} member{members.length !== 1 ? 's' : ''} in this workspace.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <Table>
+                                <TableHeader>
                                     <TableRow>
-                                        <TableCell colSpan={4} className="text-center py-6 text-muted-foreground">
-                                            No members found.
-                                        </TableCell>
+                                        <TableHead>User</TableHead>
+                                        <TableHead>Role</TableHead>
+                                        <TableHead>Joined</TableHead>
+                                        <TableHead className="text-right">Action</TableHead>
                                     </TableRow>
-                                )}
-                            </TableBody>
-                        </Table>
-                    </CardContent>
-                </Card>
-            </div>
+                                </TableHeader>
+                                <TableBody>
+                                    {members.map((member) => (
+                                        <TableRow key={member.user_id}>
+                                            <TableCell>
+                                                <div className="flex items-center gap-3">
+                                                    <div className="bg-muted size-8 rounded-full flex items-center justify-center border border-border/50">
+                                                        <UserCircle className="size-5 text-muted-foreground" />
+                                                    </div>
+                                                    <span className="font-medium font-mono text-xs">{member.user_id}</span>
+                                                </div>
+                                            </TableCell>
+                                            <TableCell>
+                                                {member.role === "owner" ? (
+                                                    <Badge variant="default" className="bg-primary/20 text-primary border-primary/30 gap-1">
+                                                        <StarIcon className="size-3" />
+                                                        Owner
+                                                    </Badge>
+                                                ) : (
+                                                    <Badge variant="outline" className="text-muted-foreground">
+                                                        Member
+                                                    </Badge>
+                                                )}
+                                            </TableCell>
+                                            <TableCell className="text-muted-foreground text-sm">
+                                                {member.added_at ? new Date(member.added_at).toLocaleDateString() : '—'}
+                                            </TableCell>
+                                            <TableCell className="text-right">
+                                                {member.role !== "owner" && (
+                                                    <Button
+                                                        size="sm"
+                                                        variant="ghost"
+                                                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                                                        onClick={() => handleRemoveMember(member.user_id)}
+                                                        disabled={removingId === member.user_id}
+                                                    >
+                                                        {removingId === member.user_id ? (
+                                                            <Loader2Icon className="size-4 animate-spin" />
+                                                        ) : (
+                                                            <Trash2Icon className="size-4" />
+                                                        )}
+                                                    </Button>
+                                                )}
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                    {members.length === 0 && (
+                                        <TableRow>
+                                            <TableCell colSpan={4} className="text-center text-muted-foreground py-8">
+                                                No members yet. Invite someone to get started.
+                                            </TableCell>
+                                        </TableRow>
+                                    )}
+                                </TableBody>
+                            </Table>
+                        </CardContent>
+                    </Card>
+                </div>
+            )}
         </div>
     )
 }
