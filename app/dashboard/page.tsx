@@ -25,7 +25,8 @@ import { cn } from "@/lib/utils"
 import { useDashboard } from "./layout"
 
 export default function DashboardPage() {
-    const { subscriptions, deployedInstances } = useDashboard()
+    const { user, subscriptions, deployedInstances } = useDashboard()
+    const isStaff = user?.role?.slug === "superuser" || user?.role?.slug === "admin"
 
     return (
         <>
@@ -65,13 +66,13 @@ export default function DashboardPage() {
                                     <h3 className="text-xl font-bold mb-2">No deployed clusters</h3>
                                     <p className="text-muted-foreground max-w-sm mb-6">You have active subscriptions but no deployed instances yet. Go to a service console to deploy your first cluster.</p>
                                     <div className="flex gap-3">
-                                        {subscriptions.some(s => s.service === 'database') && (
+                                        {(isStaff || subscriptions.some(s => s.service === 'database')) && (
                                             <Button render={<Link href="/dashboard/databases" />} nativeButton={false} variant="outline">Deploy Database</Button>
                                         )}
-                                        {subscriptions.some(s => s.service === 'compute') && (
+                                        {(isStaff || subscriptions.some(s => s.service === 'compute')) && (
                                             <Button render={<Link href="/dashboard/compute" />} nativeButton={false} variant="outline">Deploy Compute</Button>
                                         )}
-                                        {subscriptions.some(s => s.service === 'n8n') && (
+                                        {(isStaff || subscriptions.some(s => s.service === 'n8n')) && (
                                             <Button render={<Link href="/dashboard/automations" />} nativeButton={false} variant="outline">Deploy n8n</Button>
                                         )}
                                     </div>

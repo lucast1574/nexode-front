@@ -21,9 +21,10 @@ import { useDashboard } from "@/app/dashboard/layout"
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user, subscriptions } = useDashboard()
 
-  const hasDatabase = subscriptions.some((s) => s.service === "database")
-  const hasN8n = subscriptions.some((s) => s.service === "n8n")
-  const hasCompute = subscriptions.some((s) => s.service === "compute")
+  const isStaff = user?.role?.slug === "superuser" || user?.role?.slug === "admin"
+  const hasDatabase = isStaff || subscriptions.some((s) => s.service === "database")
+  const hasN8n = isStaff || subscriptions.some((s) => s.service === "n8n")
+  const hasCompute = isStaff || subscriptions.some((s) => s.service === "compute")
 
   const navItems = [
     {
