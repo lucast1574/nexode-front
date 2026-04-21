@@ -552,6 +552,7 @@ export default function DatabasesPage() {
                                                 {db.type === 'postgres' ? <Image src="/db/postgres.svg" alt="PostgreSQL" width={20} height={20} className="size-5 object-contain" /> :
                                                     db.type === 'mongodb' ? <Image src="/db/mongo.svg" alt="MongoDB" width={20} height={20} className="size-5 object-contain" /> :
                                                         db.type === 'redis' ? <Image src="/db/redis.svg" alt="Redis" width={20} height={20} className="size-5 object-contain" /> :
+                                                    db.type === 'mysql' ? <Image src="/db/mysql.svg" alt="MySQL" width={20} height={20} className="size-5 object-contain" /> :
                                                             <Database className="size-5 text-muted-foreground" />}
                                             </div>
                                             <div className={cn(
@@ -641,11 +642,13 @@ export default function DatabasesPage() {
                                                             <div>
                                                                 <div className="font-bold leading-tight">{selectedDb.type === 'postgres' ? 'PostgreSQL' :
                                                                     selectedDb.type === 'mongodb' ? 'MongoDB' :
-                                                                        selectedDb.type === 'redis' ? 'Redis' : selectedDb.type} Enterprise</div>
+                                                                        selectedDb.type === 'redis' ? 'Redis' :
+                                                                        selectedDb.type === 'mysql' ? 'MySQL' : selectedDb.type} Enterprise</div>
                                                                 <div className="text-xs text-muted-foreground font-medium">
                                                                     {selectedDb.type === 'postgres' ? 'v16.2 Stable' :
                                                                         selectedDb.type === 'mongodb' ? 'v6.0 Latest' :
-                                                                            selectedDb.type === 'redis' ? 'v7.2 stable' : 'Latest'}
+                                                                            selectedDb.type === 'redis' ? 'v7.2 stable' :
+                                                                            selectedDb.type === 'mysql' ? 'v8.0 LTS' : 'Latest'}
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -798,7 +801,8 @@ export default function DatabasesPage() {
                                                     {
                                                         label: selectedDb.type === 'mongodb' ? 'Public Connection URI (Compass/Shell)' :
                                                             selectedDb.type === 'postgres' ? 'Standard URI (DataGrip/DBeaver/psql)' :
-                                                                selectedDb.type === 'redis' ? 'Public Redis URL (RedisInsight/cli)' : 'Public Connection URI',
+                                                                selectedDb.type === 'redis' ? 'Public Redis URL (RedisInsight/cli)' :
+                                                                selectedDb.type === 'mysql' ? 'Standard URI (DataGrip/DBeaver/MySQL Workbench)' : 'Public Connection URI',
                                                         value: selectedDb.public_uri,
                                                         field: 'public', secret: true
                                                     },
@@ -859,7 +863,7 @@ export default function DatabasesPage() {
                                                         <span className="text-xs font-medium text-muted-foreground ml-2">
                                                             {selectedDb.type === 'mongodb' ? 'Mongosh' :
                                                                 selectedDb.type === 'postgres' ? 'PSQL' :
-                                                                    selectedDb.type === 'redis' ? 'Redis-CLI' : 'MySQL'} Proxy — {selectedDb.name}
+                                                                    selectedDb.type === 'redis' ? 'Redis-CLI' : 'MySQL'} Terminal — {selectedDb.name}
                                                         </span>
                                                     </div>
                                                     <Badge variant="outline" className="text-xs font-bold text-primary">
@@ -964,6 +968,13 @@ export default function DatabasesPage() {
                                             label: 'Redis',
                                             svg: (
                                                 <Image src="/db/redis.svg" alt="Redis" width={24} height={24} className="shrink-0" />
+                                            )
+                                        },
+                                        {
+                                            id: 'mysql',
+                                            label: 'MySQL',
+                                            svg: (
+                                                <Image src="/db/mysql.svg" alt="MySQL" width={24} height={24} className="shrink-0" />
                                             )
                                         },
                                     ].map((type) => {

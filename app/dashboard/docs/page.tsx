@@ -248,11 +248,12 @@ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]`}</CodeBlock>
                 <p className="text-muted-foreground mb-6">Deploy fully managed database instances in seconds. We handle provisioning, backups, and networking — you get a connection string.</p>
 
                 <h3 className="text-lg font-bold mb-4">Supported Databases</h3>
-                <div className="grid grid-cols-3 gap-4 mb-8">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
                     {[
                         { name: "PostgreSQL", desc: "Relational DB", color: "text-blue-500" },
                         { name: "MongoDB", desc: "Document DB", color: "text-emerald-500" },
                         { name: "Redis", desc: "Cache / KV Store", color: "text-red-500" },
+                        { name: "MySQL", desc: "Relational DB", color: "text-orange-500" },
                     ].map((db) => (
                         <Card key={db.name} className="text-center">
                             <CardContent className="pt-6 pb-4">
@@ -286,6 +287,10 @@ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]`}</CodeBlock>
 
                 <h4 className="font-medium mb-2 mt-4">MongoDB</h4>
                 <CodeBlock title="Connection String">{`mongodb://username:password@mongo-xxxxx.db.nexode.app:443/db_name?ssl=true`}</CodeBlock>
+
+                <h4 className="font-medium mb-2 mt-4">MySQL</h4>
+                <CodeBlock title="Connection String">{`mysql://username:password@mysql-xxxxx.db.nexode.app:443/db_name?ssl=true`}</CodeBlock>
+                <Tip>MySQL connections use a TLS tunnel (stunnel). Make sure to enable SSL in your client (DataGrip: SSL tab → Use SSL).</Tip>
 
                 <h4 className="font-medium mb-2 mt-4">Redis</h4>
                 <CodeBlock title="Connection String">{`rediss://:password@redis-xxxxx.db.nexode.app:443`}</CodeBlock>
