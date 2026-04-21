@@ -649,7 +649,7 @@ export default function DatabasesPage() {
                                                                 getTypeColors(selectedDb.type).bg,
                                                                 getTypeColors(selectedDb.type).border
                                                             )}>
-                                                                {selectedDb.type === "postgres" ? <Image src="/db/postgres.svg" alt="PostgreSQL" width={20} height={20} className="size-5 object-contain" /> : selectedDb.type === "mongodb" ? <Image src="/db/mongo.svg" alt="MongoDB" width={20} height={20} className="size-5 object-contain" /> : selectedDb.type === "redis" ? <Image src="/db/redis.svg" alt="Redis" width={20} height={20} className="size-5 object-contain" /> : selectedDb.type === "mysql" ? <Image src="/db/mysql.svg" alt="MySQL" width={20} height={20} className="size-5 object-contain" /> : <Database className={cn("size-5", getTypeColors(selectedDb.type).text)} />}
+                                                                <Database className={cn("size-5", getTypeColors(selectedDb.type).text)} />
                                                             </div>
                                                             <div>
                                                                 <div className="font-bold leading-tight">{selectedDb.type === 'postgres' ? 'PostgreSQL' :
