@@ -1,12 +1,12 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Check, Database, Cpu, Zap, ArrowRight, Shield, Globe, Workflow } from "lucide-react";
+import { Check, Database, Cpu, Zap, ArrowRight, Workflow } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-import Link from "next/link";
 import { PublicNav } from "@/components/PublicNav";
 import { useModal } from "@/components/ui/modal";
 
@@ -137,13 +137,14 @@ export default function ServicesPage() {
         compute: null,
         n8n: null,
     });
+    const [hasCoupon, setHasCoupon] = useState(false);
     const [activeHash, setActiveHash] = useState<string>("");
     const { showAlert } = useModal();
 
     useEffect(() => {
         const hash = window.location.hash.replace("#", "")
-        setActiveHash(hash)
         if (hash) {
+            setTimeout(() => setActiveHash(hash), 0)
             const element = document.getElementById(hash)
             if (element) {
                 setTimeout(() => {
@@ -222,15 +223,15 @@ export default function ServicesPage() {
             const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
             
             let query = `
-                mutation CreateGuestCheckout($items: [CheckoutItemInput!]!) {
-                    createGuestCheckoutSession(items: $items)
+                mutation CreateGuestCheckout($items: [CheckoutItemInput!]!, $allowPromotionCodes: Boolean) {
+                    createGuestCheckoutSession(items: $items, allowPromotionCodes: $allowPromotionCodes)
                 }
             `;
             
             if (token) {
                 query = `
-                    mutation CreateCheckout($items: [CheckoutItemInput!]!) {
-                        createCheckoutSession(items: $items)
+                    mutation CreateCheckout($items: [CheckoutItemInput!]!, $allowPromotionCodes: Boolean) {
+                        createCheckoutSession(items: $items, allowPromotionCodes: $allowPromotionCodes)
                     }
                 `;
             }
@@ -243,7 +244,10 @@ export default function ServicesPage() {
                 },
                 body: JSON.stringify({
                     query: query,
-                    variables: { items }
+                    variables: { 
+                        items,
+                        allowPromotionCodes: hasCoupon
+                    }
                 }),
             });
 
@@ -387,6 +391,21 @@ export default function ServicesPage() {
                                     <div className="text-sm text-muted-foreground font-medium">Selected Services Monthly Total</div>
                                     <div className="text-3xl font-bold text-white">${totalPrice}<span className="text-sm font-normal text-zinc-500">/mo</span></div>
                                 </div>
+                            </div>
+
+                            <div className="flex items-center gap-2 cursor-pointer group">
+                                <Checkbox
+                                    id="has-coupon"
+                                    checked={hasCoupon}
+                                    onCheckedChange={(checked: boolean | "indeterminate") => setHasCoupon(!!checked)}
+                                    className="border-zinc-500 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                                />
+                                <Label
+                                    htmlFor="has-coupon"
+                                    className="text-sm font-medium text-zinc-400 group-hover:text-white cursor-pointer transition-colors"
+                                >
+                                    I have a coupon
+                                </Label>
                             </div>
 
                             <div className="flex items-center gap-4 w-full sm:w-auto px-4">
