@@ -139,7 +139,7 @@ export default function AdminPage() {
                     <div className="p-2 rounded-xl bg-primary/10 border border-primary/20">
                         <ShieldCheck className="h-6 w-6 text-primary" />
                     </div>
-                    <h2 className="text-4xl font-black tracking-tight bg-gradient-to-r from-white via-white to-white/40 bg-clip-text text-transparent italic uppercase">Terminal Admin</h2>
+                    <h2 className="text-4xl font-black tracking-tight bg-gradient-to-r from-white to-white/60 bg-clip-text text-transparent uppercase pr-2">Terminal Admin</h2>
                 </div>
                 <p className="text-white/40 text-sm font-medium ml-1">
                     Nexode Infrastructure & Revenue Control Center

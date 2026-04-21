@@ -117,6 +117,7 @@ export function ProvisionN8nModal({
                                 name="name"
                                 required
                                 placeholder="e.g. Production Automations"
+                                className="focus-visible:ring-destructive border-white/10"
                             />
                         </Field>
 
@@ -130,7 +131,7 @@ export function ProvisionN8nModal({
                                     value={customDomain}
                                     onChange={(e) => setCustomDomain(e.target.value)}
                                     placeholder="n8n.your-domain.com"
-                                    className="pl-11"
+                                    className="pl-11 focus-visible:ring-destructive border-white/10"
                                 />
                             </div>
                         </Field>
@@ -144,6 +145,7 @@ export function ProvisionN8nModal({
                                         name="username"
                                         required
                                         placeholder="admin"
+                                        className="focus-visible:ring-destructive border-white/10"
                                     />
                                 </Field>
                                 <Field>
@@ -154,6 +156,7 @@ export function ProvisionN8nModal({
                                         type="password"
                                         required
                                         placeholder="••••••••"
+                                        className="focus-visible:ring-destructive border-white/10"
                                     />
                                 </Field>
                             </div>
@@ -163,11 +166,12 @@ export function ProvisionN8nModal({
                             type="submit"
                             disabled={isDeploying}
                             className="w-full h-12 gap-2"
+                            variant="destructive"
                         >
                             {isDeploying ? (
                                 <><Spinner data-icon="inline-start" /> Provisioning...</>
                             ) : (
-                                <><Rocket className="size-4" /> Launch Designer <ChevronRight className="size-4" /></>
+                                <><Rocket className="size-4" /> Launch n8n <ChevronRight className="size-4" /></>
                             )}
                         </Button>
                     </FieldGroup>
