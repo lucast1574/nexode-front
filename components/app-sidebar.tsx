@@ -98,7 +98,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton render={<Link href="/dashboard/docs" />}>
+            <SidebarMenuButton render={<Link href="/docs" />}>
               <BookOpen />
               <span>Documentation</span>
             </SidebarMenuButton>
