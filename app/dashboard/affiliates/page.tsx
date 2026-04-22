@@ -2,8 +2,10 @@
 
 import React, { useState, useEffect, useCallback } from "react"
 import { useDashboard } from "@/app/dashboard/layout"
+import { NotificationBell } from "@/components/NotificationBell"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import {
     Card,
     CardContent,
@@ -187,6 +189,10 @@ export default function AffiliatesPage() {
                             </BreadcrumbItem>
                         </BreadcrumbList>
                     </Breadcrumb>
+                    <div className="flex-1" />
+                    <div className="mr-2">
+                        <NotificationBell badgeColor="bg-primary" iconColor="text-primary" />
+                    </div>
                 </header>
                 <div className="flex-1 flex items-center justify-center">
                     <Loader2Icon className="size-8 animate-spin text-primary" />
@@ -209,6 +215,10 @@ export default function AffiliatesPage() {
                             </BreadcrumbItem>
                         </BreadcrumbList>
                     </Breadcrumb>
+                    <div className="flex-1" />
+                    <div className="mr-2">
+                        <NotificationBell badgeColor="bg-primary" iconColor="text-primary" />
+                    </div>
                 </header>
                 <div className="flex-1 overflow-y-auto p-6 flex items-center justify-center">
                     <Card className="max-w-lg w-full">
@@ -253,18 +263,24 @@ export default function AffiliatesPage() {
                         </BreadcrumbItem>
                     </BreadcrumbList>
                 </Breadcrumb>
+                <div className="flex-1" />
+                <div className="mr-2">
+                    <NotificationBell badgeColor="bg-primary" iconColor="text-primary" />
+                </div>
             </header>
 
             <div className="flex-1 overflow-y-auto p-6">
                 <div className="flex flex-col gap-2 mb-8">
-                    <h1 className="text-3xl font-bold tracking-tight">Affiliate Dashboard</h1>
+                    <h1 className="text-2xl font-bold tracking-tight">Affiliate Dashboard</h1>
                     <p className="text-muted-foreground">Track your referrals, commissions, and withdrawals.</p>
                 </div>
 
                 {/* Affiliate Link */}
                 <Card className="mb-6">
                     <CardContent className="py-4 flex items-center gap-4">
-                        <LinkIcon className="size-5 text-primary shrink-0" />
+                        <div className="p-2 bg-primary/10 rounded-lg shrink-0">
+                            <LinkIcon className="size-5 text-primary" />
+                        </div>
                         <code className="flex-1 text-sm bg-muted px-3 py-2 rounded border truncate">
                             {stats.affiliate_link}
                         </code>
@@ -277,10 +293,12 @@ export default function AffiliatesPage() {
 
                 {/* Stats Grid */}
                 <div className="grid gap-4 md:grid-cols-4 mb-6">
-                    <Card>
+                    <Card className="hover:bg-muted/50 transition-colors">
                         <CardContent className="pt-6">
                             <div className="flex items-center gap-3">
-                                <div className="p-2 bg-muted rounded-lg"><UsersIcon className="size-5 text-primary" /></div>
+                                <div className="p-2 bg-primary/10 rounded-lg">
+                                    <UsersIcon className="size-5 text-primary" />
+                                </div>
                                 <div>
                                     <p className="text-2xl font-bold">{stats.total_referrals}</p>
                                     <p className="text-xs text-muted-foreground">Total Referrals</p>
@@ -288,10 +306,12 @@ export default function AffiliatesPage() {
                             </div>
                         </CardContent>
                     </Card>
-                    <Card>
+                    <Card className="hover:bg-muted/50 transition-colors">
                         <CardContent className="pt-6">
                             <div className="flex items-center gap-3">
-                                <div className="p-2 bg-muted rounded-lg"><TrendingUpIcon className="size-5 text-emerald-600" /></div>
+                                <div className="p-2 bg-primary/10 rounded-lg">
+                                    <TrendingUpIcon className="size-5 text-primary" />
+                                </div>
                                 <div>
                                     <p className="text-2xl font-bold">{stats.total_converted}</p>
                                     <p className="text-xs text-muted-foreground">Converted (Paid)</p>
@@ -299,10 +319,12 @@ export default function AffiliatesPage() {
                             </div>
                         </CardContent>
                     </Card>
-                    <Card>
+                    <Card className="hover:bg-muted/50 transition-colors">
                         <CardContent className="pt-6">
                             <div className="flex items-center gap-3">
-                                <div className="p-2 bg-muted rounded-lg"><DollarSignIcon className="size-5 text-yellow-600" /></div>
+                                <div className="p-2 bg-primary/10 rounded-lg">
+                                    <DollarSignIcon className="size-5 text-primary" />
+                                </div>
                                 <div>
                                     <p className="text-2xl font-bold">${stats.total_commission.toFixed(2)}</p>
                                     <p className="text-xs text-muted-foreground">Total Earned</p>
@@ -310,10 +332,12 @@ export default function AffiliatesPage() {
                             </div>
                         </CardContent>
                     </Card>
-                    <Card>
+                    <Card className="hover:bg-muted/50 transition-colors">
                         <CardContent className="pt-6">
                             <div className="flex items-center gap-3">
-                                <div className="p-2 bg-muted rounded-lg"><WalletIcon className="size-5 text-emerald-600" /></div>
+                                <div className="p-2 bg-primary/10 rounded-lg">
+                                    <WalletIcon className="size-5 text-primary" />
+                                </div>
                                 <div>
                                     <p className="text-2xl font-bold">${stats.available_balance.toFixed(2)}</p>
                                     <p className="text-xs text-muted-foreground">Available Balance</p>
@@ -344,7 +368,7 @@ export default function AffiliatesPage() {
                             ) : (
                                 <form onSubmit={handleWithdraw} className="space-y-4">
                                     <div className="space-y-2">
-                                        <label className="text-sm font-medium">Payment Method</label>
+                                        <Label>Payment Method</Label>
                                         <div className="grid grid-cols-2 gap-2">
                                             <Button
                                                 type="button"
@@ -365,10 +389,11 @@ export default function AffiliatesPage() {
                                         </div>
                                     </div>
                                     <div className="space-y-2">
-                                        <label className="text-sm font-medium">
+                                        <Label htmlFor="payment-details">
                                             {paymentMethod === "binance" ? "Binance Pay ID / Wallet" : "CCI Number"}
-                                        </label>
+                                        </Label>
                                         <Input
+                                            id="payment-details"
                                             placeholder={paymentMethod === "binance" ? "Enter your Binance ID or wallet address" : "Enter your CCI number"}
                                             value={paymentDetails}
                                             onChange={(e) => setPaymentDetails(e.target.value)}
