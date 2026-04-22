@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { Check, Database, Cpu, Zap, ArrowRight, Workflow } from "lucide-react";
+import { Check, Database, Cpu, Zap, ArrowRight, Workflow, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -295,11 +295,14 @@ export default function ServicesPage() {
                 <div className="mr-2">
                     <NotificationBell badgeColor="bg-primary" iconColor="text-primary" />
                 </div>
+                <Button render={<Link href="/dashboard/services" />} nativeButton={false} className="gap-2">
+                    <Plus className="size-4" /> New Service
+                </Button>
             </header>
 
             <div className="flex-1 overflow-y-auto p-6">
                 <div className="flex flex-col gap-2 mb-8">
-                    <h1 className="text-3xl font-bold tracking-tight">Launch Your Infrastructure</h1>
+                    <h1 className="text-2xl font-bold tracking-tight">Launch Your Infrastructure</h1>
                     <p className="text-muted-foreground">Select high-performance building blocks for your hosting environment. Mix and match services to scale your system in real-time.</p>
                 </div>
 

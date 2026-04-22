@@ -521,7 +521,7 @@ export default function DatabasesPage() {
                     <div className="mr-2">
                         <NotificationBell badgeColor="bg-primary" iconColor="text-primary" />
                     </div>
-                    <Button onClick={handleCreateClick} className="gap-2 bg-blue-600 hover:bg-blue-700 text-white border-none shadow-lg shadow-blue-900/20">
+                    <Button onClick={handleCreateClick} className="gap-2">
                         <Plus className="size-4" /> New Instance
                     </Button>
                 </header>
@@ -590,7 +590,7 @@ export default function DatabasesPage() {
                                     <div className="flex flex-col lg:flex-row items-start justify-between gap-4">
                                         <div>
                                             <div className="flex items-center gap-3 mb-2">
-                                                <h1 className="text-3xl font-bold tracking-tight">{selectedDb.name}</h1>
+                                                <h1 className="text-2xl font-bold tracking-tight">{selectedDb.name}</h1>
                                                 <Badge variant="outline" className={cn(
                                                     "text-xs font-medium",
                                                     selectedDb.status === 'running' ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' :

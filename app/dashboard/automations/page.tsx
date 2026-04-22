@@ -277,7 +277,7 @@ export default function AutomationsPage() {
                     <div className="mr-2">
                         <NotificationBell badgeColor="bg-primary" iconColor="text-primary" />
                     </div>
-                    <Button onClick={handleCreateClick} className="gap-2 bg-red-600 hover:bg-red-700 text-white border-none shadow-lg shadow-red-900/20">
+                    <Button onClick={handleCreateClick} className="gap-2">
                         <Plus className="size-4" /> Provision n8n
                     </Button>
                 </header>
@@ -333,7 +333,7 @@ export default function AutomationsPage() {
                                     <div className="flex flex-col lg:flex-row items-start justify-between gap-4">
                                         <div>
                                             <div className="flex items-center gap-3 mb-2">
-                                                <h1 className="text-3xl font-bold tracking-tight">{selectedInstance.name}</h1>
+                                                <h1 className="text-2xl font-bold tracking-tight">{selectedInstance.name}</h1>
                                                 <Badge variant="outline" className={cn(
                                                     "text-xs font-medium",
                                                     selectedInstance.status === 'running' ? "bg-primary/10 text-primary border-emerald-500/20" :

@@ -110,6 +110,9 @@ export default function AdminPage() {
                     <div className="mr-2">
                         <NotificationBell badgeColor="bg-primary" iconColor="text-primary" />
                     </div>
+                    <Button render={<Link href="/dashboard/services" />} nativeButton={false} className="gap-2">
+                        <Plus className="size-4" /> New Service
+                    </Button>
                 </header>
                 <div className="flex-1 flex items-center justify-center">
                     <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -135,6 +138,9 @@ export default function AdminPage() {
                     <div className="mr-2">
                         <NotificationBell badgeColor="bg-primary" iconColor="text-primary" />
                     </div>
+                    <Button render={<Link href="/dashboard/services" />} nativeButton={false} className="gap-2">
+                        <Plus className="size-4" /> New Service
+                    </Button>
                 </header>
                 <div className="flex-1 overflow-y-auto p-6">
                     <div className="flex items-center gap-2 text-destructive bg-destructive/10 p-4 rounded-lg border border-destructive/20">
@@ -209,7 +215,7 @@ export default function AdminPage() {
 
             <div className="flex-1 overflow-y-auto p-6">
                 <div className="flex flex-col gap-2 mb-8">
-                    <h1 className="text-3xl font-bold tracking-tight">Admin Overview</h1>
+                    <h1 className="text-2xl font-bold tracking-tight">Admin Overview</h1>
                     <p className="text-muted-foreground">Infrastructure and revenue control center.</p>
                 </div>
 

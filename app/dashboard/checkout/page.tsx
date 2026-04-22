@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { Database, Cpu, Workflow, ArrowRight, Shield, Settings } from "lucide-react";
+import { Database, Cpu, Workflow, ArrowRight, Shield, Settings, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -140,11 +140,14 @@ export default function CheckoutPage() {
                 <div className="mr-2">
                     <NotificationBell badgeColor="bg-primary" iconColor="text-primary" />
                 </div>
+                <Button render={<Link href="/dashboard/services" />} nativeButton={false} className="gap-2">
+                    <Plus className="size-4" /> New Service
+                </Button>
             </header>
 
             <div className="flex-1 overflow-y-auto p-6">
                 <div className="flex flex-col gap-2 mb-8">
-                    <h1 className="text-3xl font-bold tracking-tight">Manage Your Infrastructure</h1>
+                    <h1 className="text-2xl font-bold tracking-tight">Manage Your Infrastructure</h1>
                     <p className="text-muted-foreground">Review and manage your active subscriptions and billing.</p>
                 </div>
 
