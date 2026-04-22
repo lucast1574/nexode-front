@@ -78,9 +78,9 @@ export default function WorkspacePage() {
     // Get max team members from subscription plan
     const maxMembers = (() => {
         const activeSub = subscriptions.find(s => s.status === "ACTIVE")
-        const features = (activeSub as any)?.plan?.features
+        const features = activeSub?.plan?.features
         if (!features) return 0
-        return typeof features === 'object' ? (features.max_team_members || features.team_members || 0) : 0
+        return typeof features === 'object' ? (Number(features.max_team_members) || Number(features.team_members) || 0) : 0
     })()
 
     const fetchWorkspace = useCallback(async () => {
@@ -209,7 +209,7 @@ export default function WorkspacePage() {
                 } : null)
                 toast.success("Member removed")
             }
-        } catch (error) {
+        } catch {
             toast.error("Failed to remove member")
         } finally {
             setRemovingId(null)
@@ -240,8 +240,8 @@ export default function WorkspacePage() {
                 <div className="mr-2">
                     <NotificationBell badgeColor="bg-primary" iconColor="text-primary" />
                 </div>
-                <Button render={<Link href="/dashboard/services" />} nativeButton={false} className="gap-2">
-                    <Plus className="size-4" /> New Service
+                <Button render={<Link href="/dashboard/services" />} nativeButton={false} size="lg" className="gap-2 px-6 font-bold">
+                    <Plus className="size-5" /> New Service
                 </Button>
             </header>
 

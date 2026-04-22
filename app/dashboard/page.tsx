@@ -47,8 +47,8 @@ export default function DashboardPage() {
                 <div className="mr-2">
                     <NotificationBell badgeColor="bg-primary" iconColor="text-primary" />
                 </div>
-                <Button render={<Link href="/dashboard/services" />} nativeButton={false} className="gap-2">
-                    <Plus className="size-4" /> New Service
+                <Button render={<Link href="/dashboard/services" />} nativeButton={false} size="lg" className="gap-2 px-6 font-bold">
+                    <Plus className="size-5" /> New Service
                 </Button>
             </header>
 
@@ -63,9 +63,9 @@ export default function DashboardPage() {
                         <div className="col-span-full">
                             <Card className="border-dashed border-muted">
                                 <CardContent className="p-12 flex flex-col items-center justify-center text-center">
-                                    <div className="size-16 bg-muted rounded-full flex items-center justify-center mb-6">
-                                        <Plus className="size-8 text-muted-foreground" />
-                                    </div>
+                                    <Link href="/dashboard/services" className="size-16 bg-muted hover:bg-primary/20 hover:text-primary transition-all duration-300 rounded-full flex items-center justify-center mb-6 group/add">
+                                        <Plus className="size-8 text-muted-foreground group-hover/add:text-primary transition-colors" />
+                                    </Link>
                                     <h3 className="text-xl font-bold mb-2">No deployed clusters</h3>
                                     <p className="text-muted-foreground max-w-sm mb-6">You have active subscriptions but no deployed instances yet. Go to a service console to deploy your first cluster.</p>
                                     <div className="flex gap-3">
@@ -79,11 +79,7 @@ export default function DashboardPage() {
                                             <Button render={<Link href="/dashboard/automations" />} nativeButton={false} variant="outline">Deploy n8n</Button>
                                         )}
                                     </div>
-                                    <div className="mt-4">
-                                        <Button render={<Link href="/dashboard/services" />} nativeButton={false} className="gap-2">
-                                            <Plus className="size-4" /> New Service
-                                        </Button>
-                                    </div>
+
                                 </CardContent>
                             </Card>
                         </div>

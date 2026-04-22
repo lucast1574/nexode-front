@@ -316,8 +316,8 @@ export default function ServicesPage() {
                 <div className="mr-2">
                     <NotificationBell badgeColor="bg-primary" iconColor="text-primary" />
                 </div>
-                <Button render={<Link href="/dashboard/services" />} nativeButton={false} className="gap-2">
-                    <Plus className="size-4" /> New Service
+                <Button render={<Link href="/dashboard/services" />} nativeButton={false} size="lg" className="gap-2 px-6 font-bold">
+                    <Plus className="size-5" /> New Service
                 </Button>
             </header>
 
@@ -441,8 +441,10 @@ export default function ServicesPage() {
                                     <div className="flex items-baseline gap-2">
                                         {trialEligible && selectedCount > 0 ? (
                                             <>
-                                                <span className="text-3xl font-bold text-foreground">
-                                                    ${(() => {
+                                                <span className="text-3xl font-bold text-foreground">$0</span>
+                                                <span className="text-sm text-muted-foreground line-through">${totalPrice}</span>
+                                                <span className="text-sm font-normal text-muted-foreground">
+                                                    first 7 days, then ${(() => {
                                                         const prices = Object.entries(selectedTiers)
                                                             .filter(([, slug]) => !!slug)
                                                             .map(([serviceId, slug]) => {
@@ -453,13 +455,25 @@ export default function ServicesPage() {
                                                         
                                                         const othersTotal = prices.slice(1).reduce((a, b) => a + b, 0);
                                                         return othersTotal;
-                                                    })()}
+                                                    })()}/mo
                                                 </span>
-                                                <span className="text-sm text-muted-foreground line-through">${totalPrice}</span>
-                                                <span className="text-sm font-normal text-muted-foreground">first 7 days, then ${totalPrice}/mo</span>
                                             </>
                                         ) : (
-                                            <span className="text-3xl font-bold text-foreground">${totalPrice}<span className="text-sm font-normal text-muted-foreground">/mo</span></span>
+                                            <span className="text-3xl font-bold text-foreground">
+                                                ${(() => {
+                                                    const prices = Object.entries(selectedTiers)
+                                                        .filter(([, slug]) => !!slug)
+                                                        .map(([serviceId, slug]) => {
+                                                            const service = SERVICES.find(s => s.id === serviceId);
+                                                            return service?.tiers.find(t => t.slug === slug)?.price || 0;
+                                                        })
+                                                        .sort((a, b) => a - b);
+                                                    
+                                                    const othersTotal = selectedCount >= 2 ? prices.slice(1).reduce((a, b) => a + b, 0) : totalPrice;
+                                                    return othersTotal;
+                                                })()}
+                                                <span className="text-sm font-normal text-muted-foreground">/mo</span>
+                                            </span>
                                         )}
                                     </div>
                                 </div>

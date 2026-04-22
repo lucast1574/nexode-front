@@ -18,8 +18,6 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { getAccessToken, getAuthUser, setAuthSession } from "@/lib/auth-utils"
-import { User as UserType } from "@/lib/types"
-import { Subscription } from "@/app/dashboard/layout"
 import { Switch } from "@/components/ui/switch"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/ui/breadcrumb"
@@ -34,8 +32,7 @@ export default function SettingsPage() {
     const [loading, setLoading] = useState(true)
     const [isSaving, setIsSaving] = useState(false)
     const [isTogglingNotifications, setIsTogglingNotifications] = useState(false)
-    const [user, setUser] = useState<UserType | null>(null)
-    const [subscriptions, setSubscriptions] = useState<Subscription[]>([])
+
     const [formData, setFormData] = useState({
         first_name: "",
         last_name: "",
@@ -58,7 +55,7 @@ export default function SettingsPage() {
                     return
                 }
 
-                setUser(u)
+
                 setFormData({
                     first_name: u.first_name || "",
                     last_name: u.last_name || "",
@@ -103,7 +100,6 @@ export default function SettingsPage() {
                 if (result.data) {
                     if (result.data.me) {
                         const uFull = result.data.me
-                        setUser(uFull)
                         setFormData({
                             first_name: uFull.first_name || "",
                             last_name: uFull.last_name || "",
@@ -112,10 +108,6 @@ export default function SettingsPage() {
                             avatar: uFull.avatar || "",
                         })
                         setAuthSession(undefined, undefined, uFull)
-                    }
-                    if (result.data.mySubscriptions) {
-                        const allSubs = result.data.mySubscriptions || []
-                        setSubscriptions(allSubs.filter((s: Subscription) => s && s.status === 'ACTIVE'))
                     }
                 }
 
@@ -180,7 +172,7 @@ export default function SettingsPage() {
             if (result.data?.updateMe) {
                 const updated = result.data.updateMe
                 setAuthSession(undefined, undefined, updated)
-                setUser(updated)
+
                 setFormData(prev => ({ ...prev, ...updated }))
                 toast.success("Identity synchronized", {
                     description: "User preferences updated on Nexode Core",
@@ -248,8 +240,8 @@ export default function SettingsPage() {
                 </Breadcrumb>
                 <div className="flex-1" />
                 <div className="mr-2"><NotificationBell badgeColor="bg-primary" iconColor="text-primary" /></div>
-                <Button render={<Link href="/dashboard/services" />} nativeButton={false} className="gap-2">
-                    <Plus className="size-4" /> New Service
+                <Button render={<Link href="/dashboard/services" />} nativeButton={false} size="lg" className="gap-2 px-6 font-bold">
+                    <Plus className="size-5" /> New Service
                 </Button>
             </header>
 
