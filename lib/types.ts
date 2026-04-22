@@ -14,6 +14,12 @@ export interface User {
             slug: string;
         };
     };
+    /**
+     * True once the user has consumed their one-time 7-day free trial on
+     * any paid plan. Used to hide "Free trial" badges and skip trial setup
+     * on subsequent checkouts.
+     */
+    trial_used?: boolean;
 }
 
 export interface AuthResponse {
@@ -61,6 +67,11 @@ export interface SubscriptionBase {
     status: string;
     billing_cycle?: string;
     created_on?: string;
+    /**
+     * End-of-period timestamp. During a trial this is the trial end date;
+     * otherwise it's the current Stripe billing period end.
+     */
+    expired_at?: string;
     plan: SubscriptionPlan;
 }
 

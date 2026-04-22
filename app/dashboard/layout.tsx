@@ -20,6 +20,11 @@ export interface Subscription {
     id: string
     service: string
     status: string
+    /**
+     * End-of-period timestamp. During a trial this is the trial end date;
+     * otherwise it's the current Stripe billing period end.
+     */
+    expired_at?: string
     plan: {
         name: string
         slug: string
@@ -141,11 +146,13 @@ export default function DashboardLayout({
                         email
                         avatar
                         role { slug }
+                        trial_used
                     }
                     mySubscriptions {
                         id
                         service
                         status
+                        expired_at
                         plan {
                             name
                             slug

@@ -141,6 +141,9 @@ export default function ServicesPage() {
     });
 
     const [activeHash, setActiveHash] = useState<string>("");
+    // Trial eligibility: user has never used a trial AND is authenticated.
+    // Guests get no trial (anti-abuse) — Stripe will bill immediately.
+    const [trialEligible, setTrialEligible] = useState<boolean>(false);
     const { showAlert } = useModal();
 
     useEffect(() => {
@@ -190,7 +193,25 @@ export default function ServicesPage() {
             }
         };
 
+        const fetchTrialEligibility = async () => {
+            const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
+            if (!token) { setTrialEligible(false); return; }
+            try {
+                const GQL_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api-v1/graphql";
+                const response = await fetch(GQL_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+                    body: JSON.stringify({ query: `query { me { trial_used } }` }),
+                });
+                const result = await response.json();
+                setTrialEligible(result.data?.me?.trial_used === false);
+            } catch {
+                setTrialEligible(false);
+            }
+        };
+
         fetchCurrentSubs();
+        fetchTrialEligibility();
     }, []);
 
     const handleSelectTier = (serviceId: string, tierSlug: string) => {
@@ -380,6 +401,11 @@ export default function ServicesPage() {
 
                                                 <div className="col-span-4 md:col-span-3 text-right">
                                                     <span className="text-2xl font-bold text-foreground">${tier.price} <span className="text-sm font-normal text-muted-foreground">/m</span></span>
+                                                    {trialEligible && tier.price > 0 && (
+                                                        <div className="mt-1 text-[11px] font-medium text-primary">
+                                                            7-day free trial
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </div>
                                         </Card>
@@ -422,7 +448,7 @@ export default function ServicesPage() {
                                     className="rounded-lg h-14 px-10 gap-2 text-lg font-bold flex-1 sm:flex-none cursor-pointer hover:opacity-90"
                                     onClick={handleCheckout}
                                 >
-                                    Deploy Now <ArrowRight className="w-5 h-5" />
+                                    {trialEligible && totalPrice > 0 ? "Start 7-day trial" : "Deploy Now"} <ArrowRight className="w-5 h-5" />
                                 </Button>
                             </div>
                         </CardContent>

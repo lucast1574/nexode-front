@@ -74,6 +74,7 @@ export default function BillingPage() {
                         status
                         billing_cycle
                         created_on
+                        expired_at
                         plan {
                             name
                             slug
@@ -105,8 +106,10 @@ export default function BillingPage() {
 
             const result = await response.json();
             if (result.data) {
+                // Show ACTIVE and TRIALING (uppercase) subscriptions on the billing page —
+                // trial subs are real billing entities that the user should see and manage.
                 const subs = (result.data.mySubscriptions || [])
-                    .filter((s: Subscription) => s.status === 'ACTIVE' && s.service !== 'nexus');
+                    .filter((s: Subscription) => ['ACTIVE', 'TRIALING'].includes(s.status) && s.service !== 'nexus');
                 
                 setSubscriptions(subs);
                 setAvailablePlans(result.data.availablePlans || []);
@@ -368,6 +371,9 @@ export default function BillingPage() {
                                             <div className="font-black text-lg capitalize">{sub.service} Cluster</div>
                                             <div className="text-xs font-medium text-muted-foreground mt-0.5">
                                                 <Badge variant="outline" className="text-[10px] uppercase font-black px-2 py-0 bg-primary/5 border-primary/20 text-primary">{sub.plan.name}</Badge>
+                                                {sub.status === 'TRIALING' && (
+                                                    <Badge variant="outline" className="text-[10px] uppercase font-black px-2 py-0 ml-2 bg-emerald-500/10 border-emerald-500/30 text-emerald-500">trial</Badge>
+                                                )}
                                                 <Separator orientation="vertical" className="inline-block h-3 mx-3 align-middle" />
                                                 <span className="uppercase tracking-widest">{sub.billing_cycle}</span>
                                             </div>
@@ -381,7 +387,9 @@ export default function BillingPage() {
                                                 <span className="text-sm font-medium text-muted-foreground ml-1">/{sub.billing_cycle === 'monthly' ? 'mo' : 'yr'}</span>
                                             </div>
                                             <div className="text-[10px] uppercase font-black text-muted-foreground/60 tracking-widest mt-1">
-                                                next: {getNextBillingDate(sub.created_on, sub.billing_cycle).toLocaleString('en-US', { month: 'short', day: 'numeric' }).toLowerCase()}
+                                                {sub.status === 'TRIALING' && sub.expired_at
+                                                    ? `trial ends: ${new Date(sub.expired_at).toLocaleString('en-US', { month: 'short', day: 'numeric' }).toLowerCase()}`
+                                                    : `next: ${getNextBillingDate(sub.created_on, sub.billing_cycle).toLocaleString('en-US', { month: 'short', day: 'numeric' }).toLowerCase()}`}
                                             </div>
                                         </div>
                                         
