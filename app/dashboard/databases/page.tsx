@@ -519,7 +519,7 @@ export default function DatabasesPage() {
                     </Breadcrumb>
                     <div className="flex-1" />
                     <div className="mr-2">
-                        <NotificationBell badgeColor="bg-blue-600" iconColor="text-blue-500" />
+                        <NotificationBell badgeColor="bg-primary" iconColor="text-primary" />
                     </div>
                     <Button onClick={handleCreateClick} className="gap-2 bg-blue-600 hover:bg-blue-700 text-white border-none shadow-lg shadow-blue-900/20">
                         <Plus className="size-4" /> New Instance

@@ -10,6 +10,7 @@ import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/co
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import { useModal } from "@/components/ui/modal";
+import { NotificationBell } from "@/components/NotificationBell";
 
 interface Tier {
     name: string;
@@ -290,6 +291,10 @@ export default function ServicesPage() {
                         </BreadcrumbItem>
                     </BreadcrumbList>
                 </Breadcrumb>
+                <div className="flex-1" />
+                <div className="mr-2">
+                    <NotificationBell badgeColor="bg-primary" iconColor="text-primary" />
+                </div>
             </header>
 
             <div className="flex-1 overflow-y-auto p-6">

@@ -7,14 +7,14 @@ import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/ui/breadcrumb"
-import { MessageCircle, ArrowRight } from "lucide-react"
+import { MessageCircle, ArrowRight, Plus } from "lucide-react"
 
 export default function HelpPage() {
   return (
     <>
       <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
-        <SidebarTrigger />
-        <Separator orientation="vertical" />
+        <SidebarTrigger className="-ml-1" />
+        <Separator orientation="vertical" className="mr-2 data-vertical:h-4 data-vertical:self-auto" />
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
@@ -23,7 +23,12 @@ export default function HelpPage() {
           </BreadcrumbList>
         </Breadcrumb>
         <div className="flex-1" />
-        <div className="mr-2"><NotificationBell /></div>
+        <div className="mr-2">
+          <NotificationBell badgeColor="bg-primary" iconColor="text-primary" />
+        </div>
+        <Button render={<Link href="/dashboard/services" />} nativeButton={false} className="gap-2">
+          <Plus className="size-4" /> New Service
+        </Button>
       </header>
       <div className="flex-1 overflow-y-auto p-6">
         <div className="flex flex-col gap-2 mb-8">

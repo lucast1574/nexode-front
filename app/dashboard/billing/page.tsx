@@ -293,7 +293,7 @@ export default function BillingPage() {
                     </BreadcrumbList>
                 </Breadcrumb>
                 <div className="flex-1" />
-                <div className="mr-2"><NotificationBell /></div>
+                <div className="mr-2"><NotificationBell badgeColor="bg-primary" iconColor="text-primary" /></div>
                 <Button render={<Link href="/dashboard/services" />} nativeButton={false} className="gap-2">
                     <Plus className="size-4" /> New Service
                 </Button>

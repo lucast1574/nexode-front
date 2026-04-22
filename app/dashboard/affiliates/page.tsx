@@ -39,6 +39,8 @@ import {
 } from "lucide-react"
 import { toast } from "sonner"
 import { getAccessToken } from "@/lib/auth-utils"
+import Link from "next/link"
+import { Plus } from "lucide-react"
 
 const GQL_URL = process.env.NEXT_PUBLIC_API_URL || "https://backend.nexode.app/api-v1/graphql"
 
@@ -193,6 +195,9 @@ export default function AffiliatesPage() {
                     <div className="mr-2">
                         <NotificationBell badgeColor="bg-primary" iconColor="text-primary" />
                     </div>
+                    <Button render={<Link href="/dashboard/services" />} nativeButton={false} className="gap-2">
+                        <Plus className="size-4" /> New Service
+                    </Button>
                 </header>
                 <div className="flex-1 flex items-center justify-center">
                     <Loader2Icon className="size-8 animate-spin text-primary" />
@@ -219,6 +224,9 @@ export default function AffiliatesPage() {
                     <div className="mr-2">
                         <NotificationBell badgeColor="bg-primary" iconColor="text-primary" />
                     </div>
+                    <Button render={<Link href="/dashboard/services" />} nativeButton={false} className="gap-2">
+                        <Plus className="size-4" /> New Service
+                    </Button>
                 </header>
                 <div className="flex-1 overflow-y-auto p-6 flex items-center justify-center">
                     <Card className="max-w-lg w-full">
@@ -267,6 +275,9 @@ export default function AffiliatesPage() {
                 <div className="mr-2">
                     <NotificationBell badgeColor="bg-primary" iconColor="text-primary" />
                 </div>
+                <Button render={<Link href="/dashboard/services" />} nativeButton={false} className="gap-2">
+                    <Plus className="size-4" /> New Service
+                </Button>
             </header>
 
             <div className="flex-1 overflow-y-auto p-6">
@@ -277,7 +288,7 @@ export default function AffiliatesPage() {
 
                 {/* Affiliate Link */}
                 <Card className="mb-6">
-                    <CardContent className="py-4 flex items-center gap-4">
+                    <CardContent className="py-4 flex flex-col sm:flex-row items-start sm:items-center gap-4">
                         <div className="p-2 bg-primary/10 rounded-lg shrink-0">
                             <LinkIcon className="size-5 text-primary" />
                         </div>
@@ -292,7 +303,7 @@ export default function AffiliatesPage() {
                 </Card>
 
                 {/* Stats Grid */}
-                <div className="grid gap-4 md:grid-cols-4 mb-6">
+                <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 mb-6">
                     <Card className="hover:bg-muted/50 transition-colors">
                         <CardContent className="pt-6">
                             <div className="flex items-center gap-3">
@@ -419,52 +430,54 @@ export default function AffiliatesPage() {
                             <CardDescription>{referrals.length} people signed up with your link</CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead>User</TableHead>
-                                        <TableHead>Status</TableHead>
-                                        <TableHead>Payment</TableHead>
-                                        <TableHead>Your Commission</TableHead>
-                                        <TableHead>Date</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {referrals.map((r) => (
-                                        <TableRow key={r.id}>
-                                            <TableCell>
-                                                <div>
-                                                    <p className="font-medium text-sm">{r.referred_name}</p>
-                                                    <p className="text-xs text-muted-foreground">{r.referred_email}</p>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell>
-                                                {r.status === "converted" ? (
-                                                    <Badge variant="outline" className="text-emerald-600 border-emerald-200 dark:border-emerald-800 dark:text-emerald-400">Paid</Badge>
-                                                ) : (
-                                                    <Badge variant="secondary">Registered</Badge>
-                                                )}
-                                            </TableCell>
-                                            <TableCell className="font-mono text-sm">
-                                                {r.first_payment > 0 ? `$${r.first_payment.toFixed(2)}` : "—"}
-                                            </TableCell>
-                                            <TableCell className="font-mono text-sm font-bold text-emerald-600">
-                                                {r.commission > 0 ? `+$${r.commission.toFixed(2)}` : "—"}
-                                            </TableCell>
-                                            <TableCell className="text-xs text-muted-foreground">
-                                                {new Date(r.created_at).toLocaleDateString()}
-                                            </TableCell>
-                                        </TableRow>
-                                    ))}
-                                    {referrals.length === 0 && (
+                            <div className="overflow-x-auto">
+                                <Table>
+                                    <TableHeader>
                                         <TableRow>
-                                            <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
-                                                No referrals yet. Share your link to start earning!
-                                            </TableCell>
+                                            <TableHead>User</TableHead>
+                                            <TableHead>Status</TableHead>
+                                            <TableHead>Payment</TableHead>
+                                            <TableHead>Your Commission</TableHead>
+                                            <TableHead>Date</TableHead>
                                         </TableRow>
-                                    )}
-                                </TableBody>
-                            </Table>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {referrals.map((r) => (
+                                            <TableRow key={r.id}>
+                                                <TableCell>
+                                                    <div>
+                                                        <p className="font-medium text-sm">{r.referred_name}</p>
+                                                        <p className="text-xs text-muted-foreground">{r.referred_email}</p>
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell>
+                                                    {r.status === "converted" ? (
+                                                        <Badge variant="outline" className="text-emerald-600 border-emerald-200 dark:border-emerald-800 dark:text-emerald-400">Paid</Badge>
+                                                    ) : (
+                                                        <Badge variant="secondary">Registered</Badge>
+                                                    )}
+                                                </TableCell>
+                                                <TableCell className="font-mono text-sm">
+                                                    {r.first_payment > 0 ? `$${r.first_payment.toFixed(2)}` : "—"}
+                                                </TableCell>
+                                                <TableCell className="font-mono text-sm font-bold text-emerald-600">
+                                                    {r.commission > 0 ? `+$${r.commission.toFixed(2)}` : "—"}
+                                                </TableCell>
+                                                <TableCell className="text-xs text-muted-foreground">
+                                                    {new Date(r.created_at).toLocaleDateString()}
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                        {referrals.length === 0 && (
+                                            <TableRow>
+                                                <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
+                                                    No referrals yet. Share your link to start earning!
+                                                </TableCell>
+                                            </TableRow>
+                                        )}
+                                    </TableBody>
+                                </Table>
+                            </div>
                         </CardContent>
                     </Card>
                 </div>
@@ -476,35 +489,37 @@ export default function AffiliatesPage() {
                             <CardTitle className="text-lg">Withdrawal History</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead>Amount</TableHead>
-                                        <TableHead>Method</TableHead>
-                                        <TableHead>Details</TableHead>
-                                        <TableHead>Status</TableHead>
-                                        <TableHead>Date</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {withdrawals.map((w) => (
-                                        <TableRow key={w.id}>
-                                            <TableCell className="font-bold">${w.amount.toFixed(2)}</TableCell>
-                                            <TableCell className="uppercase text-xs font-medium">{w.payment_method}</TableCell>
-                                            <TableCell className="font-mono text-xs">{w.payment_details}</TableCell>
-                                            <TableCell>
-                                                {w.status === "paid" && <Badge variant="outline" className="text-emerald-600 border-emerald-200 dark:border-emerald-800 dark:text-emerald-400">Paid</Badge>}
-                                                {w.status === "pending" && <Badge variant="secondary">Pending</Badge>}
-                                                {w.status === "approved" && <Badge variant="outline" className="text-blue-600 border-blue-200 dark:border-blue-800 dark:text-blue-400">Approved</Badge>}
-                                                {w.status === "rejected" && <Badge variant="destructive">Rejected</Badge>}
-                                            </TableCell>
-                                            <TableCell className="text-xs text-muted-foreground">
-                                                {new Date(w.created_at).toLocaleDateString()}
-                                            </TableCell>
+                            <div className="overflow-x-auto">
+                                <Table>
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead>Amount</TableHead>
+                                            <TableHead>Method</TableHead>
+                                            <TableHead>Details</TableHead>
+                                            <TableHead>Status</TableHead>
+                                            <TableHead>Date</TableHead>
                                         </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {withdrawals.map((w) => (
+                                            <TableRow key={w.id}>
+                                                <TableCell className="font-bold">${w.amount.toFixed(2)}</TableCell>
+                                                <TableCell className="uppercase text-xs font-medium">{w.payment_method}</TableCell>
+                                                <TableCell className="font-mono text-xs">{w.payment_details}</TableCell>
+                                                <TableCell>
+                                                    {w.status === "paid" && <Badge variant="outline" className="text-emerald-600 border-emerald-200 dark:border-emerald-800 dark:text-emerald-400">Paid</Badge>}
+                                                    {w.status === "pending" && <Badge variant="secondary">Pending</Badge>}
+                                                    {w.status === "approved" && <Badge variant="outline" className="text-blue-600 border-blue-200 dark:border-blue-800 dark:text-blue-400">Approved</Badge>}
+                                                    {w.status === "rejected" && <Badge variant="destructive">Rejected</Badge>}
+                                                </TableCell>
+                                                <TableCell className="text-xs text-muted-foreground">
+                                                    {new Date(w.created_at).toLocaleDateString()}
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </div>
                         </CardContent>
                     </Card>
                 )}

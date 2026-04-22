@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback } from "react"
 import { useDashboard } from "@/app/dashboard/layout"
+import { NotificationBell } from "@/components/NotificationBell"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -233,6 +234,10 @@ export default function WorkspacePage() {
                         </BreadcrumbItem>
                     </BreadcrumbList>
                 </Breadcrumb>
+                <div className="flex-1" />
+                <div className="mr-2">
+                    <NotificationBell badgeColor="bg-primary" iconColor="text-primary" />
+                </div>
             </header>
 
             <div className="flex-1 overflow-y-auto p-6">

@@ -19,6 +19,14 @@ import {
     BreadcrumbList,
     BreadcrumbPage,
 } from "@/components/ui/breadcrumb"
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table"
 import { cn } from "@/lib/utils"
 import Image from "next/image"
 import {
@@ -249,7 +257,7 @@ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]`}</CodeBlock>
                 <p className="text-muted-foreground mb-6">Deploy fully managed database instances in seconds. We handle provisioning, backups, and networking — you get a connection string.</p>
 
                 <h3 className="text-lg font-bold mb-4">Supported Databases</h3>
-                <div className="grid grid-cols-3 gap-4 mb-8">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
                     {[
                         { name: "PostgreSQL", desc: "Relational DB", icon: "/db/postgres.svg" },
                         { name: "MongoDB", desc: "Document DB", icon: "/db/mongo.svg" },
@@ -352,31 +360,31 @@ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]`}</CodeBlock>
 
                 <h3 className="text-lg font-bold mb-4 mt-8">Instance Limits by Plan</h3>
                 <div className="overflow-x-auto mb-6">
-                    <table className="w-full text-sm">
-                        <thead>
-                            <tr className="border-b">
-                                <th className="text-left py-2 pr-4">Plan</th>
-                                <th className="text-left py-2 pr-4">Max Instances</th>
-                                <th className="text-left py-2 pr-4">Executions</th>
-                                <th className="text-left py-2">RAM</th>
-                            </tr>
-                        </thead>
-                        <tbody>
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead className="pr-4">Plan</TableHead>
+                                <TableHead className="pr-4">Max Instances</TableHead>
+                                <TableHead className="pr-4">Executions</TableHead>
+                                <TableHead>RAM</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
                             {[
                                 ["Basic", "1", "1,000/mo", "Shared"],
                                 ["Standard", "1", "5,000/mo", "1GB Dedicated"],
                                 ["Pro", "2", "20,000/mo", "2GB Dedicated"],
                                 ["Ultra", "3", "50,000/mo", "4GB Dedicated"],
                             ].map(([plan, inst, exec, ram]) => (
-                                <tr key={plan} className="border-b border-border/50">
-                                    <td className="py-2 pr-4 font-medium">{plan}</td>
-                                    <td className="py-2 pr-4">{inst}</td>
-                                    <td className="py-2 pr-4">{exec}</td>
-                                    <td className="py-2">{ram}</td>
-                                </tr>
+                                <TableRow key={plan}>
+                                    <TableCell className="pr-4 font-medium">{plan}</TableCell>
+                                    <TableCell className="pr-4">{inst}</TableCell>
+                                    <TableCell className="pr-4">{exec}</TableCell>
+                                    <TableCell>{ram}</TableCell>
+                                </TableRow>
                             ))}
-                        </tbody>
-                    </table>
+                        </TableBody>
+                    </Table>
                 </div>
 
                 <Tip>You can restart your n8n instance anytime from the dashboard if you need to apply configuration changes.</Tip>
@@ -535,10 +543,7 @@ export default function DocsPage() {
                     /* ── Index View ── */
                     <div className="p-6 max-w-5xl mx-auto">
                         <div className="flex flex-col gap-2 mb-8">
-                            <h1 className="text-3xl font-bold tracking-tight flex items-center gap-3">
-                                <BookOpen className="size-8 text-primary" />
-                                Documentation
-                            </h1>
+                            <h1 className="text-2xl font-bold tracking-tight">Documentation</h1>
                             <p className="text-muted-foreground">Everything you need to know about using Nexode.</p>
                         </div>
 

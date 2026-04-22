@@ -2,6 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
+import { NotificationBell } from "@/components/NotificationBell";
 import { useGraphQL } from "@/lib/use-graphql";
 import { useQuery, useMutation } from "@apollo/client/react";
 import { GET_ADMIN_DATA, GET_ALL_USERS } from "@/lib/graphql-operations";
@@ -105,6 +106,10 @@ export default function AdminPage() {
                             </BreadcrumbItem>
                         </BreadcrumbList>
                     </Breadcrumb>
+                    <div className="flex-1" />
+                    <div className="mr-2">
+                        <NotificationBell badgeColor="bg-primary" iconColor="text-primary" />
+                    </div>
                 </header>
                 <div className="flex-1 flex items-center justify-center">
                     <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -126,6 +131,10 @@ export default function AdminPage() {
                             </BreadcrumbItem>
                         </BreadcrumbList>
                     </Breadcrumb>
+                    <div className="flex-1" />
+                    <div className="mr-2">
+                        <NotificationBell badgeColor="bg-primary" iconColor="text-primary" />
+                    </div>
                 </header>
                 <div className="flex-1 overflow-y-auto p-6">
                     <div className="flex items-center gap-2 text-destructive bg-destructive/10 p-4 rounded-lg border border-destructive/20">
@@ -190,6 +199,9 @@ export default function AdminPage() {
                     </BreadcrumbList>
                 </Breadcrumb>
                 <div className="flex-1" />
+                <div className="mr-2">
+                    <NotificationBell badgeColor="bg-primary" iconColor="text-primary" />
+                </div>
                 <Button render={<Link href="/dashboard/services" />} nativeButton={false} className="gap-2">
                     <Plus className="size-4" /> New Service
                 </Button>

@@ -275,7 +275,7 @@ export default function AutomationsPage() {
                     </Breadcrumb>
                     <div className="flex-1" />
                     <div className="mr-2">
-                        <NotificationBell badgeColor="bg-red-600" iconColor="text-red-500" />
+                        <NotificationBell badgeColor="bg-primary" iconColor="text-primary" />
                     </div>
                     <Button onClick={handleCreateClick} className="gap-2 bg-red-600 hover:bg-red-700 text-white border-none shadow-lg shadow-red-900/20">
                         <Plus className="size-4" /> Provision n8n
