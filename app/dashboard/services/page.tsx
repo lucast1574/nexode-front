@@ -453,7 +453,7 @@ export default function ServicesPage() {
                                                             })
                                                             .sort((a, b) => a - b);
                                                         
-                                                        const othersTotal = prices.slice(1).reduce((a, b) => a + b, 0);
+                                                        const othersTotal = prices.length >= 2 ? prices.slice(1).reduce((a, b) => a + b, 0) : (prices[0] || 0);
                                                         return othersTotal;
                                                     })()}/mo
                                                 </span>
