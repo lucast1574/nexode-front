@@ -24,7 +24,8 @@ import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/ui/breadcrumb"
 import { SidebarTrigger } from "@/components/ui/sidebar"
-import { UsersIcon, MailIcon, StarIcon, Trash2Icon, Loader2Icon, UserCircle } from "lucide-react"
+import { UsersIcon, MailIcon, StarIcon, Trash2Icon, Loader2Icon, UserCircle, Plus } from "lucide-react"
+import Link from "next/link"
 import { toast } from "sonner"
 import { getAccessToken } from "@/lib/auth-utils"
 
@@ -238,11 +239,14 @@ export default function WorkspacePage() {
                 <div className="mr-2">
                     <NotificationBell badgeColor="bg-primary" iconColor="text-primary" />
                 </div>
+                <Button render={<Link href="/dashboard/services" />} nativeButton={false} className="gap-2">
+                    <Plus className="size-4" /> New Service
+                </Button>
             </header>
 
             <div className="flex-1 overflow-y-auto p-6">
                 <div className="flex flex-col gap-2 mb-8">
-                    <h1 className="text-3xl font-bold tracking-tight">Workspace</h1>
+                    <h1 className="text-2xl font-bold tracking-tight">Workspace</h1>
                     <p className="text-muted-foreground">
                         Manage your team members and their access to your Nexode resources.
                     </p>
@@ -264,7 +268,9 @@ export default function WorkspacePage() {
                         <Card className="md:col-span-1 h-fit">
                             <CardHeader>
                                 <CardTitle className="text-lg flex items-center gap-2">
-                                    <MailIcon className="size-5 text-primary" />
+                                    <div className="p-2 bg-primary/10 rounded-lg">
+                                        <MailIcon className="size-5 text-primary" />
+                                    </div>
                                     Invite Member
                                 </CardTitle>
                                 <CardDescription>
@@ -323,7 +329,9 @@ export default function WorkspacePage() {
                         <Card className="md:col-span-2">
                             <CardHeader>
                                 <CardTitle className="text-lg flex items-center gap-2">
-                                    <UsersIcon className="size-5 text-muted-foreground" />
+                                    <div className="p-2 bg-primary/10 rounded-lg">
+                                        <UsersIcon className="size-5 text-primary" />
+                                    </div>
                                     Members — {workspace.name}
                                 </CardTitle>
                                 <CardDescription>
