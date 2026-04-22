@@ -1,0 +1,107 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - generic [ref=e5]:
+      - list [ref=e7]:
+        - listitem [ref=e8]:
+          - link "N Nexode Documentation" [ref=e9] [cursor=pointer]:
+            - /url: /
+            - generic [ref=e11]: "N"
+            - generic [ref=e12]:
+              - generic [ref=e13]: Nexode
+              - generic [ref=e14]: Documentation
+      - generic [ref=e15]:
+        - generic [ref=e16]:
+          - generic [ref=e17]: Getting Started
+          - list [ref=e18]:
+            - listitem [ref=e19]:
+              - button "Quick Start Guide" [ref=e20]:
+                - img [ref=e21]
+                - generic [ref=e26]: Quick Start Guide
+        - generic [ref=e27]:
+          - generic [ref=e28]: Services
+          - list [ref=e29]:
+            - listitem [ref=e30]:
+              - button "Compute Instances" [ref=e31]:
+                - img [ref=e32]
+                - generic [ref=e35]: Compute Instances
+            - listitem [ref=e36]:
+              - button "Databases" [ref=e37]:
+                - img [ref=e38]
+                - generic [ref=e42]: Databases
+            - listitem [ref=e43]:
+              - button "n8n Automations" [ref=e44]:
+                - img [ref=e45]
+                - generic [ref=e49]: n8n Automations
+        - generic [ref=e50]:
+          - generic [ref=e51]: Account & Billing
+          - list [ref=e52]:
+            - listitem [ref=e53]:
+              - button "Billing & Plans" [ref=e54]:
+                - img [ref=e55]
+                - generic [ref=e57]: Billing & Plans
+            - listitem [ref=e58]:
+              - button "Workspaces & Teams" [ref=e59]:
+                - img [ref=e60]
+                - generic [ref=e65]: Workspaces & Teams
+            - listitem [ref=e66]:
+              - button "Affiliate Program" [ref=e67]:
+                - img [ref=e68]
+                - generic [ref=e70]: Affiliate Program
+      - list [ref=e72]:
+        - listitem [ref=e73]:
+          - link "Dashboard" [ref=e74] [cursor=pointer]:
+            - /url: /dashboard
+            - generic [ref=e75]: Dashboard
+      - button "Toggle Sidebar" [ref=e76]
+    - main [ref=e77]:
+      - generic [ref=e79]:
+        - generic [ref=e80]:
+          - img [ref=e81]
+          - generic [ref=e83]: Docs
+          - img [ref=e84]
+          - generic [ref=e86]: getting started
+        - generic [ref=e87]:
+          - img [ref=e89]
+          - generic [ref=e94]:
+            - heading "Quick Start Guide" [level=1] [ref=e95]
+            - paragraph [ref=e96]: Get up and running with Nexode in 5 minutes
+        - separator [ref=e97]
+        - article [ref=e98]:
+          - generic [ref=e99]:
+            - paragraph [ref=e100]: Welcome to Nexode! This guide will help you deploy your first service in minutes.
+            - heading "What is Nexode?" [level=3] [ref=e101]
+            - paragraph [ref=e102]: Nexode is a Platform as a Service (PaaS) that lets you deploy databases, compute instances, and n8n automation workflows with zero infrastructure management. We handle the servers, networking, SSL, and scaling — you focus on building.
+            - heading "Getting Started" [level=3] [ref=e103]
+            - generic [ref=e104]:
+              - generic [ref=e105]: "1"
+              - generic [ref=e106]:
+                - paragraph [ref=e107]: Create an Account
+                - paragraph [ref=e108]: Sign up with your email or Google account. You'll get a free tier automatically.
+            - generic [ref=e109]:
+              - generic [ref=e110]: "2"
+              - generic [ref=e111]:
+                - paragraph [ref=e112]: Choose a Service
+                - paragraph [ref=e113]:
+                  - text: Go to
+                  - strong [ref=e114]: Services
+                  - text: "in the sidebar and pick what you need: Databases, Compute, or n8n Automations."
+            - generic [ref=e115]:
+              - generic [ref=e116]: "3"
+              - generic [ref=e117]:
+                - paragraph [ref=e118]: Subscribe to a Plan
+                - paragraph [ref=e119]: Select a plan that fits your needs. Payment is handled securely via Stripe.
+            - generic [ref=e120]:
+              - generic [ref=e121]: "4"
+              - generic [ref=e122]:
+                - paragraph [ref=e123]: Deploy
+                - paragraph [ref=e124]: Click "Deploy" on any service page. Your instance will be provisioned in seconds with a public HTTPS URL.
+            - generic [ref=e125]:
+              - img [ref=e126]
+              - generic [ref=e128]: All services come with automatic SSL certificates, health monitoring, and can be managed from the dashboard.
+        - separator [ref=e129]
+        - button "Compute Instances" [ref=e132]:
+          - generic [ref=e133]: Compute Instances
+          - img [ref=e134]
+  - region "Notifications alt+T"
+  - button "Open Next.js Dev Tools" [ref=e141] [cursor=pointer]:
+    - img [ref=e142]

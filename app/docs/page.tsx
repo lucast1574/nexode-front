@@ -1,7 +1,6 @@
 "use client"
 
 import React, { useState, useEffect } from "react"
-import Link from "next/link"
 import Image from "next/image"
 import {
   Card,
@@ -10,11 +9,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { ScrollArea } from "@/components/ui/scroll-area"
+import { SidebarTrigger } from "@/components/ui/sidebar"
 import {
   Table,
   TableBody,
@@ -30,7 +26,6 @@ import {
   Workflow,
   Rocket,
   FileCode,
-  Settings,
   CreditCard,
   Users,
   ChevronRight,
@@ -38,7 +33,6 @@ import {
   AlertTriangle,
   Info,
   Zap,
-  Menu,
   BookOpen,
 } from "lucide-react"
 
@@ -653,189 +647,104 @@ CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]`}</CodeBlock>
   },
 ]
 
-const categories = [
-  { key: "getting-started", label: "Getting Started" },
-  { key: "services", label: "Services" },
-  { key: "account", label: "Account & Billing" },
-] as const
-
 // ══════════════════════════════════════════════════════════
 // Main Component
 // ══════════════════════════════════════════════════════════
 
 export default function DocsPage() {
   const [activeDocId, setActiveDocId] = useState<string>("quickstart")
-  const [mobileOpen, setMobileOpen] = useState(false)
-  const activeDoc = docs.find((d) => d.id === activeDocId)
 
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "smooth" })
-  }, [activeDocId])
+    const hash = window.location.hash.replace("#", "")
+    if (hash && docs.some((d) => d.id === hash)) {
+      setActiveDocId(hash)
+    }
+    const handleHashChange = () => {
+      const newHash = window.location.hash.replace("#", "")
+      if (newHash && docs.some((d) => d.id === newHash)) {
+        setActiveDocId(newHash)
+      }
+    }
+    window.addEventListener("hashchange", handleHashChange)
+    return () => window.removeEventListener("hashchange", handleHashChange)
+  }, [])
 
-  const SidebarContent = () => (
-    <div className="flex flex-col h-full">
-      <div className="p-4 border-b md:hidden">
-        <Link href="/" className="flex items-center gap-2">
-          <Image
-            src="/logo/logo_white.svg"
-            alt="Nexode"
-            width={90}
-            height={24}
-            className="h-6 w-auto"
-            priority
-          />
-        </Link>
-      </div>
-      <ScrollArea className="flex-1">
-        <div className="p-3 space-y-6">
-          {categories.map((cat) => {
-            const catDocs = docs.filter((d) => d.category === cat.key)
-            if (catDocs.length === 0) return null
-            return (
-              <div key={cat.key}>
-                <h3 className="px-3 mb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                  {cat.label}
-                </h3>
-                <div className="space-y-0.5">
-                  {catDocs.map((doc) => {
-                    const isActive = doc.id === activeDocId
-                    return (
-                      <button
-                        key={doc.id}
-                        onClick={() => {
-                          setActiveDocId(doc.id)
-                          setMobileOpen(false)
-                        }}
-                        className={cn(
-                          "w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm transition-colors text-left",
-                          isActive
-                            ? "bg-primary/10 text-primary font-medium"
-                            : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                        )}
-                      >
-                        <doc.icon className="size-4 shrink-0" />
-                        <span className="truncate">{doc.title}</span>
-                        {isActive && (
-                          <ChevronRight className="size-3.5 ml-auto shrink-0 opacity-70" />
-                        )}
-                      </button>
-                    )
-                  })}
-                </div>
-              </div>
-            )
-          })}
-        </div>
-      </ScrollArea>
-      <div className="p-4 border-t">
-        <Button
-          render={<Link href="/dashboard" />}
-          nativeButton={false}
-          variant="outline"
-          className="w-full"
-        >
-          Go to Dashboard
-        </Button>
-      </div>
-    </div>
-  )
+  const activeDoc = docs.find((d) => d.id === activeDocId)
+  if (!activeDoc) return null
+
+  const idx = docs.findIndex((d) => d.id === activeDocId)
+  const prev = docs[idx - 1]
+  const next = docs[idx + 1]
 
   return (
     <>
-      {/* Desktop Sidebar */}
-      <aside className="hidden md:flex w-64 shrink-0 flex-col border-r bg-muted/30">
-        <SidebarContent />
-      </aside>
+      {/* Mobile header */}
+      <header className="flex h-14 shrink-0 items-center gap-2 border-b px-4 md:hidden">
+        <SidebarTrigger className="-ml-1" />
+        <Separator orientation="vertical" className="mr-2 h-4" />
+        <span className="text-sm font-medium">{activeDoc.title}</span>
+      </header>
 
-      {/* Mobile Header + Sheet */}
-      <div className="md:hidden flex h-14 shrink-0 items-center gap-2 border-b px-4 bg-background">
-        <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-          <SheetTrigger className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors hover:bg-muted hover:text-foreground h-9 w-9 -ml-2">
-            <Menu className="size-5" />
-            <span className="sr-only">Toggle docs menu</span>
-          </SheetTrigger>
-          <SheetContent side="left" className="p-0 w-72">
-            <SidebarContent />
-          </SheetContent>
-        </Sheet>
-        <span className="text-sm font-medium" />
-        <div className="flex-1" />
-        <Button
-          render={<Link href="/dashboard" />}
-          nativeButton={false}
-          variant="ghost"
-          size="sm"
-        >
-          Dashboard
-        </Button>
-      </div>
+      <div className="flex-1 overflow-y-auto">
+        <div className="max-w-3xl mx-auto px-6 py-10">
+          {/* Breadcrumb */}
+          <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
+            <BookOpen className="size-4" />
+            <span>Docs</span>
+            <ChevronRight className="size-3" />
+            <span className="capitalize">{activeDoc.category.replace("-", " ")}</span>
+          </div>
 
-      {/* Content Area */}
-      <main className="flex-1 overflow-y-auto min-w-0">
-        {activeDoc && (
-          <div className="max-w-3xl mx-auto px-6 py-10">
-            {/* Breadcrumb */}
-            <div className="flex items-center gap-2 text-sm text-muted-foreground mb-6">
-              <BookOpen className="size-4" />
-              <span>Docs</span>
-              <ChevronRight className="size-3" />
-              <span className="capitalize">{activeDoc.category.replace("-", " ")}</span>
+          {/* Title */}
+          <div className="flex items-start gap-4 mb-8">
+            <div className={cn("p-3 rounded-xl bg-primary/10")}>
+              <activeDoc.icon className="size-7 text-primary" />
             </div>
-
-            {/* Title */}
-            <div className="flex items-start gap-4 mb-8">
-              <div className="p-3 rounded-xl bg-primary/10">
-                <activeDoc.icon className="size-7 text-primary" />
-              </div>
-              <div>
-                <h1 className="text-3xl font-bold tracking-tight">{activeDoc.title}</h1>
-                <p className="text-muted-foreground mt-1">{activeDoc.description}</p>
-              </div>
-            </div>
-
-            <Separator className="mb-8" />
-
-            {/* Content */}
-            <article className="prose-sm max-w-none">{activeDoc.content}</article>
-
-            {/* Footer nav */}
-            <Separator className="my-10" />
-            <div className="flex items-center justify-between">
-              {(() => {
-                const idx = docs.findIndex((d) => d.id === activeDocId)
-                const prev = docs[idx - 1]
-                const next = docs[idx + 1]
-                return (
-                  <>
-                    <div>
-                      {prev && (
-                        <button
-                          onClick={() => setActiveDocId(prev.id)}
-                          className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-                        >
-                          <ChevronRight className="size-4 rotate-180" />
-                          <span>{prev.title}</span>
-                        </button>
-                      )}
-                    </div>
-                    <div>
-                      {next && (
-                        <button
-                          onClick={() => setActiveDocId(next.id)}
-                          className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-                        >
-                          <span>{next.title}</span>
-                          <ChevronRight className="size-4" />
-                        </button>
-                      )}
-                    </div>
-                  </>
-                )
-              })()}
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight">{activeDoc.title}</h1>
+              <p className="text-muted-foreground mt-1">{activeDoc.description}</p>
             </div>
           </div>
-        )}
-      </main>
+
+          <Separator className="mb-8" />
+
+          {/* Content */}
+          <article className="prose-sm max-w-none">{activeDoc.content}</article>
+
+          {/* Footer nav */}
+          <Separator className="my-10" />
+          <div className="flex items-center justify-between">
+            <div>
+              {prev && (
+                <button
+                  onClick={() => {
+                    window.location.hash = prev.id
+                    setActiveDocId(prev.id)
+                  }}
+                  className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <ChevronRight className="size-4 rotate-180" />
+                  <span>{prev.title}</span>
+                </button>
+              )}
+            </div>
+            <div>
+              {next && (
+                <button
+                  onClick={() => {
+                    window.location.hash = next.id
+                    setActiveDocId(next.id)
+                  }}
+                  className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <span>{next.title}</span>
+                  <ChevronRight className="size-4" />
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
     </>
   )
 }
