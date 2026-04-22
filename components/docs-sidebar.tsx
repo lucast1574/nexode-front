@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { useEffect, useState } from "react"
 import {
   Sidebar,
@@ -13,6 +14,7 @@ import {
   SidebarRail,
   SidebarGroup,
   SidebarGroupLabel,
+  useSidebar,
 } from "@/components/ui/sidebar"
 import { Rocket, Cpu, Database, Workflow, CreditCard, Users, Zap } from "lucide-react"
 
@@ -41,6 +43,7 @@ const docGroups = [
 
 export function DocsSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const [activeId, setActiveId] = useState("quickstart")
+  const { state } = useSidebar()
 
   useEffect(() => {
     const hash = window.location.hash.replace("#", "")
@@ -69,16 +72,22 @@ export function DocsSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) 
           <SidebarMenuItem>
             <SidebarMenuButton
               size="lg"
-              render={<Link href="/" />}
-              className="focus-visible:ring-0 focus:ring-0"
+              className="focus-visible:ring-0 focus:ring-0 hover:bg-transparent active:bg-transparent cursor-default"
             >
-              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-black text-white">
-                <span className="text-sm font-semibold">N</span>
-              </div>
-              <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-semibold">Nexode</span>
-                <span className="truncate text-xs">Documentation</span>
-              </div>
+              {state === "collapsed" ? (
+                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-black text-white">
+                  <span className="text-sm font-semibold">N</span>
+                </div>
+              ) : (
+                <Image
+                  src="/logo/logo_white.svg"
+                  alt="Nexode"
+                  width={90}
+                  height={24}
+                  className="h-6 w-auto"
+                  priority
+                />
+              )}
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
