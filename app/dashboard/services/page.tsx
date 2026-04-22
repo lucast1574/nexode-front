@@ -429,9 +429,39 @@ export default function ServicesPage() {
                                         {selectedCount}
                                     </span>
                                 </div>
-                                <div>
-                                    <div className="text-sm text-muted-foreground font-medium">Selected Services Monthly Total</div>
-                                    <div className="text-3xl font-bold text-foreground">${totalPrice}<span className="text-sm font-normal text-muted-foreground">/mo</span></div>
+                                <div className="flex flex-col">
+                                    <div className="text-sm text-muted-foreground font-medium flex items-center gap-2">
+                                        Total Monthly Price
+                                        {trialEligible && (
+                                            <span className="text-[10px] bg-emerald-500/10 text-emerald-500 px-1.5 py-0.5 rounded border border-emerald-500/20 uppercase font-bold">
+                                                Trial Available
+                                            </span>
+                                        )}
+                                    </div>
+                                    <div className="flex items-baseline gap-2">
+                                        {trialEligible && selectedCount > 0 ? (
+                                            <>
+                                                <span className="text-3xl font-bold text-foreground">
+                                                    ${(() => {
+                                                        const prices = Object.entries(selectedTiers)
+                                                            .filter(([, slug]) => !!slug)
+                                                            .map(([serviceId, slug]) => {
+                                                                const service = SERVICES.find(s => s.id === serviceId);
+                                                                return service?.tiers.find(t => t.slug === slug)?.price || 0;
+                                                            })
+                                                            .sort((a, b) => a - b);
+                                                        
+                                                        const othersTotal = prices.slice(1).reduce((a, b) => a + b, 0);
+                                                        return othersTotal;
+                                                    })()}
+                                                </span>
+                                                <span className="text-sm text-muted-foreground line-through">${totalPrice}</span>
+                                                <span className="text-sm font-normal text-muted-foreground">first 7 days, then ${totalPrice}/mo</span>
+                                            </>
+                                        ) : (
+                                            <span className="text-3xl font-bold text-foreground">${totalPrice}<span className="text-sm font-normal text-muted-foreground">/mo</span></span>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
 
