@@ -21,10 +21,15 @@ import { useDashboard } from "@/app/dashboard/layout"
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user, subscriptions } = useDashboard()
 
-  const isStaff = user?.role?.slug === "superuser" || user?.role?.slug === "admin"
-  const hasDatabase = isStaff || subscriptions.some((s) => s.service === "database")
-  const hasN8n = isStaff || subscriptions.some((s) => s.service === "n8n")
-  const hasCompute = isStaff || subscriptions.some((s) => s.service === "compute")
+  const isSuperuser = user?.role?.slug === "superuser"
+  // Admins see the Admin Panel link but DO NOT get bypass access to services
+  // they haven't paid for. Database/Compute still require a real subscription.
+  // n8n appears because admins receive a free Ultra-tier n8n subscription from
+  // the backend seed (admin-n8n-free plan), so subscriptions.some(...) will match.
+  const isStaff = isSuperuser || user?.role?.slug === "admin"
+  const hasDatabase = isSuperuser || subscriptions.some((s) => s.service === "database")
+  const hasN8n = isSuperuser || subscriptions.some((s) => s.service === "n8n")
+  const hasCompute = isSuperuser || subscriptions.some((s) => s.service === "compute")
 
   const navItems = [
     {

@@ -72,7 +72,8 @@ export default function WorkspacePage() {
     const [successMessage, setSuccessMessage] = useState("")
 
     const hasActivePlan = subscriptions.some(sub => sub.status === "ACTIVE")
-    const isOwner = user?.role?.slug === "superuser" || user?.role?.slug === "admin" || hasActivePlan
+    // Only superusers get a free workspace. Admins must pay like regular users.
+    const isOwner = user?.role?.slug === "superuser" || hasActivePlan
 
     // Get max team members from subscription plan
     const maxMembers = (() => {

@@ -26,7 +26,10 @@ import { useDashboard } from "./layout"
 
 export default function DashboardPage() {
     const { user, subscriptions, deployedInstances } = useDashboard()
-    const isStaff = user?.role?.slug === "superuser" || user?.role?.slug === "admin"
+    // Only superusers bypass subscription checks for showing "create" CTAs.
+    // Admins see create CTAs only for services they actually have a subscription for
+    // (n8n by default via seeded free tier; compute/database only after payment).
+    const isSuperuser = user?.role?.slug === "superuser"
 
     return (
         <>
@@ -66,13 +69,13 @@ export default function DashboardPage() {
                                     <h3 className="text-xl font-bold mb-2">No deployed clusters</h3>
                                     <p className="text-muted-foreground max-w-sm mb-6">You have active subscriptions but no deployed instances yet. Go to a service console to deploy your first cluster.</p>
                                     <div className="flex gap-3">
-                                        {(isStaff || subscriptions.some(s => s.service === 'database')) && (
+                                        {(isSuperuser || subscriptions.some(s => s.service === 'database')) && (
                                             <Button render={<Link href="/dashboard/databases" />} nativeButton={false} variant="outline">Deploy Database</Button>
                                         )}
-                                        {(isStaff || subscriptions.some(s => s.service === 'compute')) && (
+                                        {(isSuperuser || subscriptions.some(s => s.service === 'compute')) && (
                                             <Button render={<Link href="/dashboard/compute" />} nativeButton={false} variant="outline">Deploy Compute</Button>
                                         )}
-                                        {(isStaff || subscriptions.some(s => s.service === 'n8n')) && (
+                                        {(isSuperuser || subscriptions.some(s => s.service === 'n8n')) && (
                                             <Button render={<Link href="/dashboard/automations" />} nativeButton={false} variant="outline">Deploy n8n</Button>
                                         )}
                                     </div>
