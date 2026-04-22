@@ -6,14 +6,19 @@ import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Field, FieldGroup, FieldLabel, FieldDescription } from "@/components/ui/field"
+import { Field, FieldGroup, FieldLabel, FieldDescription, FieldSeparator } from "@/components/ui/field"
 import { Loader2, CheckCircle2, Circle, Eye, EyeOff } from "lucide-react"
 import { toast } from "sonner"
 import Turnstile from "react-turnstile"
 import { useMutation } from "@apollo/client/react"
-import { REGISTER_MUTATION } from "@/lib/graphql-operations"
-import { setAuthSession } from "@/lib/auth-utils"
-import { RegisterData } from "@/lib/types"
+import { GoogleLogin, CredentialResponse } from "@react-oauth/google"
+import { REGISTER_MUTATION, SIGN_IN_WITH_GOOGLE } from "@/lib/graphql-operations"
+import { setAuthSession, getAuthRedirectPath } from "@/lib/auth-utils"
+import { RegisterData, GoogleLoginData } from "@/lib/types"
+
+interface GoogleLoginInput {
+    idToken: string;
+}
 
 export function RegisterForm({
     className,
@@ -38,6 +43,7 @@ export function RegisterForm({
     })
 
     const [register] = useMutation<{ register: RegisterData }>(REGISTER_MUTATION)
+    const [signInWithGoogle] = useMutation<GoogleLoginData, { input: GoogleLoginInput }>(SIGN_IN_WITH_GOOGLE)
 
     const [passwordChecks, setPasswordChecks] = useState({
         upper: false,
@@ -108,6 +114,40 @@ export function RegisterForm({
             }
         } catch (error: unknown) {
             const message = error instanceof Error ? error.message : "Registration failed. Please try again."
+            toast.error(message)
+        } finally {
+            setIsLoading(false)
+        }
+    }
+
+    const handleGoogleSuccess = async (credentialResponse: CredentialResponse) => {
+        if (!credentialResponse.credential) {
+            toast.error("Google authentication failed: Missing credential")
+            return
+        }
+
+        setIsLoading(true)
+        try {
+            const { data } = await signInWithGoogle({
+                variables: {
+                    input: { idToken: credentialResponse.credential }
+                }
+            })
+
+            if (data?.signInWithGoogle?.success) {
+                setAuthSession(
+                    data.signInWithGoogle.access_token,
+                    data.signInWithGoogle.refresh_token,
+                    data.signInWithGoogle.user
+                )
+
+                toast.success("Google sign up successful!")
+                window.location.href = getAuthRedirectPath(data.signInWithGoogle.user)
+            } else {
+                toast.error(data?.signInWithGoogle?.message || "Google sign up failed")
+            }
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : "Google authentication failed"
             toast.error(message)
         } finally {
             setIsLoading(false)
@@ -214,6 +254,21 @@ export function RegisterForm({
                         )}
                     </Button>
                 </Field>
+
+                <FieldSeparator>Or continue with</FieldSeparator>
+
+                {process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID && (
+                <Field>
+                    <div className="flex justify-center w-full">
+                        <GoogleLogin
+                            onSuccess={handleGoogleSuccess}
+                            onError={() => toast.error("Google Sign Up Failed")}
+                            theme="outline"
+                            width="100%"
+                        />
+                    </div>
+                </Field>
+                )}
             </FieldGroup>
 
             <FieldDescription className="text-center">
