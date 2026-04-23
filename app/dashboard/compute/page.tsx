@@ -668,10 +668,8 @@ function ComputePageContent() {
                                             </CardContent>
                                         </Card>
                                     )}
-                                </div>
-
-                                <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
-                                    <TabsList variant="line" className="mt-8 gap-8 px-4 lg:px-8 overflow-x-auto">
+                                    <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col w-full">
+                                        <TabsList variant="line" className="gap-8 px-0 overflow-x-auto">
                                         {([
                                             { value: 'overview', label: 'Overview', icon: Globe },
                                             { value: 'deployments', label: 'Deploy Events', icon: Activity },
@@ -1143,7 +1141,8 @@ function ComputePageContent() {
                                             </Card>
                                         </div>
                                     </TabsContent>
-                                </Tabs>
+                                    </Tabs>
+                                </div>
                             </>
                         ) : (
                             <div className="h-full flex flex-col items-center justify-center text-center p-8">
