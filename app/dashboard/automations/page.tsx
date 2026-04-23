@@ -289,6 +289,9 @@ export default function AutomationsPage() {
                                 <Search className="size-4 text-muted-foreground" />
                                 <Input type="text" placeholder="Search clusters..." className="bg-muted border-border text-xs h-8" />
                             </div>
+                            <Button onClick={handleCreateClick} className="gap-2 mt-3 w-full" variant="outline">
+                                <Plus className="size-4" /> New n8n
+                            </Button>
                         </div>
                         <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3">
                             {instances.length === 0 ? (
