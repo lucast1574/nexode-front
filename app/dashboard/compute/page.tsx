@@ -151,6 +151,7 @@ function ComputePageContent() {
                 setUser(result.data.me);
                 const roleSlug = result.data.me?.role?.slug?.toLowerCase();
                 const staffStatus = roleSlug === 'superuser' || roleSlug === 'admin';
+                console.log(`[Compute] Fetched role: ${roleSlug}, Is staff: ${staffStatus}`);
                 setIsSuperuser(staffStatus);
                 setSubscriptions(result.data.mySubscriptions || []);
                 const insts = result.data.myComputeInstances || [];
@@ -174,17 +175,16 @@ function ComputePageContent() {
     const computeSubscriptions = subscriptions.filter(s => s.service === 'compute');
     const computeUsedSlots = instances.length;
     const computeTotalSlots = computeSubscriptions.length;
+    const canCreate = isSuperuser || computeUsedSlots < computeTotalSlots;
 
 
     const handleCreateClick = useCallback(() => {
-        if (isSuperuser) {
+        if (canCreate) {
             setShowCreateModal(true);
-        } else if (computeUsedSlots >= computeTotalSlots) {
-            setShowLimitModal(true);
         } else {
-            setShowCreateModal(true);
+            setShowLimitModal(true);
         }
-    }, [isSuperuser, computeUsedSlots, computeTotalSlots]);
+    }, [canCreate]);
 
     // Safety log for debugging role bypass issues
     useEffect(() => {
