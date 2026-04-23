@@ -110,7 +110,6 @@ function ComputePageContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
 
-
     const fetchInstances = useCallback(async () => {
         try {
             const token = getAccessToken();
@@ -172,15 +171,17 @@ function ComputePageContent() {
     const computeSubscriptions = subscriptions.filter(s => s.service === 'compute');
     const computeUsedSlots = instances.length;
     const computeTotalSlots = computeSubscriptions.length;
-    const canCreateCompute = isSuperuser || computeUsedSlots < computeTotalSlots;
+
 
     const handleCreateClick = useCallback(() => {
-        if (canCreateCompute) {
+        if (isSuperuser) {
             setShowCreateModal(true);
-        } else {
+        } else if (computeUsedSlots >= computeTotalSlots) {
             setShowLimitModal(true);
+        } else {
+            setShowCreateModal(true);
         }
-    }, [canCreateCompute]);
+    }, [isSuperuser, computeUsedSlots, computeTotalSlots]);
 
     // useEffects that depend on handleCreateClick should come after this
     useEffect(() => {
