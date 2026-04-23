@@ -105,7 +105,7 @@ function ComputePageContent() {
     const [restarting, setRestarting] = useState<boolean>(false);
     const [cooldown, setCooldown] = useState<number>(0);
     const [cooldownId, setCooldownId] = useState<string | null>(null);
-    const { refetch: refetchGlobal } = useDashboard();
+    const { user: dashboardUser, refetch: refetchGlobal } = useDashboard();
     const { showAlert, showConfirm } = useModal();
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -175,7 +175,12 @@ function ComputePageContent() {
     const computeSubscriptions = subscriptions.filter(s => s.service === 'compute');
     const computeUsedSlots = instances.length;
     const computeTotalSlots = computeSubscriptions.length;
-    const canCreate = isSuperuser || computeUsedSlots < computeTotalSlots;
+    
+    // Improved superuser detection using both local state and global context
+    const roleSlug = dashboardUser?.role?.slug?.toLowerCase();
+    const isStaff = roleSlug === 'superuser' || roleSlug === 'admin' || isSuperuser;
+    
+    const canCreate = isStaff || computeUsedSlots < computeTotalSlots;
 
 
     const handleCreateClick = useCallback(() => {
@@ -189,9 +194,9 @@ function ComputePageContent() {
     // Safety log for debugging role bypass issues
     useEffect(() => {
         if (!loading) {
-            console.log(`[Compute] Role status: ${isSuperuser ? 'Staff/Superuser' : 'Standard User'}, Used: ${computeUsedSlots}, Total: ${computeTotalSlots}`);
+            console.log(`[Compute] Staff status: ${isStaff ? 'YES' : 'NO'}, Role: ${dashboardUser?.role?.slug}, Used: ${computeUsedSlots}, Total: ${computeTotalSlots}`);
         }
-    }, [isSuperuser, computeUsedSlots, computeTotalSlots, loading]);
+    }, [isStaff, dashboardUser, computeUsedSlots, computeTotalSlots, loading]);
 
     // useEffects that depend on handleCreateClick should come after this
     useEffect(() => {
@@ -1170,7 +1175,7 @@ function ComputePageContent() {
                 user={user}
                 subscriptions={subscriptions}
                 initialProvider={initialProvider}
-                isSuperuser={isSuperuser}
+                isSuperuser={isStaff}
             />
             <SubscriptionLimitModal
                 isOpen={showLimitModal}
