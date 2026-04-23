@@ -85,6 +85,10 @@ export function ProvisionNodeModal({
     const [instanceName, setInstanceName] = useState('');
     const [instanceType, setInstanceType] = useState('FRONTEND');
     const [selectedBranch, setSelectedBranch] = useState('');
+    const [runtime, setRuntime] = useState('node');
+    const [port, setPort] = useState<number | ''>('');
+    const [healthPath, setHealthPath] = useState('');
+    const [showAdvanced, setShowAdvanced] = useState(false);
 
     const { showAlert } = useModal();
 
@@ -249,7 +253,10 @@ export function ProvisionNodeModal({
             repository_url: selectedRepo?.url || '',
             branch: selectedBranch || selectedRepo?.default_branch || 'main',
             plan_slug: computeSub?.plan?.slug || 'compute-basic',
-            custom_domain: customDomainInput || undefined
+            custom_domain: customDomainInput || undefined,
+            runtime,
+            port: port === '' ? undefined : Number(port),
+            health_check_path: healthPath || undefined
         };
 
         try {
@@ -368,6 +375,35 @@ export function ProvisionNodeModal({
                                 </Select>
                             </Field>
                         </div>
+
+                        <Field>
+                            <FieldLabel htmlFor="runtime">Runtime / Language</FieldLabel>
+                            <Select value={runtime} onValueChange={(value: string | null) => {
+                                setRuntime(value ?? 'node');
+                                if (value === 'node') {
+                                    setPort(instanceType === 'FRONTEND' ? 3000 : 4000);
+                                    setHealthPath(instanceType === 'FRONTEND' ? '/' : '/health');
+                                } else if (value === 'python') {
+                                    setPort(8000);
+                                    setHealthPath('/health');
+                                } else if (value === 'go') {
+                                    setPort(8080);
+                                    setHealthPath('/health');
+                                }
+                            }}>
+                                <SelectTrigger id="runtime" className="w-full h-12">
+                                    <SelectValue placeholder="Select runtime" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectGroup>
+                                        <SelectItem value="node">Node.js (NestJS, Next.js, Express)</SelectItem>
+                                        <SelectItem value="python">Python (FastAPI, Flask, Django)</SelectItem>
+                                        <SelectItem value="go">Go (Gin, Echo, Fiber)</SelectItem>
+                                        <SelectItem value="docker">Generic Dockerfile</SelectItem>
+                                    </SelectGroup>
+                                </SelectContent>
+                            </Select>
+                        </Field>
 
                         <input type="hidden" name="type" value={instanceType} />
                         <input type="hidden" name="provider" value={formProvider} />
@@ -553,16 +589,46 @@ export function ProvisionNodeModal({
                             </Field>
                         </div>
 
-                        {customDomainInput.trim().length > 0 && (
-                            <div className="grid grid-cols-2 gap-4">
-                                <Field>
-                                    <FieldLabel htmlFor="auth-user">Basic Auth Username</FieldLabel>
-                                    <Input id="auth-user" name="auth_user" placeholder="admin" />
-                                </Field>
-                                <Field>
-                                    <FieldLabel htmlFor="auth-pass">Access Key</FieldLabel>
-                                    <Input id="auth-pass" name="auth_pass" type="password" placeholder="••••••••" />
-                                </Field>
+                        <div className="flex items-center justify-between py-2 cursor-pointer group" onClick={() => setShowAdvanced(!showAdvanced)}>
+                            <span className="text-xs font-bold text-muted-foreground uppercase group-hover:text-primary transition-colors">Advanced Infrastructure Options</span>
+                            <ChevronDown className={cn("w-4 h-4 text-muted-foreground transition-all", showAdvanced && "rotate-180")} />
+                        </div>
+
+                        {showAdvanced && (
+                            <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
+                                <div className="grid grid-cols-2 gap-4">
+                                    <Field>
+                                        <FieldLabel htmlFor="port">Internal Port</FieldLabel>
+                                        <Input
+                                            id="port"
+                                            type="number"
+                                            placeholder={instanceType === 'FRONTEND' ? '3000' : '4000'}
+                                            value={port}
+                                            onChange={(e) => setPort(e.target.value === '' ? '' : Number(e.target.value))}
+                                        />
+                                    </Field>
+                                    <Field>
+                                        <FieldLabel htmlFor="health-path">Health Check Path</FieldLabel>
+                                        <Input
+                                            id="health-path"
+                                            placeholder="/health"
+                                            value={healthPath}
+                                            onChange={(e) => setHealthPath(e.target.value)}
+                                        />
+                                    </Field>
+                                </div>
+                                {customDomainInput.trim().length > 0 && (
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <Field>
+                                            <FieldLabel htmlFor="auth-user">Basic Auth Username</FieldLabel>
+                                            <Input id="auth-user" name="auth_user" placeholder="admin" />
+                                        </Field>
+                                        <Field>
+                                            <FieldLabel htmlFor="auth-pass">Access Key</FieldLabel>
+                                            <Input id="auth-pass" name="auth_pass" type="password" placeholder="••••••••" />
+                                        </Field>
+                                    </div>
+                                )}
                             </div>
                         )}
 

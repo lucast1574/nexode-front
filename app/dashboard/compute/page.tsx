@@ -57,6 +57,7 @@ interface ComputeInstance {
     generated_domain?: string;
     created_on: string;
     env_content?: string;
+    runtime?: string;
     events?: { timestamp: string; message: string; type: string }[];
     logs?: string[];
 }
@@ -129,7 +130,7 @@ function ComputePageContent() {
                     }
                     mySubscriptions { id service status plan { name slug features } }
                     myComputeInstances {
-                        _id name type provider repository_url branch status auto_deploy_on_push env_content cpu_limit ram_limit custom_domain generated_domain created_on
+                        _id name type provider repository_url branch status auto_deploy_on_push env_content runtime cpu_limit ram_limit custom_domain generated_domain created_on
                         logs
                         events { timestamp message type }
                     }
@@ -439,8 +440,9 @@ function ComputePageContent() {
                         const msg = result.errors?.[0]?.message || "Failed to delete instance";
                         showAlert({ title: "Delete Failed", message: msg, type: "error" });
                     }
-                } catch (error: any) {
-                    showAlert({ title: "Delete Error", message: error.message || "Network error", type: "error" });
+                } catch (error: unknown) {
+                    const message = error instanceof Error ? error.message : "Network error";
+                    showAlert({ title: "Delete Error", message, type: "error" });
                 }
             }
         });
@@ -558,12 +560,19 @@ function ComputePageContent() {
                                         )}
                                     >
                                         <div className="flex items-center justify-between mb-2">
-                                            <Badge variant="outline" className={cn(
-                                                "text-xs font-medium",
-                                                inst.type.toLowerCase() === 'frontend' ? 'text-primary border-primary/20 bg-primary/10' : 'text-purple-400 border-purple-400/20 bg-purple-400/10'
-                                            )}>
-                                                {inst.type}
-                                            </Badge>
+                                            <div className="flex items-center gap-2">
+                                                <Badge variant="outline" className={cn(
+                                                    "text-[10px] uppercase font-bold",
+                                                    inst.type.toLowerCase() === 'frontend' ? 'text-primary border-primary/20 bg-primary/10' : 'text-purple-400 border-purple-400/20 bg-purple-400/10'
+                                                )}>
+                                                    {inst.type}
+                                                </Badge>
+                                                {inst.runtime && (
+                                                    <Badge variant="outline" className="text-[10px] uppercase font-bold text-muted-foreground border-muted-foreground/20">
+                                                        {inst.runtime}
+                                                    </Badge>
+                                                )}
+                                            </div>
                                             <div className={cn("w-1.5 h-1.5 rounded-full", inst.status === 'running' ? 'bg-emerald-500 shadow-[0_0_8px_hsl(var(--primary)/0.5)]' : 'bg-amber-500 animate-pulse')} />
                                         </div>
                                         <div className={cn(
@@ -591,6 +600,11 @@ function ComputePageContent() {
                                             )}>
                                                 ● {selectedInstance.status}
                                             </Badge>
+                                            {selectedInstance.runtime && (
+                                                <Badge variant="outline" className="bg-muted text-muted-foreground border-border uppercase">
+                                                    {selectedInstance.runtime}
+                                                </Badge>
+                                            )}
                                         </div>
                                         <div className="flex items-center gap-4 text-muted-foreground text-sm font-medium">
                                             <div className="flex items-center gap-2"><Layers className="w-4 h-4" /> {selectedInstance.cpu_limit} vCPU</div>
