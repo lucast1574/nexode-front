@@ -425,9 +425,12 @@ export default function AffiliatesPage() {
 
                     {/* Referrals Table */}
                     <Card className="lg:col-span-2">
-                        <CardHeader>
-                            <CardTitle className="text-lg">Your Referrals</CardTitle>
-                            <CardDescription>{referrals.length} people signed up with your link</CardDescription>
+                        <CardHeader className="flex flex-row items-center justify-between">
+                            <div>
+                                <CardTitle className="text-lg">Your Referrals</CardTitle>
+                                <CardDescription>{referrals.length} people signed up with your link</CardDescription>
+                            </div>
+                            <Badge variant="secondary">{referrals.length} referrals</Badge>
                         </CardHeader>
                         <CardContent>
                             <div className="overflow-x-auto">
@@ -485,8 +488,12 @@ export default function AffiliatesPage() {
                 {/* Withdrawals History */}
                 {withdrawals.length > 0 && (
                     <Card className="mt-6">
-                        <CardHeader>
-                            <CardTitle className="text-lg">Withdrawal History</CardTitle>
+                        <CardHeader className="flex flex-row items-center justify-between">
+                            <div>
+                                <CardTitle className="text-lg">Withdrawal History</CardTitle>
+                                <CardDescription>{withdrawals.length} total requests</CardDescription>
+                            </div>
+                            <Badge variant="secondary">{withdrawals.length} requests</Badge>
                         </CardHeader>
                         <CardContent>
                             <div className="overflow-x-auto">

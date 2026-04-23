@@ -78,6 +78,7 @@ interface AffiliateUser {
     is_affiliate: boolean;
     affiliate_code: string;
     referral_count: number;
+    created_on?: string;
 }
 
 export default function AdminPage() {
@@ -241,15 +242,19 @@ export default function AdminPage() {
                 <Tabs defaultValue="financial" className="w-full">
                     <TabsList className="mb-6">
                         <TabsTrigger value="financial">Financial Ledger</TabsTrigger>
+                        <TabsTrigger value="users">Registered Users</TabsTrigger>
                         <TabsTrigger value="affiliates">Affiliates</TabsTrigger>
                         <TabsTrigger value="withdrawals">Withdrawals</TabsTrigger>
                     </TabsList>
 
                     <TabsContent value="financial">
                         <Card>
-                            <CardHeader>
-                                <CardTitle>Financial Ledger</CardTitle>
-                                <CardDescription>Real-time transaction stream and subscriber status.</CardDescription>
+                            <CardHeader className="flex flex-row items-center justify-between">
+                                <div>
+                                    <CardTitle>Financial Ledger</CardTitle>
+                                    <CardDescription>Real-time transaction stream and subscriber status.</CardDescription>
+                                </div>
+                                <Badge variant="secondary">{adminSubscriptions.length} subscriptions</Badge>
                             </CardHeader>
                             <CardContent className="p-0">
                                 <div className="overflow-x-auto">
@@ -333,6 +338,10 @@ export default function AdminPage() {
                                 </div>
                             </CardContent>
                         </Card>
+                    </TabsContent>
+
+                    <TabsContent value="users">
+                        <UsersTab />
                     </TabsContent>
 
                     <TabsContent value="affiliates">
@@ -555,6 +564,82 @@ const AffiliatesTab = () => {
     );
 };
 
+const UsersTab = () => {
+    const { data, loading, error } = useQuery<{ findAllUsers: AffiliateUser[] }>(GET_ALL_USERS, {
+        fetchPolicy: "network-only",
+    });
+
+    if (loading) return <Card><CardContent className="p-8 flex justify-center"><Loader2 className="animate-spin text-primary w-8 h-8" /></CardContent></Card>;
+    if (error) return <Card><CardContent className="p-8 text-destructive">Error loading users</CardContent></Card>;
+
+    const users = data?.findAllUsers || [];
+
+    return (
+        <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                    <CardTitle>Registered Users</CardTitle>
+                    <CardDescription>All registered accounts on the platform.</CardDescription>
+                </div>
+                <Badge variant="secondary">{users.length} users</Badge>
+            </CardHeader>
+            <CardContent className="p-0">
+                <div className="overflow-x-auto">
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>User</TableHead>
+                                <TableHead>Email</TableHead>
+                                <TableHead>Status</TableHead>
+                                <TableHead className="text-center">Referrals</TableHead>
+                                <TableHead className="text-right">Registered On</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {users.map((u) => (
+                                <TableRow key={u.id}>
+                                    <TableCell>
+                                        <div className="font-medium">{u.first_name} {u.last_name || ''}</div>
+                                    </TableCell>
+                                    <TableCell className="text-muted-foreground text-sm">
+                                        {u.email}
+                                    </TableCell>
+                                    <TableCell>
+                                        {u.is_affiliate ? (
+                                            <div className="flex flex-col gap-1">
+                                                <Badge className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20 w-fit">Active Affiliate</Badge>
+                                                <code className="text-xs text-emerald-400/80 bg-emerald-500/10 px-2 py-0.5 rounded font-mono font-medium border border-emerald-500/20 w-fit">{u.affiliate_code}</code>
+                                            </div>
+                                        ) : (
+                                            <Badge variant="secondary">Standard User</Badge>
+                                        )}
+                                    </TableCell>
+                                    <TableCell className="text-center">
+                                        <span className="font-bold">{u.referral_count || 0}</span>
+                                    </TableCell>
+                                    <TableCell className="text-right text-sm text-muted-foreground">
+                                        {u.created_on ? new Date(u.created_on).toLocaleDateString(undefined, { day: "2-digit", month: "short", year: "numeric" }) : '—'}
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                            {users.length === 0 && (
+                                <TableRow>
+                                    <TableCell colSpan={5} className="text-center py-16 text-muted-foreground">
+                                        <div className="flex flex-col items-center gap-4">
+                                            <Users className="h-10 w-10 opacity-20" />
+                                            <p className="text-sm font-medium">No users found</p>
+                                        </div>
+                                    </TableCell>
+                                </TableRow>
+                            )}
+                        </TableBody>
+                    </Table>
+                </div>
+            </CardContent>
+        </Card>
+    );
+};
+
 const WithdrawalsTab = () => {
     const [withdrawals, setWithdrawals] = React.useState<any[]>([]);
     const [loading, setLoading] = React.useState(true);
@@ -624,9 +709,12 @@ const WithdrawalsTab = () => {
         <div className="space-y-6">
             {pending.length > 0 && (
                 <Card className="border-amber-500/20">
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2"><Wallet className="size-5 text-amber-500" /> Pending Withdrawals</CardTitle>
-                        <CardDescription>{pending.length} withdrawal{pending.length !== 1 ? 's' : ''} awaiting payment</CardDescription>
+                    <CardHeader className="flex flex-row items-center justify-between">
+                        <div>
+                            <CardTitle className="flex items-center gap-2"><Wallet className="size-5 text-amber-500" /> Pending Withdrawals</CardTitle>
+                            <CardDescription>{pending.length} withdrawal{pending.length !== 1 ? 's' : ''} awaiting payment</CardDescription>
+                        </div>
+                        <Badge variant="secondary">{pending.length} pending</Badge>
                     </CardHeader>
                     <CardContent className="p-0">
                         <Table>
@@ -668,9 +756,12 @@ const WithdrawalsTab = () => {
             )}
 
             <Card>
-                <CardHeader>
-                    <CardTitle>All Withdrawals</CardTitle>
-                    <CardDescription>{withdrawals.length} total withdrawal requests</CardDescription>
+                <CardHeader className="flex flex-row items-center justify-between">
+                    <div>
+                        <CardTitle>All Withdrawals</CardTitle>
+                        <CardDescription>{withdrawals.length} total withdrawal requests</CardDescription>
+                    </div>
+                    <Badge variant="secondary">{withdrawals.length} requests</Badge>
                 </CardHeader>
                 <CardContent className="p-0">
                     <Table>

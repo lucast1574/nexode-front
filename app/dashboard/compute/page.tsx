@@ -190,12 +190,12 @@ function ComputePageContent() {
         if (githubStatus || gitlabStatus) {
             const providerName = githubStatus ? 'GitHub' : 'GitLab';
             const status = (githubStatus || gitlabStatus) === 'success' ? 'success' : 'error';
-            
-            showAlert({ 
-                title: status === 'success' ? "Account Linked" : "Link Failed", 
-                message: status === 'success' 
+
+            showAlert({
+                title: status === 'success' ? "Account Linked" : "Link Failed",
+                message: status === 'success'
                     ? `Your ${providerName} account has been successfully connected.`
-                    : `Failed to link ${providerName} account. Please try again.`, 
+                    : `Failed to link ${providerName} account. Please try again.`,
                 type: status,
                 onConfirm: () => {
                     setInitialProvider(githubStatus ? 'GITHUB' : 'GITLAB');
@@ -219,7 +219,7 @@ function ComputePageContent() {
         const isDeploying = instances.some(i => i.status.toLowerCase() === 'provisioning' || i.status.toLowerCase() === 'restarting') || liveDeployStatus === 'running';
         // Medium frequency polling (5s) for logs or events tabs to keep them "live"
         const needsLiveUpdates = activeTab === 'logs' || activeTab === 'deployments' || activeTab === 'overview';
-        
+
         let interval: NodeJS.Timeout;
         if (isDeploying || needsLiveUpdates) {
             interval = setInterval(() => {
@@ -290,7 +290,7 @@ function ComputePageContent() {
             });
 
             const result = await res.json();
-            
+
             if (res.ok && result.url) {
                 window.location.href = result.url;
             } else {
@@ -533,15 +533,22 @@ function ComputePageContent() {
                     </Button>
                 </header>
 
-                <div className="flex-1 flex flex-col lg:flex-row overflow-hidden z-10">
+                <div className="flex-1 flex flex-col lg:flex-row overflow-hidden min-w-0">
                     <div className="w-full lg:w-80 border-r border-border bg-black/20 flex flex-col">
                         <div className="p-4 border-b border-border">
                             <div className="flex items-center gap-3">
-                                <Search className="w-4 h-4 text-muted-foreground" />
-                                <Input type="text" placeholder="Search instances..." className="bg-muted border-muted text-xs h-8" />
+                                <Search className="size-4 text-muted-foreground" />
+                                <Input
+                                    type="text"
+                                    placeholder="Search instances..."
+                                    className="bg-muted border-border text-xs h-8"
+                                />
                             </div>
+                            <Button onClick={handleCreateClick} className="gap-2 mt-3 w-full" variant="outline">
+                                <Plus className="size-4" /> New Compute
+                            </Button>
                         </div>
-                        <div className="flex-1 overflow-y-auto p-4 space-y-3">
+                        <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3">
                             {instances.length === 0 ? (
                                 <div className="text-center py-12 px-4">
                                     <Cpu className="size-6 text-muted-foreground mx-auto mb-3" />
@@ -553,34 +560,27 @@ function ComputePageContent() {
                                         key={inst._id}
                                         onClick={() => setSelectedInstance(inst)}
                                         className={cn(
-                                            "w-full text-left p-4 rounded-lg border transition-all group relative overflow-hidden",
-                                            selectedInstance?._id === inst._id 
+                                            "w-full text-left p-4 border transition-all group",
+                                            selectedInstance?._id === inst._id
                                                 ? (inst.type.toLowerCase() === 'frontend' ? "bg-primary/10 border-primary/20" : "bg-purple-600/10 border-purple-600/20")
-                                                : "bg-muted border-border hover:bg-muted"
+                                                : "bg-card border-border hover:bg-muted"
                                         )}
                                     >
                                         <div className="flex items-center justify-between mb-2">
-                                            <div className="flex items-center gap-2">
-                                                <Badge variant="outline" className={cn(
-                                                    "text-[10px] uppercase font-bold",
-                                                    inst.type.toLowerCase() === 'frontend' ? 'text-primary border-primary/20 bg-primary/10' : 'text-purple-400 border-purple-400/20 bg-purple-400/10'
-                                                )}>
-                                                    {inst.type}
-                                                </Badge>
-                                                {inst.runtime && (
-                                                    <Badge variant="outline" className="text-[10px] uppercase font-bold text-muted-foreground border-muted-foreground/20">
-                                                        {inst.runtime}
-                                                    </Badge>
-                                                )}
-                                            </div>
+                                            <Badge variant="outline" className={cn(
+                                                "text-xs font-medium",
+                                                inst.type.toLowerCase() === 'frontend' ? 'text-primary border-primary/20 bg-primary/10' : 'text-purple-400 border-purple-400/20 bg-purple-400/10'
+                                            )}>
+                                                {inst.type}
+                                            </Badge>
                                             <div className={cn("w-1.5 h-1.5 rounded-full", inst.status === 'running' ? 'bg-emerald-500 shadow-[0_0_8px_hsl(var(--primary)/0.5)]' : 'bg-amber-500 animate-pulse')} />
                                         </div>
                                         <div className={cn(
                                             "font-bold text-sm truncate transition-colors",
                                             inst.type.toLowerCase() === 'frontend' ? "group-hover:text-primary" : "group-hover:text-purple-400"
                                         )}>{inst.name}</div>
-                                        <div className="text-xs text-muted-foreground mt-1 flex items-center gap-2">
-                                            <Globe className="w-3 h-3" /> {inst.generated_domain || 'Internal VPC'}
+                                        <div className="text-xs text-muted-foreground mt-1">
+                                            Created {new Date(inst.created_on).toLocaleDateString()}
                                         </div>
                                     </button>
                                 ))
@@ -588,7 +588,7 @@ function ComputePageContent() {
                         </div>
                     </div>
 
-                    <div className="flex-1 bg-background overflow-y-auto">
+                    <div className="flex-1 flex flex-col bg-background min-w-0">
                         {selectedInstance ? (
                             <div className="p-4 lg:p-12 max-w-6xl mx-auto">
                                 <div className="flex flex-col lg:flex-row items-start justify-between mb-8 gap-4">
@@ -600,11 +600,6 @@ function ComputePageContent() {
                                             )}>
                                                 ● {selectedInstance.status}
                                             </Badge>
-                                            {selectedInstance.runtime && (
-                                                <Badge variant="outline" className="bg-muted text-muted-foreground border-border uppercase">
-                                                    {selectedInstance.runtime}
-                                                </Badge>
-                                            )}
                                         </div>
                                         <div className="flex items-center gap-4 text-muted-foreground text-sm font-medium">
                                             <div className="flex items-center gap-2"><Layers className="w-4 h-4" /> {selectedInstance.cpu_limit} vCPU</div>
@@ -614,17 +609,17 @@ function ComputePageContent() {
                                     </div>
                                     <div className="flex flex-wrap gap-3">
                                         {selectedInstance.generated_domain && (
-                                            <Button 
-                                                variant="outline" 
+                                            <Button
+                                                variant="outline"
                                                 onClick={() => window.open(`https://${selectedInstance.generated_domain}/status`, '_blank')}
                                                 className="gap-2"
                                             >
                                                 <Activity className="w-4 h-4" /> Check Status
                                             </Button>
                                         )}
-                                        <Button 
-                                            variant="outline" 
-                                            onClick={() => handleRestart(selectedInstance._id)} 
+                                        <Button
+                                            variant="outline"
+                                            onClick={() => handleRestart(selectedInstance._id)}
                                             disabled={(cooldown > 0 && cooldownId === selectedInstance._id) || restarting}
                                             className="min-w-[100px] gap-2"
                                         >
@@ -636,7 +631,7 @@ function ComputePageContent() {
                                 </div>
 
                                 {liveDeployStatus === 'running' && (
-                                    <Card className={cn("mb-6 border-primary/20 bg-primary/5 rounded-lg overflow-hidden relative", selectedInstance.type.toLowerCase() === 'backend' && "border-purple-500/20 bg-purple-500/5")}>
+                                    <Card className={cn("mb-6 border-primary/20 bg-primary/5 overflow-hidden relative", selectedInstance.type.toLowerCase() === 'backend' && "border-purple-500/20 bg-purple-500/5")}>
                                         <div className={cn("absolute inset-0 bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 animate-pulse", selectedInstance.type.toLowerCase() === 'backend' && "from-purple-500/10 via-purple-500/5 to-purple-500/10")} />
                                         <CardContent className="p-4 relative">
                                             <div className="flex items-center gap-4">
@@ -656,8 +651,8 @@ function ComputePageContent() {
                                     </Card>
                                 )}
 
-                                <Tabs value={activeTab} onValueChange={setActiveTab}>
-                                    <TabsList variant="line" className="mb-8 border-b border-border w-full justify-start gap-8 overflow-x-auto">
+                                <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
+                                    <TabsList variant="line" className="mt-8 gap-8 px-4 lg:px-8 overflow-x-auto">
                                         {([
                                             { value: 'overview', label: 'Overview', icon: Globe },
                                             { value: 'deployments', label: 'Deploy Events', icon: Activity },
@@ -667,170 +662,187 @@ function ComputePageContent() {
                                             { value: 'settings', label: 'Domains & SSL', icon: Shield }
                                         ] as const).map(tab => (
                                             <TabsTrigger key={tab.value} value={tab.value} className="flex items-center gap-2">
-                                                <tab.icon className="w-4 h-4" /> {tab.label}
+                                                <tab.icon className="size-4" /> {tab.label}
                                             </TabsTrigger>
                                         ))}
                                     </TabsList>
 
-                                    <TabsContent value="overview" className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                        <div className="space-y-8 max-w-4xl">
-                                            <Card className="bg-muted border-border rounded-xl relative overflow-hidden">
-                                                <CardHeader className="pb-0">
-                                                    <div className="absolute top-0 right-0 p-4 lg:p-8">
-                                                        {selectedInstance.status === 'running' ? (
-                                                            <Badge variant="outline" className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20">
-                                                                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_hsl(var(--primary)/0.5)] mr-1.5" /> Reachable
-                                                            </Badge>
-                                                        ) : (
-                                                            <Badge variant="outline" className="bg-amber-500/10 text-amber-500 border-amber-500/20">
-                                                                <div className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse mr-1.5" /> {selectedInstance.status}
-                                                            </Badge>
-                                                        )}
-                                                    </div>
-                                                </CardHeader>
-                                                <CardContent className="p-4 lg:p-8">
-                                                    <div className="mb-8">
-                                                        <CardTitle className="text-lg font-semibold mb-2">Network Endpoint</CardTitle>
-                                                        <CardDescription className="text-muted-foreground text-sm">
-                                                            {selectedInstance.type.toLowerCase() === 'frontend' ? 'Public Application URL' : 'Internal VPC Gateway'}
-                                                        </CardDescription>
-                                                    </div>
-
-                                                    {selectedInstance.generated_domain ? (
-                                                        <div className="flex flex-col gap-4">
-                                                            <div className="p-5 rounded-xl bg-primary/5 border border-primary/10 flex items-center justify-between group/url">
-                                                                <div className="flex items-center gap-4 flex-1 overflow-hidden">
-                                                                    <div className={cn("w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center", selectedInstance.type.toLowerCase() === 'backend' && "bg-purple-500/10")}>
-                                                                        <Activity className={cn("w-5 h-5 text-primary", selectedInstance.type.toLowerCase() === 'backend' && "text-purple-400")} />
-                                                                    </div>
-                                                                    {selectedInstance.status === 'running' ? (
-                                                                        <code className={cn("text-sm font-semibold truncate text-primary", selectedInstance.type.toLowerCase() === 'backend' && "text-purple-400")}>
-                                                                            https://{selectedInstance.generated_domain}{selectedInstance.type.toLowerCase() === 'backend' ? '/health' : ''}
-                                                                        </code>
-                                                                    ) : (
-                                                                        <div className="flex items-center gap-3">
-                                                                            <div className="size-4 border-2 border-primary/20 border-t-primary rounded-full animate-spin" />
-                                                                            <span className="text-sm font-bold text-muted-foreground">Deploying... URL will appear when ready</span>
-                                                                        </div>
-                                                                    )}
-                                                                </div>
-                                                                {selectedInstance.status === 'running' && (
-                                                                <div className="flex gap-2">
-                                                                    <Button variant="ghost" size="icon" onClick={() => handleCopy(`https://${selectedInstance.generated_domain}${selectedInstance.type === 'BACKEND' ? '/health' : ''}`, 'prod_url')} className="shrink-0">
-                                                                        {copiedField === 'prod_url' ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
-                                                                    </Button>
-                                                                    <Button variant="ghost" size="icon" onClick={() => window.open(`https://${selectedInstance.generated_domain}${selectedInstance.type === 'BACKEND' ? '/health' : ''}`, '_blank')} className="shrink-0">
-                                                                        <ExternalLink className="w-4 h-4" />
-                                                                    </Button>
-                                                                </div>
-                                                                )}
-                                                            </div>
-                                                            {selectedInstance.custom_domain && (
-                                                                <div className="p-4 rounded-lg bg-card border border-border flex items-center justify-between">
-                                                                    <div className="flex items-center gap-3">
-                                                                        <div className="text-xs text-muted-foreground">Custom Domain</div>
-                                                                        <code className="text-xs font-medium text-foreground">{selectedInstance.custom_domain}</code>
-                                                                    </div>
-                                                                    <Button variant="ghost" size="sm" onClick={() => handleCopy(selectedInstance.custom_domain || '', 'custom_domain')} className="gap-2">
-                                                                        {copiedField === 'custom_domain' ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3" />}
-                                                                    </Button>
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    ) : (
-                                                        <div className="flex items-center gap-6 p-6 rounded-xl bg-card border border-border">
-                                                            <div className="w-14 h-14 rounded-lg bg-zinc-900 flex items-center justify-center border border-border">
-                                                                <Shield className="w-6 h-6 text-muted-foreground" />
+                                    <TabsContent value="overview" className="animate-in fade-in slide-in-from-bottom-4 duration-500 flex-1 overflow-y-auto p-4 lg:p-8">
+                                        <div className="space-y-8">
+                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                                <Card className="bg-card border-border">
+                                                    <CardContent className="p-4 lg:p-6">
+                                                        <div className="text-muted-foreground text-xs mb-4">Core Technology</div>
+                                                        <div className="flex items-center gap-3">
+                                                            <div className={cn(
+                                                                "w-10 h-10 flex items-center justify-center border",
+                                                                selectedInstance.type.toLowerCase() === 'frontend' ? "bg-primary/10 border-primary/20" : "bg-purple-500/10 border-purple-500/20"
+                                                            )}>
+                                                                <Code className={cn("size-5", selectedInstance.type.toLowerCase() === 'frontend' ? "text-primary" : "text-purple-400")} />
                                                             </div>
                                                             <div>
-                                                                <p className="text-xs text-foreground mb-1">Internal VPC Protection Active</p>
-                                                                <p className="text-xs text-muted-foreground">This instance is isolated. Connect via External Proxy or Private Tunnel.</p>
-                                                            </div>
-                                                        </div>
-                                                    )}
-
-                                                    {!selectedInstance.generated_domain && selectedInstance.type.toLowerCase() === 'frontend' && (
-                                                        <div className="mt-4 p-4 rounded-lg bg-red-500/5 border border-red-500/10 flex gap-4 items-center">
-                                                            <div className="w-2 h-2 rounded-full bg-red-500" />
-                                                            <p className="text-xs text-red-400">Deployment Pending: Domain propagation in progress</p>
-                                                        </div>
-                                                    )}
-                                                </CardContent>
-                                            </Card>
-
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                                <Card className="bg-muted border-border rounded-xl">
-                                                    <CardContent className="p-4 lg:p-8">
-                                                        <h3 className="text-sm font-medium text-muted-foreground mb-6">Source Integration</h3>
-                                                        <div className="space-y-4">
-                                                            <div className="flex items-center justify-between p-4 rounded-lg bg-card border border-border group">
-                                                                <div className="flex items-center gap-4">
-                                                                    <div className="w-10 h-10 rounded-xl bg-zinc-900 flex items-center justify-center border border-border text-zinc-400 group-hover:text-primary transition-colors">
-                                                                        {selectedInstance.provider.toLowerCase() === 'github' ? <Github className="w-6 h-6" /> : <Gitlab className="w-6 h-6" />}
-                                                                    </div>
-                                                                    <div>
-                                                                        <div className="text-xs font-medium text-muted-foreground mb-0.5">Connected Repository</div>
-                                                                        <div className="text-sm font-semibold truncate max-w-[150px]">{selectedInstance.repository_url.split('/').pop()}</div>
-                                                                    </div>
-                                                                </div>
-                                                                <Button variant="ghost" size="icon" className="shrink-0" onClick={() => window.open(selectedInstance.repository_url, '_blank')}>
-                                                                    <ExternalLink className="w-4 h-4" />
-                                                                </Button>
-                                                            </div>
-                                                            <div className="p-4 rounded-lg bg-card border border-border flex items-center justify-between">
-                                                                <div>
-                                                                    <div className="text-xs font-bold text-muted-foreground uppercase mb-0.5">Branch</div>
-                                                                    <div className={cn("flex items-center gap-2 font-mono text-sm", selectedInstance.type.toLowerCase() === 'frontend' ? "text-primary/80" : "text-purple-400/80")}>
-                                                                        <Code className="w-3 h-3" /> {selectedInstance.branch}
-                                                                    </div>
+                                                                <div className="font-bold leading-tight">{selectedInstance.type === 'FRONTEND' ? 'Frontend' : 'Backend'} Application</div>
+                                                                <div className="text-xs text-muted-foreground font-medium">
+                                                                    {selectedInstance.provider.toLowerCase() === 'github' ? 'GitHub' : 'GitLab'} Repository
                                                                 </div>
                                                             </div>
                                                         </div>
                                                     </CardContent>
                                                 </Card>
-
-                                                <Card className="bg-muted border-border rounded-xl">
-                                                    <CardContent className="p-4 lg:p-8">
-                                                        <h3 className="text-sm font-medium text-muted-foreground mb-6">Latest Events</h3>
-                                                        <div className="space-y-4">
-                                                            {selectedInstance.events && selectedInstance.events.length > 0 ? (
-                                                                selectedInstance.events.slice(-3).reverse().map((e, idx) => (
-                                                                    <div key={idx} className="flex gap-4 items-start relative pb-4 last:pb-0">
-                                                                        <Separator className="hidden" />
-                                                                        <div className={cn(
-                                                                            "w-2 h-2 rounded-full mt-1.5 shrink-0",
-                                                                            e.type === 'success' ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.3)]' :
-                                                                                e.type === 'error' ? 'bg-red-500' : 'bg-primary'
-                                                                        )} />
-                                                                        <div className="flex-1">
-                                                                            <p className={cn("text-xs font-medium ", e.type === 'error' ? 'text-red-400' : 'text-foreground')}>
-                                                                                {e.message}
-                                                                            </p>
-                                                                            <span className="text-xs text-muted-foreground">
-                                                                                {new Date(e.timestamp).toLocaleString([], { hour: '2-digit', minute: '2-digit' })}
-                                                                            </span>
-                                                                        </div>
-                                                                    </div>
-                                                                ))
-                                                            ) : (
-                                                                <div className="py-6 text-center text-xs text-muted-foreground">
-                                                                    No recent events
+                                                <Card className="bg-card border-border">
+                                                    <CardContent className="p-4 lg:p-6">
+                                                        <div className="text-muted-foreground text-xs mb-4">Availability Zone</div>
+                                                        <div className="flex items-center gap-3">
+                                                            <div className={cn(
+                                                                "w-10 h-10 flex items-center justify-center border",
+                                                                selectedInstance.type.toLowerCase() === 'frontend' ? "bg-primary/10 border-primary/20" : "bg-purple-500/10 border-purple-500/20"
+                                                            )}>
+                                                                <Shield className={cn("size-5", selectedInstance.type.toLowerCase() === 'frontend' ? "text-primary" : "text-purple-400")} />
+                                                            </div>
+                                                            <div>
+                                                                <div className="font-bold">US-East (Virginia)</div>
+                                                                <div className="text-xs text-muted-foreground">Multi-AZ Enabled</div>
+                                                            </div>
+                                                        </div>
+                                                    </CardContent>
+                                                </Card>
+                                                <Card className="bg-card border-border">
+                                                    <CardContent className="p-4 lg:p-6">
+                                                        <div className="text-muted-foreground text-xs mb-4">Instance Health</div>
+                                                        <div className="flex items-center gap-3">
+                                                            <div className={cn(
+                                                                "w-10 h-10 flex items-center justify-center border",
+                                                                selectedInstance.type.toLowerCase() === 'frontend' ? "bg-primary/10 border-primary/20" : "bg-purple-500/10 border-purple-500/20"
+                                                            )}>
+                                                                <Activity className={cn("size-5", selectedInstance.type.toLowerCase() === 'frontend' ? "text-primary" : "text-purple-400")} />
+                                                            </div>
+                                                            <div>
+                                                                <div className={cn("font-bold", selectedInstance.type.toLowerCase() === 'frontend' ? "text-primary" : "text-purple-400")}>
+                                                                    {selectedInstance.status === 'running' ? 'Optimal' : selectedInstance.status}
                                                                 </div>
-                                                            )}
+                                                                <div className="text-xs text-muted-foreground">Monitored</div>
+                                                            </div>
                                                         </div>
                                                     </CardContent>
                                                 </Card>
                                             </div>
+
+                                            <Card className="bg-card border-border">
+                                                <CardContent className="p-4 lg:p-8">
+                                                    <h3 className="text-lg font-bold mb-6">Connection Endpoints</h3>
+                                                    <div className="flex flex-col gap-4">
+                                                        {selectedInstance.generated_domain ? (
+                                                            <>
+                                                                <div className="p-4 bg-background border border-border flex items-center justify-between min-w-0">
+                                                                    <div className="flex-1 overflow-hidden min-w-0">
+                                                                        <div className="text-xs text-muted-foreground mb-1">Public Application URL</div>
+                                                                        <code className={cn("text-sm truncate block w-full", selectedInstance.type.toLowerCase() === 'frontend' ? "text-primary/80" : "text-purple-400/80")}>
+                                                                            https://{selectedInstance.generated_domain}{selectedInstance.type === 'BACKEND' ? '/health' : ''}
+                                                                        </code>
+                                                                    </div>
+                                                                    <div className="flex gap-2 shrink-0">
+                                                                        <Button variant="ghost" size="icon" onClick={() => handleCopy(`https://${selectedInstance.generated_domain}${selectedInstance.type === 'BACKEND' ? '/health' : ''}`, 'prod_url')}>
+                                                                            {copiedField === 'prod_url' ? <Check className={cn("size-4", selectedInstance.type.toLowerCase() === 'frontend' ? "text-primary" : "text-purple-400")} /> : <Copy className="size-4" />}
+                                                                        </Button>
+                                                                        <Button variant="ghost" size="icon" onClick={() => window.open(`https://${selectedInstance.generated_domain}${selectedInstance.type === 'BACKEND' ? '/health' : ''}`, '_blank')}>
+                                                                            <ExternalLink className="size-4" />
+                                                                        </Button>
+                                                                    </div>
+                                                                </div>
+                                                                {selectedInstance.custom_domain && (
+                                                                    <div className="p-4 bg-background border border-border flex items-center justify-between min-w-0">
+                                                                        <div className="flex-1 overflow-hidden min-w-0">
+                                                                            <div className="text-xs text-muted-foreground mb-1">Custom Domain</div>
+                                                                            <code className="text-sm truncate block w-full">{selectedInstance.custom_domain}</code>
+                                                                        </div>
+                                                                        <Button variant="ghost" size="icon" onClick={() => handleCopy(selectedInstance.custom_domain || '', 'custom_domain')}>
+                                                                            {copiedField === 'custom_domain' ? <Check className="size-4 text-emerald-500" /> : <Copy className="size-4" />}
+                                                                        </Button>
+                                                                    </div>
+                                                                )}
+                                                            </>
+                                                        ) : (
+                                                            <div className="flex items-center gap-6 p-6 bg-background border border-border">
+                                                                <div className="w-14 h-14 rounded-lg bg-zinc-900 flex items-center justify-center border border-border">
+                                                                    <Shield className="w-6 h-6 text-muted-foreground" />
+                                                                </div>
+                                                                <div>
+                                                                    <p className="text-xs text-foreground mb-1">Internal VPC Protection Active</p>
+                                                                    <p className="text-xs text-muted-foreground">This instance is isolated. Connect via External Proxy or Private Tunnel.</p>
+                                                                </div>
+                                                            </div>
+                                                        )}
+
+                                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                                            <Card className="bg-background border-border">
+                                                                <CardContent className="p-4">
+                                                                    <div className="text-xs text-muted-foreground mb-1">CPU Limit</div>
+                                                                    <code className="text-sm">{selectedInstance.cpu_limit} vCPU</code>
+                                                                </CardContent>
+                                                            </Card>
+                                                            <Card className="bg-background border-border">
+                                                                <CardContent className="p-4">
+                                                                    <div className="text-xs text-muted-foreground mb-1">RAM Limit</div>
+                                                                    <code className="text-sm">{selectedInstance.ram_limit} GB</code>
+                                                                </CardContent>
+                                                            </Card>
+                                                            <Card className="bg-background border-border">
+                                                                <CardContent className="p-4">
+                                                                    <div className="text-xs text-muted-foreground mb-1">Branch</div>
+                                                                    <code className="text-sm">{selectedInstance.branch}</code>
+                                                                </CardContent>
+                                                            </Card>
+                                                        </div>
+                                                    </div>
+                                                </CardContent>
+                                            </Card>
+
+                                            {selectedInstance.events && selectedInstance.events.length > 0 && (
+                                                <Card className="bg-card border-border">
+                                                    <CardContent className="p-4 lg:p-8">
+                                                        <div className="flex items-center justify-between mb-8">
+                                                            <h3 className="text-lg font-bold">Deployment Timeline</h3>
+                                                            <span className="text-xs text-muted-foreground">Real-time Logs</span>
+                                                        </div>
+                                                        <div className="space-y-6 relative ml-2">
+                                                            <div className="absolute left-[7px] top-2 bottom-2 w-0.5 bg-muted" />
+                                                            {selectedInstance.events.map((event, idx) => (
+                                                                <div key={idx} className="flex gap-6 relative">
+                                                                    <div className={cn(
+                                                                        "size-4 rounded-full border-2 border-zinc-700 relative z-10 shrink-0 mt-1",
+                                                                        event.type === 'success' ? 'bg-emerald-500' :
+                                                                            event.type === 'error' ? 'bg-red-500' : 'bg-primary'
+                                                                    )} />
+                                                                    <div className="flex-1">
+                                                                        <div className="flex items-center justify-between mb-1">
+                                                                            <p className={cn(
+                                                                                "text-sm font-bold",
+                                                                                event.type === 'success' ? (selectedInstance.type.toLowerCase() === 'frontend' ? "text-primary" : "text-purple-400") :
+                                                                                    event.type === 'primary' ? (selectedInstance.type.toLowerCase() === 'frontend' ? "text-primary" : "text-purple-400") : 'text-foreground'
+                                                                            )}>
+                                                                                {event.message}
+                                                                            </p>
+                                                                            <span className="text-xs font-medium text-muted-foreground">
+                                                                                {new Date(event.timestamp).toLocaleTimeString()}
+                                                                            </span>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </CardContent>
+                                                </Card>
+                                            )}
                                         </div>
                                     </TabsContent>
 
-                                    <TabsContent value="deployments" className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                        <Card className="bg-card border-border rounded-xl min-h-[500px]">
-                                            <CardContent className="p-4 lg:p-12">
+                                    <TabsContent value="deployments" className="animate-in fade-in slide-in-from-bottom-4 duration-500 flex-1 overflow-y-auto p-4 lg:p-8">
+                                        <Card className="bg-card border-border min-h-[500px]">
+                                            <CardContent className="p-4 lg:p-8">
                                                 <div className="flex items-center justify-between mb-12">
                                                     <h3 className="text-xl font-semibold">Deployment Lifecycle</h3>
                                                     <Badge variant="outline" className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20">
-                                                        <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)] mr-1.5" /> 
+                                                        <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)] mr-1.5" />
                                                         Platform Sync Normal
                                                     </Badge>
                                                 </div>
@@ -861,8 +873,8 @@ function ComputePageContent() {
                                         </Card>
                                     </TabsContent>
 
-                                    <TabsContent value="env" className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                        <Card className="bg-background border-border rounded-xl h-[600px] flex flex-col shadow-2xl relative overflow-hidden">
+                                    <TabsContent value="env" className="animate-in fade-in slide-in-from-bottom-4 duration-500 flex-1 overflow-y-auto p-4 lg:p-8">
+                                        <Card className="bg-card border-border h-[600px] flex flex-col overflow-hidden">
                                             <CardContent className="p-4 lg:p-8 h-full flex flex-col">
                                                 <div className="flex items-center justify-between mb-6 shrink-0 z-10">
                                                     <div className="flex gap-4 items-center">
@@ -874,8 +886,8 @@ function ComputePageContent() {
                                                             <p className="text-xs text-muted-foreground font-medium leading-relaxed">Secure secrets mapped to your deployment runtime.</p>
                                                         </div>
                                                     </div>
-                                                    
-                                                    <Button 
+
+                                                    <Button
                                                         onClick={() => handleSaveEnvContent(selectedInstance._id)}
                                                         disabled={isSavingEnv}
                                                         className="rounded-lg h-12 px-8 shadow-lg shadow-primary/20 disabled:opacity-50 transition-all"
@@ -906,8 +918,8 @@ function ComputePageContent() {
                                         </Card>
                                     </TabsContent>
 
-                                    <TabsContent value="logs" className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                        <Card className="bg-background border-border rounded-xl h-[600px] flex flex-col font-mono text-sm overflow-hidden shadow-2xl">
+                                    <TabsContent value="logs" className="animate-in fade-in slide-in-from-bottom-4 duration-500 flex-1 overflow-y-auto p-4 lg:p-8">
+                                        <Card className="bg-card border-border h-[600px] flex flex-col font-mono text-sm overflow-hidden">
                                             <CardHeader className="pb-0 px-8 pt-6">
                                                 <div className="flex items-center justify-between">
                                                     <div className="flex gap-2">
@@ -936,8 +948,8 @@ function ComputePageContent() {
                                         </Card>
                                     </TabsContent>
 
-                                    <TabsContent value="terminal" className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                        <Card className="bg-card border-border rounded-xl h-[600px] flex flex-col overflow-hidden shadow-2xl">
+                                    <TabsContent value="terminal" className="animate-in fade-in slide-in-from-bottom-4 duration-500 flex-1 overflow-y-auto p-4 lg:p-8">
+                                        <Card className="bg-card border-border h-[600px] flex flex-col overflow-hidden">
                                             <CardHeader className="px-8 pt-5 pb-0 border-b border-border bg-muted">
                                                 <div className="flex items-center justify-between">
                                                     <div className="flex items-center gap-4">
@@ -991,9 +1003,9 @@ function ComputePageContent() {
                                         </Card>
                                     </TabsContent>
 
-                                    <TabsContent value="settings" className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+                                    <TabsContent value="settings" className="animate-in fade-in slide-in-from-bottom-4 duration-500 flex-1 overflow-y-auto p-4 lg:p-8">
                                         <div className="max-w-2xl space-y-12">
-                                            <Card className="bg-muted border-border rounded-xl">
+                                            <Card className="bg-card border-border">
                                                 <CardContent className="p-4 lg:p-8">
                                                     <div className="flex items-center justify-between mb-8">
                                                         <h3 className="text-xl font-semibold">Git Integrations</h3>
@@ -1046,7 +1058,7 @@ function ComputePageContent() {
                                                             />
                                                         </div>
 
-                                                        <Card className="bg-muted/50 border-border rounded-xl">
+                                                        <Card className="bg-muted/50 border-border">
                                                             <CardContent className="p-6 group hover:border-primary/30 transition-all">
                                                                 <div className="flex items-center justify-between mb-4">
                                                                     <div className="flex items-center gap-2">
@@ -1103,7 +1115,7 @@ function ComputePageContent() {
                                                 </CardContent>
                                             </Card>
 
-                                            <Card className="border-red-500/20 bg-red-500/5 rounded-xl">
+                                            <Card className="border-red-500/20 bg-red-500/5">
                                                 <CardContent className="p-4 lg:p-8">
                                                     <h3 className="text-red-400 font-semibold mb-4">Danger Zone</h3>
                                                     <p className="text-muted-foreground text-xs mb-6 px-1">Deleting this instance will immediately stop your services and remove all associated load balancers and networking rules.</p>
@@ -1113,7 +1125,7 @@ function ComputePageContent() {
                                         </div>
                                     </TabsContent>
                                 </Tabs>
-                            </div>
+                            </>
                         ) : (
                             <div className="h-full flex flex-col items-center justify-center text-center p-8">
                                 <Cpu className="size-16 text-muted-foreground mb-6" />
@@ -1135,7 +1147,7 @@ function ComputePageContent() {
                     </div>
                 </div>
             </div>
-            <ProvisionNodeModal 
+            <ProvisionNodeModal
                 isOpen={showCreateModal}
                 onClose={() => setShowCreateModal(false)}
                 onSuccess={() => {
