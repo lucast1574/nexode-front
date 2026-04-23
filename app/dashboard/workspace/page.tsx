@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useCallback } from "react"
 import { useDashboard } from "@/app/dashboard/layout"
-import { NotificationBell } from "@/components/NotificationBell"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -237,9 +236,6 @@ export default function WorkspacePage() {
                     </BreadcrumbList>
                 </Breadcrumb>
                 <div className="flex-1" />
-                <div className="mr-2">
-                    <NotificationBell badgeColor="bg-primary" iconColor="text-primary" />
-                </div>
                 <Button render={<Link href="/dashboard/services" />} nativeButton={false} className="gap-2">
                     <Plus className="size-4" /> New Service
                 </Button>

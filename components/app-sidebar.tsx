@@ -15,6 +15,7 @@ import {
   SidebarRail,
 } from "@/components/ui/sidebar"
 import { LayoutDashboard, Workflow, Cpu, Database, BarChart3, BookOpen, HelpCircle, TrendingUp, Shield, ExternalLink } from "lucide-react"
+import { NotificationBell } from "@/components/NotificationBell"
 
 import { useDashboard } from "@/app/dashboard/layout"
 
@@ -78,8 +79,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton size="lg" render={<Link href="/" />} className="focus-visible:ring-0 focus:ring-0">
+          <SidebarMenuItem className="flex items-center justify-between gap-2">
+            <SidebarMenuButton size="lg" render={<Link href="/" />} className="focus-visible:ring-0 focus:ring-0 flex-1">
               <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-black text-white">
                 <span className="text-sm font-semibold">N</span>
               </div>
@@ -88,6 +89,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <span className="truncate text-xs">Cloud Platform</span>
               </div>
             </SidebarMenuButton>
+            <NotificationBell badgeColor="bg-primary" iconColor="text-primary" />
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>

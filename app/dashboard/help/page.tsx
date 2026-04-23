@@ -1,7 +1,6 @@
 "use client"
 
 import Link from "next/link"
-import { NotificationBell } from "@/components/NotificationBell"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
@@ -23,9 +22,6 @@ export default function HelpPage() {
           </BreadcrumbList>
         </Breadcrumb>
         <div className="flex-1" />
-        <div className="mr-2">
-          <NotificationBell badgeColor="bg-primary" iconColor="text-primary" />
-        </div>
         <Button render={<Link href="/dashboard/services" />} nativeButton={false} className="gap-2">
           <Plus className="size-4" /> New Service
         </Button>

@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useState, useCallback, Suspense } from "react";
-import { NotificationBell } from "@/components/NotificationBell";
 import { useSearchParams, useRouter } from "next/navigation";
 import {
     Cpu,
@@ -542,9 +541,6 @@ function ComputePageContent() {
                         </BreadcrumbList>
                     </Breadcrumb>
                     <div className="flex-1" />
-                    <div className="mr-2">
-                        <NotificationBell badgeColor="bg-primary" iconColor="text-primary" />
-                    </div>
                     <Button onClick={handleCreateClick} className="gap-2">
                         <Plus className="size-4" /> Deploy Instance
                     </Button>

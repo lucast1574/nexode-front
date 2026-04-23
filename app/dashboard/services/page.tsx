@@ -10,7 +10,6 @@ import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/co
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import { useModal } from "@/components/ui/modal";
-import { NotificationBell } from "@/components/NotificationBell";
 
 interface Tier {
     name: string;
@@ -313,9 +312,6 @@ export default function ServicesPage() {
                     </BreadcrumbList>
                 </Breadcrumb>
                 <div className="flex-1" />
-                <div className="mr-2">
-                    <NotificationBell badgeColor="bg-primary" iconColor="text-primary" />
-                </div>
                 <Button render={<Link href="/dashboard/services" />} nativeButton={false} className="gap-2">
                     <Plus className="size-4" /> New Service
                 </Button>

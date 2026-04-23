@@ -2,7 +2,6 @@
 
 import React from "react";
 import Link from "next/link";
-import { NotificationBell } from "@/components/NotificationBell";
 import { useGraphQL } from "@/lib/use-graphql";
 import { useQuery, useMutation } from "@apollo/client/react";
 import { GET_ADMIN_DATA, GET_ALL_USERS } from "@/lib/graphql-operations";
@@ -108,9 +107,6 @@ export default function AdminPage() {
                         </BreadcrumbList>
                     </Breadcrumb>
                     <div className="flex-1" />
-                    <div className="mr-2">
-                        <NotificationBell badgeColor="bg-primary" iconColor="text-primary" />
-                    </div>
                     <Button render={<Link href="/dashboard/services" />} nativeButton={false} className="gap-2">
                         <Plus className="size-4" /> New Service
                     </Button>
@@ -136,9 +132,6 @@ export default function AdminPage() {
                         </BreadcrumbList>
                     </Breadcrumb>
                     <div className="flex-1" />
-                    <div className="mr-2">
-                        <NotificationBell badgeColor="bg-primary" iconColor="text-primary" />
-                    </div>
                     <Button render={<Link href="/dashboard/services" />} nativeButton={false} className="gap-2">
                         <Plus className="size-4" /> New Service
                     </Button>
@@ -206,9 +199,6 @@ export default function AdminPage() {
                     </BreadcrumbList>
                 </Breadcrumb>
                 <div className="flex-1" />
-                <div className="mr-2">
-                    <NotificationBell badgeColor="bg-primary" iconColor="text-primary" />
-                </div>
                 <Button render={<Link href="/dashboard/services" />} nativeButton={false} className="gap-2">
                     <Plus className="size-4" /> New Service
                 </Button>

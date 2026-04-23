@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useState, useCallback } from "react";
-import { NotificationBell } from "@/components/NotificationBell";
 import { Workflow, Activity, Trash2, RefreshCw, ExternalLink, Search, Plus, Settings, Shield, Copy, Check } from "lucide-react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -276,9 +275,6 @@ export default function AutomationsPage() {
                         </BreadcrumbList>
                     </Breadcrumb>
                     <div className="flex-1" />
-                    <div className="mr-2">
-                        <NotificationBell badgeColor="bg-primary" iconColor="text-primary" />
-                    </div>
                     <Button onClick={handleCreateClick} className="gap-2">
                         <Plus className="size-4" /> Provision n8n
                     </Button>
