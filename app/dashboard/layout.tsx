@@ -147,6 +147,8 @@ export default function DashboardLayout({
                         avatar
                         role { slug }
                         trial_used
+                        github_profile { username }
+                        gitlab_profile { username }
                     }
                     mySubscriptions {
                         id
