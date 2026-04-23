@@ -20,7 +20,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
-import { ChevronsUpDownIcon, BadgeCheckIcon, CreditCardIcon, LogOutIcon, SettingsIcon, UsersIcon } from "lucide-react"
+import { ChevronsUpDownIcon, BadgeCheckIcon, CreditCardIcon, LogOutIcon, UsersIcon } from "lucide-react"
 import Link from "next/link"
 import { signOutFromServer } from "@/lib/auth-utils"
 
@@ -90,10 +90,6 @@ export function NavUser({
               <DropdownMenuItem render={<Link href="/dashboard/billing" />}>
                 <CreditCardIcon />
                 Billing
-              </DropdownMenuItem>
-              <DropdownMenuItem render={<Link href="/dashboard/settings" />}>
-                <SettingsIcon />
-                Settings
               </DropdownMenuItem>
               <DropdownMenuItem render={<Link href="/dashboard/workspace" />}>
                 <UsersIcon />

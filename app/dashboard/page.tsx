@@ -88,7 +88,7 @@ export default function DashboardPage() {
                                     <Card className="group relative transition-all duration-500 flex flex-col bg-card border-border hover:bg-muted/50 hover:border-muted h-full">
                                         <CardHeader className="p-6">
                                             <div className="flex items-start justify-between mb-4">
-                                                <div className="p-3 rounded-lg bg-primary/10">
+                                                <div>
                                                     {inst.service === "compute" ? (
                                                         <Cpu className="size-6 text-primary" />
                                                     ) : inst.service === "n8n" ? (
