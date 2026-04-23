@@ -145,6 +145,7 @@ function ComputePageContent() {
                 body: JSON.stringify({ query }),
             });
 
+
             const result = await res.json();
             if (result.data) {
                 setUser(result.data.me);
@@ -602,65 +603,65 @@ function ComputePageContent() {
                         {selectedInstance ? (
                             <>
                                 <div className="p-4 lg:p-12 max-w-6xl mx-auto">
-                                <div className="flex flex-col lg:flex-row items-start justify-between mb-8 gap-4">
-                                    <div>
-                                        <div className="flex items-center gap-4 mb-3">
-                                            <h1 className="text-4xl font-bold tracking-tight">{selectedInstance.name}</h1>
-                                            <Badge variant="outline" className={cn(
-                                                selectedInstance.type.toLowerCase() === 'frontend' ? "bg-primary/10 text-primary border-primary/20" : "bg-purple-400/10 text-purple-400 border-purple-400/20"
-                                            )}>
-                                                ● {selectedInstance.status}
-                                            </Badge>
+                                    <div className="flex flex-col lg:flex-row items-start justify-between mb-8 gap-4">
+                                        <div>
+                                            <div className="flex items-center gap-4 mb-3">
+                                                <h1 className="text-4xl font-bold tracking-tight">{selectedInstance.name}</h1>
+                                                <Badge variant="outline" className={cn(
+                                                    selectedInstance.type.toLowerCase() === 'frontend' ? "bg-primary/10 text-primary border-primary/20" : "bg-purple-400/10 text-purple-400 border-purple-400/20"
+                                                )}>
+                                                    ● {selectedInstance.status}
+                                                </Badge>
+                                            </div>
+                                            <div className="flex items-center gap-4 text-muted-foreground text-sm font-medium">
+                                                <div className="flex items-center gap-2"><Layers className="w-4 h-4" /> {selectedInstance.cpu_limit} vCPU</div>
+                                                <Separator orientation="vertical" className="h-4" />
+                                                <div className="flex items-center gap-2"><Server className="w-4 h-4" /> {selectedInstance.ram_limit} GB RAM</div>
+                                            </div>
                                         </div>
-                                        <div className="flex items-center gap-4 text-muted-foreground text-sm font-medium">
-                                            <div className="flex items-center gap-2"><Layers className="w-4 h-4" /> {selectedInstance.cpu_limit} vCPU</div>
-                                            <Separator orientation="vertical" className="h-4" />
-                                            <div className="flex items-center gap-2"><Server className="w-4 h-4" /> {selectedInstance.ram_limit} GB RAM</div>
-                                        </div>
-                                    </div>
-                                    <div className="flex flex-wrap gap-3">
-                                        {selectedInstance.generated_domain && (
+                                        <div className="flex flex-wrap gap-3">
+                                            {selectedInstance.generated_domain && (
+                                                <Button
+                                                    variant="outline"
+                                                    onClick={() => window.open(`https://${selectedInstance.generated_domain}/status`, '_blank')}
+                                                    className="gap-2"
+                                                >
+                                                    <Activity className="w-4 h-4" /> Check Status
+                                                </Button>
+                                            )}
                                             <Button
                                                 variant="outline"
-                                                onClick={() => window.open(`https://${selectedInstance.generated_domain}/status`, '_blank')}
-                                                className="gap-2"
+                                                onClick={() => handleRestart(selectedInstance._id)}
+                                                disabled={(cooldown > 0 && cooldownId === selectedInstance._id) || restarting}
+                                                className="min-w-[100px] gap-2"
                                             >
-                                                <Activity className="w-4 h-4" /> Check Status
+                                                <RefreshCw className={cn("w-4 h-4", restarting && "animate-spin")} />
+                                                {(cooldown > 0 && cooldownId === selectedInstance._id) ? `${cooldown}s` : 'Redeploy'}
                                             </Button>
-                                        )}
-                                        <Button
-                                            variant="outline"
-                                            onClick={() => handleRestart(selectedInstance._id)}
-                                            disabled={(cooldown > 0 && cooldownId === selectedInstance._id) || restarting}
-                                            className="min-w-[100px] gap-2"
-                                        >
-                                            <RefreshCw className={cn("w-4 h-4", restarting && "animate-spin")} />
-                                            {(cooldown > 0 && cooldownId === selectedInstance._id) ? `${cooldown}s` : 'Redeploy'}
-                                        </Button>
-                                        <Button onClick={() => handleDelete(selectedInstance._id)} variant="destructive" size="icon"><Trash2 className="w-4 h-4" /></Button>
+                                            <Button onClick={() => handleDelete(selectedInstance._id)} variant="destructive" size="icon"><Trash2 className="w-4 h-4" /></Button>
+                                        </div>
                                     </div>
-                                </div>
 
-                                {liveDeployStatus === 'running' && (
-                                    <Card className={cn("mb-6 border-primary/20 bg-primary/5 overflow-hidden relative", selectedInstance.type.toLowerCase() === 'backend' && "border-purple-500/20 bg-purple-500/5")}>
-                                        <div className={cn("absolute inset-0 bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 animate-pulse", selectedInstance.type.toLowerCase() === 'backend' && "from-purple-500/10 via-purple-500/5 to-purple-500/10")} />
-                                        <CardContent className="p-4 relative">
-                                            <div className="flex items-center gap-4">
-                                                <div className={cn("flex-shrink-0 w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center", selectedInstance.type.toLowerCase() === 'backend' && "bg-purple-500/20")}>
-                                                    <RefreshCw className={cn("w-5 h-5 text-primary animate-spin", selectedInstance.type.toLowerCase() === 'backend' && "text-purple-400")} />
+                                    {liveDeployStatus === 'running' && (
+                                        <Card className={cn("mb-6 border-primary/20 bg-primary/5 overflow-hidden relative", selectedInstance.type.toLowerCase() === 'backend' && "border-purple-500/20 bg-purple-500/5")}>
+                                            <div className={cn("absolute inset-0 bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 animate-pulse", selectedInstance.type.toLowerCase() === 'backend' && "from-purple-500/10 via-purple-500/5 to-purple-500/10")} />
+                                            <CardContent className="p-4 relative">
+                                                <div className="flex items-center gap-4">
+                                                    <div className={cn("flex-shrink-0 w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center", selectedInstance.type.toLowerCase() === 'backend' && "bg-purple-500/20")}>
+                                                        <RefreshCw className={cn("w-5 h-5 text-primary animate-spin", selectedInstance.type.toLowerCase() === 'backend' && "text-purple-400")} />
+                                                    </div>
+                                                    <div>
+                                                        <div className={cn("text-sm font-semibold text-primary", selectedInstance.type.toLowerCase() === 'backend' && "text-purple-400")}>Deploying New Version</div>
+                                                        <div className={cn("text-xs text-primary/60 mt-0.5", selectedInstance.type.toLowerCase() === 'backend' && "text-purple-400/60")}>A new push was detected. Building and deploying automatically...</div>
+                                                    </div>
+                                                    <div className="ml-auto flex items-center gap-2">
+                                                        <div className={cn("w-2 h-2 rounded-full bg-primary animate-ping", selectedInstance.type.toLowerCase() === 'backend' && "bg-purple-400")} />
+                                                        <span className={cn("text-xs font-mono text-primary/80", selectedInstance.type.toLowerCase() === 'backend' && "text-purple-400/80")}>BUILDING</span>
+                                                    </div>
                                                 </div>
-                                                <div>
-                                                    <div className={cn("text-sm font-semibold text-primary", selectedInstance.type.toLowerCase() === 'backend' && "text-purple-400")}>Deploying New Version</div>
-                                                    <div className={cn("text-xs text-primary/60 mt-0.5", selectedInstance.type.toLowerCase() === 'backend' && "text-purple-400/60")}>A new push was detected. Building and deploying automatically...</div>
-                                                </div>
-                                                <div className="ml-auto flex items-center gap-2">
-                                                    <div className={cn("w-2 h-2 rounded-full bg-primary animate-ping", selectedInstance.type.toLowerCase() === 'backend' && "bg-purple-400")} />
-                                                    <span className={cn("text-xs font-mono text-primary/80", selectedInstance.type.toLowerCase() === 'backend' && "text-purple-400/80")}>BUILDING</span>
-                                                </div>
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                )}
+                                            </CardContent>
+                                        </Card>
+                                    )}
                                 </div>
 
                                 <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
