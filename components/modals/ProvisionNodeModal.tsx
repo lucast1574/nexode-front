@@ -235,6 +235,7 @@ export function ProvisionNodeModal({
 
     const handleCreateInstance = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        console.log("[ProvisionNode] Submitting form...", { instanceName, instanceType, formProvider, selectedRepo });
 
         const computeSub = subscriptions.find(s => s.service === 'compute');
         if (!computeSub && !isSuperuser) {
@@ -262,6 +263,7 @@ export function ProvisionNodeModal({
         try {
             const token = getAccessToken();
             const GQL_URL = process.env.NEXT_PUBLIC_API_URL || "https://backend.nexode.app/api-v1/graphql";
+            console.log("[ProvisionNode] API URL:", GQL_URL);
 
             const mutation = `
                 mutation CreateCompute($input: CreateComputeInput!) {
@@ -282,8 +284,10 @@ export function ProvisionNodeModal({
             });
 
             const result = await res.json();
+            console.log("[ProvisionNode] API Result:", result);
 
             if (result.data?.createComputeInstance) {
+                console.log("[ProvisionNode] Success!");
                 onSuccess();
                 handleClose();
             } else {
@@ -634,7 +638,7 @@ export function ProvisionNodeModal({
 
                         <Button
                             type="submit"
-                            disabled={fetchingBranches || fetchingRepos}
+                            disabled={fetchingBranches || fetchingRepos || !instanceName.trim() || !selectedRepo}
                             className="w-full h-12 gap-2"
                         >
                             {fetchingBranches || fetchingRepos ? (

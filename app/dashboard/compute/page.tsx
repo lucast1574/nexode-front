@@ -129,7 +129,7 @@ function ComputePageContent() {
                     }
                     mySubscriptions { id service status plan { name slug features } }
                     myComputeInstances {
-                        _id name type provider repository_url branch status auto_deploy_on_push env_content runtime cpu_limit ram_limit custom_domain generated_domain created_on
+                        _id name type provider repository_url branch status auto_deploy_on_push env_content cpu_limit ram_limit custom_domain generated_domain created_on
                         logs
                         events { timestamp message type }
                     }
@@ -184,12 +184,13 @@ function ComputePageContent() {
 
 
     const handleCreateClick = useCallback(() => {
+        console.log("[Compute] handleCreateClick", { isStaff, canCreate, computeUsedSlots, computeTotalSlots });
         if (canCreate) {
             setShowCreateModal(true);
         } else {
             setShowLimitModal(true);
         }
-    }, [canCreate]);
+    }, [canCreate, isStaff, computeUsedSlots, computeTotalSlots]);
 
     // Safety log for debugging role bypass issues
     useEffect(() => {
@@ -1172,7 +1173,12 @@ function ComputePageContent() {
                     fetchInstances();
                     refetchGlobal();
                 }}
-                user={dashboardUser}
+                user={{ 
+                    ...dashboardUser, 
+                    ...user,
+                    first_name: dashboardUser?.first_name || user?.first_name || '',
+                    email: dashboardUser?.email || user?.email || ''
+                }}
                 subscriptions={subscriptions}
                 initialProvider={initialProvider}
                 isSuperuser={isStaff}
