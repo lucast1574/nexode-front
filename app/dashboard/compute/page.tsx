@@ -1172,7 +1172,7 @@ function ComputePageContent() {
                     fetchInstances();
                     refetchGlobal();
                 }}
-                user={user}
+                user={dashboardUser}
                 subscriptions={subscriptions}
                 initialProvider={initialProvider}
                 isSuperuser={isStaff}
