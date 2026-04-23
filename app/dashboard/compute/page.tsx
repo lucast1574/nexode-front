@@ -25,7 +25,7 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
+import { Card, CardHeader, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
@@ -590,7 +590,8 @@ function ComputePageContent() {
 
                     <div className="flex-1 flex flex-col bg-background min-w-0">
                         {selectedInstance ? (
-                            <div className="p-4 lg:p-12 max-w-6xl mx-auto">
+                            <>
+                                <div className="p-4 lg:p-12 max-w-6xl mx-auto">
                                 <div className="flex flex-col lg:flex-row items-start justify-between mb-8 gap-4">
                                     <div>
                                         <div className="flex items-center gap-4 mb-3">
@@ -650,6 +651,7 @@ function ComputePageContent() {
                                         </CardContent>
                                     </Card>
                                 )}
+                                </div>
 
                                 <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
                                     <TabsList variant="line" className="mt-8 gap-8 px-4 lg:px-8 overflow-x-auto">
