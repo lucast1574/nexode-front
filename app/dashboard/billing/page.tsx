@@ -303,6 +303,11 @@ export default function BillingPage() {
             </header>
 
             <div className="flex-1 overflow-y-auto p-6">
+                <div className="flex flex-col gap-2 mb-6">
+                    <h1 className="text-2xl font-bold tracking-tight">Billing</h1>
+                    <p className="text-muted-foreground">Manage payment methods, invoices, and cloud usage costs.</p>
+                </div>
+
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-10">
                     <Card className="bg-card border-border">
                         <CardContent className="p-6">

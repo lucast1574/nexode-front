@@ -240,8 +240,8 @@ export default function SettingsPage() {
                 </Breadcrumb>
                 <div className="flex-1" />
                 <div className="mr-2"><NotificationBell badgeColor="bg-primary" iconColor="text-primary" /></div>
-                <Button render={<Link href="/dashboard/services" />} nativeButton={false} size="lg" className="gap-2 px-6 font-bold">
-                    <Plus className="size-5" /> New Service
+                <Button render={<Link href="/dashboard/services" />} nativeButton={false} className="gap-2">
+                    <Plus className="size-4" /> New Service
                 </Button>
             </header>
 
@@ -390,35 +390,6 @@ export default function SettingsPage() {
                         </Card>
                     </div>
 
-                    <Card className="border-destructive/20 bg-destructive/5">
-                        <CardHeader>
-                            <CardTitle className="text-destructive">Danger Zone</CardTitle>
-                            <CardDescription>Once you delete your account, there is no going back. Please be certain.</CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <Button variant="destructive">
-                                Delete Account
-                            </Button>
-                        </CardContent>
-                    </Card>
-
-                    <Card
-                        className="bg-gradient-to-br from-primary/10 to-transparent border-primary/20 cursor-pointer group"
-                        onClick={() => router.push("/dashboard/billing")}
-                    >
-                        <CardContent className="p-6 flex items-center justify-between">
-                            <div className="flex items-center gap-6">
-                                <div className="size-14 bg-primary/20 flex items-center justify-center text-primary group-hover:rotate-12 transition-transform duration-500">
-                                    <CreditCard className="size-7" />
-                                </div>
-                                <div>
-                                    <h3 className="text-lg font-bold">Billing Architecture</h3>
-                                    <p className="text-sm text-muted-foreground">Manage payment methods, invoices, and cloud usage costs.</p>
-                                </div>
-                            </div>
-                            <ChevronRight className="size-5 text-muted-foreground group-hover:text-primary transition-colors" />
-                        </CardContent>
-                    </Card>
                 </div>
             </div>
         </>

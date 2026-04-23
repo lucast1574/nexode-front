@@ -14,7 +14,7 @@ import {
   SidebarMenuButton,
   SidebarRail,
 } from "@/components/ui/sidebar"
-import { LayoutDashboard, Workflow, Cpu, Database, BarChart3, BookOpen, HelpCircle, TrendingUp, Shield } from "lucide-react"
+import { LayoutDashboard, Workflow, Cpu, Database, BarChart3, BookOpen, HelpCircle, TrendingUp, Shield, ExternalLink } from "lucide-react"
 
 import { useDashboard } from "@/app/dashboard/layout"
 
@@ -103,9 +103,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>
-            <SidebarMenuButton render={<Link href="/docs" />}>
+            <SidebarMenuButton render={<a href="/docs" target="_blank" rel="noopener noreferrer" />}>
               <BookOpen />
               <span>Documentation</span>
+              <ExternalLink className="ml-auto size-4 text-muted-foreground" />
             </SidebarMenuButton>
           </SidebarMenuItem>
           <SidebarMenuItem>

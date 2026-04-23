@@ -316,8 +316,8 @@ export default function ServicesPage() {
                 <div className="mr-2">
                     <NotificationBell badgeColor="bg-primary" iconColor="text-primary" />
                 </div>
-                <Button render={<Link href="/dashboard/services" />} nativeButton={false} size="lg" className="gap-2 px-6 font-bold">
-                    <Plus className="size-5" /> New Service
+                <Button render={<Link href="/dashboard/services" />} nativeButton={false} className="gap-2">
+                    <Plus className="size-4" /> New Service
                 </Button>
             </header>
 

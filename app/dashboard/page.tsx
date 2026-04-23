@@ -6,13 +6,11 @@ import Link from "next/link"
 import {
     Database,
     Cpu,
-    Plus,
-    Zap
+    Plus
 } from "lucide-react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import {
     Breadcrumb,
@@ -68,6 +66,9 @@ export default function DashboardPage() {
                                     </Link>
                                     <h3 className="text-xl font-bold mb-2">No deployed clusters</h3>
                                     <p className="text-muted-foreground max-w-sm mb-6">You have active subscriptions but no deployed instances yet. Go to a service console to deploy your first cluster.</p>
+                                    <Button render={<Link href="/dashboard/services" />} nativeButton={false} className="gap-2 mb-4">
+                                        <Plus className="size-4" /> New Service
+                                    </Button>
                                     <div className="flex gap-3">
                                         {(isSuperuser || subscriptions.some(s => s.service === 'database')) && (
                                             <Button render={<Link href="/dashboard/databases" />} nativeButton={false} variant="outline">Deploy Database</Button>
@@ -132,36 +133,6 @@ export default function DashboardPage() {
                     )}
                 </div>
 
-                <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <Card className="bg-gradient-to-br from-primary/10 to-transparent border border-primary/20 relative overflow-hidden group">
-                        <CardContent className="p-6 relative z-10">
-                            <h3 className="text-lg font-bold mb-2">Upgrade Performance</h3>
-                            <p className="text-sm text-muted-foreground max-w-xs mb-6">Need more compute power? Upscale your instances with zero downtime.</p>
-                            <Button variant="outline" size="sm" render={<Link href="/dashboard/services" />} nativeButton={false}>
-                                View Tiers
-                            </Button>
-                        </CardContent>
-                        <Zap className="absolute -bottom-4 -right-4 size-32 text-primary/5 -rotate-12 group-hover:scale-110 transition-transform duration-500" />
-                    </Card>
-                    <Card className="border">
-                        <CardContent className="p-6">
-                            <h3 className="text-lg font-bold mb-4">System Status</h3>
-                            <div className="flex flex-col gap-4">
-                                <div className="flex items-center justify-between text-sm">
-                                    <span className="text-muted-foreground">Services</span>
-                                    <span className="font-bold text-primary">{deployedInstances.length} Active</span>
-                                </div>
-                                <div className="h-1.5 w-full bg-muted overflow-hidden">
-                                    <div className="h-full bg-primary" style={{ width: '100%' }} />
-                                </div>
-                                <div className="flex items-center justify-between text-sm">
-                                    <span className="text-muted-foreground">Infrastructure</span>
-                                    <Badge variant="outline" className="text-primary font-bold">Operational</Badge>
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
-                </div>
             </div>
         </>
     )

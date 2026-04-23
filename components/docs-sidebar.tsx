@@ -16,7 +16,7 @@ import {
   SidebarGroupLabel,
   useSidebar,
 } from "@/components/ui/sidebar"
-import { Rocket, Cpu, Database, Workflow, CreditCard, Users, Zap } from "lucide-react"
+import { Rocket, Cpu, Database, Workflow, CreditCard, Users, Zap, ExternalLink } from "lucide-react"
 
 const docGroups = [
   {
@@ -116,8 +116,9 @@ export function DocsSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) 
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton render={<Link href="/dashboard" />}>
+            <SidebarMenuButton render={<a href="/dashboard" target="_blank" rel="noopener noreferrer" />}>
               <span>Dashboard</span>
+              <ExternalLink className="ml-auto size-4 text-muted-foreground" />
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
