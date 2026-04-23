@@ -102,7 +102,8 @@ export default function AutomationsPage() {
             const result = await res.json();
             if (result.data) {
                 setUser(result.data.me);
-                setIsSuperuser(result.data.me?.role?.slug === 'superuser');
+                const roleSlug = result.data.me?.role?.slug?.toLowerCase();
+                setIsSuperuser(roleSlug === 'superuser' || roleSlug === 'admin');
                 const allSubs = result.data.mySubscriptions || [];
                 const activeSubs = allSubs.filter((s: Subscription) => s && s.status === 'ACTIVE');
                 setSubscriptions(activeSubs);
@@ -238,8 +239,9 @@ export default function AutomationsPage() {
                         const msg = result.errors?.[0]?.message || "Failed to delete instance";
                         toast.error(msg);
                     }
-                } catch (error: any) {
-                    toast.error(error.message || "Network error");
+                } catch (error) {
+                    const errorMessage = error instanceof Error ? error.message : "Network error";
+                    toast.error(errorMessage);
                 }
             }
         });

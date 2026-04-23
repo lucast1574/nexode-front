@@ -162,7 +162,8 @@ export default function DatabasesPage() {
 
             const result = await res.json();
             if (result.data) {
-                setIsSuperuser(result.data.me?.role?.slug === 'superuser');
+                const roleSlug = result.data.me?.role?.slug?.toLowerCase();
+                setIsSuperuser(roleSlug === 'superuser' || roleSlug === 'admin');
                 setSubscriptions(result.data.mySubscriptions || []);
                 const dbs = result.data.myDatabases || [];
                 setDatabases(dbs);

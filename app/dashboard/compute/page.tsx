@@ -148,7 +148,9 @@ function ComputePageContent() {
             const result = await res.json();
             if (result.data) {
                 setUser(result.data.me);
-                setIsSuperuser(result.data.me?.role?.slug === 'superuser');
+                const roleSlug = result.data.me?.role?.slug?.toLowerCase();
+                const staffStatus = roleSlug === 'superuser' || roleSlug === 'admin';
+                setIsSuperuser(staffStatus);
                 setSubscriptions(result.data.mySubscriptions || []);
                 const insts = result.data.myComputeInstances || [];
                 setInstances(insts);
@@ -182,6 +184,13 @@ function ComputePageContent() {
             setShowCreateModal(true);
         }
     }, [isSuperuser, computeUsedSlots, computeTotalSlots]);
+
+    // Safety log for debugging role bypass issues
+    useEffect(() => {
+        if (!loading) {
+            console.log(`[Compute] Role status: ${isSuperuser ? 'Staff/Superuser' : 'Standard User'}, Used: ${computeUsedSlots}, Total: ${computeTotalSlots}`);
+        }
+    }, [isSuperuser, computeUsedSlots, computeTotalSlots, loading]);
 
     // useEffects that depend on handleCreateClick should come after this
     useEffect(() => {
