@@ -1,11 +1,10 @@
 "use client";
 
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useId } from "react";
 import {
     Globe,
     Server,
     Github,
-    Gitlab,
     Check,
     Lock,
     ChevronDown,
@@ -17,6 +16,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Field, FieldLabel, FieldGroup } from "@/components/ui/field";
+import { Label } from "@/components/ui/label";
 import { Spinner } from "@/components/ui/spinner";
 import {
     Select,
@@ -26,6 +26,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { getAccessToken } from "@/lib/auth-utils";
@@ -93,6 +94,7 @@ export function ProvisionNodeModal({
     const [healthPath, setHealthPath] = useState('');
     const [showAdvanced, setShowAdvanced] = useState(false);
 
+    const id = useId();
     const { showAlert } = useModal();
 
     const handleClose = () => {
@@ -328,7 +330,7 @@ export function ProvisionNodeModal({
     };
 
     const isProviderConnected = (formProvider === 'GITHUB' && !!user?.github_profile) ||
-                                 (formProvider === 'GITLAB' && !!user?.gitlab_profile);
+        (formProvider === 'GITLAB' && !!user?.gitlab_profile);
 
     const canProceedStep1 = selectedRepo !== null;
     const canSubmit = instanceName.trim().length > 0 && selectedRepo !== null;
@@ -346,37 +348,55 @@ export function ProvisionNodeModal({
                         {step === 1 && (
                             <div className="space-y-4 ">
                                 <Field>
-                                    <FieldLabel htmlFor="git-provider">Git Provider</FieldLabel>
-                                    <Select value={formProvider} onValueChange={(value: string | null) => setFormProvider(value ?? 'GITHUB')}>
-                                        <SelectTrigger id="git-provider" className="w-full h-12">
-                                            <SelectValue placeholder="Select provider" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectGroup>
-                                                <SelectItem value="GITHUB">
-                                                    <div className="flex items-center gap-2">
-                                                        <Github className="w-4 h-4" />
-                                                        GitHub
-                                                    </div>
-                                                </SelectItem>
-                                                <SelectItem value="GITLAB">
-                                                    <div className="flex items-center gap-2">
-                                                        <Gitlab className="w-4 h-4" />
-                                                        GitLab
-                                                    </div>
-                                                </SelectItem>
-                                            </SelectGroup>
-                                        </SelectContent>
-                                    </Select>
+                                    <FieldLabel>Git Provider</FieldLabel>
+                                    <RadioGroup
+                                        className="grid grid-cols-2 gap-3"
+                                        value={formProvider}
+                                        onValueChange={(value: string) => setFormProvider(value)}
+                                    >
+                                        <div className={cn(
+                                            "border-input relative w-full rounded-md border h-12 px-3 flex items-center shadow-xs transition-[color,box-shadow] outline-none has-focus-visible:ring-[3px] has-focus-visible:border-ring has-focus-visible:ring-ring/50",
+                                            formProvider === 'GITHUB' ? "border-primary/50" : ""
+                                        )}>
+                                            <RadioGroupItem
+                                                value="GITHUB"
+                                                id={`${id}-github`}
+                                                className="sr-only"
+                                                aria-label="GitHub"
+                                                aria-describedby={`${id}-github-desc`}
+                                            />
+                                            <Label htmlFor={`${id}-github`} className="text-foreground flex items-center gap-2 after:absolute after:inset-0 cursor-pointer">
+                                                <Github className="w-4 h-4" />
+                                                GitHub
+                                            </Label>
+                                        </div>
+
+                                        <div className={cn(
+                                            "border-input relative w-full rounded-md border h-12 px-3 flex items-center shadow-xs transition-[color,box-shadow] outline-none has-focus-visible:ring-[3px] has-focus-visible:border-ring has-focus-visible:ring-ring/50",
+                                            formProvider === 'GITLAB' ? "border-primary/50" : ""
+                                        )}>
+                                            <RadioGroupItem
+                                                value="GITLAB"
+                                                id={`${id}-gitlab`}
+                                                className="sr-only"
+                                                aria-label="GitLab"
+                                                aria-describedby={`${id}-gitlab-desc`}
+                                            />
+                                            <Label htmlFor={`${id}-gitlab`} className="text-foreground flex items-center gap-2 after:absolute after:inset-0 cursor-pointer">
+                                                <img src="/db/gitlab.svg" className="w-4 h-4 object-contain" alt="GitLab" />
+                                                GitLab
+                                            </Label>
+                                        </div>
+                                    </RadioGroup>
                                 </Field>
 
                                 {((formProvider === 'GITHUB' && !user?.github_profile) ||
-                                  (formProvider === 'GITLAB' && !user?.gitlab_profile)) ? (
+                                    (formProvider === 'GITLAB' && !user?.gitlab_profile)) ? (
                                     <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 flex items-center justify-between">
                                         <div className="flex items-center gap-4">
                                             <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center border border-primary/30">
                                                 {formProvider === 'GITHUB' ? <Github className="w-5 h-5 text-primary" /> :
-                                                  <Gitlab className="w-5 h-5 text-orange-500" />}
+                                                    <img src="/db/gitlab.svg" className="w-5 h-5 object-contain" alt="GitLab" />}
                                             </div>
                                             <div>
                                                 <div className="text-sm font-semibold">Authorization Required</div>
@@ -701,6 +721,7 @@ export function ProvisionNodeModal({
                                 </div>
                             </div>
                         )}
+
                     </FieldGroup>
                 </form>
             </DialogContent>
