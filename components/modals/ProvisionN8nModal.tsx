@@ -117,7 +117,7 @@ export function ProvisionN8nModal({
                                 name="name"
                                 required
                                 placeholder="e.g. Production Automations"
-                                className="focus-visible:ring-destructive border-white/10"
+                                className="bg-background"
                             />
                         </Field>
 
@@ -131,7 +131,7 @@ export function ProvisionN8nModal({
                                     value={customDomain}
                                     onChange={(e) => setCustomDomain(e.target.value)}
                                     placeholder="n8n.your-domain.com"
-                                    className="pl-11 focus-visible:ring-destructive border-white/10"
+                                    className="pl-11 bg-background"
                                 />
                             </div>
                         </Field>
@@ -145,7 +145,7 @@ export function ProvisionN8nModal({
                                         name="username"
                                         required
                                         placeholder="admin"
-                                        className="focus-visible:ring-destructive border-white/10"
+                                        className="bg-background"
                                     />
                                 </Field>
                                 <Field>
@@ -156,7 +156,7 @@ export function ProvisionN8nModal({
                                         type="password"
                                         required
                                         placeholder="••••••••"
-                                        className="focus-visible:ring-destructive border-white/10"
+                                        className="bg-background"
                                     />
                                 </Field>
                             </div>

@@ -4,6 +4,7 @@ import React, { useEffect, useState, useCallback, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import {
     Cpu,
+    MemoryStick,
     Shield,
     Plus,
     Search,
@@ -575,23 +576,17 @@ function ComputePageContent() {
                                         className={cn(
                                             "w-full text-left p-4 border transition-all group",
                                             selectedInstance?._id === inst._id
-                                                ? (inst.type.toLowerCase() === 'frontend' ? "bg-primary/10 border-primary/20" : "bg-purple-600/10 border-purple-600/20")
+                                                ? "bg-primary/10 border-primary/20"
                                                 : "bg-card border-border hover:bg-muted"
                                         )}
                                     >
                                         <div className="flex items-center justify-between mb-2">
-                                            <Badge variant="outline" className={cn(
-                                                "text-xs font-medium",
-                                                inst.type.toLowerCase() === 'frontend' ? 'text-primary border-primary/20 bg-primary/10' : 'text-purple-400 border-purple-400/20 bg-purple-400/10'
-                                            )}>
+                                            <Badge variant="outline" className="text-xs font-medium text-primary border-primary/20 bg-primary/10">
                                                 {inst.type}
                                             </Badge>
                                             <div className={cn("w-1.5 h-1.5 rounded-full", inst.status === 'running' ? 'bg-emerald-500 shadow-[0_0_8px_hsl(var(--primary)/0.5)]' : 'bg-amber-500 animate-pulse')} />
                                         </div>
-                                        <div className={cn(
-                                            "font-bold text-sm truncate transition-colors",
-                                            inst.type.toLowerCase() === 'frontend' ? "group-hover:text-primary" : "group-hover:text-purple-400"
-                                        )}>{inst.name}</div>
+                                        <div className="font-bold text-sm truncate transition-colors group-hover:text-primary">{inst.name}</div>
                                         <div className="text-xs text-muted-foreground mt-1">
                                             Created {new Date(inst.created_on).toLocaleDateString()}
                                         </div>
@@ -604,21 +599,22 @@ function ComputePageContent() {
                     <div className="flex-1 flex flex-col bg-background min-w-0">
                         {selectedInstance ? (
                             <>
-                                <div className="p-4 lg:p-12 max-w-6xl mx-auto">
+                                <div className="p-4 lg:p-8 border-b border-border shrink-0">
                                     <div className="flex flex-col lg:flex-row items-start justify-between mb-8 gap-4">
                                         <div>
                                             <div className="flex items-center gap-4 mb-3">
-                                                <h1 className="text-4xl font-bold tracking-tight">{selectedInstance.name}</h1>
-                                                <Badge variant="outline" className={cn(
-                                                    selectedInstance.type.toLowerCase() === 'frontend' ? "bg-primary/10 text-primary border-primary/20" : "bg-purple-400/10 text-purple-400 border-purple-400/20"
-                                                )}>
+                                                <h1 className="text-2xl font-bold tracking-tight">{selectedInstance.name}</h1>
+                                                <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
                                                     ● {selectedInstance.status}
                                                 </Badge>
                                             </div>
                                             <div className="flex items-center gap-4 text-muted-foreground text-sm font-medium">
-                                                <div className="flex items-center gap-2"><Layers className="w-4 h-4" /> {selectedInstance.cpu_limit} vCPU</div>
-                                                <Separator orientation="vertical" className="h-4" />
-                                                <div className="flex items-center gap-2"><Server className="w-4 h-4" /> {selectedInstance.ram_limit} GB RAM</div>
+                                                <div className="flex items-center gap-2"><Cpu className="size-4" /> {selectedInstance.cpu_limit} vCPU</div>
+                                                <div className="flex items-center gap-2"><MemoryStick className="size-4" /> {selectedInstance.ram_limit} GB RAM</div>
+                                            </div>
+                                            <div className="text-muted-foreground text-sm font-medium flex items-center gap-1 min-w-0">
+                                                <span className="shrink-0">Instance ID:</span>
+                                                <span className="truncate">{selectedInstance._id}</span>
                                             </div>
                                         </div>
                                         <div className="flex flex-wrap gap-3">
@@ -645,20 +641,20 @@ function ComputePageContent() {
                                     </div>
 
                                     {liveDeployStatus === 'running' && (
-                                        <Card className={cn("mb-6 border-primary/20 bg-primary/5 overflow-hidden relative", selectedInstance.type.toLowerCase() === 'backend' && "border-purple-500/20 bg-purple-500/5")}>
-                                            <div className={cn("absolute inset-0 bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 animate-pulse", selectedInstance.type.toLowerCase() === 'backend' && "from-purple-500/10 via-purple-500/5 to-purple-500/10")} />
+                                        <Card className="mb-6 border-primary/20 bg-primary/5 overflow-hidden relative">
+                                            <div className="absolute inset-0 bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 animate-pulse" />
                                             <CardContent className="p-4 relative">
                                                 <div className="flex items-center gap-4">
-                                                    <div className={cn("flex-shrink-0 w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center", selectedInstance.type.toLowerCase() === 'backend' && "bg-purple-500/20")}>
-                                                        <RefreshCw className={cn("w-5 h-5 text-primary animate-spin", selectedInstance.type.toLowerCase() === 'backend' && "text-purple-400")} />
+                                                    <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
+                                                        <RefreshCw className="w-5 h-5 text-primary animate-spin" />
                                                     </div>
                                                     <div>
-                                                        <div className={cn("text-sm font-semibold text-primary", selectedInstance.type.toLowerCase() === 'backend' && "text-purple-400")}>Deploying New Version</div>
-                                                        <div className={cn("text-xs text-primary/60 mt-0.5", selectedInstance.type.toLowerCase() === 'backend' && "text-purple-400/60")}>A new push was detected. Building and deploying automatically...</div>
+                                                        <div className="text-sm font-semibold text-primary">Deploying New Version</div>
+                                                        <div className="text-xs text-primary/60 mt-0.5">A new push was detected. Building and deploying automatically...</div>
                                                     </div>
                                                     <div className="ml-auto flex items-center gap-2">
-                                                        <div className={cn("w-2 h-2 rounded-full bg-primary animate-ping", selectedInstance.type.toLowerCase() === 'backend' && "bg-purple-400")} />
-                                                        <span className={cn("text-xs font-mono text-primary/80", selectedInstance.type.toLowerCase() === 'backend' && "text-purple-400/80")}>BUILDING</span>
+                                                        <div className="w-2 h-2 rounded-full bg-primary animate-ping" />
+                                                        <span className="text-xs font-mono text-primary/80">BUILDING</span>
                                                     </div>
                                                 </div>
                                             </CardContent>
@@ -680,18 +676,15 @@ function ComputePageContent() {
                                         ))}
                                     </TabsList>
 
-                                    <TabsContent value="overview" className="animate-in fade-in slide-in-from-bottom-4 duration-500 flex-1 overflow-y-auto p-4 lg:p-8">
+                                    <TabsContent value="overview" className="animate-in fade-in slide-in-from-bottom-4 duration-500 flex-1 overflow-y-auto py-4 lg:py-8">
                                         <div className="space-y-8">
                                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                                 <Card className="bg-card border-border">
                                                     <CardContent className="p-4 lg:p-6">
                                                         <div className="text-muted-foreground text-xs mb-4">Core Technology</div>
                                                         <div className="flex items-center gap-3">
-                                                            <div className={cn(
-                                                                "w-10 h-10 flex items-center justify-center border",
-                                                                selectedInstance.type.toLowerCase() === 'frontend' ? "bg-primary/10 border-primary/20" : "bg-purple-500/10 border-purple-500/20"
-                                                            )}>
-                                                                <Code className={cn("size-5", selectedInstance.type.toLowerCase() === 'frontend' ? "text-primary" : "text-purple-400")} />
+                                                            <div className="w-10 h-10 flex items-center justify-center border bg-primary/10 border-primary/20">
+                                                                <Code className="size-5 text-primary" />
                                                             </div>
                                                             <div>
                                                                 <div className="font-bold leading-tight">{selectedInstance.type === 'FRONTEND' ? 'Frontend' : 'Backend'} Application</div>
@@ -706,11 +699,8 @@ function ComputePageContent() {
                                                     <CardContent className="p-4 lg:p-6">
                                                         <div className="text-muted-foreground text-xs mb-4">Availability Zone</div>
                                                         <div className="flex items-center gap-3">
-                                                            <div className={cn(
-                                                                "w-10 h-10 flex items-center justify-center border",
-                                                                selectedInstance.type.toLowerCase() === 'frontend' ? "bg-primary/10 border-primary/20" : "bg-purple-500/10 border-purple-500/20"
-                                                            )}>
-                                                                <Shield className={cn("size-5", selectedInstance.type.toLowerCase() === 'frontend' ? "text-primary" : "text-purple-400")} />
+                                                            <div className="w-10 h-10 flex items-center justify-center border bg-primary/10 border-primary/20">
+                                                                <Shield className="size-5 text-primary" />
                                                             </div>
                                                             <div>
                                                                 <div className="font-bold">US-East (Virginia)</div>
@@ -723,14 +713,11 @@ function ComputePageContent() {
                                                     <CardContent className="p-4 lg:p-6">
                                                         <div className="text-muted-foreground text-xs mb-4">Instance Health</div>
                                                         <div className="flex items-center gap-3">
-                                                            <div className={cn(
-                                                                "w-10 h-10 flex items-center justify-center border",
-                                                                selectedInstance.type.toLowerCase() === 'frontend' ? "bg-primary/10 border-primary/20" : "bg-purple-500/10 border-purple-500/20"
-                                                            )}>
-                                                                <Activity className={cn("size-5", selectedInstance.type.toLowerCase() === 'frontend' ? "text-primary" : "text-purple-400")} />
+                                                            <div className="w-10 h-10 flex items-center justify-center border bg-primary/10 border-primary/20">
+                                                                <Activity className="size-5 text-primary" />
                                                             </div>
                                                             <div>
-                                                                <div className={cn("font-bold", selectedInstance.type.toLowerCase() === 'frontend' ? "text-primary" : "text-purple-400")}>
+                                                                <div className="font-bold text-primary">
                                                                     {selectedInstance.status === 'running' ? 'Optimal' : selectedInstance.status}
                                                                 </div>
                                                                 <div className="text-xs text-muted-foreground">Monitored</div>
@@ -749,13 +736,13 @@ function ComputePageContent() {
                                                                 <div className="p-4 bg-background border border-border flex items-center justify-between min-w-0">
                                                                     <div className="flex-1 overflow-hidden min-w-0">
                                                                         <div className="text-xs text-muted-foreground mb-1">Public Application URL</div>
-                                                                        <code className={cn("text-sm truncate block w-full", selectedInstance.type.toLowerCase() === 'frontend' ? "text-primary/80" : "text-purple-400/80")}>
+                                                                        <code className="text-sm truncate block w-full text-primary/80">
                                                                             https://{selectedInstance.generated_domain}{selectedInstance.type === 'BACKEND' ? '/health' : ''}
                                                                         </code>
                                                                     </div>
                                                                     <div className="flex gap-2 shrink-0">
                                                                         <Button variant="ghost" size="icon" onClick={() => handleCopy(`https://${selectedInstance.generated_domain}${selectedInstance.type === 'BACKEND' ? '/health' : ''}`, 'prod_url')}>
-                                                                            {copiedField === 'prod_url' ? <Check className={cn("size-4", selectedInstance.type.toLowerCase() === 'frontend' ? "text-primary" : "text-purple-400")} /> : <Copy className="size-4" />}
+                                                                            {copiedField === 'prod_url' ? <Check className="size-4 text-primary" /> : <Copy className="size-4" />}
                                                                         </Button>
                                                                         <Button variant="ghost" size="icon" onClick={() => window.open(`https://${selectedInstance.generated_domain}${selectedInstance.type === 'BACKEND' ? '/health' : ''}`, '_blank')}>
                                                                             <ExternalLink className="size-4" />
@@ -830,8 +817,8 @@ function ComputePageContent() {
                                                                         <div className="flex items-center justify-between mb-1">
                                                                             <p className={cn(
                                                                                 "text-sm font-bold",
-                                                                                event.type === 'success' ? (selectedInstance.type.toLowerCase() === 'frontend' ? "text-primary" : "text-purple-400") :
-                                                                                    event.type === 'primary' ? (selectedInstance.type.toLowerCase() === 'frontend' ? "text-primary" : "text-purple-400") : 'text-foreground'
+                                                                                event.type === 'success' ? 'text-primary' :
+                                                                                    event.type === 'primary' ? 'text-primary' : 'text-foreground'
                                                                             )}>
                                                                                 {event.message}
                                                                             </p>
@@ -849,7 +836,7 @@ function ComputePageContent() {
                                         </div>
                                     </TabsContent>
 
-                                    <TabsContent value="deployments" className="animate-in fade-in slide-in-from-bottom-4 duration-500 flex-1 overflow-y-auto p-4 lg:p-8">
+                                    <TabsContent value="deployments" className="animate-in fade-in slide-in-from-bottom-4 duration-500 flex-1 overflow-y-auto py-4 lg:py-8">
                                         <Card className="bg-card border-border min-h-[500px]">
                                             <CardContent className="p-4 lg:p-8">
                                                 <div className="flex items-center justify-between mb-12">
@@ -870,7 +857,7 @@ function ComputePageContent() {
                                                             )} />
                                                             <div className="flex-1">
                                                                 <div className="flex items-center justify-between mb-1">
-                                                                    <p className={cn("text-xs font-medium ", e.type === 'error' ? 'text-red-400' : e.type === 'success' ? 'text-emerald-400' : 'text-zinc-200')}>
+                                                                    <p className={cn("text-xs font-medium", e.type === 'error' ? 'text-red-400' : e.type === 'success' ? 'text-primary' : 'text-foreground')}>
                                                                         {e.message}
                                                                     </p>
                                                                     <span className="text-xs font-bold text-muted-foreground font-mono">
@@ -886,24 +873,18 @@ function ComputePageContent() {
                                         </Card>
                                     </TabsContent>
 
-                                    <TabsContent value="env" className="animate-in fade-in slide-in-from-bottom-4 duration-500 flex-1 overflow-y-auto p-4 lg:p-8">
+                                    <TabsContent value="env" className="animate-in fade-in slide-in-from-bottom-4 duration-500 flex-1 overflow-y-auto py-4 lg:py-8">
                                         <Card className="bg-card border-border h-[600px] flex flex-col overflow-hidden">
                                             <CardContent className="p-4 lg:p-8 h-full flex flex-col">
                                                 <div className="flex items-center justify-between mb-6 shrink-0 z-10">
-                                                    <div className="flex gap-4 items-center">
-                                                        <div className="w-10 h-10 rounded-lg bg-primary/5 flex items-center justify-center">
-                                                            <Code className="w-5 h-5 text-primary" />
-                                                        </div>
-                                                        <div>
-                                                            <h3 className="text-xl font-semibold">Environment Variables</h3>
-                                                            <p className="text-xs text-muted-foreground font-medium leading-relaxed">Secure secrets mapped to your deployment runtime.</p>
-                                                        </div>
+                                                    <div className="flex gap-3 items-center">
+                                                        <Code className="size-5 text-primary" />
+                                                        <h3 className="text-lg font-bold">Environment Variables</h3>
                                                     </div>
 
                                                     <Button
                                                         onClick={() => handleSaveEnvContent(selectedInstance._id)}
                                                         disabled={isSavingEnv}
-                                                        className="rounded-lg h-12 px-8 shadow-lg shadow-primary/20 disabled:opacity-50 transition-all"
                                                     >
                                                         {isSavingEnv ? (
                                                             <><RefreshCw className="w-4 h-4 mr-2 animate-spin" /> Saving</>
@@ -913,9 +894,7 @@ function ComputePageContent() {
                                                     </Button>
                                                 </div>
 
-                                                <div className="absolute top-[-20%] right-[-10%] w-[300px] h-[300px] bg-primary/5 blur-[100px] rounded-full pointer-events-none" />
-
-                                                <div className="flex-1 rounded-xl border border-border bg-card overflow-hidden relative group transition-all focus-within:border-primary/20">
+                                                <div className="flex-1 border border-border bg-card overflow-hidden relative group transition-all focus-within:border-primary/20">
                                                     <div className="absolute top-0 left-0 bottom-0 w-12 bg-muted border-r border-border flex flex-col items-center py-6 text-xs font-mono text-muted-foreground select-none">
                                                         {envDraft.split('\n').map((_, i) => <div key={i} className="leading-loose">{i + 1}</div>)}
                                                     </div>
@@ -931,14 +910,14 @@ function ComputePageContent() {
                                         </Card>
                                     </TabsContent>
 
-                                    <TabsContent value="logs" className="animate-in fade-in slide-in-from-bottom-4 duration-500 flex-1 overflow-y-auto p-4 lg:p-8">
+                                    <TabsContent value="logs" className="animate-in fade-in slide-in-from-bottom-4 duration-500 flex-1 overflow-y-auto py-4 lg:py-8">
                                         <Card className="bg-card border-border h-[600px] flex flex-col font-mono text-sm overflow-hidden">
-                                            <CardHeader className="pb-0 px-8 pt-6">
+                                            <CardHeader className="pb-0 px-6 pt-6">
                                                 <div className="flex items-center justify-between">
-                                                    <div className="flex gap-2">
-                                                        <div className="w-3 h-3 rounded-full bg-primary/20" />
-                                                        <div className="w-3 h-3 rounded-full bg-primary/20" />
-                                                        <div className="w-3 h-3 rounded-full bg-primary/20" />
+                                                    <div className="flex gap-1.5">
+                                                        <div className="w-2.5 h-2.5 rounded-full bg-red-500/20 border border-red-500/40" />
+                                                        <div className="w-2.5 h-2.5 rounded-full bg-amber-500/20 border border-amber-500/40" />
+                                                        <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/20 border border-emerald-500/40" />
                                                     </div>
                                                     <span className="text-xs font-medium text-muted-foreground">Application Stdout/Stderr</span>
                                                 </div>
@@ -946,7 +925,7 @@ function ComputePageContent() {
                                             <CardContent className="flex-1 overflow-y-auto space-y-1 pr-4 custom-scrollbar">
                                                 {selectedInstance.logs && selectedInstance.logs.length > 0 ? (
                                                     selectedInstance.logs.map((log, i) => (
-                                                        <div key={i} className="text-zinc-400 hover:text-foreground transition-colors py-0.5 border-l border-border pl-4 hover:bg-muted flex gap-4">
+                                                        <div key={i} className="text-muted-foreground hover:text-foreground transition-colors py-0.5 border-l border-border pl-4 hover:bg-muted flex gap-4">
                                                             <span className="text-primary/50 shrink-0 select-none">[{i + 1}]</span>
                                                             <span className="break-all">{log}</span>
                                                         </div>
@@ -961,27 +940,29 @@ function ComputePageContent() {
                                         </Card>
                                     </TabsContent>
 
-                                    <TabsContent value="terminal" className="animate-in fade-in slide-in-from-bottom-4 duration-500 flex-1 overflow-y-auto p-4 lg:p-8">
+                                    <TabsContent value="terminal" className="animate-in fade-in slide-in-from-bottom-4 duration-500 flex-1 overflow-y-auto py-4 lg:py-8">
                                         <Card className="bg-card border-border h-[600px] flex flex-col overflow-hidden">
-                                            <CardHeader className="px-8 pt-5 pb-0 border-b border-border bg-muted">
-                                                <div className="flex items-center justify-between">
-                                                    <div className="flex items-center gap-4">
-                                                        <Terminal className="w-5 h-5 text-primary" />
-                                                        <span className="text-xs text-muted-foreground">
-                                                            Isolated TTY — {selectedInstance.name.toUpperCase()}
-                                                        </span>
+                                            <CardHeader className="px-6 py-4 border-b border-border bg-muted/40 flex items-center justify-between">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="flex gap-1.5">
+                                                        <div className="w-2.5 h-2.5 rounded-full bg-red-500/20 border border-red-500/40" />
+                                                        <div className="w-2.5 h-2.5 rounded-full bg-amber-500/20 border border-amber-500/40" />
+                                                        <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/20 border border-emerald-500/40" />
                                                     </div>
-                                                    <Badge variant="outline" className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20 text-xs font-bold">
-                                                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse mr-1.5" /> Egress Filter Active
-                                                    </Badge>
+                                                    <span className="text-xs font-medium text-muted-foreground ml-2">
+                                                        Compute Terminal — {selectedInstance.name}
+                                                    </span>
                                                 </div>
+                                                <Badge variant="outline" className="text-xs font-bold text-primary">
+                                                    <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse mr-1.5" /> Connected
+                                                </Badge>
                                             </CardHeader>
-                                            <CardContent className="flex-1 overflow-y-auto p-4 lg:p-8 font-mono text-xs leading-relaxed space-y-3 custom-scrollbar selection:bg-primary/30">
+                                            <CardContent className="flex-1 overflow-y-auto p-4 lg:p-6 font-mono text-xs leading-relaxed space-y-3 custom-scrollbar selection:bg-primary/30">
                                                 {terminalLogs.map((log, i) => (
                                                     <div key={i} className={cn(
                                                         "break-all whitespace-pre-wrap",
                                                         log.type === 'input' ? "text-foreground flex gap-3 font-bold" :
-                                                            log.type === 'error' ? "text-red-400 bg-red-500/5 p-2 rounded-lg border border-red-500/10" :
+                                                            log.type === 'error' ? "text-destructive bg-destructive/5 p-2 rounded-lg border border-destructive/10" :
                                                                 "text-primary/90"
                                                     )}>
                                                         {log.type === 'input' && <span className="text-primary shrink-0">➜</span>}
@@ -994,8 +975,8 @@ function ComputePageContent() {
                                                     </div>
                                                 )}
                                             </CardContent>
-                                            <CardFooter className="p-6 bg-background border-t border-border">
-                                                <form onSubmit={handleExecuteCommand} className="flex items-center gap-4 w-full focus-within:bg-card transition-all">
+                                            <CardFooter className="p-4 bg-background border-t border-border">
+                                                <form onSubmit={handleExecuteCommand} className="flex items-center gap-3 w-full">
                                                     <span className="text-primary font-bold ml-2">➜</span>
                                                     <input
                                                         name="command"
@@ -1007,7 +988,7 @@ function ComputePageContent() {
                                                     <Button
                                                         type="submit"
                                                         disabled={isExecuting}
-                                                        className="rounded-xl h-10 px-6 shadow-lg shadow-primary/20"
+                                                        size="sm"
                                                     >
                                                         Execute
                                                     </Button>
@@ -1016,14 +997,12 @@ function ComputePageContent() {
                                         </Card>
                                     </TabsContent>
 
-                                    <TabsContent value="settings" className="animate-in fade-in slide-in-from-bottom-4 duration-500 flex-1 overflow-y-auto p-4 lg:p-8">
-                                        <div className="max-w-2xl space-y-12">
+                                    <TabsContent value="settings" className="animate-in fade-in slide-in-from-bottom-4 duration-500 flex-1 overflow-y-auto py-4 lg:py-8">
+                                        <div className="space-y-12">
                                             <Card className="bg-card border-border">
                                                 <CardContent className="p-4 lg:p-8">
-                                                    <div className="flex items-center justify-between mb-8">
-                                                        <h3 className="text-xl font-semibold">Git Integrations</h3>
-                                                    </div>
-                                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                                                    <h3 className="text-lg font-bold mb-6">Git Integrations</h3>
+                                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                                                         <div className={cn("p-4 rounded-xl border transition-all flex flex-col items-center gap-3", user?.github_profile ? "bg-primary/5 border-primary/20" : "bg-muted border-border")}>
                                                             <Github className={cn("w-6 h-6", user?.github_profile ? "text-primary" : "text-muted-foreground")} />
                                                             <div className="text-center">
@@ -1051,13 +1030,11 @@ function ComputePageContent() {
                                                         </div>
                                                     </div>
 
-                                                    <Separator className="my-8" />
+                                                    <Separator className="my-6" />
 
-                                                    <div className="flex items-center justify-between mb-8">
-                                                        <h3 className="text-xl font-semibold">Source Protection & CI/CD</h3>
-                                                    </div>
+                                                    <h3 className="text-lg font-bold mb-6">Source Protection & CI/CD</h3>
                                                     <div className="space-y-6">
-                                                        <div className="flex items-center justify-between p-6 rounded-xl bg-muted/50 border border-border group hover:border-primary/30 transition-all">
+                                                        <div className="flex items-center justify-between p-4 bg-background border border-border group hover:border-primary/20 transition-all">
                                                             <div className="flex-1">
                                                                 <div className="flex items-center gap-2 mb-1">
                                                                     <RefreshCw className="w-4 h-4 text-emerald-500" />
@@ -1071,8 +1048,8 @@ function ComputePageContent() {
                                                             />
                                                         </div>
 
-                                                        <Card className="bg-muted/50 border-border">
-                                                            <CardContent className="p-6 group hover:border-primary/30 transition-all">
+                                                        <Card className="bg-card border-border">
+                                                            <CardContent className="p-4 lg:p-6">
                                                                 <div className="flex items-center justify-between mb-4">
                                                                     <div className="flex items-center gap-2">
                                                                         <Globe className="w-4 h-4 text-primary" />
@@ -1110,11 +1087,11 @@ function ComputePageContent() {
                                                                 }} className="flex gap-4">
                                                                     <Input
                                                                         name="custom_domain"
-                                                                        className="flex-1 bg-card border border-muted rounded-lg h-14 text-sm font-bold placeholder:text-muted-foreground focus:border-primary/50"
+                                                                        className="flex-1 bg-background border-border h-10 text-sm placeholder:text-muted-foreground"
                                                                         placeholder="e.g. app.myproject.com"
                                                                         defaultValue={selectedInstance.custom_domain}
                                                                     />
-                                                                    <Button type="submit" className="rounded-lg h-14 px-8">Update</Button>
+                                                                    <Button type="submit">Update</Button>
                                                                 </form>
                                                                 {selectedInstance.generated_domain && (
                                                                     <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
@@ -1128,11 +1105,11 @@ function ComputePageContent() {
                                                 </CardContent>
                                             </Card>
 
-                                            <Card className="border-red-500/20 bg-red-500/5">
+                                            <Card className="border-destructive/20 bg-destructive/5">
                                                 <CardContent className="p-4 lg:p-8">
-                                                    <h3 className="text-red-400 font-semibold mb-4">Danger Zone</h3>
-                                                    <p className="text-muted-foreground text-xs mb-6 px-1">Deleting this instance will immediately stop your services and remove all associated load balancers and networking rules.</p>
-                                                    <Button onClick={() => handleDelete(selectedInstance._id)} variant="destructive" className="rounded-lg w-full h-14">Terminate Instance</Button>
+                                                    <h3 className="text-lg font-bold text-destructive mb-2">Danger Zone</h3>
+                                                    <p className="text-muted-foreground text-xs mb-6">Deleting this instance will immediately stop your services and remove all associated load balancers and networking rules.</p>
+                                                    <Button onClick={() => handleDelete(selectedInstance._id)} variant="destructive">Terminate Instance</Button>
                                                 </CardContent>
                                             </Card>
                                         </div>
@@ -1144,16 +1121,8 @@ function ComputePageContent() {
                             <div className="h-full flex flex-col items-center justify-center text-center p-8">
                                 <Cpu className="size-16 text-muted-foreground mb-6" />
                                 <h1 className="text-2xl font-bold mb-2">No active instances found</h1>
-                                <p className="text-muted-foreground max-w-xs mx-auto mb-4">Deploy your backend or frontend from a Git repository.</p>
-                                <div className="bg-muted/50 border border-border rounded-lg p-4 max-w-md mb-6 text-left">
-                                    <p className="text-sm font-medium mb-2 flex items-center gap-2">📋 Requirements</p>
-                                    <ul className="text-xs text-muted-foreground space-y-1.5">
-                                        <li className="flex items-start gap-2"><span className="text-primary">•</span> A <code className="bg-background px-1.5 py-0.5 rounded font-mono">Dockerfile</code> in the root of your repository</li>
-                                        <li className="flex items-start gap-2"><span className="text-primary">•</span> A public Git repository URL (or private with token)</li>
-                                        <li className="flex items-start gap-2"><span className="text-primary">•</span> Your app listening on a port (default: 3000 or 4000)</li>
-                                    </ul>
-                                </div>
-                                <Button onClick={handleCreateClick} className="gap-2">
+                                <p className="text-muted-foreground max-w-xs mx-auto mb-6">Create one to get started.</p>
+                                <Button onClick={handleCreateClick} className="gap-2 bg-blue-600 hover:bg-blue-700 text-white border-none shadow-lg shadow-blue-900/20">
                                     <Plus className="size-4" /> Deploy Instance
                                 </Button>
                             </div>
