@@ -2,6 +2,8 @@
 
 import React, { useEffect, useState, useCallback } from "react";
 import { Workflow, Activity, Trash2, RefreshCw, ExternalLink, Search, Plus, Settings, Shield, Copy, Check } from "lucide-react";
+import Link from "next/link";
+
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -275,9 +277,10 @@ export default function AutomationsPage() {
                         </BreadcrumbList>
                     </Breadcrumb>
                     <div className="flex-1" />
-                    <Button onClick={handleCreateClick} className="gap-2">
-                        <Plus className="size-4" /> Provision n8n
+                    <Button render={<Link href="/dashboard/services" />} nativeButton={false} className="gap-2">
+                        <Plus className="size-4" /> New Service
                     </Button>
+
                 </header>
 
                 <div className="flex-1 flex flex-col lg:flex-row overflow-hidden z-10">
@@ -287,9 +290,16 @@ export default function AutomationsPage() {
                                 <Search className="size-4 text-muted-foreground" />
                                 <Input type="text" placeholder="Search clusters..." className="bg-muted border-border text-xs h-8" />
                             </div>
-                            <Button onClick={handleCreateClick} className="gap-2 mt-3 w-full" variant="outline">
-                                <Plus className="size-4" /> New n8n
-                            </Button>
+                            <div className="mt-3">
+                                <Button onClick={handleCreateClick} className="gap-2 w-full" variant="outline">
+                                    <Plus className="size-4" /> New n8n
+                                </Button>
+                                <div className="text-[11px] text-muted-foreground text-center mt-1.5 font-medium">
+                                    Available slots: {n8nUsedSlots} / {n8nTotalSlots}
+                                </div>
+
+                            </div>
+
                         </div>
                         <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3">
                             {instances.length === 0 ? (

@@ -2,6 +2,8 @@
 
 import React, { useEffect, useState, useCallback, useRef, useId } from "react";
 import Image from "next/image";
+import Link from "next/link";
+
 import {
     Database,
     Plus,
@@ -518,9 +520,10 @@ export default function DatabasesPage() {
                         </BreadcrumbList>
                     </Breadcrumb>
                     <div className="flex-1" />
-                    <Button onClick={handleCreateClick} className="gap-2">
-                        <Plus className="size-4" /> New Instance
+                    <Button render={<Link href="/dashboard/services" />} nativeButton={false} className="gap-2">
+                        <Plus className="size-4" /> New Service
                     </Button>
+
                 </header>
 
                 <div className="flex-1 flex flex-col lg:flex-row overflow-hidden min-w-0">
@@ -534,9 +537,16 @@ export default function DatabasesPage() {
                                     className="bg-muted border-border text-xs h-8"
                                 />
                             </div>
-                            <Button onClick={handleCreateClick} className="gap-2 mt-3 w-full" variant="outline">
-                                <Plus className="size-4" /> New Database
-                            </Button>
+                            <div className="mt-3">
+                                <Button onClick={handleCreateClick} className="gap-2 w-full" variant="outline">
+                                    <Plus className="size-4" /> New Database
+                                </Button>
+                                <div className="text-[11px] text-muted-foreground text-center mt-1.5 font-medium">
+                                    Available slots: {usedSlots} / {totalSlots}
+                                </div>
+
+                            </div>
+
                         </div>
                         <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3">
                             {databases.length === 0 ? (
