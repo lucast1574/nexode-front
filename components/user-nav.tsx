@@ -87,15 +87,15 @@ export function UserNav() {
                             className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm text-muted-foreground hover:text-white hover:bg-muted transition-all"
                         >
                             <UserIcon className="w-4 h-4" />
-                            <span>Settings</span>
+                            <span>Account</span>
                         </Link>
                         <Link
-                            href="/dashboard/settings"
+                            href="/dashboard/git-integrations"
                             onClick={() => setIsOpen(false)}
                             className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm text-muted-foreground hover:text-white hover:bg-muted transition-all"
                         >
                             <Settings className="w-4 h-4" />
-                            <span>Settings</span>
+                            <span>Git Integrations</span>
                         </Link>
                     </div>
 

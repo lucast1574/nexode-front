@@ -14,6 +14,14 @@ interface DashboardUser {
     role: {
         slug: string
     }
+    github_profile?: {
+        username: string
+        avatar_url?: string
+    }
+    gitlab_profile?: {
+        username: string
+        avatar_url?: string
+    }
 }
 
 export interface Subscription {
@@ -147,8 +155,8 @@ export default function DashboardLayout({
                         avatar
                         role { slug }
                         trial_used
-                        github_profile { username }
-                        gitlab_profile { username }
+                        github_profile { username avatar_url }
+                        gitlab_profile { username avatar_url }
                     }
                     mySubscriptions {
                         id

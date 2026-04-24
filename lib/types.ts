@@ -20,6 +20,14 @@ export interface User {
      * on subsequent checkouts.
      */
     trial_used?: boolean;
+    github_profile?: {
+        username: string;
+        avatar_url?: string;
+    };
+    gitlab_profile?: {
+        username: string;
+        avatar_url?: string;
+    };
 }
 
 export interface AuthResponse {
