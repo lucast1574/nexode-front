@@ -23,7 +23,8 @@ import {
     Terminal,
     FileText,
     Copy,
-    Check
+    Check,
+    ChevronDown
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -104,6 +105,20 @@ function ComputePageContent() {
     const [terminalLogs, setTerminalLogs] = useState<{ type: 'input' | 'output' | 'error', text: string }[]>(INITIAL_TERMINAL_LOGS);
     const [isExecuting, setIsExecuting] = useState(false);
     const [liveDeployStatus, setLiveDeployStatus] = useState<string | null>(null);
+    const [dokployDeployments, setDokployDeployments] = useState<Array<{
+        deploymentId: string;
+        title?: string;
+        description?: string;
+        status: string;
+        errorMessage?: string;
+        createdAt?: string;
+        finishedAt?: string;
+        log?: string;
+    }>>([]);
+    const [containerLogs, setContainerLogs] = useState<string>('');
+    const [logsLoading, setLogsLoading] = useState(false);
+    const [deploymentsLoading, setDeploymentsLoading] = useState(false);
+    const [expandedDeploymentId, setExpandedDeploymentId] = useState<string | null>(null);
     const [restarting, setRestarting] = useState<boolean>(false);
     const [cooldown, setCooldown] = useState<number>(0);
     const [cooldownId, setCooldownId] = useState<string | null>(null);
@@ -283,6 +298,73 @@ function ComputePageContent() {
     useEffect(() => {
         setTerminalLogs([...INITIAL_TERMINAL_LOGS]);
     }, [selectedInstance?._id, activeTab]);
+
+    // Fetch real Dokploy deployments when the user opens the Deployments tab.
+    const fetchDokployDeployments = useCallback(async () => {
+        if (!selectedInstance?._id) return;
+        setDeploymentsLoading(true);
+        try {
+            const token = getAccessToken();
+            const GQL_URL = process.env.NEXT_PUBLIC_API_URL || 'https://backend.nexode.app/api-v1/graphql';
+            const res = await fetch(GQL_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({
+                    query: `query Deps($id: ID!) {
+                        computeDeployments(id: $id) {
+                            deploymentId title description status errorMessage createdAt finishedAt log
+                        }
+                    }`,
+                    variables: { id: selectedInstance._id },
+                }),
+            });
+            const result = await res.json();
+            setDokployDeployments(result.data?.computeDeployments || []);
+        } catch {
+            setDokployDeployments([]);
+        } finally {
+            setDeploymentsLoading(false);
+        }
+    }, [selectedInstance?._id]);
+
+    // Fetch the running container's stdout+stderr for the Console Logs tab.
+    const fetchContainerLogs = useCallback(async () => {
+        if (!selectedInstance?._id) return;
+        setLogsLoading(true);
+        try {
+            const token = getAccessToken();
+            const GQL_URL = process.env.NEXT_PUBLIC_API_URL || 'https://backend.nexode.app/api-v1/graphql';
+            const res = await fetch(GQL_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                body: JSON.stringify({
+                    query: `query Logs($id: ID!, $tail: Int) { computeContainerLogs(id: $id, tail: $tail) }`,
+                    variables: { id: selectedInstance._id, tail: 300 },
+                }),
+            });
+            const result = await res.json();
+            setContainerLogs(result.data?.computeContainerLogs || '');
+        } catch (err: any) {
+            setContainerLogs(`[error: ${err?.message || 'unknown'}]`);
+        } finally {
+            setLogsLoading(false);
+        }
+    }, [selectedInstance?._id]);
+
+    // Auto-load + auto-refresh while the user is on Deployments / Logs.
+    useEffect(() => {
+        if (!selectedInstance?._id) return;
+        if (activeTab === 'deployments') {
+            fetchDokployDeployments();
+            const t = setInterval(fetchDokployDeployments, 5000);
+            return () => clearInterval(t);
+        }
+        if (activeTab === 'logs') {
+            fetchContainerLogs();
+            const t = setInterval(fetchContainerLogs, 5000);
+            return () => clearInterval(t);
+        }
+    }, [activeTab, selectedInstance?._id, fetchDokployDeployments, fetchContainerLogs]);
 
     useEffect(() => {
         if (selectedInstance && selectedInstance.env_content !== undefined) {
@@ -682,12 +764,13 @@ function ComputePageContent() {
                                         <TabsList variant="line" className="gap-8 px-0 overflow-x-auto">
                                         {([
                                             { value: 'overview', label: 'Overview', icon: Globe },
-                                            { value: 'deployments', label: 'Deploy Events', icon: Activity },
                                             { value: 'env', label: 'Environment', icon: Code },
+                                            { value: 'deployments', label: 'Deployments', icon: Activity },
                                             { value: 'logs', label: 'Console Logs', icon: FileText },
                                             { value: 'terminal', label: 'Secure Terminal', icon: Terminal },
                                             { value: 'settings', label: 'Domains & SSL', icon: Shield }
                                         ] as const).map(tab => (
+
                                             <TabsTrigger key={tab.value} value={tab.value} className="flex items-center gap-2">
                                                 <tab.icon className="size-4" /> {tab.label}
                                             </TabsTrigger>
@@ -753,7 +836,15 @@ function ComputePageContent() {
                                                 <CardContent className="p-4 lg:p-8">
                                                     <h3 className="text-lg font-bold mb-6">Connection Endpoints</h3>
                                                     <div className="flex flex-col gap-4">
-                                                        {selectedInstance.generated_domain ? (
+                                                        {selectedInstance.status?.toLowerCase() !== 'running' ? (
+                                                            <div className="flex items-center gap-4 p-6 bg-amber-500/5 border border-amber-500/30">
+                                                                <RefreshCw className="w-5 h-5 text-amber-400 animate-spin shrink-0" />
+                                                                <div>
+                                                                    <p className="text-sm text-amber-200 mb-1 font-medium">Instance is still being provisioned</p>
+                                                                    <p className="text-xs text-muted-foreground">The public URL will be available once the build finishes and the container is reachable. Current status: <span className="font-mono uppercase">{selectedInstance.status}</span>.</p>
+                                                                </div>
+                                                            </div>
+                                                        ) : selectedInstance.generated_domain ? (
                                                             <>
                                                                 <div className="p-4 bg-background border border-border flex items-center justify-between min-w-0">
                                                                     <div className="flex-1 overflow-hidden min-w-0">
@@ -861,36 +952,68 @@ function ComputePageContent() {
                                     <TabsContent value="deployments" className="animate-in fade-in slide-in-from-bottom-4 duration-500 flex-1 overflow-y-auto py-4 lg:py-8">
                                         <Card className="bg-card border-border min-h-[500px]">
                                             <CardContent className="p-4 lg:p-8">
-                                                <div className="flex items-center justify-between mb-12">
-                                                    <h3 className="text-xl font-semibold">Deployment Lifecycle</h3>
-                                                    <Badge variant="outline" className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20">
-                                                        <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)] mr-1.5" />
-                                                        Platform Sync Normal
-                                                    </Badge>
+                                                <div className="flex items-center justify-between mb-6">
+                                                    <div>
+                                                        <h3 className="text-xl font-semibold">Deployments</h3>
+                                                        <p className="text-xs text-muted-foreground mt-1">Reported directly by the platform. Click a deployment to see its build/deploy log.</p>
+                                                    </div>
+                                                    <Button variant="ghost" size="sm" onClick={fetchDokployDeployments} disabled={deploymentsLoading} className="gap-2">
+                                                        <RefreshCw className={cn("w-4 h-4", deploymentsLoading && "animate-spin")} />
+                                                        {deploymentsLoading ? 'Loading' : 'Refresh'}
+                                                    </Button>
                                                 </div>
-                                                <div className="space-y-10 relative">
-                                                    <div className="absolute left-[7px] top-2 bottom-2 w-px bg-muted" />
-                                                    {selectedInstance.events?.map((e, idx) => (
-                                                        <div key={idx} className="flex gap-10 relative group">
-                                                            <div className={cn(
-                                                                "w-4 h-4 rounded-full border-2 border-zinc-700 relative z-10 shrink-0 mt-2 transition-all",
-                                                                e.type === 'success' ? 'bg-emerald-500 shadow-[0_0_12px_rgba(16,185,129,0.5)]' :
-                                                                    e.type === 'error' ? 'bg-red-500 shadow-[0_0_12px_rgba(239,68,68,0.3)]' : 'bg-primary'
-                                                            )} />
-                                                            <div className="flex-1">
-                                                                <div className="flex items-center justify-between mb-1">
-                                                                    <p className={cn("text-xs font-medium", e.type === 'error' ? 'text-red-400' : e.type === 'success' ? 'text-primary' : 'text-foreground')}>
-                                                                        {e.message}
-                                                                    </p>
-                                                                    <span className="text-xs font-bold text-muted-foreground font-mono">
-                                                                        {new Date(e.timestamp).toLocaleTimeString()}
-                                                                    </span>
+                                                {dokployDeployments.length === 0 ? (
+                                                    <div className="text-center py-16 text-sm text-muted-foreground">
+                                                        {deploymentsLoading ? 'Loading deployments…' : 'No deployments yet for this instance.'}
+                                                    </div>
+                                                ) : (
+                                                    <div className="space-y-3">
+                                                        {dokployDeployments.map((dep) => {
+                                                            const isOpen = expandedDeploymentId === dep.deploymentId;
+                                                            const statusColor =
+                                                                dep.status === 'done' ? 'bg-emerald-500/10 text-emerald-500 border-emerald-500/20' :
+                                                                dep.status === 'error' ? 'bg-red-500/10 text-red-400 border-red-500/30' :
+                                                                dep.status === 'running' ? 'bg-blue-500/10 text-blue-400 border-blue-500/30' :
+                                                                'bg-muted text-muted-foreground border-border';
+                                                            const titleLine = (dep.title || '').split('\n')[0] || 'Deployment';
+                                                            return (
+                                                                <div key={dep.deploymentId} className="border border-border bg-background">
+                                                                    <button
+                                                                        type="button"
+                                                                        className="w-full flex items-center justify-between p-4 hover:bg-muted/40 text-left"
+                                                                        onClick={() => setExpandedDeploymentId(isOpen ? null : dep.deploymentId)}
+                                                                    >
+                                                                        <div className="min-w-0 flex-1">
+                                                                            <div className="flex items-center gap-3 mb-1">
+                                                                                <Badge variant="outline" className={cn("text-[10px] uppercase font-bold", statusColor)}>
+                                                                                    {dep.status}
+                                                                                </Badge>
+                                                                                <span className="text-xs text-muted-foreground font-mono">
+                                                                                    {dep.createdAt ? new Date(dep.createdAt).toLocaleString() : ''}
+                                                                                </span>
+                                                                            </div>
+                                                                            <p className="text-sm font-medium truncate">{titleLine}</p>
+                                                                            {dep.description && (
+                                                                                <p className="text-xs text-muted-foreground font-mono truncate">{dep.description}</p>
+                                                                            )}
+                                                                            {dep.errorMessage && (
+                                                                                <p className="text-xs text-red-400 mt-1 truncate">{dep.errorMessage}</p>
+                                                                            )}
+                                                                        </div>
+                                                                        <ChevronDown className={cn("w-4 h-4 text-muted-foreground transition-transform shrink-0 ml-3", isOpen && "rotate-180")} />
+                                                                    </button>
+                                                                    {isOpen && (
+                                                                        <div className="border-t border-border bg-zinc-950 p-4">
+                                                                            <pre className="text-[11px] font-mono text-muted-foreground whitespace-pre-wrap break-words max-h-[400px] overflow-y-auto custom-scrollbar">
+{dep.log || '[no log captured]'}
+                                                                            </pre>
+                                                                        </div>
+                                                                    )}
                                                                 </div>
-                                                                <div className="text-xs text-muted-foreground font-mediumr opacity-60">Status Code: 200 — Sync Initiated</div>
-                                                            </div>
-                                                        </div>
-                                                    ))}
-                                                </div>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                )}
                                             </CardContent>
                                         </Card>
                                     </TabsContent>
@@ -936,26 +1059,27 @@ function ComputePageContent() {
                                         <Card className="bg-card border-border h-[600px] flex flex-col font-mono text-sm overflow-hidden">
                                             <CardHeader className="pb-0 px-6 pt-6">
                                                 <div className="flex items-center justify-between">
-                                                    <div className="flex gap-1.5">
+                                                    <div className="flex gap-1.5 items-center">
                                                         <div className="w-2.5 h-2.5 rounded-full bg-red-500/20 border border-red-500/40" />
                                                         <div className="w-2.5 h-2.5 rounded-full bg-amber-500/20 border border-amber-500/40" />
                                                         <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/20 border border-emerald-500/40" />
+                                                        <span className="text-xs font-medium text-muted-foreground ml-2">Application Stdout/Stderr (live)</span>
                                                     </div>
-                                                    <span className="text-xs font-medium text-muted-foreground">Application Stdout/Stderr</span>
+                                                    <Button variant="ghost" size="sm" onClick={fetchContainerLogs} disabled={logsLoading} className="gap-2 h-7">
+                                                        <RefreshCw className={cn("w-3.5 h-3.5", logsLoading && "animate-spin")} />
+                                                        {logsLoading ? 'Loading' : 'Refresh'}
+                                                    </Button>
                                                 </div>
                                             </CardHeader>
-                                            <CardContent className="flex-1 overflow-y-auto space-y-1 pr-4 custom-scrollbar">
-                                                {selectedInstance.logs && selectedInstance.logs.length > 0 ? (
-                                                    selectedInstance.logs.map((log, i) => (
-                                                        <div key={i} className="text-muted-foreground hover:text-foreground transition-colors py-0.5 border-l border-border pl-4 hover:bg-muted flex gap-4">
-                                                            <span className="text-primary/50 shrink-0 select-none">[{i + 1}]</span>
-                                                            <span className="break-all">{log}</span>
-                                                        </div>
-                                                    ))
+                                            <CardContent className="flex-1 overflow-y-auto pr-4 custom-scrollbar">
+                                                {containerLogs ? (
+                                                    <pre className="text-[11px] font-mono text-muted-foreground whitespace-pre-wrap break-words">
+{containerLogs}
+                                                    </pre>
                                                 ) : (
                                                     <div className="h-full flex flex-col items-center justify-center text-muted-foreground text-xs">
                                                         <FileText className="w-12 h-12 mb-4 opacity-10" />
-                                                        No Application Logs Found
+                                                        {logsLoading ? 'Loading logs…' : 'No application logs yet.'}
                                                     </div>
                                                 )}
                                             </CardContent>
