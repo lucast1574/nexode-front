@@ -725,6 +725,9 @@ export function ProvisionNodeModal({
 
                                 {showAdvanced && (
                                     <div className="space-y-4 ">
+                                        <div className="rounded-md border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-200">
+                                            ⚠️ Tu app debe escuchar en el <strong>puerto 3000 (frontend)</strong> o <strong>4000 (backend)</strong>. Si usas otro puerto, la instancia no responderá.
+                                        </div>
                                         <div className="grid grid-cols-2 gap-4">
                                             <Field>
                                                 <FieldLabel htmlFor="port">Internal Port</FieldLabel>
