@@ -2,302 +2,177 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { Check, Database, Cpu, Zap, ArrowRight, Workflow, Plus } from "lucide-react";
+import { Zap, ArrowRight, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/ui/breadcrumb";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { cn } from "@/lib/utils";
 import { useModal } from "@/components/ui/modal";
+import { PricingTable, CycleToggle, SERVICE_ORDER, type PricingPlan } from "@/components/billing/pricing-table";
 
-interface Tier {
-    name: string;
-    slug: string;
-    price: number;
-    specs: Record<string, string>;
-    features: string[];
+interface Subscription {
+    status: string;
+    service: string;
+    plan: { slug: string };
 }
-
-interface Service {
-    id: string;
-    title: string;
-    description: string;
-    icon: React.ElementType;
-    color: string;
-    tiers: Tier[];
-    highlights: string[];
-}
-
-const SERVICES: Service[] = [
-    {
-        id: "n8n",
-        title: "n8n Automation",
-        description: "Self-hosted workflow automation. Connect everything and design complex logic with ease.",
-        icon: Workflow,
-        color: "bg-red-500",
-        highlights: ["Nodes for 400+ apps", "Self-hosted privacy", "Unlimited triggers", "Custom JS nodes"],
-        tiers: [
-            {
-                name: "Basic",
-                slug: "n8n-basic",
-                price: 5,
-                specs: { "EXECS": "1,000 /mo", "TYPE": "Shared" },
-                features: ["3 Workflows", "Standard Support"]
-            },
-            {
-                name: "Standard",
-                slug: "n8n-standard",
-                price: 10,
-                specs: { "EXECS": "5,000 /mo", "TYPE": "1GB RAM" },
-                features: ["10 Workflows", "Priority Support"]
-            },
-            {
-                name: "Pro",
-                slug: "n8n-pro",
-                price: 20,
-                specs: { "EXECS": "20,000 /mo", "TYPE": "2GB RAM" },
-                features: ["50 Workflows", "24/7 Support"]
-            },
-            {
-                name: "Ultra",
-                slug: "n8n-ultra",
-                price: 40,
-                specs: { "EXECS": "50,000 /mo", "TYPE": "4GB RAM" },
-                features: ["Unlimited Workflows", "Enterprise SLA"]
-            },
-        ]
-    },
-    {
-        id: "database",
-        title: "Database",
-        description: "Provision PostgreSQL, MongoDB and Redis databases with zero setup — ready to query in seconds.",
-        icon: Database,
-        color: "bg-purple-500",
-        highlights: ["14 days of metrics", "Expandable storage options", "Connect via private or public network"],
-        tiers: [
-            {
-                name: "Tier 1",
-                slug: "db-tier-1",
-                price: 1,
-                specs: { "RAM & CPU": "Shared", "STORAGE": "0.25 GB" },
-                features: ["Standard Support", "Basic Backups"]
-            },
-            {
-                name: "Tier 2",
-                slug: "db-tier-2",
-                price: 5,
-                specs: { "RAM & CPU": "Shared", "STORAGE": "1 GB" },
-                features: ["Priority Support", "Daily Backups"]
-            },
-            {
-                name: "Tier 3",
-                slug: "db-tier-3",
-                price: 10,
-                specs: { "RAM & CPU": "Shared", "STORAGE": "5 GB" },
-                features: ["24/7 Support", "Hourly Backups"]
-            },
-            {
-                name: "Tier 4",
-                slug: "db-tier-4",
-                price: 20,
-                specs: { "RAM & CPU": "Shared", "STORAGE": "10 GB" },
-                features: ["Enterprise Support", "Real-time Replication"]
-            },
-        ]
-    },
-    {
-        id: "compute",
-        title: "Compute",
-        description: "High-performance virtual machines for your applications with lightning fast SSD storage.",
-        icon: Cpu,
-        color: "bg-blue-500",
-        highlights: ["NVMe SSDs", "Global Edge Network", "Auto-scaling ready", "DDoS Protection"],
-        tiers: [
-            {
-                name: "Compute Basic",
-                slug: "compute-basic",
-                price: 15,
-                specs: { "CPU": "1 vCPU", "RAM": "2 GB", "BANDWIDTH": "1 TB" },
-                features: ["Custom Subdomain", "Auto SSL"]
-            },
-            {
-                name: "Compute Pro",
-                slug: "compute-pro",
-                price: 45,
-                specs: { "CPU": "4 vCPU", "RAM": "8 GB", "BANDWIDTH": "5 TB" },
-                features: ["Custom Domain", "Auto SSL", "Priority Support"]
-            },
-        ]
-    }
-];
 
 export default function ServicesPage() {
-    const [selectedTiers, setSelectedTiers] = useState<Record<string, string | null>>({
-        database: null,
-        compute: null,
-        n8n: null,
-    });
-
+    const [availablePlans, setAvailablePlans] = useState<PricingPlan[]>([]);
+    const [ownedSlugs, setOwnedSlugs] = useState<string[]>([]);
+    const [trialsUsed, setTrialsUsed] = useState<string[]>([]);
+    const [globalCycle, setGlobalCycle] = useState<"monthly" | "annual">("monthly");
+    /** Map of service → selectedSlug, for multi-service bundle checkout. */
+    const [selectedTiers, setSelectedTiers] = useState<Record<string, string | null>>({});
     const [activeHash, setActiveHash] = useState<string>("");
-    // Trial eligibility: user has never used a trial AND is authenticated.
-    // Guests get no trial (anti-abuse) — Stripe will bill immediately.
-    const [trialEligible, setTrialEligible] = useState<boolean>(false);
+    const [checkoutLoading, setCheckoutLoading] = useState(false);
     const { showAlert } = useModal();
 
     useEffect(() => {
-        const hash = window.location.hash.replace("#", "")
+        const hash = typeof window !== "undefined" ? window.location.hash.replace("#", "") : "";
         if (hash) {
-            setTimeout(() => setActiveHash(hash), 0)
-            const element = document.getElementById(hash)
-            if (element) {
-                setTimeout(() => {
-                    element.scrollIntoView({ behavior: "smooth", block: "start" })
-                }, 100)
-            }
+            setActiveHash(hash);
+            setTimeout(() => {
+                document.getElementById(hash)?.scrollIntoView({ behavior: "smooth", block: "start" });
+            }, 100);
         }
-    }, [])
+    }, []);
 
     useEffect(() => {
-        const fetchCurrentSubs = async () => {
-            const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
-            if (!token) return;
-
+        const fetchData = async () => {
             try {
                 const GQL_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api-v1/graphql";
-                const query = `
-                    query GetUserSubs {
-                        mySubscriptions {
-                            status
-                            plan {
-                                slug
-                            }
+                const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
+
+                const query = token
+                    ? `
+                        query GetServicesData {
+                            availablePlans { id name slug service price_monthly price_annual features }
+                            mySubscriptions { status service plan { slug } }
+                            me { trial_used trials_used }
                         }
-                    }
-                `;
+                    `
+                    : `query GetGuestPlans { availablePlans { id name slug service price_monthly price_annual features } }`;
+
                 const response = await fetch(GQL_URL, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
-                        "Authorization": `Bearer ${token}`
+                        ...(token ? { Authorization: `Bearer ${token}` } : {}),
                     },
                     body: JSON.stringify({ query }),
                 });
                 const result = await response.json();
-                if (result.data?.mySubscriptions) {
-                    // Kept for analytics or future use if needed, but not actively used to block UI
+                if (!result.data) return;
+
+                setAvailablePlans(result.data.availablePlans || []);
+
+                if (token && result.data.mySubscriptions) {
+                    const subs: Subscription[] = result.data.mySubscriptions.filter((s: Subscription) =>
+                        ["ACTIVE", "TRIALING"].includes(s.status)
+                    );
+                    setOwnedSlugs(subs.map((s) => s.plan.slug));
+                }
+                if (token && result.data.me) {
+                    setTrialsUsed(
+                        result.data.me.trial_used
+                            ? Array.from(SERVICE_ORDER)
+                            : result.data.me.trials_used || []
+                    );
                 }
             } catch (err) {
-                console.error("Error fetching current subs:", err);
+                console.error("Services fetch error:", err);
             }
         };
-
-        const fetchTrialEligibility = async () => {
-            const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
-            if (!token) { setTrialEligible(false); return; }
-            try {
-                const GQL_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api-v1/graphql";
-                const response = await fetch(GQL_URL, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
-                    body: JSON.stringify({ query: `query { me { trial_used } }` }),
-                });
-                const result = await response.json();
-                setTrialEligible(result.data?.me?.trial_used === false);
-            } catch {
-                setTrialEligible(false);
-            }
-        };
-
-        fetchCurrentSubs();
-        fetchTrialEligibility();
+        fetchData();
     }, []);
 
-    const handleSelectTier = (serviceId: string, tierSlug: string) => {
-        setSelectedTiers((prev) => ({
-            ...prev,
-            [serviceId]: prev[serviceId] === tierSlug ? null : tierSlug,
-        }));
+    const handleSelect = (service: string, slug: string | null) => {
+        setSelectedTiers((prev) => ({ ...prev, [service]: slug }));
     };
 
-    const totalPrice = Object.entries(selectedTiers).reduce((acc, [serviceId, tierSlug]) => {
-        if (!tierSlug) return acc;
-        const service = SERVICES.find(s => s.id === serviceId);
-        const tier = service?.tiers.find(t => t.slug === tierSlug);
-        return acc + (tier?.price || 0);
+    const selectedItems = Object.entries(selectedTiers)
+        .filter(([, slug]) => !!slug)
+        .map(([service, slug]) => {
+            const plan = availablePlans.find((p) => p.slug === slug);
+            return { service, slug: slug as string, plan };
+        });
+
+    const totalPrice = selectedItems.reduce((acc, { plan }) => {
+        if (!plan) return acc;
+        return acc + (globalCycle === "monthly" ? plan.price_monthly : plan.price_annual);
     }, 0);
 
-    const selectedCount = Object.values(selectedTiers).filter(Boolean).length;
+    /** Bundle preview: cheapest item is free if 2+ services are selected. */
+    const bundleDiscountTotal = (() => {
+        if (selectedItems.length < 2) return totalPrice;
+        const prices = selectedItems
+            .map(({ plan }) =>
+                plan ? (globalCycle === "monthly" ? plan.price_monthly : plan.price_annual) : 0
+            )
+            .sort((a, b) => a - b);
+        // Cheapest free
+        return prices.slice(1).reduce((a, b) => a + b, 0);
+    })();
 
     const handleCheckout = async () => {
+        if (selectedItems.length === 0) return;
+        setCheckoutLoading(true);
         try {
-            const items = Object.values(selectedTiers)
-                .filter(Boolean)
-                .map(slug => ({
-                    planSlug: slug,
-                    billingCycle: "monthly"
-                }));
-
-            if (items.length === 0) return;
-
+            const items = selectedItems.map(({ slug }) => ({ planSlug: slug, billingCycle: globalCycle }));
             const GQL_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api-v1/graphql";
-            
             const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
-            
-            let query = `
-                mutation CreateGuestCheckout($items: [CheckoutItemInput!]!, $allowPromotionCodes: Boolean) {
-                    createGuestCheckoutSession(items: $items, allowPromotionCodes: $allowPromotionCodes)
-                }
-            `;
-            
-            if (token) {
-                query = `
-                    mutation CreateCheckout($items: [CheckoutItemInput!]!, $allowPromotionCodes: Boolean) {
-                        createCheckoutSession(items: $items, allowPromotionCodes: $allowPromotionCodes)
-                    }
-                `;
-            }
+
+            const query = token
+                ? `mutation CreateCheckout($items: [CheckoutItemInput!]!, $allowPromotionCodes: Boolean) {
+                       createCheckoutSession(items: $items, allowPromotionCodes: $allowPromotionCodes)
+                   }`
+                : `mutation CreateGuestCheckout($items: [CheckoutItemInput!]!, $allowPromotionCodes: Boolean) {
+                       createGuestCheckoutSession(items: $items, allowPromotionCodes: $allowPromotionCodes)
+                   }`;
 
             const response = await fetch(GQL_URL, {
                 method: "POST",
-                headers: { 
+                headers: {
                     "Content-Type": "application/json",
-                    "Authorization": token ? `Bearer ${token}` : ""
+                    ...(token ? { Authorization: `Bearer ${token}` } : {}),
                 },
-                body: JSON.stringify({
-                    query: query,
-                    variables: { 
-                        items,
-                        allowPromotionCodes: true
-                    }
-                }),
+                body: JSON.stringify({ query, variables: { items, allowPromotionCodes: true } }),
             });
-
             const result = await response.json();
-
             if (result.errors) {
-                console.error("GraphQL Errors:", result.errors);
-                showAlert({
-                    title: "Checkout Error",
-                    message: "Error: " + result.errors[0].message,
-                    type: "error"
-                });
+                showAlert({ title: "Checkout Error", message: result.errors[0].message, type: "error" });
                 return;
             }
-
-            const checkoutUrl = token ? result.data.createCheckoutSession : result.data.createGuestCheckoutSession;
-            if (checkoutUrl) {
-                window.location.href = checkoutUrl;
+            const url = token
+                ? result.data?.createCheckoutSession
+                : result.data?.createGuestCheckoutSession;
+            if (url) {
+                window.location.href = url;
+            } else {
+                throw new Error("No checkout URL returned");
             }
-        } catch (error) {
-            console.error("Checkout Error:", error);
-            showAlert({
-                title: "Checkout Failed",
-                message: "Checkout failed. Is the backend running?",
-                type: "error"
-            });
+        } catch (err) {
+            const message = err instanceof Error ? err.message : "Checkout failed";
+            showAlert({ title: "Checkout Failed", message, type: "error" });
+        } finally {
+            setCheckoutLoading(false);
         }
     };
+
+    /** Filter visible services if a hash is set (deep-link to a single service tab). */
+    const visibleServices = activeHash
+        ? SERVICE_ORDER.filter((s) => s === activeHash)
+        : SERVICE_ORDER;
+
+    /** Trial preview for the cart: services that qualify in this selection. */
+    const trialEligibleInCart = selectedItems.filter(({ plan, service }) => {
+        if (!plan || trialsUsed.includes(service)) return false;
+        const cheapest = availablePlans
+            .filter((p) => p.service === service && p.price_monthly > 0 && (p.features as Record<string, unknown>)?.admin_only !== "true")
+            .sort((a, b) => a.price_monthly - b.price_monthly)[0];
+        return cheapest?.slug === plan.slug;
+    });
 
     return (
         <>
@@ -312,109 +187,48 @@ export default function ServicesPage() {
                     </BreadcrumbList>
                 </Breadcrumb>
                 <div className="flex-1" />
-                <Button render={<Link href="/dashboard/services" />} nativeButton={false} className="gap-2">
-                    <Plus className="size-4" /> New Service
+                <Button render={<Link href="/dashboard/billing" />} nativeButton={false} variant="outline" className="gap-2">
+                    Manage Billing
                 </Button>
             </header>
 
             <div className="flex-1 overflow-y-auto p-6">
-                <div className="flex flex-col gap-2 mb-8">
+                <div className="flex flex-col gap-2 mb-6">
                     <h1 className="text-2xl font-bold tracking-tight">Launch Your Infrastructure</h1>
-                    <p className="text-muted-foreground">Select high-performance building blocks for your hosting environment. Mix and match services to scale your system in real-time.</p>
+                    <p className="text-muted-foreground">
+                        Pick high-performance services for your hosting environment. Mix &amp; match — the cheapest tier of each service includes a 7-day free trial, and bundling 2+ services makes the cheapest one free forever.
+                    </p>
                 </div>
 
-            <main className="relative z-10 pb-28 space-y-16">
-                {SERVICES.filter((service) => !activeHash || service.id === activeHash).map((service) => (
-                    <section key={service.id} id={service.id} className="space-y-10 scroll-mt-24">
-                        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-                            <div className="space-y-4 max-w-2xl">
-                                <div className="flex items-center gap-4">
-                                    <div className={cn("p-3 rounded-lg shadow-lg", service.color)}>
-                                        <service.icon className="w-6 h-6 text-white" />
-                                    </div>
-                                    <h2 className="text-2xl font-bold">{service.title}</h2>
-                                </div>
-                                <p className="text-muted-foreground text-lg">{service.description}</p>
-                            </div>
+                <div className="flex items-center justify-between mb-6">
+                    {activeHash ? (
+                        <Button variant="outline" size="sm" onClick={() => { setActiveHash(""); window.history.replaceState(null, "", "/dashboard/services"); }}>
+                            ← Show all services
+                        </Button>
+                    ) : <div />}
+                    <CycleToggle value={globalCycle} onChange={setGlobalCycle} />
+                </div>
 
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2">
-                                {service.highlights.map((highlight, idx) => (
-                                    <div key={idx} className="flex items-center gap-2 text-sm text-muted-foreground">
-                                        <div className="flex-shrink-0 w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center">
-                                            <Check className="w-3 h-3 text-primary" />
-                                        </div>
-                                        {highlight}
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-
-                        <div className="grid gap-4">
-                            <div className="grid grid-cols-12 px-6 text-xs font-medium text-muted-foreground mb-2">
-                                <div className="col-span-4 md:col-span-3">Type</div>
-                                <div className="hidden md:block col-span-3">Performance</div>
-                                <div className="col-span-4 md:col-span-3 text-center md:text-left">Details</div>
-                                <div className="col-span-4 md:col-span-3 text-right">Price per month</div>
-                            </div>
-
-                            <div className="space-y-3">
-                                {service.tiers.map((tier) => {
-                                    const isSelected = selectedTiers[service.id] === tier.slug;
-                                    return (
-                                        <Card
-                                            key={tier.slug}
-                                            className={cn(
-                                                "cursor-pointer rounded-lg p-0 transition-all duration-300",
-                                                isSelected
-                                                    ? "bg-primary/5 border-primary ring-1 ring-primary/50 shadow-sm"
-                                                    : "bg-card border-border hover:border-primary/30 hover:bg-muted/50 hover:shadow-sm"
-                                            )}
-                                        >
-                                            <div
-                                                role="button"
-                                                onClick={() => handleSelectTier(service.id, tier.slug)}
-                                                className="w-full h-auto text-left grid grid-cols-12 items-center px-6 py-6"
-                                            >
-                                                <div className="col-span-4 md:col-span-3 flex items-center gap-3">
-                                                    <div className={cn(
-                                                        "w-5 h-5 rounded-full border flex items-center justify-center transition-colors",
-                                                        isSelected ? "bg-primary border-primary" : "border-muted-foreground/30 group-hover:border-muted-foreground/60"
-                                                    )}>
-                                                        {isSelected && <Check className="w-3 h-3 text-primary-foreground stroke-[3]" />}
-                                                    </div>
-                                                    <span className="font-bold text-lg">{tier.name}</span>
-                                                </div>
-
-                                                <div className="hidden md:block col-span-3 text-muted-foreground font-medium">
-                                                    {Object.entries(tier.specs)[0][1]}
-                                                </div>
-
-                                                <div className="col-span-4 md:col-span-3 flex md:block flex-col items-center">
-                                                    <span className="text-muted-foreground text-sm font-medium">
-                                                        {Object.entries(tier.specs)[1][1]}
-                                                    </span>
-                                                </div>
-
-                                                <div className="col-span-4 md:col-span-3 text-right">
-                                                    <span className="text-2xl font-bold text-foreground">${tier.price} <span className="text-sm font-normal text-muted-foreground">/m</span></span>
-                                                    {trialEligible && tier.price > 0 && (
-                                                        <div className="mt-1 text-[11px] font-medium text-primary">
-                                                            7-day free trial
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </Card>
-                                    );
-                                })}
-                            </div>
-                        </div>
-                    </section>
-                ))}
-            </main>
+                <div className="pb-32">
+                    {visibleServices.map((service) => (
+                        <section key={service} id={service} className="scroll-mt-24">
+                            <PricingTable
+                                service={service}
+                                plans={availablePlans}
+                                cycle={globalCycle}
+                                ownedSlugs={ownedSlugs}
+                                trialsUsed={trialsUsed}
+                                selectionMode
+                                selectedSlug={selectedTiers[service] || null}
+                                onSelect={(slug) => handleSelect(service, slug)}
+                            />
+                        </section>
+                    ))}
+                </div>
             </div>
 
-            {selectedCount > 0 && (
+            {/* Floating cart */}
+            {selectedItems.length > 0 && (
                 <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-4xl animate-in slide-in-from-bottom-full duration-500">
                     <Card className="bg-card border-border rounded-2xl shadow-2xl p-0">
                         <CardContent className="p-4 flex flex-col sm:flex-row items-center justify-between gap-6">
@@ -422,53 +236,34 @@ export default function ServicesPage() {
                                 <div className="bg-primary/20 p-3 rounded-lg relative">
                                     <Zap className="w-6 h-6 text-primary" />
                                     <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-primary-foreground text-xs font-bold rounded-full flex items-center justify-center border-2 border-background">
-                                        {selectedCount}
+                                        {selectedItems.length}
                                     </span>
                                 </div>
                                 <div className="flex flex-col">
                                     <div className="text-sm text-muted-foreground font-medium flex items-center gap-2">
-                                        Total Monthly Price
-                                        {trialEligible && (
+                                        Total {globalCycle === "monthly" ? "Monthly" : "Annual"}
+                                        {trialEligibleInCart.length > 0 && (
                                             <span className="text-[10px] bg-emerald-500/10 text-emerald-500 px-1.5 py-0.5 rounded border border-emerald-500/20 uppercase font-bold">
-                                                Trial Available
+                                                Trial available
+                                            </span>
+                                        )}
+                                        {selectedItems.length >= 2 && (
+                                            <span className="text-[10px] bg-amber-500/10 text-amber-500 px-1.5 py-0.5 rounded border border-amber-500/20 uppercase font-bold">
+                                                Bundle: cheapest free
                                             </span>
                                         )}
                                     </div>
                                     <div className="flex items-baseline gap-2">
-                                        {trialEligible && selectedCount > 0 ? (
+                                        {selectedItems.length >= 2 ? (
                                             <>
-                                                <span className="text-3xl font-bold text-foreground">$0</span>
+                                                <span className="text-3xl font-bold text-foreground">${bundleDiscountTotal}</span>
                                                 <span className="text-sm text-muted-foreground line-through">${totalPrice}</span>
-                                                <span className="text-sm font-normal text-muted-foreground">
-                                                    first 7 days, then ${(() => {
-                                                        const prices = Object.entries(selectedTiers)
-                                                            .filter(([, slug]) => !!slug)
-                                                            .map(([serviceId, slug]) => {
-                                                                const service = SERVICES.find(s => s.id === serviceId);
-                                                                return service?.tiers.find(t => t.slug === slug)?.price || 0;
-                                                            })
-                                                            .sort((a, b) => a - b);
-                                                        
-                                                        const othersTotal = prices.length >= 2 ? prices.slice(1).reduce((a, b) => a + b, 0) : (prices[0] || 0);
-                                                        return othersTotal;
-                                                    })()}/mo
-                                                </span>
+                                                <span className="text-sm font-normal text-muted-foreground">/{globalCycle === "monthly" ? "mo" : "yr"}</span>
                                             </>
                                         ) : (
                                             <span className="text-3xl font-bold text-foreground">
-                                                ${(() => {
-                                                    const prices = Object.entries(selectedTiers)
-                                                        .filter(([, slug]) => !!slug)
-                                                        .map(([serviceId, slug]) => {
-                                                            const service = SERVICES.find(s => s.id === serviceId);
-                                                            return service?.tiers.find(t => t.slug === slug)?.price || 0;
-                                                        })
-                                                        .sort((a, b) => a - b);
-                                                    
-                                                    const othersTotal = selectedCount >= 2 ? prices.slice(1).reduce((a, b) => a + b, 0) : totalPrice;
-                                                    return othersTotal;
-                                                })()}
-                                                <span className="text-sm font-normal text-muted-foreground">/mo</span>
+                                                ${totalPrice}
+                                                <span className="text-sm font-normal text-muted-foreground">/{globalCycle === "monthly" ? "mo" : "yr"}</span>
                                             </span>
                                         )}
                                     </div>
@@ -478,21 +273,31 @@ export default function ServicesPage() {
                             <div className="flex items-center gap-4 w-full sm:w-auto px-4">
                                 <Button
                                     variant="ghost"
-                                    onClick={() => setSelectedTiers({ database: null, compute: null, n8n: null })}
+                                    onClick={() => setSelectedTiers({})}
                                     className="cursor-pointer hover:text-primary hover:bg-primary/10"
                                 >
                                     Clear All
                                 </Button>
                                 <Button
                                     size="lg"
+                                    disabled={checkoutLoading}
                                     className="rounded-lg h-14 px-10 gap-2 text-lg font-bold flex-1 sm:flex-none cursor-pointer hover:opacity-90"
                                     onClick={handleCheckout}
                                 >
-                                    {trialEligible && totalPrice > 0 ? "Start 7-day trial" : "Deploy Now"} <ArrowRight className="w-5 h-5" />
+                                    {checkoutLoading ? "Redirecting…" : (trialEligibleInCart.length > 0 ? "Start Trial" : "Deploy Now")}
+                                    <ArrowRight className="w-5 h-5" />
                                 </Button>
                             </div>
                         </CardContent>
                     </Card>
+                </div>
+            )}
+
+            {selectedItems.length === 0 && (
+                <div className="fixed bottom-6 right-6 z-50">
+                    <Button onClick={() => document.getElementById(SERVICE_ORDER[0])?.scrollIntoView({ behavior: "smooth" })} className="gap-2 shadow-lg">
+                        <Plus className="size-4" /> Pick a service
+                    </Button>
                 </div>
             )}
         </>

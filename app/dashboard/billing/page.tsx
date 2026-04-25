@@ -15,6 +15,9 @@ import {
     Cpu,
     Trash2,
     RefreshCw,
+    CalendarClock,
+    Gift,
+    CreditCard,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -28,6 +31,7 @@ import { getAccessToken } from "@/lib/auth-utils";
 import { useModal } from "@/components/ui/modal";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { PricingTable, CycleToggle, SERVICE_ORDER, type PricingPlan } from "@/components/billing/pricing-table";
 
 interface Plan {
     id: string;
@@ -301,141 +305,6 @@ export default function BillingPage() {
         }
     };
 
-    // Map service → display config (label, icon, columns to show in the pricing table)
-    const SERVICE_CONFIG: Record<string, {
-        label: string;
-        icon: typeof Cpu;
-        accent: string;
-        columns: { key: string; label: string; format?: (v: unknown) => string }[];
-    }> = {
-        compute: {
-            label: 'Compute',
-            icon: Cpu,
-            accent: 'text-blue-400',
-            columns: [
-                { key: 'type', label: 'TYPE' },
-                { key: 'ram', label: 'RAM' },
-                { key: 'cpu', label: 'CPU' },
-                { key: 'storage_mb', label: 'STORAGE', format: (v) => v ? `${v} MB` : '-' },
-            ],
-        },
-        database: {
-            label: 'Databases',
-            icon: Database,
-            accent: 'text-purple-400',
-            columns: [
-                { key: 'type', label: 'TYPE' },
-                { key: 'ram', label: 'RAM' },
-                { key: 'cpu', label: 'CPU' },
-                { key: 'storage', label: 'STORAGE' },
-            ],
-        },
-        n8n: {
-            label: 'n8n Automation',
-            icon: Workflow,
-            accent: 'text-red-400',
-            columns: [
-                { key: 'executions', label: 'EXECUTIONS' },
-                { key: 'workflows', label: 'WORKFLOWS' },
-                { key: 'compute', label: 'COMPUTE' },
-            ],
-        },
-    };
-
-    const renderServiceTable = (service: string) => {
-        const cfg = SERVICE_CONFIG[service];
-        if (!cfg) return null;
-        const plans = availablePlans
-            .filter(p => p.service === service)
-            .filter(p => (p.features as Record<string, unknown>)?.admin_only !== 'true')
-            .filter(p => p.price_monthly > 0)
-            .sort((a, b) => a.price_monthly - b.price_monthly);
-        if (plans.length === 0) return null;
-
-        const cheapestSlug = plans[0]?.slug;
-        const trialAvailable = !trialInfo.trial_used && !(trialInfo.trials_used || []).includes(service);
-        const userOwnsThisService = subscriptions.some(s => s.service === service);
-        const Icon = cfg.icon;
-
-        return (
-            <div key={service} className="mb-10">
-                <div className="flex items-center gap-3 mb-4">
-                    <div className={cn("p-2 rounded-lg bg-muted/50", cfg.accent)}>
-                        <Icon className="size-5" />
-                    </div>
-                    <h3 className="text-xl font-semibold">{cfg.label}</h3>
-                    {trialAvailable && !userOwnsThisService && (
-                        <Badge variant="outline" className="text-[10px] uppercase font-black bg-emerald-500/10 border-emerald-500/30 text-emerald-500">
-                            7-day trial on Basic
-                        </Badge>
-                    )}
-                </div>
-                <div className="overflow-x-auto rounded-xl border border-border bg-card">
-                    <table className="w-full text-sm">
-                        <thead>
-                            <tr className="border-b border-border bg-muted/30">
-                                <th className="text-left px-6 py-4 text-[10px] uppercase font-black tracking-widest text-muted-foreground">Plan</th>
-                                {cfg.columns.map(c => (
-                                    <th key={c.key} className="text-left px-4 py-4 text-[10px] uppercase font-black tracking-widest text-muted-foreground">{c.label}</th>
-                                ))}
-                                <th className="text-right px-4 py-4 text-[10px] uppercase font-black tracking-widest text-muted-foreground">Daily</th>
-                                <th className="text-right px-4 py-4 text-[10px] uppercase font-black tracking-widest text-muted-foreground">{globalCycle === 'monthly' ? 'Monthly' : 'Annual'}</th>
-                                <th className="px-6 py-4"></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {plans.map(plan => {
-                                const features = (plan.features || {}) as Record<string, unknown>;
-                                const price = globalCycle === 'monthly' ? plan.price_monthly : plan.price_annual;
-                                const dailyFromFeature = typeof features.daily_price === 'number' ? features.daily_price as number : null;
-                                const daily = dailyFromFeature ?? (plan.price_monthly / 30);
-                                const owned = subscriptions.some(s => s.service === service && s.plan.slug === plan.slug);
-                                const isCheapest = plan.slug === cheapestSlug;
-                                return (
-                                    <tr key={plan.id} className={cn(
-                                        "border-b border-border last:border-0 hover:bg-muted/20 transition-colors",
-                                        owned && "bg-primary/5"
-                                    )}>
-                                        <td className="px-6 py-4">
-                                            <div className="flex items-center gap-2">
-                                                <span className="font-bold capitalize">{plan.name.replace(/^\w+\s/, '')}</span>
-                                                {owned && <Badge variant="outline" className="text-[9px] uppercase font-black bg-primary/10 border-primary/30 text-primary">Active</Badge>}
-                                                {isCheapest && trialAvailable && !userOwnsThisService && (
-                                                    <Badge variant="outline" className="text-[9px] uppercase font-black bg-emerald-500/10 border-emerald-500/30 text-emerald-500">Trial</Badge>
-                                                )}
-                                            </div>
-                                        </td>
-                                        {cfg.columns.map(c => {
-                                            const raw = features[c.key];
-                                            const display = c.format ? c.format(raw) : (raw == null ? '-' : String(raw));
-                                            return <td key={c.key} className="px-4 py-4 text-muted-foreground">{display}</td>;
-                                        })}
-                                        <td className="px-4 py-4 text-right text-muted-foreground tabular-nums">${daily.toFixed(3)}/day</td>
-                                        <td className="px-4 py-4 text-right font-black tabular-nums">
-                                            ${price}<span className="text-xs font-medium text-muted-foreground">/{globalCycle === 'monthly' ? 'mo' : 'yr'}</span>
-                                        </td>
-                                        <td className="px-6 py-4 text-right">
-                                            <Button
-                                                size="sm"
-                                                variant={owned ? "outline" : "default"}
-                                                disabled={owned || checkoutLoading === plan.slug}
-                                                onClick={() => handleSubscribe(plan.slug, globalCycle)}
-                                                className="h-9 font-bold gap-2"
-                                            >
-                                                {checkoutLoading === plan.slug && <RefreshCw className="size-3.5 animate-spin" />}
-                                                {owned ? 'Active' : 'Subscribe'}
-                                            </Button>
-                                        </td>
-                                    </tr>
-                                );
-                            })}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        );
-    };
-
     const handleManageBilling = async () => {
         try {
             const token = getAccessToken();
@@ -491,87 +360,136 @@ export default function BillingPage() {
                     <p className="text-muted-foreground">Manage payment methods, invoices, and cloud usage costs.</p>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-10">
-                    <Card className="bg-card border-border">
-                        <CardContent className="p-6">
-                            <div className="flex items-center gap-3 text-muted-foreground mb-4">
-                                <DollarSign className="size-4" />
-                                <span className="text-xs font-medium">Monthly Cost</span>
+                {(() => {
+                    const trialingSubs = subscriptions.filter(s => s.status === 'TRIALING');
+                    const annualProjection = totalMonthly * 12;
+                    const trialServicesAvailable = trialInfo.trial_used
+                        ? []
+                        : SERVICE_ORDER.filter(svc =>
+                            !(trialInfo.trials_used || []).includes(svc) &&
+                            !subscriptions.some(s => s.service === svc)
+                        );
+                    const SERVICE_LABELS: Record<string, string> = { compute: 'Compute', database: 'Databases', n8n: 'n8n' };
+                    return (
+                        <>
+                        {trialingSubs.length > 0 && (
+                            <div className="mb-6 p-4 rounded-lg border border-emerald-500/20 bg-emerald-500/5 flex items-center gap-3">
+                                <Gift className="size-5 text-emerald-400 flex-shrink-0" />
+                                <div className="flex-1">
+                                    <p className="text-sm font-semibold text-emerald-300">
+                                        {trialingSubs.length === 1
+                                            ? `Your ${trialingSubs[0].service} trial is active.`
+                                            : `${trialingSubs.length} trials are active.`}
+                                    </p>
+                                    <p className="text-xs text-muted-foreground mt-0.5">
+                                        {trialingSubs.map(s => `${s.service} ends ${s.expired_at ? new Date(s.expired_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'soon'}`).join(' • ')}
+                                    </p>
+                                </div>
                             </div>
-                            <div className="text-4xl font-bold tracking-tight mb-1">${totalMonthly.toFixed(2)}</div>
-                            <div className="text-xs text-primary font-bold flex items-center gap-1">
-                                <TrendingUp className="w-3 h-3" /> Stable
-                            </div>
-                        </CardContent>
-                    </Card>
-                    <Card className="bg-card border-border">
-                        <CardContent className="p-6">
-                            <div className="flex items-center gap-3 text-muted-foreground mb-4">
-                                <Zap className="size-4" />
-                                <span className="text-xs font-medium">Active Plans</span>
-                            </div>
-                            <div className="text-4xl font-bold tracking-tight mb-1">{subscriptions.length}</div>
-                            <div className="text-xs text-muted-foreground">Subscriptions</div>
-                        </CardContent>
-                    </Card>
-                    <Card className="bg-card border-border">
-                        <CardContent className="p-6">
-                            <div className="flex items-center gap-3 text-muted-foreground mb-4">
-                                <Clock className="size-4" />
-                                <span className="text-xs font-medium">Next Invoice</span>
-                            </div>
-                            <div className="text-4xl font-bold tracking-tight mb-1">{nextInvoiceStr}</div>
-                            <div className="text-xs text-muted-foreground">Auto-charge</div>
-                        </CardContent>
-                    </Card>
-
-                    <Card className="bg-gradient-to-br from-primary/20 to-transparent border-primary/20 flex flex-col justify-between">
-                        <CardContent className="p-6">
-                            <h3 className="text-sm font-bold mb-2">Payment Portal</h3>
-                            <p className="text-xs text-muted-foreground mb-4">Manage cards, invoices & billing details.</p>
-                            <Button
-                                onClick={handleManageBilling}
-                                size="sm"
-                                className="w-full font-bold gap-2"
-                            >
-                                <ExternalLink className="w-3.5 h-3.5" /> Open Stripe
-                            </Button>
-                        </CardContent>
-                    </Card>
-                </div>
-
-                {/* PRICING TABLES — grouped by service, styled like the design refs */}
-                <div className="mb-10">
-                    <div className="flex items-center justify-between mb-6">
-                        <div>
-                            <h2 className="text-2xl font-bold tracking-tight">Available Plans</h2>
-                            <p className="text-muted-foreground text-sm">Subscribe to add new services or upgrade your tiers.</p>
+                        )}
+                        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-10">
+                            <Card className="bg-card border-border">
+                                <CardContent className="p-6">
+                                    <div className="flex items-center gap-3 text-muted-foreground mb-4">
+                                        <DollarSign className="size-4" />
+                                        <span className="text-xs font-medium">Monthly Cost</span>
+                                    </div>
+                                    <div className="text-4xl font-bold tracking-tight mb-1">${totalMonthly.toFixed(2)}</div>
+                                    <div className="text-xs text-muted-foreground flex items-center gap-1">
+                                        <TrendingUp className="w-3 h-3" /> ${annualProjection.toFixed(0)} / year projected
+                                    </div>
+                                </CardContent>
+                            </Card>
+                            <Card className="bg-card border-border">
+                                <CardContent className="p-6">
+                                    <div className="flex items-center gap-3 text-muted-foreground mb-4">
+                                        <Zap className="size-4" />
+                                        <span className="text-xs font-medium">Active Plans</span>
+                                    </div>
+                                    <div className="text-4xl font-bold tracking-tight mb-1">{subscriptions.length}</div>
+                                    <div className="text-xs text-muted-foreground">
+                                        Across {new Set(subscriptions.map(s => s.service)).size} service{new Set(subscriptions.map(s => s.service)).size === 1 ? '' : 's'}
+                                    </div>
+                                </CardContent>
+                            </Card>
+                            <Card className="bg-card border-border">
+                                <CardContent className="p-6">
+                                    <div className="flex items-center gap-3 text-muted-foreground mb-4">
+                                        <CalendarClock className="size-4" />
+                                        <span className="text-xs font-medium">Next Invoice</span>
+                                    </div>
+                                    <div className="text-4xl font-bold tracking-tight mb-1">{nextInvoiceStr}</div>
+                                    <div className="text-xs text-muted-foreground">
+                                        {nextInvoiceDate ? `${Math.max(0, Math.ceil((nextInvoiceDate.getTime() - Date.now()) / 86400000))} days from now` : 'No upcoming charges'}
+                                    </div>
+                                </CardContent>
+                            </Card>
+                            {trialServicesAvailable.length > 0 ? (
+                                <Card className="bg-gradient-to-br from-emerald-500/10 to-transparent border-emerald-500/20 flex flex-col justify-between">
+                                    <CardContent className="p-6">
+                                        <div className="flex items-center gap-3 text-emerald-400 mb-3">
+                                            <Gift className="size-4" />
+                                            <span className="text-xs font-bold uppercase tracking-widest">Free Trial</span>
+                                        </div>
+                                        <h3 className="text-sm font-bold mb-2">7 days free</h3>
+                                        <p className="text-xs text-muted-foreground mb-4">
+                                            Available on Basic tier of: {trialServicesAvailable.map(s => SERVICE_LABELS[s] || s).join(', ')}.
+                                        </p>
+                                        <Button
+                                            onClick={() => document.getElementById('available-plans')?.scrollIntoView({ behavior: 'smooth' })}
+                                            size="sm"
+                                            variant="outline"
+                                            className="w-full font-bold gap-2 border-emerald-500/30 hover:bg-emerald-500/10"
+                                        >
+                                            Claim trial
+                                        </Button>
+                                    </CardContent>
+                                </Card>
+                            ) : (
+                                <Card className="bg-gradient-to-br from-primary/20 to-transparent border-primary/20 flex flex-col justify-between">
+                                    <CardContent className="p-6">
+                                        <div className="flex items-center gap-3 text-primary mb-3">
+                                            <CreditCard className="size-4" />
+                                            <span className="text-xs font-bold uppercase tracking-widest">Payment</span>
+                                        </div>
+                                        <h3 className="text-sm font-bold mb-2">Stripe Portal</h3>
+                                        <p className="text-xs text-muted-foreground mb-4">Manage cards, invoices &amp; billing history.</p>
+                                        <Button
+                                            onClick={handleManageBilling}
+                                            size="sm"
+                                            className="w-full font-bold gap-2"
+                                        >
+                                            <ExternalLink className="w-3.5 h-3.5" /> Open Stripe
+                                        </Button>
+                                    </CardContent>
+                                </Card>
+                            )}
                         </div>
-                        <div className="flex gap-2 p-1 bg-muted/40 rounded-lg border border-border">
-                            <button
-                                onClick={() => setGlobalCycle('monthly')}
-                                className={cn(
-                                    "px-4 py-2 text-xs uppercase font-black tracking-widest rounded-md transition-colors",
-                                    globalCycle === 'monthly' ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
-                                )}
-                            >Monthly</button>
-                            <button
-                                onClick={() => setGlobalCycle('annual')}
-                                className={cn(
-                                    "px-4 py-2 text-xs uppercase font-black tracking-widest rounded-md transition-colors",
-                                    globalCycle === 'annual' ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
-                                )}
-                            >Annual <span className="text-emerald-400/80 ml-1">-17%</span></button>
-                        </div>
-                    </div>
-                    {renderServiceTable('compute')}
-                    {renderServiceTable('database')}
-                    {renderServiceTable('n8n')}
-                </div>
+                        </>
+                    );
+                })()}
 
-                <Card className="bg-card border-border">
+                {/* YOUR SUBSCRIPTIONS — always first: this is what billing is for */}
+                <Card className="bg-card border-border mb-10">
                     <CardContent className="p-8">
-                        <h3 className="text-xl font-semibold mb-6">Your Subscriptions</h3>
+                        <div className="flex items-center justify-between mb-6">
+                            <div>
+                                <h3 className="text-xl font-semibold">Your Subscriptions</h3>
+                                <p className="text-sm text-muted-foreground mt-1">Active services and their next billing dates.</p>
+                            </div>
+                            {subscriptions.length === 0 && (
+                                <Button onClick={() => document.getElementById('available-plans')?.scrollIntoView({ behavior: 'smooth' })} className="gap-2">
+                                    <Plus className="size-4" /> Subscribe to a service
+                                </Button>
+                            )}
+                        </div>
+                        {subscriptions.length === 0 && (
+                            <div className="text-center py-12 border border-dashed border-border rounded-lg">
+                                <Zap className="size-8 mx-auto mb-3 text-muted-foreground/50" />
+                                <p className="text-sm text-muted-foreground">You don’t have any active subscriptions yet.</p>
+                                <p className="text-xs text-muted-foreground/60 mt-1">Pick a plan below to get started — the cheapest tier of each service includes a 7-day free trial.</p>
+                            </div>
+                        )}
                         <div className="flex flex-col gap-4">
                             {subscriptions.map((sub) => (
                                 <div key={sub.id} className="flex items-center justify-between p-6 bg-muted-foreground/5 border border-border hover:border-primary/20 transition-all">
@@ -638,6 +556,29 @@ export default function BillingPage() {
                         </div>
                     </CardContent>
                 </Card>
+
+                {/* AVAILABLE PLANS — below subscriptions, for adding/upgrading services */}
+                <div id="available-plans" className="mb-10 scroll-mt-24">
+                    <div className="flex items-center justify-between mb-6">
+                        <div>
+                            <h2 className="text-2xl font-bold tracking-tight">Available Plans</h2>
+                            <p className="text-muted-foreground text-sm">Subscribe to add new services or upgrade existing tiers.</p>
+                        </div>
+                        <CycleToggle value={globalCycle} onChange={setGlobalCycle} />
+                    </div>
+                    {SERVICE_ORDER.map(service => (
+                        <PricingTable
+                            key={service}
+                            service={service}
+                            plans={availablePlans}
+                            cycle={globalCycle}
+                            ownedSlugs={subscriptions.map(s => s.plan.slug)}
+                            trialsUsed={trialInfo.trial_used ? Array.from(SERVICE_ORDER) : (trialInfo.trials_used || [])}
+                            onSubscribe={(slug) => handleSubscribe(slug, globalCycle)}
+                            busySlug={checkoutLoading}
+                        />
+                    ))}
+                </div>
             </div>
 
             {/* Manage Subscription Modal */}
