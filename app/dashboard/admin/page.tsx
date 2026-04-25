@@ -52,14 +52,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+
 import { useDashboard } from "@/app/dashboard/layout";
 import { redirect } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -185,6 +178,18 @@ export default function AdminPage() {
     };
 
     const fmt = (cents: number) => `$${(cents / 100).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+    // Estimated revenue for the current calendar month: MRR prorated by days
+    // remaining in the month, plus any portion already accumulated. Useful for
+    // tactical planning ("how much will land this month?") rather than ARR run-rate.
+    const now = new Date();
+    const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+    const dayOfMonth = now.getDate();
+    // Treat MRR as the full-month projection. "This month estimated" = MRR pro-rated for
+    // the remaining days, given that subs created mid-month start billing on creation.
+    const remainingDays = Math.max(0, daysInMonth - dayOfMonth + 1);
+    const thisMonthRemainingCents = Math.round((adminStats.mrrCents / daysInMonth) * remainingDays);
+
     const statsCards = [
         {
             title: "MRR",
@@ -195,11 +200,11 @@ export default function AdminPage() {
             tone: "primary",
         },
         {
-            title: "ARR (projected)",
-            value: fmt(adminStats.arrCents),
-            description: "Annual run-rate from active paid subs",
+            title: "This Month (estimated)",
+            value: fmt(thisMonthRemainingCents),
+            description: `${remainingDays} day${remainingDays === 1 ? '' : 's'} left in ${now.toLocaleString('en-US', { month: 'long' })}`,
             icon: TrendingUp,
-            sub: `≈ ${fmt(adminStats.mrrCents * 12)} from MRR × 12`,
+            sub: `Full month at this MRR: ${fmt(adminStats.mrrCents)}`,
             tone: "emerald",
         },
         {
@@ -476,14 +481,37 @@ function SubscriptionsTab({ subscriptions }: SubscriptionsTabProps) {
 }
 
 // ====================================================================
-// MaintenanceMenu — dropdown with destructive admin operations.
-// Centralizes the wipe / clean-orphan operations in one safe place.
+// MaintenanceMenu — popover with destructive admin operations.
+// Uses a custom click-away pattern instead of base-ui DropdownMenu, which was
+// swallowing item clicks and showing only "hubo un error".
 // ====================================================================
 function MaintenanceMenu({ onRefetch }: { onRefetch: () => void }) {
+    const [open, setOpen] = React.useState(false);
     const [busy, setBusy] = React.useState<string | null>(null);
+    const [confirmDialog, setConfirmDialog] = React.useState<{
+        title: string;
+        message: string;
+        destructive: boolean;
+        mutation: string;
+        label: string;
+    } | null>(null);
+    const wrapperRef = React.useRef<HTMLDivElement>(null);
 
-    const callMutation = async (mutation: string, label: string, confirmMsg: string) => {
-        if (!confirm(confirmMsg)) return;
+    React.useEffect(() => {
+        if (!open) return;
+        const onClick = (e: MouseEvent) => {
+            if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
+                setOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', onClick);
+        return () => document.removeEventListener('mousedown', onClick);
+    }, [open]);
+
+    const runMutation = async () => {
+        if (!confirmDialog) return;
+        const { mutation, label } = confirmDialog;
+        setConfirmDialog(null);
         setBusy(label);
         try {
             const token = (typeof window !== 'undefined') ? localStorage.getItem('access_token') : null;
@@ -495,7 +523,9 @@ function MaintenanceMenu({ onRefetch }: { onRefetch: () => void }) {
             });
             const result = await res.json();
             if (result.errors) {
-                toast.error(`${label} failed: ${result.errors[0].message}`);
+                const msg = result.errors[0]?.message || JSON.stringify(result.errors[0]);
+                toast.error(`${label} failed`, { description: msg });
+                console.error('[Admin Maintenance] mutation error:', result.errors);
                 return;
             }
             const data = result.data;
@@ -510,43 +540,95 @@ function MaintenanceMenu({ onRefetch }: { onRefetch: () => void }) {
             }
             onRefetch();
         } catch (err) {
-            toast.error(`${label}: ${err instanceof Error ? err.message : 'unknown'}`);
+            const msg = err instanceof Error ? err.message : 'unknown error';
+            toast.error(label, { description: msg });
+            console.error('[Admin Maintenance] network error:', err);
         } finally {
             setBusy(null);
         }
     };
 
     return (
-        <DropdownMenu>
-            <DropdownMenuTrigger>
-                <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md border border-border bg-card hover:bg-muted/40 text-sm font-medium">
+        <>
+            <div ref={wrapperRef} className="relative mr-2">
+                <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setOpen(!open)}
+                    disabled={!!busy}
+                    className="gap-2"
+                >
                     {busy ? <Loader2 className="size-3.5 animate-spin" /> : <Wrench className="size-3.5" />}
                     Maintenance
-                </span>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-64">
-                <DropdownMenuLabel>Cleanup</DropdownMenuLabel>
-                <DropdownMenuItem onClick={() => callMutation(
-                    'mutation { adminCleanOrphanSubscriptions { removed sample } }',
-                    'Clean orphans',
-                    'Remove all subscriptions whose user no longer exists in the database?'
-                )}>
-                    <Trash2 className="size-3.5 mr-2" /> Clean orphan subscriptions
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuLabel className="text-destructive">Destructive</DropdownMenuLabel>
-                <DropdownMenuItem
-                    onClick={() => callMutation(
-                        'mutation { adminWipeAllInstances { compute database n8n errors } }',
-                        'Wipe instances',
-                        '⚠️ This will WIPE ALL compute, database, and n8n instances across every user, including Dokploy containers. This cannot be undone. Continue?'
-                    )}
-                    className="text-destructive focus:text-destructive"
-                >
-                    <Trash2 className="size-3.5 mr-2" /> Wipe all instances
-                </DropdownMenuItem>
-            </DropdownMenuContent>
-        </DropdownMenu>
+                </Button>
+                {open && (
+                    <div className="absolute right-0 top-full mt-2 w-72 rounded-lg border border-border bg-card shadow-xl z-50 overflow-hidden">
+                        <div className="px-3 py-2 text-[10px] uppercase font-bold tracking-widest text-muted-foreground border-b border-border">Cleanup</div>
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setOpen(false);
+                                setConfirmDialog({
+                                    title: 'Clean orphan subscriptions',
+                                    message: 'Removes all subscriptions whose user no longer exists in the database. Useful for cleaning up after deleted accounts.',
+                                    destructive: false,
+                                    mutation: 'mutation { adminCleanOrphanSubscriptions { removed sample } }',
+                                    label: 'Clean orphans',
+                                });
+                            }}
+                            className="w-full text-left px-3 py-2.5 hover:bg-muted/50 flex items-center gap-2 text-sm"
+                        >
+                            <Trash2 className="size-3.5 text-muted-foreground" />
+                            <span>Clean orphan subscriptions</span>
+                        </button>
+                        <div className="px-3 py-2 text-[10px] uppercase font-bold tracking-widest text-destructive border-b border-t border-border">Destructive</div>
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setOpen(false);
+                                setConfirmDialog({
+                                    title: 'Wipe all instances',
+                                    message: '⚠️ This will DELETE every compute, database, and n8n instance across every user — both from Mongo and from Dokploy containers. This cannot be undone.',
+                                    destructive: true,
+                                    mutation: 'mutation { adminWipeAllInstances { compute database n8n errors } }',
+                                    label: 'Wipe instances',
+                                });
+                            }}
+                            className="w-full text-left px-3 py-2.5 hover:bg-destructive/10 flex items-center gap-2 text-sm text-destructive"
+                        >
+                            <Trash2 className="size-3.5" />
+                            <span>Wipe all instances</span>
+                        </button>
+                    </div>
+                )}
+            </div>
+
+            {confirmDialog && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-background/80 backdrop-blur-sm">
+                    <div className="w-full max-w-md mx-4 rounded-lg border border-border bg-card shadow-2xl">
+                        <div className="p-6">
+                            <h3 className={cn(
+                                'text-lg font-bold mb-2 flex items-center gap-2',
+                                confirmDialog.destructive && 'text-destructive'
+                            )}>
+                                {confirmDialog.destructive && <AlertCircle className="size-5" />}
+                                {confirmDialog.title}
+                            </h3>
+                            <p className="text-sm text-muted-foreground">{confirmDialog.message}</p>
+                        </div>
+                        <div className="px-6 pb-6 flex justify-end gap-2">
+                            <Button variant="outline" onClick={() => setConfirmDialog(null)}>Cancel</Button>
+                            <Button
+                                variant={confirmDialog.destructive ? 'destructive' : 'default'}
+                                onClick={runMutation}
+                            >
+                                {confirmDialog.destructive ? 'Yes, wipe everything' : 'Confirm'}
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </>
     );
 }
 
