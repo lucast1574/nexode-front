@@ -687,7 +687,15 @@ function ComputePageContent() {
                                         )}
                                     >
                                         <div className="flex items-center justify-between mb-2">
-                                            <Badge variant="outline" className="text-xs font-medium text-primary border-primary/20 bg-primary/10">
+                                            <Badge
+                                                variant="outline"
+                                                className={cn(
+                                                    "text-xs font-medium",
+                                                    inst.type === 'BACKEND'
+                                                        ? "text-purple-400 border-purple-500/30 bg-purple-500/10"
+                                                        : "text-primary border-primary/20 bg-primary/10",
+                                                )}
+                                            >
                                                 {inst.type}
                                             </Badge>
                                             <div className={cn(
@@ -863,7 +871,10 @@ function ComputePageContent() {
                                                                 <div className="p-4 bg-background border border-border flex items-center justify-between min-w-0">
                                                                     <div className="flex-1 overflow-hidden min-w-0">
                                                                         <div className="text-xs text-muted-foreground mb-1">Public Application URL</div>
-                                                                        <code className="text-sm truncate block w-full text-primary/80">
+                                                                        <code className={cn(
+                                                                            "text-sm truncate block w-full",
+                                                                            selectedInstance.type === 'BACKEND' ? "text-purple-400/80" : "text-primary/80",
+                                                                        )}>
                                                                             https://{selectedInstance.generated_domain}{selectedInstance.type === 'BACKEND' ? '/health' : ''}
                                                                         </code>
                                                                     </div>
