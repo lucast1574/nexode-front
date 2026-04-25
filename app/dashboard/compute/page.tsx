@@ -1144,6 +1144,9 @@ function ComputePageContent() {
                                 <Cpu className="size-16 text-muted-foreground mb-6" />
                                 <h1 className="text-2xl font-bold mb-2">No active instances found</h1>
                                 <p className="text-muted-foreground max-w-xs mx-auto mb-6">Create one to get started.</p>
+                                <div className="mb-4 max-w-md rounded-md border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-200">
+                                    ⚠️ Tu app debe escuchar en el <strong>puerto 3000 (frontend)</strong> o <strong>4000 (backend)</strong>. Si usas otro puerto, la instancia no responderá.
+                                </div>
                                 <Button onClick={handleCreateClick} className="gap-2 bg-blue-600 hover:bg-blue-700 text-white border-none shadow-lg shadow-blue-900/20">
                                     <Plus className="size-4" /> Deploy Instance
                                 </Button>
