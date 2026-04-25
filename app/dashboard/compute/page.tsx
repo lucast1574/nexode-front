@@ -594,7 +594,12 @@ function ComputePageContent() {
                                             <Badge variant="outline" className="text-xs font-medium text-primary border-primary/20 bg-primary/10">
                                                 {inst.type}
                                             </Badge>
-                                            <div className={cn("w-1.5 h-1.5 rounded-full", inst.status === 'running' ? 'bg-emerald-500 shadow-[0_0_8px_hsl(var(--primary)/0.5)]' : 'bg-amber-500 animate-pulse')} />
+                                            <div className={cn(
+                                                "w-1.5 h-1.5 rounded-full",
+                                                inst.status === 'running' ? 'bg-emerald-500 shadow-[0_0_8px_hsl(var(--primary)/0.5)]' :
+                                                    (inst.status.toLowerCase() === 'failed' || inst.status.toLowerCase() === 'error') ? 'bg-red-500' :
+                                                        'bg-amber-500 animate-pulse'
+                                            )} />
                                         </div>
                                         <div className="font-bold text-sm truncate transition-colors group-hover:text-primary">{inst.name}</div>
                                         <div className="text-xs text-muted-foreground mt-1">
@@ -614,7 +619,10 @@ function ComputePageContent() {
                                         <div>
                                             <div className="flex items-center gap-4 mb-3">
                                                 <h1 className="text-2xl font-bold tracking-tight">{selectedInstance.name}</h1>
-                                                <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
+                                                <Badge variant="outline" className={cn(
+                                                    "bg-primary/10 text-primary border-primary/20 transition-colors",
+                                                    (selectedInstance.status.toLowerCase() === 'failed' || selectedInstance.status.toLowerCase() === 'error') && "text-red-500 border-red-500/50 bg-red-500/10"
+                                                )}>
                                                     ● {selectedInstance.status}
                                                 </Badge>
                                             </div>
@@ -727,7 +735,11 @@ function ComputePageContent() {
                                                                 <Activity className="size-5 text-primary" />
                                                             </div>
                                                             <div>
-                                                                <div className="font-bold text-primary">
+                                                                <div className={cn(
+                                                                    "font-bold",
+                                                                    selectedInstance.status === 'running' ? 'text-primary' :
+                                                                        (selectedInstance.status.toLowerCase() === 'failed' || selectedInstance.status.toLowerCase() === 'error') ? 'text-red-500' : 'text-primary'
+                                                                )}>
                                                                     {selectedInstance.status === 'running' ? 'Optimal' : selectedInstance.status}
                                                                 </div>
                                                                 <div className="text-xs text-muted-foreground">Monitored</div>
