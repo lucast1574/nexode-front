@@ -36,6 +36,12 @@ interface Plan {
     price_monthly: number;
     price_annual: number;
     service: string;
+    features?: Record<string, string | number | boolean | null>;
+}
+
+interface UserTrialInfo {
+    trial_used?: boolean;
+    trials_used?: string[];
 }
 
 interface Subscription extends BaseSubscription {
@@ -51,6 +57,9 @@ export default function BillingPage() {
     const [loading, setLoading] = useState(true);
     const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
     const [availablePlans, setAvailablePlans] = useState<Plan[]>([]);
+    const [trialInfo, setTrialInfo] = useState<UserTrialInfo>({});
+    const [globalCycle, setGlobalCycle] = useState<'monthly' | 'annual'>('monthly');
+    const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
     const [managingSub, setManagingSub] = useState<Subscription | null>(null);
     const [selectedPlanSlug, setSelectedPlanSlug] = useState<string>("");
     const [selectedCycle, setSelectedCycle] = useState<'monthly' | 'annual'>('monthly');
@@ -89,6 +98,11 @@ export default function BillingPage() {
                         price_monthly
                         price_annual
                         service
+                        features
+                    }
+                    me {
+                        trial_used
+                        trials_used
                     }
                 }
             `;
@@ -112,6 +126,10 @@ export default function BillingPage() {
                 
                 setSubscriptions(subs);
                 setAvailablePlans(result.data.availablePlans || []);
+                setTrialInfo({
+                    trial_used: result.data.me?.trial_used,
+                    trials_used: result.data.me?.trials_used || [],
+                });
             }
         } catch (error) {
             console.error("Billing fetch error:", error);
@@ -251,6 +269,173 @@ export default function BillingPage() {
         ? nextInvoiceDate.toLocaleString('en-US', { month: 'short', day: 'numeric' })
         : 'N/A';
 
+    const handleSubscribe = async (planSlug: string, cycle: 'monthly' | 'annual') => {
+        setCheckoutLoading(planSlug);
+        try {
+            const token = getAccessToken();
+            const GQL_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api-v1/graphql";
+            const mutation = `
+                mutation Checkout($items: [CheckoutItemInput!]!) {
+                    createCheckoutSession(items: $items)
+                }
+            `;
+            const res = await fetch(GQL_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+                body: JSON.stringify({
+                    query: mutation,
+                    variables: { items: [{ planSlug, billingCycle: cycle }] },
+                }),
+            });
+            const result = await res.json();
+            if (result.data?.createCheckoutSession) {
+                window.location.href = result.data.createCheckoutSession;
+            } else {
+                throw new Error(result.errors?.[0]?.message || "Checkout failed");
+            }
+        } catch (err) {
+            const message = err instanceof Error ? err.message : "Checkout failed";
+            showAlert({ title: "Error", message, type: "error" });
+        } finally {
+            setCheckoutLoading(null);
+        }
+    };
+
+    // Map service → display config (label, icon, columns to show in the pricing table)
+    const SERVICE_CONFIG: Record<string, {
+        label: string;
+        icon: typeof Cpu;
+        accent: string;
+        columns: { key: string; label: string; format?: (v: unknown) => string }[];
+    }> = {
+        compute: {
+            label: 'Compute',
+            icon: Cpu,
+            accent: 'text-blue-400',
+            columns: [
+                { key: 'type', label: 'TYPE' },
+                { key: 'ram', label: 'RAM' },
+                { key: 'cpu', label: 'CPU' },
+                { key: 'storage_mb', label: 'STORAGE', format: (v) => v ? `${v} MB` : '-' },
+            ],
+        },
+        database: {
+            label: 'Databases',
+            icon: Database,
+            accent: 'text-purple-400',
+            columns: [
+                { key: 'type', label: 'TYPE' },
+                { key: 'ram', label: 'RAM' },
+                { key: 'cpu', label: 'CPU' },
+                { key: 'storage', label: 'STORAGE' },
+            ],
+        },
+        n8n: {
+            label: 'n8n Automation',
+            icon: Workflow,
+            accent: 'text-red-400',
+            columns: [
+                { key: 'executions', label: 'EXECUTIONS' },
+                { key: 'workflows', label: 'WORKFLOWS' },
+                { key: 'compute', label: 'COMPUTE' },
+            ],
+        },
+    };
+
+    const renderServiceTable = (service: string) => {
+        const cfg = SERVICE_CONFIG[service];
+        if (!cfg) return null;
+        const plans = availablePlans
+            .filter(p => p.service === service)
+            .filter(p => (p.features as Record<string, unknown>)?.admin_only !== 'true')
+            .filter(p => p.price_monthly > 0)
+            .sort((a, b) => a.price_monthly - b.price_monthly);
+        if (plans.length === 0) return null;
+
+        const cheapestSlug = plans[0]?.slug;
+        const trialAvailable = !trialInfo.trial_used && !(trialInfo.trials_used || []).includes(service);
+        const userOwnsThisService = subscriptions.some(s => s.service === service);
+        const Icon = cfg.icon;
+
+        return (
+            <div key={service} className="mb-10">
+                <div className="flex items-center gap-3 mb-4">
+                    <div className={cn("p-2 rounded-lg bg-muted/50", cfg.accent)}>
+                        <Icon className="size-5" />
+                    </div>
+                    <h3 className="text-xl font-semibold">{cfg.label}</h3>
+                    {trialAvailable && !userOwnsThisService && (
+                        <Badge variant="outline" className="text-[10px] uppercase font-black bg-emerald-500/10 border-emerald-500/30 text-emerald-500">
+                            7-day trial on Basic
+                        </Badge>
+                    )}
+                </div>
+                <div className="overflow-x-auto rounded-xl border border-border bg-card">
+                    <table className="w-full text-sm">
+                        <thead>
+                            <tr className="border-b border-border bg-muted/30">
+                                <th className="text-left px-6 py-4 text-[10px] uppercase font-black tracking-widest text-muted-foreground">Plan</th>
+                                {cfg.columns.map(c => (
+                                    <th key={c.key} className="text-left px-4 py-4 text-[10px] uppercase font-black tracking-widest text-muted-foreground">{c.label}</th>
+                                ))}
+                                <th className="text-right px-4 py-4 text-[10px] uppercase font-black tracking-widest text-muted-foreground">Daily</th>
+                                <th className="text-right px-4 py-4 text-[10px] uppercase font-black tracking-widest text-muted-foreground">{globalCycle === 'monthly' ? 'Monthly' : 'Annual'}</th>
+                                <th className="px-6 py-4"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {plans.map(plan => {
+                                const features = (plan.features || {}) as Record<string, unknown>;
+                                const price = globalCycle === 'monthly' ? plan.price_monthly : plan.price_annual;
+                                const dailyFromFeature = typeof features.daily_price === 'number' ? features.daily_price as number : null;
+                                const daily = dailyFromFeature ?? (plan.price_monthly / 30);
+                                const owned = subscriptions.some(s => s.service === service && s.plan.slug === plan.slug);
+                                const isCheapest = plan.slug === cheapestSlug;
+                                return (
+                                    <tr key={plan.id} className={cn(
+                                        "border-b border-border last:border-0 hover:bg-muted/20 transition-colors",
+                                        owned && "bg-primary/5"
+                                    )}>
+                                        <td className="px-6 py-4">
+                                            <div className="flex items-center gap-2">
+                                                <span className="font-bold capitalize">{plan.name.replace(/^\w+\s/, '')}</span>
+                                                {owned && <Badge variant="outline" className="text-[9px] uppercase font-black bg-primary/10 border-primary/30 text-primary">Active</Badge>}
+                                                {isCheapest && trialAvailable && !userOwnsThisService && (
+                                                    <Badge variant="outline" className="text-[9px] uppercase font-black bg-emerald-500/10 border-emerald-500/30 text-emerald-500">Trial</Badge>
+                                                )}
+                                            </div>
+                                        </td>
+                                        {cfg.columns.map(c => {
+                                            const raw = features[c.key];
+                                            const display = c.format ? c.format(raw) : (raw == null ? '-' : String(raw));
+                                            return <td key={c.key} className="px-4 py-4 text-muted-foreground">{display}</td>;
+                                        })}
+                                        <td className="px-4 py-4 text-right text-muted-foreground tabular-nums">${daily.toFixed(3)}/day</td>
+                                        <td className="px-4 py-4 text-right font-black tabular-nums">
+                                            ${price}<span className="text-xs font-medium text-muted-foreground">/{globalCycle === 'monthly' ? 'mo' : 'yr'}</span>
+                                        </td>
+                                        <td className="px-6 py-4 text-right">
+                                            <Button
+                                                size="sm"
+                                                variant={owned ? "outline" : "default"}
+                                                disabled={owned || checkoutLoading === plan.slug}
+                                                onClick={() => handleSubscribe(plan.slug, globalCycle)}
+                                                className="h-9 font-bold gap-2"
+                                            >
+                                                {checkoutLoading === plan.slug && <RefreshCw className="size-3.5 animate-spin" />}
+                                                {owned ? 'Active' : 'Subscribe'}
+                                            </Button>
+                                        </td>
+                                    </tr>
+                                );
+                            })}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        );
+    };
+
     const handleManageBilling = async () => {
         try {
             const token = getAccessToken();
@@ -355,9 +540,38 @@ export default function BillingPage() {
                     </Card>
                 </div>
 
+                {/* PRICING TABLES — grouped by service, styled like the design refs */}
+                <div className="mb-10">
+                    <div className="flex items-center justify-between mb-6">
+                        <div>
+                            <h2 className="text-2xl font-bold tracking-tight">Available Plans</h2>
+                            <p className="text-muted-foreground text-sm">Subscribe to add new services or upgrade your tiers.</p>
+                        </div>
+                        <div className="flex gap-2 p-1 bg-muted/40 rounded-lg border border-border">
+                            <button
+                                onClick={() => setGlobalCycle('monthly')}
+                                className={cn(
+                                    "px-4 py-2 text-xs uppercase font-black tracking-widest rounded-md transition-colors",
+                                    globalCycle === 'monthly' ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+                                )}
+                            >Monthly</button>
+                            <button
+                                onClick={() => setGlobalCycle('annual')}
+                                className={cn(
+                                    "px-4 py-2 text-xs uppercase font-black tracking-widest rounded-md transition-colors",
+                                    globalCycle === 'annual' ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+                                )}
+                            >Annual <span className="text-emerald-400/80 ml-1">-17%</span></button>
+                        </div>
+                    </div>
+                    {renderServiceTable('compute')}
+                    {renderServiceTable('database')}
+                    {renderServiceTable('n8n')}
+                </div>
+
                 <Card className="bg-card border-border">
                     <CardContent className="p-8">
-                        <h3 className="text-xl font-semibold mb-6">Subscriptions</h3>
+                        <h3 className="text-xl font-semibold mb-6">Your Subscriptions</h3>
                         <div className="flex flex-col gap-4">
                             {subscriptions.map((sub) => (
                                 <div key={sub.id} className="flex items-center justify-between p-6 bg-muted-foreground/5 border border-border hover:border-primary/20 transition-all">
