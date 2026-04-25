@@ -92,7 +92,7 @@ export default function GitIntegrationsPage() {
             title: `Disconnect ${provider === 'GITHUB' ? 'GitHub' : 'GitLab'}?`,
             message: `Are you sure you want to disconnect your ${provider === 'GITHUB' ? 'GitHub' : 'GitLab'} account? Any active services using this integration may be affected.`,
             confirmText: "Disconnect",
-            variant: "destructive",
+            type: "warning",
             onConfirm: async () => {
                 try {
                     const token = getAccessToken();
