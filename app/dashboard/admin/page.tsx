@@ -23,6 +23,12 @@ import {
     XCircle,
     ArrowLeft,
     ChevronRight,
+    Search,
+    Wrench,
+    Trash2,
+    Settings,
+    Eye,
+    EyeOff,
 } from "lucide-react";
 import {
     Table,
@@ -38,6 +44,22 @@ import { Separator } from "@/components/ui/separator";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from "@/components/ui/breadcrumb";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useDashboard } from "@/app/dashboard/layout";
 import { redirect } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -48,6 +70,13 @@ interface AdminStats {
     totalRevenue: number;
     totalUsers: number;
     activeSubscriptions: number;
+    mrrCents: number;
+    arrCents: number;
+    trialMrrCents: number;
+    payingCustomers: number;
+    trialingCustomers: number;
+    trialingCount: number;
+    pastDueCount: number;
 }
 
 interface AdminSubscription {
@@ -147,44 +176,49 @@ export default function AdminPage() {
     }
 
     const { adminStats, adminSubscriptions } = data || {
-        adminStats: { totalRevenue: 0, totalSubscribers: 0, activeSubscriptions: 0, totalUsers: 0 },
+        adminStats: {
+            totalRevenue: 0, totalSubscribers: 0, activeSubscriptions: 0, totalUsers: 0,
+            mrrCents: 0, arrCents: 0, trialMrrCents: 0, payingCustomers: 0,
+            trialingCustomers: 0, trialingCount: 0, pastDueCount: 0,
+        },
         adminSubscriptions: [],
     };
 
+    const fmt = (cents: number) => `$${(cents / 100).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     const statsCards = [
         {
-            title: "Total Revenue",
-            value: `$${adminStats.totalRevenue.toLocaleString()}`,
-            description: "Gross revenue from paid plans",
+            title: "MRR",
+            value: fmt(adminStats.mrrCents),
+            description: `From ${adminStats.payingCustomers} paying customer${adminStats.payingCustomers === 1 ? '' : 's'}`,
             icon: DollarSign,
-            trend: "+12.5%",
-            trendUp: true,
+            sub: `${adminStats.activeSubscriptions} active paid sub${adminStats.activeSubscriptions === 1 ? '' : 's'}`,
+            tone: "primary",
         },
         {
-            title: "Subscribers",
-            value: adminStats.totalSubscribers,
-            description: "Unique paid customers",
+            title: "ARR (projected)",
+            value: fmt(adminStats.arrCents),
+            description: "Annual run-rate from active paid subs",
+            icon: TrendingUp,
+            sub: `≈ ${fmt(adminStats.mrrCents * 12)} from MRR × 12`,
+            tone: "emerald",
+        },
+        {
+            title: "Trials Active",
+            value: adminStats.trialingCount,
+            description: `${adminStats.trialingCustomers} unique customer${adminStats.trialingCustomers === 1 ? '' : 's'}`,
             icon: Users,
-            trend: "+3",
-            trendUp: true,
-        },
-        {
-            title: "Active Paid Subs",
-            value: adminStats.activeSubscriptions,
-            description: "Total active paid plans",
-            icon: CreditCard,
-            trend: "+5",
-            trendUp: true,
+            sub: `+${fmt(adminStats.trialMrrCents)} MRR if all convert`,
+            tone: "amber",
         },
         {
             title: "Total Users",
             value: adminStats.totalUsers,
             description: "All registered accounts",
             icon: ShieldCheck,
-            trend: "+24",
-            trendUp: true,
+            sub: `${adminStats.pastDueCount} past-due sub${adminStats.pastDueCount === 1 ? '' : 's'}`,
+            tone: adminStats.pastDueCount > 0 ? "red" : "muted",
         },
-    ];
+    ] as const;
 
     return (
         <>
@@ -199,32 +233,7 @@ export default function AdminPage() {
                     </BreadcrumbList>
                 </Breadcrumb>
                 <div className="flex-1" />
-                <Button onClick={async () => {
-                    if (!confirm('⚠️ This will WIPE ALL compute, database, and n8n instances across every user, including Dokploy containers. Continue?')) return;
-                    try {
-                        const token = (typeof window !== 'undefined') ? localStorage.getItem('access_token') : null;
-                        const GQL_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api-v1/graphql';
-                        const res = await fetch(GQL_URL, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-                            body: JSON.stringify({ query: 'mutation { adminWipeAllInstances { compute database n8n errors } }' }),
-                        });
-                        const result = await res.json();
-                        const w = result.data?.adminWipeAllInstances;
-                        if (w) {
-                            alert(`Wipe complete:\n• Compute: ${w.compute}\n• Database: ${w.database}\n• n8n: ${w.n8n}\n• Errors: ${w.errors.length}${w.errors.length ? '\n\n' + w.errors.slice(0, 5).join('\n') : ''}`);
-                        } else {
-                            alert('Wipe failed: ' + (result.errors?.[0]?.message || 'unknown'));
-                        }
-                    } catch (err) {
-                        alert('Wipe error: ' + (err instanceof Error ? err.message : 'unknown'));
-                    }
-                }} variant="destructive" className="gap-2 mr-2">
-                    Wipe All Instances
-                </Button>
-                <Button render={<Link href="/dashboard/services" />} nativeButton={false} className="gap-2">
-                    <Plus className="size-4" /> New Service
-                </Button>
+                <MaintenanceMenu onRefetch={() => window.location.reload()} />
             </header>
 
             <div className="flex-1 overflow-y-auto p-6">
@@ -233,140 +242,311 @@ export default function AdminPage() {
                     <p className="text-muted-foreground">Infrastructure and revenue control center.</p>
                 </div>
 
+                {adminStats.pastDueCount > 0 && (
+                    <div className="mb-6 p-4 rounded-lg border border-red-500/20 bg-red-500/5 flex items-center gap-3">
+                        <AlertCircle className="size-5 text-red-400 flex-shrink-0" />
+                        <div className="flex-1">
+                            <p className="text-sm font-semibold text-red-300">
+                                {adminStats.pastDueCount} subscription{adminStats.pastDueCount === 1 ? '' : 's'} past due or unpaid.
+                            </p>
+                            <p className="text-xs text-muted-foreground mt-0.5">
+                                Filter the table by status &quot;PAST_DUE&quot; to investigate.
+                            </p>
+                        </div>
+                    </div>
+                )}
+
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
                     {statsCards.map((stat, i) => (
-                        <Card key={i}>
+                        <Card key={i} className={cn(
+                            stat.tone === 'primary' && 'border-primary/20 bg-gradient-to-br from-primary/5 to-transparent',
+                            stat.tone === 'emerald' && 'border-emerald-500/20 bg-gradient-to-br from-emerald-500/5 to-transparent',
+                            stat.tone === 'amber' && 'border-amber-500/20 bg-gradient-to-br from-amber-500/5 to-transparent',
+                            stat.tone === 'red' && 'border-red-500/20 bg-gradient-to-br from-red-500/5 to-transparent',
+                        )}>
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
-                                <stat.icon className="h-4 w-4 text-muted-foreground" />
+                                <CardTitle className="text-xs uppercase font-bold tracking-widest text-muted-foreground">{stat.title}</CardTitle>
+                                <stat.icon className={cn(
+                                    'h-4 w-4',
+                                    stat.tone === 'primary' && 'text-primary',
+                                    stat.tone === 'emerald' && 'text-emerald-400',
+                                    stat.tone === 'amber' && 'text-amber-400',
+                                    stat.tone === 'red' && 'text-red-400',
+                                    stat.tone === 'muted' && 'text-muted-foreground',
+                                )} />
                             </CardHeader>
                             <CardContent>
-                                <div className="text-2xl font-bold">{stat.value}</div>
-                                <p className="text-xs text-muted-foreground">{stat.description}</p>
-                                <div className={cn("text-xs mt-2 flex items-center gap-1", stat.trendUp ? "text-emerald-600" : "text-red-600")}>
-                                    <TrendingUp className="h-3 w-3" />
-                                    {stat.trend}
-                                </div>
+                                <div className="text-3xl font-black tracking-tight tabular-nums">{stat.value}</div>
+                                <p className="text-xs text-muted-foreground mt-1">{stat.description}</p>
+                                <div className="text-[10px] text-muted-foreground/70 mt-2">{stat.sub}</div>
                             </CardContent>
                         </Card>
                     ))}
                 </div>
 
-                <Tabs defaultValue="financial" className="w-full">
+                <Tabs defaultValue="subscriptions" className="w-full">
                     <TabsList className="mb-6">
-                        <TabsTrigger value="financial">Financial Ledger</TabsTrigger>
-                        <TabsTrigger value="users">Registered Users</TabsTrigger>
-                        <TabsTrigger value="affiliates">Affiliates</TabsTrigger>
-                        <TabsTrigger value="withdrawals">Withdrawals</TabsTrigger>
+                        <TabsTrigger value="subscriptions">Subscriptions</TabsTrigger>
+                        <TabsTrigger value="users">Users</TabsTrigger>
+                        <TabsTrigger value="more">More</TabsTrigger>
                     </TabsList>
 
-                    <TabsContent value="financial">
-                        <Card>
-                            <CardHeader className="flex flex-row items-center justify-between">
-                                <div>
-                                    <CardTitle>Financial Ledger</CardTitle>
-                                    <CardDescription>Real-time transaction stream and subscriber status.</CardDescription>
-                                </div>
-                                <Badge variant="secondary">{adminSubscriptions.length} subscriptions</Badge>
-                            </CardHeader>
-                            <CardContent className="p-0">
-                                <div className="overflow-x-auto">
-                                    <Table>
-                                        <TableHeader>
-                                            <TableRow>
-                                                <TableHead>Subscriber</TableHead>
-                                                <TableHead>Auth</TableHead>
-                                                <TableHead>Plan</TableHead>
-                                                <TableHead>Service</TableHead>
-                                                <TableHead>Cycle</TableHead>
-                                                <TableHead>Price</TableHead>
-                                                <TableHead>Status</TableHead>
-                                                <TableHead className="text-right">Date</TableHead>
-                                                <TableHead className="text-right">Time</TableHead>
-                                            </TableRow>
-                                        </TableHeader>
-                                        <TableBody>
-                                            {adminSubscriptions.map((sub) => (
-                                                <TableRow key={sub.id}>
-                                                    <TableCell>
-                                                        <div className="font-medium">{sub.userName}</div>
-                                                        {sub.userEmail !== "N/A" && sub.userEmail && (
-                                                            <div className="text-xs text-muted-foreground">{sub.userEmail}</div>
-                                                        )}
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        <Badge variant="outline">
-                                                            {sub.authProvider === "GOOGLE" ? "Google" : "Local"}
-                                                        </Badge>
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        <Badge variant="secondary">{sub.planName}</Badge>
-                                                    </TableCell>
-                                                    <TableCell className="capitalize text-muted-foreground text-sm">
-                                                        {sub.service || "SYSTEM"}
-                                                    </TableCell>
-                                                    <TableCell className="capitalize text-muted-foreground text-sm">
-                                                        {sub.billingCycle}
-                                                    </TableCell>
-                                                    <TableCell className="font-medium">
-                                                        ${sub.price.toFixed(2)}
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        <div className="flex flex-col gap-1">
-                                                            <Badge
-                                                                variant={sub.status === "ACTIVE" ? "default" : "secondary"}
-                                                                className={cn(
-                                                                    sub.status === "ACTIVE" && "bg-emerald-100 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-900/30 dark:text-emerald-400"
-                                                                )}
-                                                            >
-                                                                {sub.status}
-                                                            </Badge>
-                                                            {sub.isVerified ? (
-                                                                <span className="text-[10px] text-emerald-600 font-medium">Verified</span>
-                                                            ) : (
-                                                                <span className="text-[10px] text-red-600 font-medium">Unverified</span>
-                                                            )}
-                                                        </div>
-                                                    </TableCell>
-                                                    <TableCell className="text-right text-sm text-muted-foreground">
-                                                        {new Date(sub.createdOn).toLocaleDateString(undefined, { day: "2-digit", month: "short", year: "numeric" })}
-                                                    </TableCell>
-                                                    <TableCell className="text-right text-sm text-muted-foreground">
-                                                        {new Date(sub.createdOn).toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit", hour12: true })}
-                                                    </TableCell>
-                                                </TableRow>
-                                            ))}
-                                            {adminSubscriptions.length === 0 && (
-                                                <TableRow>
-                                                    <TableCell colSpan={9} className="text-center py-16 text-muted-foreground">
-                                                        <div className="flex flex-col items-center gap-4">
-                                                            <CreditCard className="h-10 w-10 opacity-20" />
-                                                            <p className="text-sm font-medium">No subscriptions found</p>
-                                                        </div>
-                                                    </TableCell>
-                                                </TableRow>
-                                            )}
-                                        </TableBody>
-                                    </Table>
-                                </div>
-                            </CardContent>
-                        </Card>
+                    <TabsContent value="subscriptions">
+                        <SubscriptionsTab subscriptions={adminSubscriptions} />
                     </TabsContent>
 
                     <TabsContent value="users">
                         <UsersTab />
                     </TabsContent>
 
-                    <TabsContent value="affiliates">
-                        <AffiliatesTab />
-                    </TabsContent>
-
-                    <TabsContent value="withdrawals">
-                        <WithdrawalsTab />
+                    <TabsContent value="more">
+                        <Tabs defaultValue="affiliates" className="w-full">
+                            <TabsList className="mb-4">
+                                <TabsTrigger value="affiliates">Affiliates</TabsTrigger>
+                                <TabsTrigger value="withdrawals">Withdrawals</TabsTrigger>
+                            </TabsList>
+                            <TabsContent value="affiliates">
+                                <AffiliatesTab />
+                            </TabsContent>
+                            <TabsContent value="withdrawals">
+                                <WithdrawalsTab />
+                            </TabsContent>
+                        </Tabs>
                     </TabsContent>
                 </Tabs>
             </div>
         </>
+    );
+}
+
+// ====================================================================
+// Subscriptions tab — filterable, sortable, hides Free/Nexus by default.
+// Replaces the old 'Financial Ledger' which was unusable due to noise.
+// ====================================================================
+
+interface SubscriptionsTabProps {
+    subscriptions: AdminSubscription[];
+}
+
+function SubscriptionsTab({ subscriptions }: SubscriptionsTabProps) {
+    const [statusFilter, setStatusFilter] = React.useState<string>("ALL");
+    const [serviceFilter, setServiceFilter] = React.useState<string>("ALL");
+    const [hideFree, setHideFree] = React.useState(true);
+    const [search, setSearch] = React.useState("");
+
+    const filtered = subscriptions.filter((s) => {
+        if (hideFree && (s.price === 0 || s.service === 'nexus' || s.planName === 'Free Starter')) return false;
+        if (statusFilter !== "ALL" && s.status !== statusFilter) return false;
+        if (serviceFilter !== "ALL" && (s.service || "system").toLowerCase() !== serviceFilter) return false;
+        if (search) {
+            const q = search.toLowerCase();
+            if (!s.userName.toLowerCase().includes(q) && !(s.userEmail || "").toLowerCase().includes(q)) return false;
+        }
+        return true;
+    });
+
+    const monthlyContribution = (s: AdminSubscription): number => {
+        if (s.billingCycle === 'annual') return s.price / 12;
+        return s.price;
+    };
+
+    return (
+        <Card>
+            <CardHeader className="flex flex-col gap-4 pb-4">
+                <div className="flex items-center justify-between flex-wrap gap-4">
+                    <div>
+                        <CardTitle>Subscriptions</CardTitle>
+                        <CardDescription>{filtered.length} of {subscriptions.length} subscriptions shown</CardDescription>
+                    </div>
+                </div>
+                <div className="flex flex-wrap items-center gap-3">
+                    <div className="relative flex-1 min-w-[240px]">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                        <Input
+                            placeholder="Search by name or email..."
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            className="pl-9"
+                        />
+                    </div>
+                    <Select value={statusFilter} onValueChange={(v: string | null) => setStatusFilter(v ?? "ALL")}>
+                        <SelectTrigger className="w-[140px]"><SelectValue placeholder="Status" /></SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="ALL">All status</SelectItem>
+                            <SelectItem value="ACTIVE">Active</SelectItem>
+                            <SelectItem value="TRIALING">Trialing</SelectItem>
+                            <SelectItem value="PAST_DUE">Past Due</SelectItem>
+                            <SelectItem value="CANCELLED">Cancelled</SelectItem>
+                            <SelectItem value="INCOMPLETE">Incomplete</SelectItem>
+                        </SelectContent>
+                    </Select>
+                    <Select value={serviceFilter} onValueChange={(v: string | null) => setServiceFilter(v ?? "ALL")}>
+                        <SelectTrigger className="w-[140px]"><SelectValue placeholder="Service" /></SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="ALL">All services</SelectItem>
+                            <SelectItem value="compute">Compute</SelectItem>
+                            <SelectItem value="database">Database</SelectItem>
+                            <SelectItem value="n8n">n8n</SelectItem>
+                            <SelectItem value="nexus">Nexus (free)</SelectItem>
+                        </SelectContent>
+                    </Select>
+                    <Button variant="outline" size="sm" onClick={() => setHideFree(!hideFree)} className="gap-2">
+                        {hideFree ? <Eye className="size-3.5" /> : <EyeOff className="size-3.5" />}
+                        {hideFree ? "Show free" : "Hide free"}
+                    </Button>
+                </div>
+            </CardHeader>
+            <CardContent className="p-0">
+                <div className="overflow-x-auto">
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Subscriber</TableHead>
+                                <TableHead>Plan</TableHead>
+                                <TableHead>Service</TableHead>
+                                <TableHead className="text-right">MRR</TableHead>
+                                <TableHead>Status</TableHead>
+                                <TableHead className="text-right">Created</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {filtered.map((sub) => {
+                                const isPaying = sub.price > 0 && sub.status === 'ACTIVE';
+                                const isTrial = sub.status === 'TRIALING';
+                                const isPastDue = ['PAST_DUE', 'UNPAID', 'INCOMPLETE'].includes(sub.status);
+                                return (
+                                    <TableRow key={sub.id} className={cn(isPastDue && 'bg-red-500/5')}>
+                                        <TableCell>
+                                            <div className="flex items-center gap-2">
+                                                <div className="font-medium">{sub.userName}</div>
+                                                <Badge variant="outline" className="text-[9px]">{sub.authProvider === "GOOGLE" ? "G" : "Local"}</Badge>
+                                                {!sub.isVerified && (
+                                                    <Badge variant="outline" className="text-[9px] text-amber-500 border-amber-500/30">unverified</Badge>
+                                                )}
+                                            </div>
+                                            {sub.userEmail !== "N/A" && sub.userEmail && (
+                                                <div className="text-xs text-muted-foreground">{sub.userEmail}</div>
+                                            )}
+                                        </TableCell>
+                                        <TableCell>
+                                            <Badge variant="secondary">{sub.planName}</Badge>
+                                            <div className="text-[10px] text-muted-foreground capitalize mt-1">{sub.billingCycle} • ${sub.price.toFixed(2)}</div>
+                                        </TableCell>
+                                        <TableCell className="capitalize text-muted-foreground text-sm">
+                                            {sub.service || "system"}
+                                        </TableCell>
+                                        <TableCell className="text-right tabular-nums font-medium">
+                                            {isPaying ? `$${monthlyContribution(sub).toFixed(2)}` : <span className="text-muted-foreground/50">—</span>}
+                                        </TableCell>
+                                        <TableCell>
+                                            <Badge
+                                                variant={sub.status === "ACTIVE" ? "default" : "secondary"}
+                                                className={cn(
+                                                    sub.status === "ACTIVE" && "bg-emerald-500/15 text-emerald-400 hover:bg-emerald-500/20 border-emerald-500/30",
+                                                    isTrial && "bg-amber-500/15 text-amber-400 hover:bg-amber-500/20 border-amber-500/30",
+                                                    isPastDue && "bg-red-500/15 text-red-400 hover:bg-red-500/20 border-red-500/30",
+                                                )}
+                                            >
+                                                {sub.status}
+                                            </Badge>
+                                        </TableCell>
+                                        <TableCell className="text-right text-xs text-muted-foreground">
+                                            {new Date(sub.createdOn).toLocaleDateString(undefined, { day: "2-digit", month: "short", year: "2-digit" })}
+                                        </TableCell>
+                                    </TableRow>
+                                );
+                            })}
+                            {filtered.length === 0 && (
+                                <TableRow>
+                                    <TableCell colSpan={6} className="text-center py-16 text-muted-foreground">
+                                        <div className="flex flex-col items-center gap-4">
+                                            <CreditCard className="h-10 w-10 opacity-20" />
+                                            <p className="text-sm font-medium">No subscriptions match the current filters.</p>
+                                            <Button variant="outline" size="sm" onClick={() => { setStatusFilter('ALL'); setServiceFilter('ALL'); setHideFree(false); setSearch(''); }}>Clear all filters</Button>
+                                        </div>
+                                    </TableCell>
+                                </TableRow>
+                            )}
+                        </TableBody>
+                    </Table>
+                </div>
+            </CardContent>
+        </Card>
+    );
+}
+
+// ====================================================================
+// MaintenanceMenu — dropdown with destructive admin operations.
+// Centralizes the wipe / clean-orphan operations in one safe place.
+// ====================================================================
+function MaintenanceMenu({ onRefetch }: { onRefetch: () => void }) {
+    const [busy, setBusy] = React.useState<string | null>(null);
+
+    const callMutation = async (mutation: string, label: string, confirmMsg: string) => {
+        if (!confirm(confirmMsg)) return;
+        setBusy(label);
+        try {
+            const token = (typeof window !== 'undefined') ? localStorage.getItem('access_token') : null;
+            const GQL_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api-v1/graphql';
+            const res = await fetch(GQL_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                body: JSON.stringify({ query: mutation }),
+            });
+            const result = await res.json();
+            if (result.errors) {
+                toast.error(`${label} failed: ${result.errors[0].message}`);
+                return;
+            }
+            const data = result.data;
+            const key = Object.keys(data || {})[0];
+            const payload = data?.[key];
+            if (key === 'adminWipeAllInstances') {
+                toast.success(`Wiped: ${payload.compute} compute, ${payload.database} db, ${payload.n8n} n8n${payload.errors.length ? ` (${payload.errors.length} errors)` : ''}`);
+            } else if (key === 'adminCleanOrphanSubscriptions') {
+                toast.success(`Removed ${payload.removed} orphan subscription${payload.removed === 1 ? '' : 's'}`);
+            } else {
+                toast.success(`${label} OK`);
+            }
+            onRefetch();
+        } catch (err) {
+            toast.error(`${label}: ${err instanceof Error ? err.message : 'unknown'}`);
+        } finally {
+            setBusy(null);
+        }
+    };
+
+    return (
+        <DropdownMenu>
+            <DropdownMenuTrigger>
+                <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-md border border-border bg-card hover:bg-muted/40 text-sm font-medium">
+                    {busy ? <Loader2 className="size-3.5 animate-spin" /> : <Wrench className="size-3.5" />}
+                    Maintenance
+                </span>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-64">
+                <DropdownMenuLabel>Cleanup</DropdownMenuLabel>
+                <DropdownMenuItem onClick={() => callMutation(
+                    'mutation { adminCleanOrphanSubscriptions { removed sample } }',
+                    'Clean orphans',
+                    'Remove all subscriptions whose user no longer exists in the database?'
+                )}>
+                    <Trash2 className="size-3.5 mr-2" /> Clean orphan subscriptions
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuLabel className="text-destructive">Destructive</DropdownMenuLabel>
+                <DropdownMenuItem
+                    onClick={() => callMutation(
+                        'mutation { adminWipeAllInstances { compute database n8n errors } }',
+                        'Wipe instances',
+                        '⚠️ This will WIPE ALL compute, database, and n8n instances across every user, including Dokploy containers. This cannot be undone. Continue?'
+                    )}
+                    className="text-destructive focus:text-destructive"
+                >
+                    <Trash2 className="size-3.5 mr-2" /> Wipe all instances
+                </DropdownMenuItem>
+            </DropdownMenuContent>
+        </DropdownMenu>
     );
 }
 

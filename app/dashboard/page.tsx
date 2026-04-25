@@ -62,10 +62,7 @@ export default function DashboardPage() {
                                     </Link>
                                     <h3 className="text-xl font-bold mb-2">No deployed clusters</h3>
                                     <p className="text-muted-foreground max-w-sm mb-6">You have active subscriptions but no deployed instances yet. Go to a service console to deploy your first cluster.</p>
-                                    <Button render={<Link href="/dashboard/services" />} nativeButton={false} className="gap-2 mb-4">
-                                        <Plus className="size-4" /> New Service
-                                    </Button>
-                                    <div className="flex gap-3">
+                                    <div className="flex flex-wrap gap-3 justify-center">
                                         {(isSuperuser || subscriptions.some(s => s.service === 'database')) && (
                                             <Button render={<Link href="/dashboard/databases" />} nativeButton={false} variant="outline">Deploy Database</Button>
                                         )}

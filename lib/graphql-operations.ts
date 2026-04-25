@@ -507,6 +507,13 @@ export const GET_ADMIN_DATA = gql`
             totalRevenue
             totalUsers
             activeSubscriptions
+            mrrCents
+            arrCents
+            trialMrrCents
+            payingCustomers
+            trialingCustomers
+            trialingCount
+            pastDueCount
         }
         adminSubscriptions {
             id
