@@ -1,11 +1,15 @@
 "use client"
 
-import React from "react"
+import React, { useEffect, useState, useCallback } from "react"
 import Link from "next/link"
 import {
     Database,
     Cpu,
-    Plus
+    Plus,
+    Activity,
+    Users,
+    UserPlus,
+    Workflow,
 } from "lucide-react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
@@ -20,13 +24,77 @@ import {
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { cn } from "@/lib/utils"
 import { useDashboard } from "./layout"
+import { getAccessToken } from "@/lib/auth-utils"
+
+interface WorkspaceMemberLite {
+    user_id: string
+    role: string
+    name?: string
+    email?: string
+    avatar?: string
+}
+
+interface WorkspaceLite {
+    _id: string
+    name: string
+    owner_id: string
+    members: WorkspaceMemberLite[]
+}
+
+const GQL_URL = process.env.NEXT_PUBLIC_API_URL || "https://backend.nexode.app/api-v1/graphql"
 
 export default function DashboardPage() {
     const { user, subscriptions, deployedInstances } = useDashboard()
     // Only superusers bypass subscription checks for showing "create" CTAs.
-    // Admins see create CTAs only for services they actually have a subscription for
-    // (n8n by default via seeded free tier; compute/database only after payment).
     const isSuperuser = user?.role?.slug === "superuser"
+
+    const [workspace, setWorkspace] = useState<WorkspaceLite | null>(null)
+
+    const fetchWorkspace = useCallback(async () => {
+        try {
+            const token = getAccessToken()
+            if (!token) return
+            const res = await fetch(GQL_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+                body: JSON.stringify({
+                    query: `query DashWorkspace {
+                        getMyWorkspaces {
+                            _id name owner_id
+                            members { user_id role name email avatar }
+                        }
+                    }`,
+                }),
+            })
+            const json = await res.json()
+            const ws = json?.data?.getMyWorkspaces?.[0] ?? null
+            setWorkspace(ws)
+        } catch {
+            /* silent — workspace is a nice-to-have on this page */
+        }
+    }, [])
+
+    useEffect(() => { fetchWorkspace() }, [fetchWorkspace])
+
+    // Aggregate stats from the deployed instances we already have in context.
+    const totalInstances = deployedInstances.length
+    const runningInstances = deployedInstances.filter(i => (i.status || '').toLowerCase() === 'running').length
+    const provisioningInstances = deployedInstances.filter(i => {
+        const s = (i.status || '').toLowerCase()
+        return s === 'provisioning' || s === 'restarting' || s === 'pending'
+    }).length
+    const failedInstances = deployedInstances.filter(i => {
+        const s = (i.status || '').toLowerCase()
+        return s === 'failed' || s === 'error'
+    }).length
+
+    const computeCount = deployedInstances.filter(i => i.service === 'compute').length
+    const databaseCount = deployedInstances.filter(i => i.service === 'database').length
+    const n8nCount = deployedInstances.filter(i => i.service === 'n8n').length
+
+    const members = workspace?.members ?? []
+    const owner = members.find(m => m.role === 'owner')
+    const nonOwnerMembers = members.filter(m => m.role !== 'owner')
 
     return (
         <>
@@ -50,6 +118,145 @@ export default function DashboardPage() {
                 <div className="flex flex-col gap-2 mb-8">
                     <h1 className="text-2xl font-bold tracking-tight">System Overview</h1>
                     <p className="text-muted-foreground">Monitor and manage your active cloud resources.</p>
+                </div>
+
+                {/* Stats row: Instances Running headline + service breakdown + workspace members card */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                    {/* Hero: Instances Running */}
+                    <Card className="relative overflow-hidden border-emerald-500/20 bg-gradient-to-br from-emerald-500/10 via-emerald-500/5 to-transparent">
+                        {/* Decorative scanline / pulse — the "rayito bonito" */}
+                        <div className="pointer-events-none absolute inset-0 opacity-40">
+                            <div className="absolute -inset-1 bg-[radial-gradient(circle_at_top_right,theme(colors.emerald.500/0.25),transparent_60%)]" />
+                            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-emerald-400 to-transparent animate-pulse" />
+                        </div>
+                        <CardContent className="relative p-6">
+                            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-emerald-400/80 mb-3">
+                                <Activity className="size-3.5" />
+                                Instances Running
+                            </div>
+                            <div className="flex items-baseline gap-2 mb-4">
+                                <div className="text-5xl font-black tabular-nums text-emerald-400 drop-shadow-[0_0_8px_rgba(16,185,129,0.35)]">
+                                    {runningInstances}
+                                </div>
+                                <div className="text-sm text-muted-foreground">/ {totalInstances} total</div>
+                            </div>
+                            <div className="flex flex-wrap items-center gap-3 text-xs">
+                                {provisioningInstances > 0 && (
+                                    <span className="inline-flex items-center gap-1.5 text-amber-400">
+                                        <span className="size-1.5 rounded-full bg-amber-500 animate-pulse" />
+                                        {provisioningInstances} provisioning
+                                    </span>
+                                )}
+                                {failedInstances > 0 && (
+                                    <span className="inline-flex items-center gap-1.5 text-red-400">
+                                        <span className="size-1.5 rounded-full bg-red-500" />
+                                        {failedInstances} failed
+                                    </span>
+                                )}
+                                {provisioningInstances === 0 && failedInstances === 0 && totalInstances > 0 && (
+                                    <span className="inline-flex items-center gap-1.5 text-muted-foreground">
+                                        <span className="size-1.5 rounded-full bg-emerald-500" />
+                                        All systems nominal
+                                    </span>
+                                )}
+                                {totalInstances === 0 && (
+                                    <span className="text-muted-foreground">No clusters deployed yet</span>
+                                )}
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    {/* Service breakdown */}
+                    <Card className="bg-card border-border">
+                        <CardContent className="p-6">
+                            <div className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-4">By Service</div>
+                            <div className="space-y-3">
+                                <Link href="/dashboard/compute" className="flex items-center justify-between rounded-md p-2 -mx-2 hover:bg-muted/50 transition">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-8 h-8 rounded bg-primary/10 border border-primary/20 flex items-center justify-center">
+                                            <Cpu className="size-4 text-primary" />
+                                        </div>
+                                        <span className="text-sm font-medium">Compute</span>
+                                    </div>
+                                    <span className="text-lg font-black tabular-nums">{computeCount}</span>
+                                </Link>
+                                <Link href="/dashboard/databases" className="flex items-center justify-between rounded-md p-2 -mx-2 hover:bg-muted/50 transition">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-8 h-8 rounded bg-purple-500/10 border border-purple-500/20 flex items-center justify-center">
+                                            <Database className="size-4 text-purple-400" />
+                                        </div>
+                                        <span className="text-sm font-medium">Databases</span>
+                                    </div>
+                                    <span className="text-lg font-black tabular-nums">{databaseCount}</span>
+                                </Link>
+                                <Link href="/dashboard/automations" className="flex items-center justify-between rounded-md p-2 -mx-2 hover:bg-muted/50 transition">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-8 h-8 rounded bg-red-500/10 border border-red-500/20 flex items-center justify-center">
+                                            <Workflow className="size-4 text-red-400" />
+                                        </div>
+                                        <span className="text-sm font-medium">n8n</span>
+                                    </div>
+                                    <span className="text-lg font-black tabular-nums">{n8nCount}</span>
+                                </Link>
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    {/* Workspace members */}
+                    <Card className="bg-card border-border">
+                        <CardContent className="p-6">
+                            <div className="flex items-center justify-between mb-4">
+                                <div className="text-xs font-bold uppercase tracking-widest text-muted-foreground inline-flex items-center gap-2">
+                                    <Users className="size-3.5" />
+                                    Workspace
+                                </div>
+                                <Button
+                                    render={<Link href="/dashboard/workspace" />}
+                                    nativeButton={false}
+                                    size="sm"
+                                    variant="outline"
+                                    className="h-7 gap-1 text-xs"
+                                >
+                                    <UserPlus className="size-3.5" /> Invitar
+                                </Button>
+                            </div>
+
+                            {workspace ? (
+                                <>
+                                    <div className="text-sm font-bold mb-3 truncate">{workspace.name}</div>
+                                    {members.length > 0 ? (
+                                        <div className="space-y-2">
+                                            {[owner, ...nonOwnerMembers].filter(Boolean).slice(0, 4).map((m) => (
+                                                <div key={m!.user_id} className="flex items-center gap-2.5">
+                                                    <div className="size-7 rounded-full bg-muted overflow-hidden flex items-center justify-center text-xs font-bold uppercase shrink-0">
+                                                        {m!.avatar ? (
+                                                            // eslint-disable-next-line @next/next/no-img-element
+                                                            <img src={m!.avatar} alt={m!.name || ''} className="size-full object-cover" />
+                                                        ) : (
+                                                            (m!.name || m!.email || '?').charAt(0)
+                                                        )}
+                                                    </div>
+                                                    <div className="min-w-0 flex-1">
+                                                        <div className="text-xs font-medium truncate">{m!.name || m!.email || 'Member'}</div>
+                                                        <div className="text-[10px] text-muted-foreground uppercase tracking-wide">{m!.role}</div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                            {members.length > 4 && (
+                                                <Link href="/dashboard/workspace" className="block pt-2 text-xs text-muted-foreground hover:text-foreground transition">
+                                                    +{members.length - 4} more…
+                                                </Link>
+                                            )}
+                                        </div>
+                                    ) : (
+                                        <p className="text-xs text-muted-foreground">No members yet.</p>
+                                    )}
+                                </>
+                            ) : (
+                                <p className="text-xs text-muted-foreground">Loading workspace…</p>
+                            )}
+                        </CardContent>
+                    </Card>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
