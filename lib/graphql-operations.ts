@@ -329,7 +329,7 @@ export const CREATE_N8N_INSTANCE = gql`
 `;
 
 export const RESTART_N8N_INSTANCE = gql`
-    mutation RestartN8nInstance($id: String!) {
+    mutation RestartN8nInstance($id: ID!) {
         restartN8nInstance(id: $id) {
             _id
             status
@@ -338,7 +338,7 @@ export const RESTART_N8N_INSTANCE = gql`
 `;
 
 export const DELETE_N8N_INSTANCE = gql`
-    mutation DeleteN8nInstance($id: String!) {
+    mutation DeleteN8nInstance($id: ID!) {
         deleteN8nInstance(id: $id)
     }
 `;
@@ -399,7 +399,7 @@ export const CREATE_COMPUTE_INSTANCE = gql`
 `;
 
 export const RESTART_COMPUTE_INSTANCE = gql`
-    mutation RestartComputeInstance($id: String!) {
+    mutation RestartComputeInstance($id: ID!) {
         restartComputeInstance(id: $id) {
             _id
             status
@@ -408,19 +408,19 @@ export const RESTART_COMPUTE_INSTANCE = gql`
 `;
 
 export const DELETE_COMPUTE_INSTANCE = gql`
-    mutation DeleteComputeInstance($id: String!) {
+    mutation DeleteComputeInstance($id: ID!) {
         deleteComputeInstance(id: $id)
     }
 `;
 
 export const EXECUTE_COMPUTE_COMMAND = gql`
-    mutation ExecuteComputeCommand($id: String!, $command: String!) {
+    mutation ExecuteComputeCommand($id: ID!, $command: String!) {
         executeComputeCommand(id: $id, command: $command)
     }
 `;
 
 export const UPDATE_COMPUTE_AUTO_DEPLOY = gql`
-    mutation UpdateComputeAutoDeploy($id: String!, $enabled: Boolean!) {
+    mutation UpdateComputeAutoDeploy($id: ID!, $enabled: Boolean!) {
         updateComputeAutoDeploy(id: $id, enabled: $enabled) {
             _id
             auto_deploy_on_push
@@ -429,7 +429,7 @@ export const UPDATE_COMPUTE_AUTO_DEPLOY = gql`
 `;
 
 export const UPDATE_COMPUTE_ENV = gql`
-    mutation UpdateComputeEnv($id: String!, $env_content: String!) {
+    mutation UpdateComputeEnv($id: ID!, $env_content: String!) {
         updateComputeEnvContent(id: $id, env_content: $env_content) {
             _id
         }

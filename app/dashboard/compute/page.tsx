@@ -1092,7 +1092,7 @@ function ComputePageContent() {
                                                                             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                                                                             credentials: 'include',
                                                                             body: JSON.stringify({
-                                                                                query: `mutation UpdateDomain($id: String!, $custom_domain: String!) { updateComputeCustomDomain(id: $id, custom_domain: $custom_domain) { _id custom_domain } }`,
+                                                                                query: `mutation UpdateDomain($id: ID!, $custom_domain: String!) { updateComputeCustomDomain(id: $id, custom_domain: $custom_domain) { _id custom_domain } }`,
                                                                                 variables: { id: selectedInstance._id, custom_domain: domain },
                                                                             }),
                                                                         });

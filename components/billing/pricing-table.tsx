@@ -45,7 +45,16 @@ export const SERVICE_CONFIG: Record<string, ServiceTableConfig> = {
             { key: "type", label: "TYPE" },
             { key: "ram", label: "RAM" },
             { key: "cpu", label: "CPU" },
-            { key: "storage_mb", label: "STORAGE", format: (v) => v ? `${v} MB` : "-" },
+            {
+                key: "storage_mb",
+                label: "STORAGE",
+                format: (v) => {
+                    if (v == null) return "-";
+                    const mb = Number(v);
+                    if (!Number.isFinite(mb) || mb <= 0) return "-";
+                    return mb >= 1024 ? `${mb / 1024} GB` : `${mb} MB`;
+                },
+            },
         ],
     },
     database: {
