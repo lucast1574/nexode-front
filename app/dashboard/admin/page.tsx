@@ -199,6 +199,29 @@ export default function AdminPage() {
                     </BreadcrumbList>
                 </Breadcrumb>
                 <div className="flex-1" />
+                <Button onClick={async () => {
+                    if (!confirm('⚠️ This will WIPE ALL compute, database, and n8n instances across every user, including Dokploy containers. Continue?')) return;
+                    try {
+                        const token = (typeof window !== 'undefined') ? localStorage.getItem('access_token') : null;
+                        const GQL_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api-v1/graphql';
+                        const res = await fetch(GQL_URL, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                            body: JSON.stringify({ query: 'mutation { adminWipeAllInstances { compute database n8n errors } }' }),
+                        });
+                        const result = await res.json();
+                        const w = result.data?.adminWipeAllInstances;
+                        if (w) {
+                            alert(`Wipe complete:\n• Compute: ${w.compute}\n• Database: ${w.database}\n• n8n: ${w.n8n}\n• Errors: ${w.errors.length}${w.errors.length ? '\n\n' + w.errors.slice(0, 5).join('\n') : ''}`);
+                        } else {
+                            alert('Wipe failed: ' + (result.errors?.[0]?.message || 'unknown'));
+                        }
+                    } catch (err) {
+                        alert('Wipe error: ' + (err instanceof Error ? err.message : 'unknown'));
+                    }
+                }} variant="destructive" className="gap-2 mr-2">
+                    Wipe All Instances
+                </Button>
                 <Button render={<Link href="/dashboard/services" />} nativeButton={false} className="gap-2">
                     <Plus className="size-4" /> New Service
                 </Button>

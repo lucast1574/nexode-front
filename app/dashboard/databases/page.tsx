@@ -38,6 +38,9 @@ import { DeleteDatabaseModal } from "@/components/modals/DeleteDatabaseModal";
 import { SubscriptionLimitModal } from "@/components/modals/SubscriptionLimitModal";
 import { useModal } from "@/components/ui/modal";
 import { useActionLock } from "@/lib/use-action-lock";
+import { TierPicker } from "@/components/billing/tier-picker";
+import { UpgradeDialog } from "@/components/billing/upgrade-dialog";
+import type { PricingPlan } from "@/components/billing/pricing-table";
 
 interface DatabaseInstance {
     _id: string;
@@ -112,6 +115,9 @@ export default function DatabasesPage() {
     const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
     const [selectedDb, setSelectedDb] = useState<DatabaseInstance | null>(null);
     const [showCreateModal, setShowCreateModal] = useState(false);
+    const [availablePlans, setAvailablePlans] = useState<PricingPlan[]>([]);
+    const [selectedTier, setSelectedTier] = useState<string>('');
+    const [upgradeRequest, setUpgradeRequest] = useState<{ subId: string; toSlug: string } | null>(null);
     const [showLimitModal, setShowLimitModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [dbToDelete, setDbToDelete] = useState<DatabaseInstance | null>(null);
@@ -133,6 +139,40 @@ export default function DatabasesPage() {
     useEffect(() => {
         selectedDbIdRef.current = selectedDb?._id || null;
     }, [selectedDb?._id]);
+
+    // Load available plans for the TierPicker (loaded lazily, once per session).
+    useEffect(() => {
+        if (!showCreateModal || availablePlans.length > 0) return;
+        const load = async () => {
+            try {
+                const token = getAccessToken();
+                const GQL_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api-v1/graphql";
+                if (!token) return;
+                const res = await fetch(GQL_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+                    body: JSON.stringify({ query: `query { availablePlans { id name slug service price_monthly price_annual features } }` }),
+                });
+                const result = await res.json();
+                setAvailablePlans(result.data?.availablePlans || []);
+            } catch { /* ignore */ }
+        };
+        load();
+    }, [showCreateModal, availablePlans.length]);
+
+    // Default tier selection: user's current sub, or cheapest tier for superusers/no-sub.
+    useEffect(() => {
+        if (selectedTier || availablePlans.length === 0) return;
+        const dbSub = subscriptions.find(s => s.service === 'database');
+        if (dbSub?.plan?.slug) {
+            setSelectedTier(dbSub.plan.slug);
+        } else {
+            const cheapest = availablePlans
+                .filter(p => p.service === 'database' && p.price_monthly > 0)
+                .sort((a, b) => a.price_monthly - b.price_monthly)[0];
+            if (cheapest) setSelectedTier(cheapest.slug);
+        }
+    }, [availablePlans, subscriptions, selectedTier]);
 
     const fetchDatabases = useCallback(async () => {
         try {
@@ -261,7 +301,7 @@ export default function DatabasesPage() {
             return;
         }
 
-        const plan_slug = dbPlan?.plan?.slug || 'db-tier-1';
+        const plan_slug = selectedTier || dbPlan?.plan?.slug || 'database-basic';
 
         if (name.length < 3) {
             showAlert({
@@ -962,6 +1002,26 @@ export default function DatabasesPage() {
                     </DialogHeader>
                     <form onSubmit={handleCreateDb}>
                         <FieldGroup>
+                            {availablePlans.length > 0 && (
+                                <div className="p-4 rounded-lg border border-border bg-muted/20">
+                                    <TierPicker
+                                        service="database"
+                                        availablePlans={availablePlans}
+                                        ownedSlugs={subscriptions.filter(s => s.service === 'database').map(s => s.plan?.slug || '')}
+                                        isSuperuser={isSuperuser}
+                                        value={selectedTier}
+                                        onChange={setSelectedTier}
+                                        onUpgrade={(fromSlug, toSlug) => {
+                                            const sub = subscriptions.find(s => s.service === 'database' && s.plan?.slug === fromSlug);
+                                            if (sub) setUpgradeRequest({ subId: sub.id, toSlug });
+                                        }}
+                                        onSubscribe={() => {
+                                            window.location.href = '/dashboard/billing#available-plans';
+                                        }}
+                                        label="Database tier for this instance"
+                                    />
+                                </div>
+                            )}
                             <Field>
                                 <FieldLabel htmlFor="db-name">Instance Name</FieldLabel>
                                 <Input id="db-name" name="name" required placeholder="e.g. Production Cluster" />
@@ -1024,6 +1084,19 @@ export default function DatabasesPage() {
                     </form>
                 </DialogContent>
             </Dialog>
+            {upgradeRequest && (
+                <UpgradeDialog
+                    open={!!upgradeRequest}
+                    onClose={() => setUpgradeRequest(null)}
+                    subscriptionId={upgradeRequest.subId}
+                    newPlanSlug={upgradeRequest.toSlug}
+                    newCycle="monthly"
+                    onSuccess={() => {
+                        setSelectedTier(upgradeRequest.toSlug);
+                        setUpgradeRequest(null);
+                    }}
+                />
+            )}
             <DeleteDatabaseModal
                 isOpen={showDeleteModal}
                 onClose={() => {

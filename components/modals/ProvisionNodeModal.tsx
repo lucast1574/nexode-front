@@ -32,6 +32,9 @@ import { cn } from "@/lib/utils";
 import { getAccessToken } from "@/lib/auth-utils";
 import { useModal } from "@/components/ui/modal";
 import { Subscription } from "@/app/dashboard/layout";
+import { TierPicker } from "@/components/billing/tier-picker";
+import { UpgradeDialog } from "@/components/billing/upgrade-dialog";
+import type { PricingPlan } from "@/components/billing/pricing-table";
 
 interface User {
     first_name: string;
@@ -93,6 +96,9 @@ export function ProvisionNodeModal({
     const [port, setPort] = useState<number | ''>('');
     const [healthPath, setHealthPath] = useState('');
     const [showAdvanced, setShowAdvanced] = useState(false);
+    const [availablePlans, setAvailablePlans] = useState<PricingPlan[]>([]);
+    const [selectedTier, setSelectedTier] = useState<string>('');
+    const [upgradeRequest, setUpgradeRequest] = useState<{ subId: string; toSlug: string } | null>(null);
 
     const id = useId();
     const { showAlert } = useModal();
@@ -255,6 +261,39 @@ export function ProvisionNodeModal({
         setStep(1);
     };
 
+    // Fetch available plans (for the TierPicker) on first open.
+    useEffect(() => {
+        if (!isOpen || availablePlans.length > 0) return;
+        const load = async () => {
+            try {
+                const token = getAccessToken();
+                const GQL_URL = process.env.NEXT_PUBLIC_API_URL || "https://backend.nexode.app/api-v1/graphql";
+                const res = await fetch(GQL_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", Authorization: token ? `Bearer ${token}` : "" },
+                    body: JSON.stringify({ query: `query { availablePlans { id name slug service price_monthly price_annual features } }` }),
+                });
+                const result = await res.json();
+                setAvailablePlans(result.data?.availablePlans || []);
+            } catch { /* ignore */ }
+        };
+        load();
+    }, [isOpen, availablePlans.length]);
+
+    // Default tier selection: user's first compute sub, or cheapest tier (basic) for superusers.
+    useEffect(() => {
+        if (selectedTier || availablePlans.length === 0) return;
+        const computeSub = subscriptions.find(s => s.service === 'compute');
+        if (computeSub?.plan?.slug) {
+            setSelectedTier(computeSub.plan.slug);
+        } else {
+            const cheapest = availablePlans
+                .filter(p => p.service === 'compute' && p.price_monthly > 0)
+                .sort((a, b) => a.price_monthly - b.price_monthly)[0];
+            if (cheapest) setSelectedTier(cheapest.slug);
+        }
+    }, [availablePlans, subscriptions, selectedTier]);
+
     const handleCreateInstance = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         console.log("[ProvisionNode] Submitting form...", { instanceName, instanceType, formProvider, selectedRepo });
@@ -275,7 +314,7 @@ export function ProvisionNodeModal({
             provider: formProvider,
             repository_url: selectedRepo?.url || '',
             branch: selectedBranch || selectedRepo?.default_branch || 'main',
-            plan_slug: computeSub?.plan?.slug || 'compute-basic',
+            plan_slug: selectedTier || computeSub?.plan?.slug || 'compute-basic',
             custom_domain: customDomainInput || undefined,
             runtime,
             port: port === '' ? undefined : Number(port),
@@ -336,6 +375,7 @@ export function ProvisionNodeModal({
     const canSubmit = instanceName.trim().length > 0 && selectedRepo !== null;
 
     return (
+        <>
         <Dialog open={isOpen} onOpenChange={(open: boolean) => { if (!open) handleClose(); }}>
             <DialogContent className="sm:max-w-lg" showCloseButton>
                 <DialogHeader>
@@ -576,6 +616,27 @@ export function ProvisionNodeModal({
 
                         {step === 2 && (
                             <div className="space-y-4 ">
+                                {/* Tier picker — superusers, multi-sub users, and new subscribers all see this. */}
+                                {availablePlans.length > 0 && (
+                                    <div className="p-4 rounded-lg border border-border bg-muted/20">
+                                        <TierPicker
+                                            service="compute"
+                                            availablePlans={availablePlans}
+                                            ownedSlugs={subscriptions.filter(s => s.service === 'compute').map(s => s.plan?.slug || '')}
+                                            isSuperuser={isSuperuser}
+                                            value={selectedTier}
+                                            onChange={setSelectedTier}
+                                            onUpgrade={(fromSlug, toSlug) => {
+                                                const sub = subscriptions.find(s => s.service === 'compute' && s.plan?.slug === fromSlug);
+                                                if (sub) setUpgradeRequest({ subId: sub.id, toSlug });
+                                            }}
+                                            onSubscribe={() => {
+                                                window.location.href = '/dashboard/billing#available-plans';
+                                            }}
+                                            label="Compute tier for this instance"
+                                        />
+                                    </div>
+                                )}
                                 <Field>
                                     <FieldLabel htmlFor="instance-name">Instance Name</FieldLabel>
                                     <Input
@@ -726,5 +787,19 @@ export function ProvisionNodeModal({
                 </form>
             </DialogContent>
         </Dialog>
+        {upgradeRequest && (
+            <UpgradeDialog
+                open={!!upgradeRequest}
+                onClose={() => setUpgradeRequest(null)}
+                subscriptionId={upgradeRequest.subId}
+                newPlanSlug={upgradeRequest.toSlug}
+                newCycle="monthly"
+                onSuccess={() => {
+                    setSelectedTier(upgradeRequest.toSlug);
+                    setUpgradeRequest(null);
+                }}
+            />
+        )}
+        </>
     );
 }
