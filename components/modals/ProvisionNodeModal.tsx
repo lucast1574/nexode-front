@@ -93,6 +93,9 @@ export function ProvisionNodeModal({
     const [instanceType, setInstanceType] = useState('FRONTEND');
     const [selectedBranch, setSelectedBranch] = useState('');
     const [runtime, setRuntime] = useState('node');
+    // The Internal Port input was removed from the UI; the value is still tracked
+    // internally so the runtime selector can default it (and is sent on submit
+    // so the backend Traefik rule binds to the right container port).
     const [port, setPort] = useState<number | ''>('');
     const [healthPath, setHealthPath] = useState('');
     const [showAdvanced, setShowAdvanced] = useState(false);
@@ -725,41 +728,31 @@ export function ProvisionNodeModal({
 
                                 {showAdvanced && (
                                     <div className="space-y-4 ">
-                                        <div className="rounded-md border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-200">
-                                            ⚠️ Tu app debe escuchar en el <strong>puerto 3000 (frontend)</strong> o <strong>4000 (backend)</strong>. Si usas otro puerto, la instancia no responderá.
-                                        </div>
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <Field>
-                                                <FieldLabel htmlFor="port">Internal Port</FieldLabel>
-                                                <Input
-                                                    id="port"
-                                                    type="number"
-                                                    placeholder={instanceType === 'FRONTEND' ? '3000' : '4000'}
-                                                    value={port}
-                                                    onChange={(e) => setPort(e.target.value === '' ? '' : Number(e.target.value))}
-                                                />
-                                            </Field>
-                                            <Field>
-                                                <FieldLabel htmlFor="health-path">Health Check Path</FieldLabel>
-                                                <Input
-                                                    id="health-path"
-                                                    placeholder="/health"
-                                                    value={healthPath}
-                                                    onChange={(e) => setHealthPath(e.target.value)}
-                                                />
-                                            </Field>
-                                        </div>
+                                        <Field>
+                                            <FieldLabel htmlFor="health-path">Health Check Path</FieldLabel>
+                                            <Input
+                                                id="health-path"
+                                                placeholder="/health"
+                                                value={healthPath}
+                                                onChange={(e) => setHealthPath(e.target.value)}
+                                            />
+                                        </Field>
                                         {customDomainInput.trim().length > 0 && (
-                                            <div className="grid grid-cols-2 gap-4">
-                                                <Field>
-                                                    <FieldLabel htmlFor="auth-user">Basic Auth Username</FieldLabel>
-                                                    <Input id="auth-user" name="auth_user" placeholder="admin" />
-                                                </Field>
-                                                <Field>
-                                                    <FieldLabel htmlFor="auth-pass">Access Key</FieldLabel>
-                                                    <Input id="auth-pass" name="auth_pass" type="password" placeholder="••••••••" />
-                                                </Field>
-                                            </div>
+                                            <>
+                                                <div className="text-xs text-muted-foreground">
+                                                    Protege tu dominio con Basic Auth (opcional). Déjalo en blanco para acceso público.
+                                                </div>
+                                                <div className="grid grid-cols-2 gap-4">
+                                                    <Field>
+                                                        <FieldLabel htmlFor="auth-user">Basic Auth Username</FieldLabel>
+                                                        <Input id="auth-user" name="auth_user" placeholder="admin" autoComplete="off" />
+                                                    </Field>
+                                                    <Field>
+                                                        <FieldLabel htmlFor="auth-pass">Access Key</FieldLabel>
+                                                        <Input id="auth-pass" name="auth_pass" type="password" placeholder="••••••••" autoComplete="new-password" />
+                                                    </Field>
+                                                </div>
+                                            </>
                                         )}
                                     </div>
                                 )}

@@ -58,6 +58,7 @@ interface ComputeInstance {
     ram_limit: number;
     custom_domain?: string;
     generated_domain?: string;
+    basic_auth_user?: string;
     created_on: string;
     env_content?: string;
     runtime?: string;
@@ -119,6 +120,10 @@ function ComputePageContent() {
     const [logsLoading, setLogsLoading] = useState(false);
     const [deploymentsLoading, setDeploymentsLoading] = useState(false);
     const [expandedDeploymentId, setExpandedDeploymentId] = useState<string | null>(null);
+    const [customDomainDraft, setCustomDomainDraft] = useState('');
+    const [authUserDraft, setAuthUserDraft] = useState('');
+    const [authPassDraft, setAuthPassDraft] = useState('');
+    const [savingDomain, setSavingDomain] = useState(false);
     const [restarting, setRestarting] = useState<boolean>(false);
     const [cooldown, setCooldown] = useState<number>(0);
     const [cooldownId, setCooldownId] = useState<string | null>(null);
@@ -146,7 +151,7 @@ function ComputePageContent() {
                     }
                     mySubscriptions { id service status plan { name slug features } }
                     myComputeInstances {
-                        _id name type provider repository_url branch status auto_deploy_on_push env_content cpu_limit ram_limit custom_domain generated_domain created_on
+                        _id name type provider repository_url branch status auto_deploy_on_push env_content cpu_limit ram_limit custom_domain generated_domain basic_auth_user created_on
                         logs
                         events { timestamp message type }
                     }
@@ -373,6 +378,15 @@ function ComputePageContent() {
             setEnvDraft('');
         }
     }, [selectedInstance]);
+
+    // Reset custom-domain draft fields when the user opens a different instance.
+    useEffect(() => {
+        setCustomDomainDraft(selectedInstance?.custom_domain ?? '');
+        // Auth user is shown back so the user knows it's protected; password is
+        // never sent down (we only have its hash on Traefik).
+        setAuthUserDraft((selectedInstance as any)?.basic_auth_user ?? '');
+        setAuthPassDraft('');
+    }, [selectedInstance?._id, selectedInstance?.custom_domain]);
 
     const handleCopy = (text: string, field: string) => {
         navigator.clipboard.writeText(text);
@@ -1205,9 +1219,8 @@ function ComputePageContent() {
                                                                 </div>
                                                                 <form onSubmit={async (e) => {
                                                                     e.preventDefault();
-                                                                    const formData = new FormData(e.currentTarget);
-                                                                    const domain = (formData.get('custom_domain') as string)?.trim();
-                                                                    if (!domain) return;
+                                                                    const domain = customDomainDraft.trim().toLowerCase();
+                                                                    setSavingDomain(true);
                                                                     try {
                                                                         const token = getAccessToken();
                                                                         const GQL_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api-v1/graphql';
@@ -1216,28 +1229,69 @@ function ComputePageContent() {
                                                                             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                                                                             credentials: 'include',
                                                                             body: JSON.stringify({
-                                                                                query: `mutation UpdateDomain($id: ID!, $custom_domain: String!) { updateComputeCustomDomain(id: $id, custom_domain: $custom_domain) { _id custom_domain } }`,
-                                                                                variables: { id: selectedInstance._id, custom_domain: domain },
+                                                                                query: `mutation UpdateDomain($id: ID!, $custom_domain: String!, $auth_user: String, $auth_pass: String) {
+                                                                                    updateComputeCustomDomain(id: $id, custom_domain: $custom_domain, auth_user: $auth_user, auth_pass: $auth_pass) {
+                                                                                        _id custom_domain
+                                                                                    }
+                                                                                }`,
+                                                                                variables: {
+                                                                                    id: selectedInstance._id,
+                                                                                    custom_domain: domain,
+                                                                                    auth_user: domain && authUserDraft.trim() ? authUserDraft.trim() : null,
+                                                                                    auth_pass: domain && authUserDraft.trim() && authPassDraft ? authPassDraft : null,
+                                                                                },
                                                                             }),
                                                                         });
                                                                         const result = await res.json();
                                                                         if (result.data?.updateComputeCustomDomain) {
-                                                                            toast.success(`Domain updated to ${domain}`);
+                                                                            toast.success(domain ? `Domain set to ${domain}` : 'Custom domain removed');
+                                                                            setAuthPassDraft('');
                                                                             fetchInstances();
                                                                         } else if (result.errors) {
                                                                             toast.error(result.errors[0]?.message || 'Failed to update domain');
                                                                         }
                                                                     } catch {
                                                                         toast.error('Failed to update domain');
+                                                                    } finally {
+                                                                        setSavingDomain(false);
                                                                     }
-                                                                }} className="flex gap-4">
-                                                                    <Input
-                                                                        name="custom_domain"
-                                                                        className="flex-1 bg-background border-border h-10 text-sm placeholder:text-muted-foreground"
-                                                                        placeholder="e.g. app.myproject.com"
-                                                                        defaultValue={selectedInstance.custom_domain}
-                                                                    />
-                                                                    <Button type="submit">Update</Button>
+                                                                }} className="space-y-3">
+                                                                    <div className="flex gap-4">
+                                                                        <Input
+                                                                            value={customDomainDraft}
+                                                                            onChange={(e) => setCustomDomainDraft(e.target.value)}
+                                                                            className="flex-1 bg-background border-border h-10 text-sm placeholder:text-muted-foreground"
+                                                                            placeholder="e.g. app.myproject.com"
+                                                                            autoComplete="off"
+                                                                        />
+                                                                        <Button type="submit" disabled={savingDomain}>
+                                                                            {savingDomain ? 'Saving…' : 'Update'}
+                                                                        </Button>
+                                                                    </div>
+                                                                    {customDomainDraft.trim().length > 0 && (
+                                                                        <div className="space-y-2 pt-2 border-t border-border">
+                                                                            <p className="text-xs text-muted-foreground">
+                                                                                Protect this domain with Basic Auth (optional). Leave blank for public access.
+                                                                            </p>
+                                                                            <div className="grid grid-cols-2 gap-3">
+                                                                                <Input
+                                                                                    value={authUserDraft}
+                                                                                    onChange={(e) => setAuthUserDraft(e.target.value)}
+                                                                                    className="bg-background border-border h-10 text-sm"
+                                                                                    placeholder="Username (e.g. admin)"
+                                                                                    autoComplete="off"
+                                                                                />
+                                                                                <Input
+                                                                                    type="password"
+                                                                                    value={authPassDraft}
+                                                                                    onChange={(e) => setAuthPassDraft(e.target.value)}
+                                                                                    className="bg-background border-border h-10 text-sm"
+                                                                                    placeholder={(selectedInstance as any)?.basic_auth_user ? 'Leave blank to keep current password' : 'Access key / password'}
+                                                                                    autoComplete="new-password"
+                                                                                />
+                                                                            </div>
+                                                                        </div>
+                                                                    )}
                                                                 </form>
                                                                 {selectedInstance.generated_domain && (
                                                                     <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
