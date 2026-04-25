@@ -822,8 +822,16 @@ function ComputePageContent() {
                                                     <CardContent className="p-4 lg:p-6">
                                                         <div className="text-muted-foreground text-xs mb-4">Availability Zone</div>
                                                         <div className="flex items-center gap-3">
-                                                            <div className="w-10 h-10 flex items-center justify-center border bg-primary/10 border-primary/20">
-                                                                <Shield className="size-5 text-primary" />
+                                                            <div className={cn(
+                                                                "w-10 h-10 flex items-center justify-center border",
+                                                                selectedInstance.type === 'BACKEND'
+                                                                    ? "bg-purple-500/10 border-purple-500/30"
+                                                                    : "bg-primary/10 border-primary/20",
+                                                            )}>
+                                                                <Shield className={cn(
+                                                                    "size-5",
+                                                                    selectedInstance.type === 'BACKEND' ? "text-purple-400" : "text-primary",
+                                                                )} />
                                                             </div>
                                                             <div>
                                                                 <div className="font-bold">US-East (Virginia)</div>
@@ -836,14 +844,25 @@ function ComputePageContent() {
                                                     <CardContent className="p-4 lg:p-6">
                                                         <div className="text-muted-foreground text-xs mb-4">Instance Health</div>
                                                         <div className="flex items-center gap-3">
-                                                            <div className="w-10 h-10 flex items-center justify-center border bg-primary/10 border-primary/20">
-                                                                <Activity className="size-5 text-primary" />
+                                                            <div className={cn(
+                                                                "w-10 h-10 flex items-center justify-center border",
+                                                                selectedInstance.type === 'BACKEND'
+                                                                    ? "bg-purple-500/10 border-purple-500/30"
+                                                                    : "bg-primary/10 border-primary/20",
+                                                            )}>
+                                                                <Activity className={cn(
+                                                                    "size-5",
+                                                                    selectedInstance.type === 'BACKEND' ? "text-purple-400" : "text-primary",
+                                                                )} />
                                                             </div>
                                                             <div>
                                                                 <div className={cn(
                                                                     "font-bold",
-                                                                    selectedInstance.status === 'running' ? 'text-primary' :
-                                                                        (selectedInstance.status.toLowerCase() === 'failed' || selectedInstance.status.toLowerCase() === 'error') ? 'text-red-500' : 'text-primary'
+                                                                    selectedInstance.status === 'running'
+                                                                        ? (selectedInstance.type === 'BACKEND' ? 'text-purple-400' : 'text-primary')
+                                                                        : (selectedInstance.status.toLowerCase() === 'failed' || selectedInstance.status.toLowerCase() === 'error')
+                                                                            ? 'text-red-500'
+                                                                            : (selectedInstance.type === 'BACKEND' ? 'text-purple-400' : 'text-primary')
                                                                 )}>
                                                                     {selectedInstance.status === 'running' ? 'Optimal' : selectedInstance.status}
                                                                 </div>
