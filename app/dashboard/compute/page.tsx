@@ -806,8 +806,16 @@ function ComputePageContent() {
                                                     <CardContent className="p-4 lg:p-6">
                                                         <div className="text-muted-foreground text-xs mb-4">Core Technology</div>
                                                         <div className="flex items-center gap-3">
-                                                            <div className="w-10 h-10 flex items-center justify-center border bg-primary/10 border-primary/20">
-                                                                <Code className="size-5 text-primary" />
+                                                            <div className={cn(
+                                                                "w-10 h-10 flex items-center justify-center border",
+                                                                selectedInstance.type === 'BACKEND'
+                                                                    ? "bg-purple-500/10 border-purple-500/30"
+                                                                    : "bg-primary/10 border-primary/20",
+                                                            )}>
+                                                                <Code className={cn(
+                                                                    "size-5",
+                                                                    selectedInstance.type === 'BACKEND' ? "text-purple-400" : "text-primary",
+                                                                )} />
                                                             </div>
                                                             <div>
                                                                 <div className="font-bold leading-tight">{selectedInstance.type === 'FRONTEND' ? 'Frontend' : 'Backend'} Application</div>
